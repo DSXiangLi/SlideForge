@@ -1,0 +1,9 @@
+FAIL integration: AssertionError: real images gate failed: al/.pptx-html/jobs/af6ed779-3e9d-4b9d-8987-9fa19f2ed163/attempt-1/work/cmb-retail/index.html <img src="assets/s46_04.png"> 页内槽位素材分辨率不足：固有 66x66，短边下限 640px（retina 保守基准）
+  - /tmp/bridge-p4-cmb-retail-xi1z2sal/.pptx-html/jobs/af6ed779-3e9d-4b9d-8987-9fa19f2ed163/attempt-1/work/cmb-retail/index.html <img src="assets/s46_05.png"> 页内槽位素材分辨率不足：固有 523x148，短边下限 640px（retina 保守基准）
+  - /tmp/bridge-p4-cmb-retail-xi1z2sal/.pptx-html/jobs/af6ed779-3e9d-4b9d-8987-9fa19f2ed163/attempt-1/work/cmb-retail/index.html <img src="assets/s17_01.png"> 页内槽位素材分辨率不足：固有 136x127，短边下限 640px（retina 保守基准）
+  - /tmp/bridge-p4-cmb-retail-xi1z2sal/.pptx-html/jobs/af6ed779-3e9d-4b9d-8987-9fa19f2ed163/attempt-1/work/cmb-retail/index.html <img src="assets/s17_01.png"> 页内槽位素材分辨率不足：固有 136x127，短边下限 640px（retina 保守基准）
+  - /tmp/bridge-p4-cmb-retail-xi1z2sal/.pptx-html/jobs/af6ed779-3e9d-4b9d-8987-9fa19f2ed163/attempt-1/work/cmb-retail/index.html <img src="assets/s53_02.jpg"> 页内槽位素材分辨率不足：固有 542x1174，短边下限 640px（retina 保守基准）
+  - /tmp/bridge-p4-cmb-retail-xi1z2sal/.pptx-html/jobs/af6ed779-3e9d-4b9d-8987-9fa19f2ed163/attempt-1/work/cmb-retail/index.html <img src="assets/s53_03.jpg"> 页内槽位素材分辨率不足：固有 591x1281，短边下限 640px（retina 保守基准）
+
+RESULT: selected group failed or is BLOCKED; reports are under tests/harness/results/bridge-p4
+EXIT=1

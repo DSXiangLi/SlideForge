@@ -1,0 +1,1646 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="skeleton-version" content="7.6">
+<meta name="theme-id" content="d2">
+<title>D2 柔光暗房 · 主题验收（8 页型）</title>
+<style>
+/* ============================================================
+   SLOT: theme tokens
+   从 references/themes.md 选定主题后，整套替换以下变量。
+   禁止混搭、禁止修改色值。
+   G3 质感主题会额外携带 --texture-type / --texture-layer /
+   --texture-scope 三个 token，复制时一并带入（v4 起
+   --texture-scope 是许可声明，配给机制见框架层"背景配给制"）。
+   ============================================================ */
+:root{
+  /* 主题色（D2 柔光暗房） */
+  --paper:#14110e; --paper-tint:#211b16;
+  --ink:#f0e6d8;   --ink-tint:#2c241d;
+  --accent:#e8a34c; --accent-on:#14110e;
+  /* 字体栈（系统栈，离线可用） */
+  --font-display:"Songti SC","Noto Serif SC","STSong",serif;
+  --font-body:"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif;
+  --font-mono:"SF Mono","JetBrains Mono","Menlo",monospace;
+  /* G3 质感（glow · 仪式页安全灯辉光） */
+  --texture-type:glow;
+  --texture-layer:radial-gradient(120% 90% at 70% 10%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 60%);
+  --texture-scope:cover;
+  /* 画布内边距（画布坐标系 px） */
+  --slide-pad:96px 120px;
+}
+
+/* ============================================================
+   SLOT: fonts（skeleton v7.4 起，可选——三形态 M3 防线 A）
+   字体随 deck 走的 @font-face 块：由 scripts/subset-fonts.py
+   按全 deck 实际用字子集化后生成（woff2，src 指向 fonts/ 相对
+   路径），--inject 注入或手工粘贴到标记区间内。font-family
+   必须与上方字体栈声明的族名逐字一致，系统栈仍作 fallback。
+   无字体子集时留空即合法（回落系统栈，离线方针不变）。
+   ============================================================ */
+/*__FONTS_SLOT_BEGIN__*/
+/*__FONTS_SLOT_END__*/
+
+/* ============================================================
+   框架层 · 禁止修改
+   处理：16:9 固定画布缩放、竖向滚动、键盘翻页、章节跳转（v7：data-chapter
+   + nav-link 锚点 + 数字键直跳）、mend-bar 双态修复条与 data-rotate
+   轮转高亮（v7）、
+   入场动效（含运行时拆字/打字机/乱码引擎）、scroll 驱动动效
+   （scroll-timeline + sticky 页间效果）、pointer tracker
+   （--mx/--my 变量 + tilt/magnetic）、canvas FX 仪式层
+   （data-fx，密度/数量/速度烧死，in-view 生命周期，离屏停帧）、
+   质感槽位与背景配给制、
+   刊头家具样式（masthead/mastfoot）、reduced-motion 降级、打印。
+   v7.3（契约 v7 页面烙入模式）：运行时文本引擎/动效初始化/in-view
+   驱动一律跳过 .baked-source 烙入源层内部（源层 hidden 保留供
+   manifest/hash，不参与运行时；hidden 元素默认不打印，打印样式
+   无需新增规则）。
+   v7.5（契约 v8 图片入场动效）：enter 族白名单（裸 data-anim /
+   rise-in / scale-pop / wipe-clip）允许作用于 img（烙入整图与插画
+   槽位）；页面级烙入整图动效时长统一压到 ≤0.8s、零阶梯延迟。
+   ============================================================ */
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  background:#111;
+  font-family:var(--font-body);
+  -webkit-font-smoothing:antialiased;
+  overscroll-behavior:none;
+}
+.deck{
+  height:100vh;
+  height:100dvh;
+  overflow-y:auto;
+  scroll-snap-type:y proximity;
+}
+.slide-slot{
+  width:100%;
+  height:calc(1080px * var(--slide-scale, .5));
+  margin:12px 0;
+  display:flex;
+  justify-content:center;
+  scroll-snap-align:start;
+  content-visibility:auto;
+}
+.slide{
+  width:1920px;
+  height:1080px;
+  flex:none;
+  position:relative;
+  overflow:hidden;
+  transform:scale(var(--slide-scale, .5));
+  transform-origin:top center;
+  background:var(--paper);
+  color:var(--ink);
+  padding:var(--slide-pad);
+}
+/* 暗色页变体 */
+.slide.dark{background:var(--ink);color:var(--paper)}
+
+/* 质感槽位与背景配给制（skeleton v4 · 高级感要素 7）：
+   --texture-layer 默认不渲染——只铺两类页面：
+   仪式页（封面/章节/封底，生成侧标 .cover-page）与显式声明的正文页
+   （生成侧逐页加 .texture-on；纪律见 references/motion.md §4）。
+   主题的 --texture-scope 是许可声明而非开关：cover=只许仪式页（缺省
+   立场），all=允许正文页铺（仍需逐页 .texture-on 落码，骨架不自动
+   全铺）。无质感主题（flat）该层为 none，零成本。 */
+.slide::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:none;
+}
+.slide.cover-page::before,.slide.texture-on::before{background:var(--texture-layer,none)}
+
+/* 刊头家具（skeleton v4 · 高级感要素 6）：页眉（左 kicker 位 /
+   右页码或日期位）与页脚 hairline 元信息行。样式在框架层烧死
+   （mono、大写、加宽字距、低透明、hairline 分隔线）；结构与内容是
+   可选 SLOT——生成侧逐页决定放不放、放什么，整件可省略（仪式页
+   通常省略：仪式感来自留白，不来自家具）。家具定位在画布内边距带
+   （--slide-pad:96px 120px）内，不与正文争版面。
+   家具内容若是中文，生成侧须把 letter-spacing 归零（中文不加宽字距）。 */
+.masthead{
+  position:absolute;top:40px;left:120px;right:120px;
+  display:flex;justify-content:space-between;align-items:baseline;gap:2em;
+  font-family:var(--font-mono);font-size:15px;font-weight:500;
+  letter-spacing:.22em;text-transform:uppercase;opacity:.6;
+}
+.mastfoot{
+  position:absolute;left:120px;right:120px;bottom:34px;
+  display:flex;justify-content:space-between;align-items:baseline;gap:2em;
+  padding-top:16px;border-top:1px solid color-mix(in srgb, currentColor 22%, transparent);
+  font-family:var(--font-mono);font-size:14px;font-weight:500;
+  letter-spacing:.18em;text-transform:uppercase;opacity:.55;
+}
+
+/* 动效缓动 token（skeleton v3）：全 deck 只用这三种缓动，禁止逐页自定义。
+   出 = 入场显影；变 = 变换/移动；环 = 循环 ambience。规则见 references/motion.md */
+:root{
+  --ease-out:cubic-bezier(.22,1,.36,1);
+  --ease-shift:cubic-bezier(.7,0,.2,1);
+  --ease-loop:ease-in-out;
+}
+
+/* 入场动效：给元素加 class="reveal"，可用 style="--d:.15s" 做阶梯延迟。
+   .js 门槛：无 JS 环境（打印预览器/抓取器）下内容直接可见，动效只是增强。 */
+.js .reveal{opacity:0;transform:translateY(24px);transition:opacity .6s var(--ease-out),transform .6s var(--ease-out);transition-delay:var(--d,0s)}
+.js .slide.in-view .reveal{opacity:1;transform:none}
+
+/* 语义动效：section[data-animate] 选配方，元素 [data-anim] 标角色。
+   配方只调节奏与方向；框架 JS 在加载时为每个 [data-anim] 分配序号 --i。
+   规则与词汇表见 references/motion.md。 */
+.js [data-anim]{opacity:0;transform:translateY(24px);transition:opacity .6s var(--ease-out),transform .6s var(--ease-out);transition-delay:calc(var(--i,0)*75ms)}
+.js [data-anim="left"]{transform:translateX(-40px)}
+.js [data-anim="right"]{transform:translateX(40px)}
+.js [data-anim="line"]{transform:scaleX(0);transform-origin:left}
+.js [data-animate="hero"] [data-anim]{transition-duration:1s;transition-delay:calc(var(--i,0)*160ms)}
+.js [data-animate="quote"] [data-anim]{transition-duration:.55s;transition-delay:calc(var(--i,0)*220ms)}
+.js .slide.in-view [data-anim]{opacity:1;transform:none}
+
+/* ---- skeleton v3 recipe ---- */
+/* chars/words/shatter：文件中是纯文本，框架 JS 入场时拆成 .sp-unit 序列、
+   动画完成后还原为纯文本。容器只做快速整体淡入，逐字运动由 span 承担。 */
+.js [data-anim="chars"],.js [data-anim="words"],.js [data-anim="shatter"]{transform:none;transition:opacity .3s ease}
+.js .split-anim .sp-unit{display:inline-block;opacity:0;transform:translateY(.55em);transition:opacity .5s var(--ease-out),transform .55s var(--ease-out);transition-delay:calc(var(--j,0)*45ms)}
+.js [data-anim="words"].split-anim .sp-unit{transition-delay:calc(var(--j,0)*90ms)}
+.js [data-anim="shatter"].split-anim .sp-unit{transform:translate(var(--sx,0),var(--sy,1em)) rotate(var(--sr,0deg));transition-duration:.5s,.75s;transition-delay:calc(var(--j,0)*40ms)}
+.js .slide.in-view .split-anim .sp-unit{opacity:1;transform:none}
+/* count-up：数字滚动。保留整体淡入、去掉位移；数值滚动由框架 JS 驱动
+   （读元素文本终值，从 0 或 data-from 起滚），文本始终是纯文本。 */
+.js [data-anim="count-up"]{transform:none}
+/* draw-line：SVG 描边描绘。框架 JS 加载时量长藏线，入场时归零描出。 */
+.js [data-anim="draw-line"]{opacity:1;transform:none;transition:stroke-dashoffset 1.1s var(--ease-out);transition-delay:calc(var(--i,0)*75ms)}
+/* fill-bar：横向填充（进度/占比/横条图）。 */
+.js [data-anim="fill-bar"]{transform:scaleX(0);transform-origin:left center;transition:opacity .5s var(--ease-out),transform 1s var(--ease-out);transition-delay:calc(var(--i,0)*75ms)}
+
+/* ---- skeleton v5 recipe（动效词汇库 8 族，规则见 references/motion.md v3）---- */
+/* enter 族补全（触发器：inview 一次性，纯 CSS 过渡；终态由通用 .in-view 规则给出） */
+.js [data-anim="blur-in"]{transform:none;filter:blur(14px);transition:opacity .8s var(--ease-out),filter .8s var(--ease-out);transition-delay:calc(var(--i,0)*75ms)}
+.js .slide.in-view [data-anim="blur-in"]{filter:blur(0)}
+/* flicker-in 通电点亮（skeleton v7.6，霓虹/灯管世界签名入场）：inview 一次性，
+   steps 明暗抖动数次后常亮，模拟气体放电稳定过程；无 JS/reduced-motion 时直接可见。 */
+.js [data-anim="flicker-in"]{transform:none;transition:none}
+.js .slide.in-view [data-anim="flicker-in"]{animation:flicker-in 1.1s steps(1,end) both}
+@keyframes flicker-in{0%{opacity:0}14%{opacity:.9}22%{opacity:.15}34%{opacity:1}46%{opacity:.3}60%{opacity:1}74%{opacity:.55}100%{opacity:1}}
+.js [data-anim="scale-pop"]{transform:scale(.86);transition:opacity .45s var(--ease-out),transform .55s var(--ease-out);transition-delay:calc(var(--i,0)*75ms)}
+.js [data-anim="wipe-clip"]{transform:none;clip-path:inset(0 100% 0 0);transition:opacity .3s ease,clip-path .9s var(--ease-shift);transition-delay:calc(var(--i,0)*75ms)}
+.js .slide.in-view [data-anim="wipe-clip"]{clip-path:inset(0 0 0 0)}
+.js [data-anim="rise-in"]{transform:translateY(64px);transition:opacity .7s var(--ease-out),transform .8s var(--ease-out);transition-delay:calc(var(--i,0)*75ms)}
+.js [data-anim="persp-in"]{transform:perspective(1200px) rotateX(12deg) translateY(48px);transform-origin:center bottom;transition:opacity .6s var(--ease-out),transform .9s var(--ease-out);transition-delay:calc(var(--i,0)*75ms)}
+/* 契约 v8（skeleton v7.5）：图片入场动效——enter 族白名单（裸 data-anim /
+   rise-in / scale-pop / wipe-clip）允许作用于 img（烙入整图与插画槽位），
+   纯 CSS 过渡对任意元素通用，无需 JS 支持；.js 门槛保证无 JS 时图片直接可见。
+   页面级烙入整图（page-baked-* 槽位）时长统一压到 ≤0.8s、零阶梯延迟
+   （整页大图动久了晕；wipe-clip 原 .9s 同样被压到 .8s）。 */
+.js img[data-image-slot^="page-baked-"][data-anim]{transition:opacity .6s var(--ease-out),transform .8s var(--ease-out),clip-path .8s var(--ease-shift),filter .8s var(--ease-out);transition-delay:0s}
+
+/* text 族扩展：mask-lines 逐行遮罩——生成侧显式分行（.ml-line 外遮罩 +
+   .ml-inner 内层位移，内层是 data-editable 叶子），文本节点完整不拆，纯 CSS。 */
+.js [data-anim="mask-lines"]{opacity:1;transform:none;transition:none}
+.js [data-anim="mask-lines"] .ml-line{display:block;overflow:hidden}
+.js [data-anim="mask-lines"] .ml-inner{display:inline-block;transform:translateY(112%);transition:transform .85s var(--ease-out);transition-delay:calc(var(--i,0)*110ms)}
+.js .slide.in-view [data-anim="mask-lines"] .ml-inner{transform:none}
+/* gradient-flow 流光字：color 保留本色兜底，透明只走 -webkit-text-fill-color
+   （不支持 background-clip:text 的环境看到纯色文字）；编辑态由编辑器强制
+   还原本色（契约 v6「透明填充类效果」条款）。 */
+.js [data-anim="gradient-flow"]{background-image:linear-gradient(100deg,currentColor 42%,var(--accent) 50%,currentColor 58%);background-size:220% 100%;background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:gradient-flow 7s var(--ease-loop) infinite}
+@keyframes gradient-flow{0%{background-position:0% 0}100%{background-position:-220% 0}}
+/* typewriter 光标（主题限定款；打字/还原由框架 JS 引擎驱动，tw-live 是运行时 class） */
+.js [data-anim="typewriter"].tw-live::after{content:"";display:inline-block;width:.09em;height:.9em;margin-left:.06em;background:currentColor;vertical-align:-.08em;animation:tw-caret 1s steps(1) infinite}
+@keyframes tw-caret{50%{opacity:0}}
+
+/* 文字效果词汇（v7.1，规则见 references/typography.md「文字效果词汇」节）：
+   纯 CSS 文字处理——文字保持纯文本 + data-editable，无运行时状态。
+   --tt-c 是效果色槽位（默认跟随 ink；产物可设 var(--accent) 等）。 */
+.tt-outline{--tt-c:var(--ink);color:transparent;-webkit-text-stroke:1.5px var(--tt-c)}
+.tt-strike{text-decoration:line-through;text-decoration-thickness:.07em;text-decoration-color:var(--tt-c,currentColor)}
+.tt-mark{background:linear-gradient(transparent 62%,color-mix(in srgb,var(--accent) 45%,transparent) 62%)}
+.tt-uline{box-shadow:inset 0 -.12em 0 0 var(--accent)}
+.tt-shadow{--tt-c:var(--accent);text-shadow:.05em .05em 0 var(--tt-c)}
+.tt-glow{text-shadow:0 0 .4em color-mix(in srgb,var(--accent) 55%,transparent)}
+.tt-cond{display:inline-block;transform:scaleY(1.22);transform-origin:bottom left}
+
+/* 装饰线词汇（v7.2，通用语法层，规则见 references/components.md §14）：
+   线型实现框架层共享；用不用、用在哪、什么颜色粗细由主题 G4/G9 主权管。
+   全部装饰件，产物标 data-editable-skip。 */
+.rl-dashed{height:0;border-top:1px dashed color-mix(in srgb,var(--ink) 35%,transparent)}
+.rl-ticks{height:10px;background-image:repeating-linear-gradient(90deg,color-mix(in srgb,var(--ink) 45%,transparent) 0 1px,transparent 1px 12px);background-size:100% 6px;background-repeat:no-repeat;background-position:bottom}
+.rl-leader{display:flex;align-items:baseline;gap:.5em}
+.rl-leader::before{content:"";order:2;flex:1;border-bottom:2px dotted color-mix(in srgb,var(--ink) 35%,transparent);transform:translateY(-.2em)}
+.rl-fade{height:1px;border:none;background:linear-gradient(90deg,color-mix(in srgb,var(--ink) 35%,transparent),transparent)}
+.rl-corners{position:relative}
+.rl-corners::before,.rl-corners::after{content:"";position:absolute;width:14px;height:14px;border-color:color-mix(in srgb,var(--ink) 45%,transparent);border-style:solid}
+.rl-corners::before{top:-1px;left:-1px;border-width:1px 0 0 1px}
+.rl-corners::after{bottom:-1px;right:-1px;border-width:0 1px 1px 0}
+
+/* data 族补全：fill-bar-y 竖柱生长（transform-origin 底部）；
+   ring 环形进度——生成侧给 SVG circle 写 pathLength="100" 与 style="--val:N"，
+   纯 CSS 无 JS，--val 是产物内容不是运行时状态。 */
+.js [data-anim="fill-bar-y"]{transform:scaleY(0);transform-origin:bottom center;transition:opacity .5s var(--ease-out),transform 1s var(--ease-out);transition-delay:calc(var(--i,0)*75ms)}
+.js [data-anim="ring"]{opacity:1;transform:none;stroke-dasharray:100;stroke-dashoffset:100;transition:stroke-dashoffset 1.2s var(--ease-out);transition-delay:calc(var(--i,0)*75ms)}
+.js .slide.in-view [data-anim="ring"]{stroke-dashoffset:calc(100 - var(--val,0))}
+
+/* mend-bar（v7，data 族）：双态修复条——入视口先填充到 --from（警示渐变，
+   建立张力），1.8s 后收窄到 --val 并切换 accent 纯态（修复完成）。
+   --from/--val 是产物内容（同 fill-bar --val 口径），纯 CSS .in-view 触发，无 JS。 */
+[data-anim="mend-bar"]{transform-origin:left center;transform:scaleX(calc(var(--val,100)/100));background:var(--accent)}
+.js [data-anim="mend-bar"]{transform:scaleX(0);background:linear-gradient(90deg,#ff3355,#ff6b2e 45%,#ffd93e);transition:transform 1.5s var(--ease-shift),background 1s ease 1.8s}
+.js .slide.in-view [data-anim="mend-bar"]{transform:scaleX(calc(var(--from,100)/100));background:var(--accent);animation:mend-final 1.2s var(--ease-shift) 1.8s forwards}
+@keyframes mend-final{to{transform:scaleX(calc(var(--val,100)/100))}}
+
+/* data-rotate（v7，loop 型）：容器内 [data-rotate-item] 轮转 .active
+   （流水线活态，JS 驱动，in-view 启动/离屏停）。骨架只给最小默认样式，
+   active 态的加强造型（描边/底色等）由产物/主题定义。 */
+.js [data-rotate-item]{transition:color .4s var(--ease-out),border-color .4s var(--ease-out),background-color .4s var(--ease-out)}
+.js [data-rotate-item].active{color:var(--accent)}
+
+/* link 族：dash-flow 流动虚线（dasharray 由生成侧定，默认 6 10）；
+   flow-dot 沿线粒子——HTML 圆点 + offset-path，--flow-path 由生成侧写与
+   可见线相同的路径数据；offset-path 不支持时藏点留线。 */
+.js .dash-flow{stroke-dasharray:6 10;animation:dash-flow 1.6s linear infinite}
+@keyframes dash-flow{to{stroke-dashoffset:-48}}
+.js .flow-dot{position:absolute;top:0;left:0;width:14px;height:14px;border-radius:50%;background:var(--accent);opacity:0;pointer-events:none;offset-path:var(--flow-path);offset-rotate:0deg;animation:flow-dot var(--flow-dur,4.5s) linear infinite;animation-delay:var(--d,0s)}
+@supports (offset-path:path("M0 0")){ .js .flow-dot{opacity:1} }
+@keyframes flow-dot{from{offset-distance:0%}to{offset-distance:100%}}
+
+/* amb 族补全（只许背景层；位移 ≤24px、缩放 ≤1.08、循环 ≥12s 上限烧死） */
+.js .amb-noise{animation:amb-noise 1.4s steps(2) infinite}
+@keyframes amb-noise{0%,100%{background-position:0 0}25%{background-position:-3% 2%}50%{background-position:2% -3%}75%{background-position:-2% -2%}}
+.js .amb-gradient-blob{animation:amb-gradient-blob 16s var(--ease-loop) infinite}
+@keyframes amb-gradient-blob{0%,100%{transform:translate3d(0,0,0) scale(1)}33%{transform:translate3d(24px,-18px,0) scale(1.06)}66%{transform:translate3d(-16px,12px,0) scale(.97)}}
+.js .amb-kenburns{animation:amb-kenburns 26s var(--ease-loop) infinite alternate}
+@keyframes amb-kenburns{from{transform:scale(1) translate(0,0)}to{transform:scale(1.08) translate(-1.2%,1%)}}
+.js .amb-marquee{animation:amb-marquee max(var(--marquee-dur,22s),12s) linear infinite}
+@keyframes amb-marquee{to{transform:translateX(-50%)}}
+
+/* light 族（光效装饰件，一律 data-editable-skip；spotlight 消费 pointer
+   tracker 写在 .slide 上的 --mx/--my 变量，tracker 不启动时停在默认位） */
+.js .light-sweep{position:relative;overflow:hidden}
+.js .light-sweep::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(105deg,transparent 42%,rgba(255,255,255,.22) 50%,transparent 58%);transform:translateX(-130%);animation:light-sweep 5.5s var(--ease-loop) infinite}
+@keyframes light-sweep{0%{transform:translateX(-130%)}60%,100%{transform:translateX(130%)}}
+@property --beam-angle{syntax:'<angle>';initial-value:0deg;inherits:false}
+.js .border-beam{position:relative}
+.js .border-beam::before{content:"";position:absolute;inset:0;padding:2px;border-radius:inherit;pointer-events:none;background:conic-gradient(from var(--beam-angle),transparent 68%,var(--accent) 84%,transparent 100%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude;animation:border-beam 4.5s linear infinite}
+@keyframes border-beam{to{--beam-angle:360deg}}
+.js .god-rays{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.js .god-rays::before{content:"";position:absolute;left:50%;top:-35%;width:170%;aspect-ratio:1;transform:translateX(-50%);background:repeating-conic-gradient(from 168deg at 50% 0%,color-mix(in srgb,var(--accent) 9%,transparent) 0 5deg,transparent 5deg 15deg);-webkit-mask:radial-gradient(75% 60% at 50% 0%,#000,transparent 72%);mask:radial-gradient(75% 60% at 50% 0%,#000,transparent 72%);animation:god-rays 15s var(--ease-loop) infinite}
+@keyframes god-rays{0%,100%{transform:translateX(-50%) rotate(-2deg)}50%{transform:translateX(-50%) rotate(2deg)}}
+.js .light-leak{position:absolute;inset:-15%;pointer-events:none;background:radial-gradient(42% 55% at 30% 40%,color-mix(in srgb,var(--accent) 15%,transparent),transparent 70%);animation:light-leak 12s var(--ease-loop) infinite}
+@keyframes light-leak{0%,100%{transform:translate(0,0);opacity:.75}50%{transform:translate(6%,-4%);opacity:1}}
+.js .spotlight{position:absolute;inset:0;pointer-events:none;background:radial-gradient(560px circle at var(--mx,50%) var(--my,30%),color-mix(in srgb,var(--accent) 14%,transparent),transparent 70%)}
+
+/* ptr 族（pointer tracker 驱动，只消费 CSS 变量；无 fine 指针或
+   reduced-motion 时变量不写入，元素停在设计位。位移/倾角上限烧死：
+   parallax ≤28px、tilt ±6deg、magnetic ±16px） */
+.js [data-ptr="parallax"]{transform:translate(clamp(-28px,calc(var(--mxr,0)*var(--pdepth,20px)),28px),clamp(-28px,calc(var(--myr,0)*var(--pdepth,20px)),28px));transition:transform .5s var(--ease-out)}
+.js [data-ptr="tilt"]{transform:perspective(1000px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .45s var(--ease-out)}
+.js [data-ptr="magnetic"]{transform:translate(var(--mgx,0px),var(--mgy,0px));transition:transform .4s var(--ease-out)}
+
+/* fx 仪式层（skeleton v5.1 · F5）：canvas 2D 页面级仪式效果
+   （constellation/starfield/particle-drift/ascii-field），只许 .cover-page
+   仪式页，每页至多 1 个，且只有主题 G5「fx 许可」白名单内的效果可用；
+   生成侧只写 <canvas data-fx="…"> 选类——密度/数量/速度全部烧死在
+   框架 JS 常量，无可调参数（纪律见 references/motion.md §4 fx 小节）。
+   z-index:-1：.slide 的 transform 建立了层叠上下文，canvas 垫在页背景
+   之上、全部内容之下（含非定位文字），内容侧无需补定位。
+   无 JS / reduced-motion / 打印：canvas 恒为空白透明层，零痕迹。 */
+[data-fx]{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:-1}
+
+/* scroll 族（skeleton v5 · L5）：
+   - read-progress：纯 CSS scroll-timeline（整 deck 进度语义天然匹配，
+     @supports 外 display:none）；
+   - parallax / scrub / scrub-draw：语义是"页/元素穿过视口的进度"。CSS
+     view() 时间线在 .slide{overflow:hidden} 画布下会错误绑定到不滚动的
+     画布（overflow:hidden 按规范也是滚动容器），实测进度冻结
+     （Chromium 145 headless 确认）——因此这三个 recipe 由框架 JS 驱动：
+     rAF 节流监听 deck 滚动，把页的穿越进度写为 .slide 上的 --sp ∈ [0,1]
+     （0=整页在视口下方、0.5=居中、1=整页在视口上方），CSS 用 calc 消费，
+     强度上限烧死在公式里。--sp 缺省值 = 静态终态：reduced-motion / 无 JS /
+     编辑器冻结（__pptxMotion.freeze() 会移除 --sp）下内容完整可见。 */
+@supports (animation-timeline: view()){
+  .deck{scroll-timeline-name:--deck-scroll}
+  .js .read-progress{display:block;animation:read-progress linear both;animation-timeline:--deck-scroll}
+}
+@keyframes read-progress{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+/* 阅读进度线：生成侧可选放 <div class="read-progress" data-editable-skip>
+   ——必须是 .deck 的最后一个子元素（具名 scroll-timeline 只对时间线声明
+   元素的后代可见，放 body 级拿不到 --deck-scroll）。缺省 display:none——
+   只有支持 scroll-timeline 的环境才显示。 */
+.read-progress{display:none;position:fixed;top:0;left:0;right:0;height:3px;background:var(--accent);transform-origin:left center;z-index:20;pointer-events:none}
+/* parallax：data-depth 分层位移（上限 ±64px 烧死） */
+.js [data-scroll="parallax"]{transform:translateY(clamp(-64px, calc((0.5 - var(--sp,.5)) * var(--depth,1) * 96px), 64px))}
+/* scrub：进度链接显影（页进入下半视口时完成显影，之后保持终态） */
+.js [data-scroll="scrub"]{opacity:clamp(0, calc((var(--sp,1) - .12) * 3), 1);transform:translateY(clamp(0px, calc((0.5 - var(--sp,.5)) * 160px), 40px))}
+/* scrub-draw：draw-line 的滚动变体（生成侧给 path 写 pathLength="100"） */
+.js [data-scroll="scrub-draw"]{stroke-dasharray:100;stroke-dashoffset:calc((1 - clamp(0, calc((var(--sp,1) - .15) / .7), 1)) * 100)}
+/* 页间 sticky 效果（纯 CSS）：cover=揭盖（本页钉住、下页滑过覆盖）；
+   stack=卡片叠放（同组 slot 由生成侧递推写 style="--pin-i:0,1,2…" 形成
+   错位叠顶）。两类 slot 退出 scroll-snap，避免吸附与钉住互搏。 */
+.slide-slot{position:relative;z-index:1}
+.slide-slot[data-scroll="cover"]{position:sticky;top:12px;z-index:0;scroll-snap-align:none}
+.slide-slot[data-scroll="stack"]{position:sticky;top:calc(12px + var(--pin-i,0)*44px);z-index:0;scroll-snap-align:none}
+
+/* 背景 ambience：只允许背景层/水印/呼吸点，强度上限烧死在参数里
+   （位移 ≤10px、不透明度摆幅 ≤.4、循环周期 ≥3s），不承载信息。 */
+@keyframes amb-pulse{0%,100%{opacity:.6}50%{opacity:1}}
+@keyframes amb-drift{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(10px,-8px,0)}}
+@keyframes amb-glow{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:.85;transform:scale(1.05)}}
+.js .amb-pulse{animation:amb-pulse 4s var(--ease-loop) infinite}
+.js .amb-drift{animation:amb-drift 9s var(--ease-loop) infinite}
+.js .amb-glow{animation:amb-glow 6s var(--ease-loop) infinite}
+
+@media (prefers-reduced-motion: reduce){
+  .js .reveal,.js [data-anim]{opacity:1;transform:none;transition:none}
+  .js [data-anim="blur-in"]{filter:none}
+  .js [data-anim="wipe-clip"]{clip-path:inset(0 0 0 0)}
+  .js [data-anim="mask-lines"] .ml-inner{transform:none;transition:none}
+  .js [data-anim="ring"]{stroke-dashoffset:calc(100 - var(--val,0));transition:none}
+  .js [data-anim="gradient-flow"]{animation:none}
+  .js .slide.in-view [data-anim="flicker-in"]{animation:none;opacity:1}
+  .js [data-anim="typewriter"].tw-live::after{animation:none}
+  .js [data-anim="mend-bar"]{transform:scaleX(calc(var(--val,100)/100));background:var(--accent);animation:none;transition:none}
+  .js [data-rotate-item].active{color:inherit}
+  .js .split-anim .sp-unit{opacity:1;transform:none;transition:none}
+  .js .amb-pulse,.js .amb-drift,.js .amb-glow,.js .amb-noise,.js .amb-gradient-blob,.js .amb-kenburns,.js .amb-marquee{animation:none}
+  .js .light-sweep::after,.js .border-beam::before,.js .god-rays::before,.js .light-leak,.js .dash-flow,.js .flow-dot{animation:none}
+  .js .read-progress{animation:none;display:none}
+  /* ptr/scroll 族：tracker 与 --sp 驱动由 JS 侧整体不启动，变量不写入即停在终态 */
+}
+
+/* 界面 chrome：页码指示（在缩放画布之外） */
+.deck-chrome{
+  position:fixed;
+  right:20px;
+  bottom:16px;
+  font-family:var(--font-mono);
+  font-size:12px;
+  letter-spacing:.08em;
+  color:#888;
+  user-select:none;
+  pointer-events:none;
+  z-index:10;
+}
+
+/* 打印：每页一张 1920×1080（PDF 导出请用 Chrome/Edge） */
+@media print{
+  @page{size:1920px 1080px;margin:0}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{background:none}
+  .deck{height:auto;overflow:visible}
+  .slide-slot{height:1080px;margin:0;page-break-after:always}
+  .slide{transform:none !important}
+  .deck-chrome{display:none}
+  .reveal,[data-anim]{opacity:1 !important;transform:none !important;transition:none !important;filter:none !important;clip-path:none !important}
+  .split-anim .sp-unit{opacity:1 !important;transform:none !important;transition:none !important}
+  [data-anim="mask-lines"] .ml-inner{transform:none !important;transition:none !important}
+  [data-anim="ring"]{stroke-dashoffset:calc(100 - var(--val,0)) !important;transition:none !important}
+  [data-anim="mend-bar"]{transform:scaleX(calc(var(--val,100)/100)) !important;background:var(--accent) !important;animation:none !important;transition:none !important}
+  [data-anim="draw-line"]{stroke-dashoffset:0 !important}
+  [data-anim="gradient-flow"]{animation:none !important}
+  [data-anim="flicker-in"]{animation:none !important;opacity:1 !important}
+  [class*="amb-"],[class*="light-"],.dash-flow,.flow-dot,[data-scroll],.read-progress,
+  .light-sweep::after,.border-beam::before,.god-rays::before{animation:none !important}
+  [data-scroll="parallax"],[data-scroll="scrub"]{transform:none !important;opacity:1 !important}
+  [data-scroll="scrub-draw"]{stroke-dashoffset:0 !important}
+  .read-progress{display:none !important}
+  [data-fx]{display:none !important}
+}
+
+/* ============================================================
+   SLOT: theme css（skeleton v6 起）
+   选定主题后，从 references/themes.md 该主题 G9 的 css 块
+   逐字复制到此处；无母题的主题留空即合法。
+   只允许三类规则：① :root{} token 重定义（缓动签名等——
+   本槽位在框架层之后，:root 重定义可覆盖框架 token）；
+   ② .mt-* 前缀母题类（命名空间防碰撞，类名全库唯一）；
+   ③ .mt-* 的伪元素/后代装饰。
+   颜色只许 var(--*)/color-mix() 引用 token，禁字面 hex；
+   禁外部 url()；禁覆盖框架选择器（.slide/.masthead 等）。
+   ============================================================ */
+/* D2 柔光暗房 · 装饰母题 + 缓动签名 */
+:root{--ease-out:cubic-bezier(.1,.7,.2,1)}
+.mt-drk-film{height:26px;pointer-events:none;background-image:linear-gradient(90deg,color-mix(in srgb,var(--ink) 55%,transparent) 0 12px,transparent 12px 24px);background-size:24px 12px;background-repeat:repeat-x;background-position:0 50%;opacity:.6}
+.mt-drk-beam{position:absolute;pointer-events:none;width:200px;height:200px;background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 20%,transparent),transparent 65%);clip-path:polygon(0 0,100% 0,0 100%)}
+.mt-drk-halo{position:relative}
+.mt-drk-halo::before{content:"";position:absolute;inset:-12%;pointer-events:none;background:radial-gradient(65% 65% at 50% 60%,color-mix(in srgb,var(--accent) 13%,transparent),transparent 70%)}
+.mt-drk-grain{position:absolute;inset:0;pointer-events:none;opacity:.05;background-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22240%22 height=%22240%22%3E%3Cfilter id=%22g%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.6%22 numOctaves=%222%22 stitchTiles=%22stitch%22/%3E%3CfeColorMatrix type=%22saturate%22 values=%220%22/%3E%3C/filter%3E%3Crect width=%22240%22 height=%22240%22 filter=%22url(%23g)%22/%3E%3C/svg%3E")}
+.mt-drk-grain-lg{position:absolute;inset:0;pointer-events:none;opacity:.06;background-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22240%22 height=%22240%22%3E%3Cfilter id=%22g%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.9%22 numOctaves=%222%22 stitchTiles=%22stitch%22/%3E%3CfeColorMatrix type=%22saturate%22 values=%220%22/%3E%3C/filter%3E%3Crect width=%22240%22 height=%22240%22 filter=%22url(%23g)%22/%3E%3C/svg%3E")}
+.mt-drk-leak{position:absolute;top:-18%;right:-10%;width:52%;aspect-ratio:1;pointer-events:none;background:radial-gradient(50% 50% at 50% 50%,color-mix(in srgb,var(--accent) 55%,transparent),transparent 70%);filter:blur(40px);mix-blend-mode:screen;opacity:.14}
+.mt-drk-aged{position:absolute;inset:0;pointer-events:none;mix-blend-mode:soft-light;background:radial-gradient(120% 100% at 50% 42%,color-mix(in srgb,var(--accent) 9%,transparent) 28%,transparent 60%),radial-gradient(135% 115% at 50% 50%,transparent 66%,color-mix(in srgb,var(--ink-tint) 62%,transparent))}
+
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+
+<!-- 01 · D2 · 柔光暗房 · cover -->
+<div class="slide-slot">
+  <section class="slide cover-page" data-slide-id="d2-cover" data-ptype="cover" style="font-family:var(--font-body);--paper:#14110e;--paper-tint:#211b16;--ink:#f0e6d8;--ink-tint:#2c241d;--accent:#e8a34c;--accent-on:#14110e;--font-display:'Songti SC','Noto Serif SC','STSong',serif;--font-body:'PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;--font-mono:'SF Mono','JetBrains Mono','Menlo',monospace;--texture-type:glow;--texture-layer:radial-gradient(120% 90% at 70% 10%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 60%);--texture-scope:cover;--ease-out:cubic-bezier(.1,.7,.2,1)" data-content-hash="d32b8daf2566">
+
+    <!-- 漏光光斑（仪式页，上缘被裁切，全页唯一） -->
+    <div class="mt-drk-leak" data-editable-skip style="z-index:2"></div>
+
+    <!-- 胶片齿孔条（上缘横贯一条） -->
+    <div class="mt-drk-film" data-editable-skip style="position:absolute;top:0;left:0;right:0;z-index:6"></div>
+
+    <div data-anim="blur-in" style="position:absolute;top:150px;left:200px;z-index:5">
+      <span data-editable style="font-family:var(--font-mono);font-size:14px;letter-spacing:.3em;color:color-mix(in srgb,var(--ink) 60%,transparent);text-transform:uppercase">SHANHEJI TEA · MID-YEAR REPORT</span>
+    </div>
+
+    <div class="mt-drk-halo" data-anim="blur-in" style="position:absolute;top:300px;left:200px;z-index:5">
+      <h1 data-editable style="font-family:var(--font-display);font-size:150px;font-weight:400;line-height:1.05;color:var(--ink);margin:0">山禾集</h1>
+    </div>
+
+    <div data-anim="blur-in" style="position:absolute;top:502px;left:206px;z-index:5">
+      <p data-editable style="font-family:var(--font-display);font-style:italic;font-size:24px;font-weight:400;color:color-mix(in srgb,var(--ink) 55%,transparent);margin:0">Light develops slowly.</p>
+    </div>
+
+    <div data-anim="blur-in" style="position:absolute;top:568px;left:200px;z-index:5">
+      <p data-editable style="font-family:var(--font-display);font-size:38px;font-weight:500;color:var(--ink);margin:0">一杯好茶，山野作答</p>
+    </div>
+
+    <div data-anim="blur-in" style="position:absolute;top:662px;left:200px;max-width:780px;z-index:5">
+      <p data-editable style="font-family:var(--font-body);font-size:19px;line-height:1.8;color:color-mix(in srgb,var(--ink) 55%,transparent);margin:0">新式茶饮经营情况汇报 · 2026 中期 —— 当季鲜茶，日常相伴。</p>
+    </div>
+
+    <div data-anim="blur-in" style="position:absolute;bottom:120px;left:200px;z-index:5">
+      <span data-editable style="font-family:var(--font-mono);font-size:14px;letter-spacing:.18em;color:color-mix(in srgb,var(--ink) 50%,transparent)">SHANHEJI DARKROOM · 2026-06-30</span>
+    </div>
+
+    <!-- 做旧色调 + 粗/细颗粒（仪式页材料层） -->
+    <div class="mt-drk-aged" data-editable-skip style="z-index:30"></div>
+    <div class="mt-drk-grain-lg" data-editable-skip style="z-index:40"></div>
+    <div class="mt-drk-grain" data-editable-skip style="z-index:50"></div>
+
+    <div data-editable-skip style="position:absolute;bottom:32px;right:48px;z-index:60"><span style="font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;color:color-mix(in srgb,var(--ink) 40%,transparent)">D2 · 柔光暗房 · 01 / 08</span></div>
+
+  </section>
+</div>
+
+<!-- 02 · D2 · 柔光暗房 · toc -->
+<div class="slide-slot">
+  <section class="slide cover-page" data-slide-id="d2-toc" data-ptype="toc" style="font-family:var(--font-body);--paper:#14110e;--paper-tint:#211b16;--ink:#f0e6d8;--ink-tint:#2c241d;--accent:#e8a34c;--accent-on:#14110e;--font-display:'Songti SC','Noto Serif SC','STSong',serif;--font-body:'PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;--font-mono:'SF Mono','JetBrains Mono','Menlo',monospace;--texture-type:glow;--texture-layer:radial-gradient(120% 90% at 70% 10%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 60%);--texture-scope:cover;--ease-out:cubic-bezier(.1,.7,.2,1)" data-content-hash="f8f4c8c5cbdf">
+
+    <!-- 光束角标（仪式页，页角射入，全页唯一；与漏光互斥） -->
+    <div class="mt-drk-beam" data-editable-skip style="top:0;right:0;transform:scaleX(-1);z-index:2"></div>
+
+    <!-- 胶片齿孔条（下缘横贯一条） -->
+    <div class="mt-drk-film" data-editable-skip style="position:absolute;bottom:0;left:0;right:0;z-index:6"></div>
+
+    <div data-anim="blur-in" style="position:absolute;top:96px;left:120px;z-index:5">
+      <span data-editable style="font-family:var(--font-mono);font-size:14px;letter-spacing:.22em;color:color-mix(in srgb,var(--ink) 60%,transparent);text-transform:uppercase">CONTENTS · 目录</span>
+    </div>
+
+    <div class="mt-drk-halo" data-anim="blur-in" style="position:absolute;top:140px;left:120px;z-index:4">
+      <h1 data-editable style="font-family:var(--font-display);font-size:72px;font-weight:400;line-height:1.1;color:var(--ink);margin:0">四个章节</h1>
+    </div>
+
+    <div class="mt-drk-halo" data-anim="blur-in" style="position:absolute;top:320px;left:120px;width:1240px;z-index:5">
+      <div style="display:flex;align-items:baseline;gap:40px">
+        <span data-editable style="font-family:var(--font-mono);font-size:30px;font-weight:500;color:var(--accent);letter-spacing:.04em;flex-shrink:0">01</span>
+        <div style="flex:1">
+          <div data-editable style="font-family:var(--font-display);font-size:30px;font-weight:500;color:var(--ink)">品牌与规模</div>
+          <div data-editable style="font-family:var(--font-body);font-size:18px;color:color-mix(in srgb,var(--ink) 60%,transparent);margin-top:8px">从一杯茶到 8,637 家门店</div>
+        </div>
+        <span data-editable style="font-family:var(--font-mono);font-size:14px;color:color-mix(in srgb,var(--ink) 50%,transparent);letter-spacing:.1em;flex-shrink:0">P.03–P.04</span>
+      </div>
+    </div>
+    <div class="mt-drk-halo" data-anim="blur-in" style="position:absolute;top:460px;left:120px;width:1240px;z-index:5">
+      <div style="display:flex;align-items:baseline;gap:40px">
+        <span data-editable style="font-family:var(--font-mono);font-size:30px;font-weight:500;color:var(--accent);letter-spacing:.04em;flex-shrink:0">02</span>
+        <div style="flex:1">
+          <div data-editable style="font-family:var(--font-display);font-size:30px;font-weight:500;color:var(--ink)">增长引擎</div>
+          <div data-editable style="font-family:var(--font-body);font-size:18px;color:color-mix(in srgb,var(--ink) 60%,transparent);margin-top:8px">6.8 亿会员的复购飞轮</div>
+        </div>
+        <span data-editable style="font-family:var(--font-mono);font-size:14px;color:color-mix(in srgb,var(--ink) 50%,transparent);letter-spacing:.1em;flex-shrink:0">P.05–P.06</span>
+      </div>
+    </div>
+    <div class="mt-drk-halo" data-anim="blur-in" style="position:absolute;top:600px;left:120px;width:1240px;z-index:5">
+      <div style="display:flex;align-items:baseline;gap:40px">
+        <span data-editable style="font-family:var(--font-mono);font-size:30px;font-weight:500;color:var(--accent);letter-spacing:.04em;flex-shrink:0">03</span>
+        <div style="flex:1">
+          <div data-editable style="font-family:var(--font-display);font-size:30px;font-weight:500;color:var(--ink)">门店网络</div>
+          <div data-editable style="font-family:var(--font-body);font-size:18px;color:color-mix(in srgb,var(--ink) 60%,transparent);margin-top:8px">标准店与旗舰店的双轨结构</div>
+        </div>
+        <span data-editable style="font-family:var(--font-mono);font-size:14px;color:color-mix(in srgb,var(--ink) 50%,transparent);letter-spacing:.1em;flex-shrink:0">P.07–P.08</span>
+      </div>
+    </div>
+    <div class="mt-drk-halo" data-anim="blur-in" style="position:absolute;top:740px;left:120px;width:1240px;z-index:5">
+      <div style="display:flex;align-items:baseline;gap:40px">
+        <span data-editable style="font-family:var(--font-mono);font-size:30px;font-weight:500;color:var(--accent);letter-spacing:.04em;flex-shrink:0">04</span>
+        <div style="flex:1">
+          <div data-editable style="font-family:var(--font-display);font-size:30px;font-weight:500;color:var(--ink)">未来三年</div>
+          <div data-editable style="font-family:var(--font-body);font-size:18px;color:color-mix(in srgb,var(--ink) 60%,transparent);margin-top:8px">供应链向上，品牌向下</div>
+        </div>
+        <span data-editable style="font-family:var(--font-mono);font-size:14px;color:color-mix(in srgb,var(--ink) 50%,transparent);letter-spacing:.1em;flex-shrink:0">P.09–P.10</span>
+      </div>
+    </div>
+
+    <div class="mt-drk-aged" data-editable-skip style="z-index:30"></div>
+    <div class="mt-drk-grain-lg" data-editable-skip style="z-index:40"></div>
+    <div class="mt-drk-grain" data-editable-skip style="z-index:50"></div>
+
+    <div data-editable-skip style="position:absolute;bottom:32px;right:48px;z-index:60"><span style="font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;color:color-mix(in srgb,var(--ink) 40%,transparent)">D2 · 柔光暗房 · 02 / 08</span></div>
+
+  </section>
+</div>
+
+<!-- 03 · D2 · 柔光暗房 · low -->
+<div class="slide-slot">
+  <section class="slide" data-slide-id="d2-low" data-ptype="low" style="font-family:var(--font-body);--paper:#14110e;--paper-tint:#211b16;--ink:#f0e6d8;--ink-tint:#2c241d;--accent:#e8a34c;--accent-on:#14110e;--font-display:'Songti SC','Noto Serif SC','STSong',serif;--font-body:'PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;--font-mono:'SF Mono','JetBrains Mono','Menlo',monospace;--texture-type:glow;--texture-layer:radial-gradient(120% 90% at 70% 10%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 60%);--texture-scope:cover;--ease-out:cubic-bezier(.1,.7,.2,1)" data-content-hash="aa0c72106473">
+
+    <!-- 胶片齿孔条（下缘横贯一条） -->
+    <div class="mt-drk-film" data-editable-skip style="position:absolute;bottom:0;left:0;right:0;z-index:6"></div>
+
+    <div data-anim="blur-in" style="position:absolute;top:96px;left:120px;z-index:5">
+      <span data-editable style="font-family:var(--font-mono);font-size:14px;letter-spacing:.22em;color:color-mix(in srgb,var(--ink) 60%,transparent);text-transform:uppercase">MANIFESTO · 品牌宣言</span>
+    </div>
+
+    <div class="mt-drk-halo" data-anim="blur-in" style="position:absolute;top:250px;left:120px;z-index:5">
+      <h1 data-editable style="font-family:var(--font-display);font-size:100px;font-weight:400;line-height:1.25;color:var(--ink);margin:0">当季鲜茶，<br>日常相伴。</h1>
+    </div>
+
+    <div data-anim="blur-in" style="position:absolute;top:280px;right:160px;width:420px;z-index:5">
+      <p data-editable style="font-family:var(--font-display);font-style:italic;font-size:26px;font-weight:400;line-height:1.6;color:color-mix(in srgb,var(--ink) 50%,transparent);margin:0">Tea, developed in amber light.</p>
+    </div>
+
+    <div data-anim="blur-in" style="position:absolute;top:660px;left:120px;width:920px;z-index:5">
+      <p data-editable style="font-family:var(--font-body);font-size:22px;line-height:1.85;color:color-mix(in srgb,var(--ink) 85%,transparent);margin:0">我们不做网红爆款，只做一杯每天都能喝的好茶。8,637 家门店的背后，是 43 个签约茶园与一条自建供应链。</p>
+    </div>
+
+    <div data-editable-skip style="position:absolute;bottom:80px;right:150px;z-index:1"><span style="font-family:var(--font-display);font-style:italic;font-size:240px;font-weight:400;line-height:1;color:color-mix(in srgb,var(--ink) 7%,transparent)">03</span></div>
+
+    <div class="mt-drk-grain" data-editable-skip style="z-index:50"></div>
+
+    <div data-editable-skip style="position:absolute;bottom:32px;right:48px;z-index:60"><span style="font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;color:color-mix(in srgb,var(--ink) 40%,transparent)">D2 · 柔光暗房 · 03 / 08</span></div>
+
+  </section>
+</div>
+
+<!-- 04 · D2 · 柔光暗房 · high -->
+<div class="slide-slot">
+  <section class="slide" data-slide-id="d2-high" data-ptype="high" style="font-family:var(--font-body);--paper:#14110e;--paper-tint:#211b16;--ink:#f0e6d8;--ink-tint:#2c241d;--accent:#e8a34c;--accent-on:#14110e;--font-display:'Songti SC','Noto Serif SC','STSong',serif;--font-body:'PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;--font-mono:'SF Mono','JetBrains Mono','Menlo',monospace;--texture-type:glow;--texture-layer:radial-gradient(120% 90% at 70% 10%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 60%);--texture-scope:cover;--ease-out:cubic-bezier(.1,.7,.2,1)" data-content-hash="6d37b7f7dc15">
+
+    <div data-anim="blur-in" style="position:absolute;top:84px;left:120px;z-index:5">
+      <span data-editable style="font-family:var(--font-mono);font-size:14px;letter-spacing:.22em;color:color-mix(in srgb,var(--ink) 60%,transparent);text-transform:uppercase">FACT SHEET · 经营速览</span>
+    </div>
+
+    <div data-anim="blur-in" style="position:absolute;top:126px;left:120px;z-index:4">
+      <h2 data-editable style="font-family:var(--font-display);font-size:52px;font-weight:500;line-height:1.1;color:var(--ink);margin:0">一页看完山禾集</h2>
+    </div>
+
+    <!-- KPI 行：四组等大、显影晕统一托底，单焦点 accent -->
+    <div class="mt-drk-halo" data-anim="blur-in" style="position:absolute;top:220px;left:120px;width:396px;z-index:5">
+      <span data-editable style="display:block;font-family:var(--font-mono);font-size:14px;letter-spacing:.14em;color:color-mix(in srgb,var(--ink) 55%,transparent);text-transform:uppercase">NET GROWTH</span>
+      <span data-editable style="display:block;font-family:var(--font-body);font-size:18px;font-weight:500;color:color-mix(in srgb,var(--ink) 75%,transparent);margin-top:8px">门店净增</span>
+      <span data-editable style="display:block;font-family:var(--font-display);font-size:48px;font-weight:700;color:var(--ink);margin-top:12px">+1,425 家</span>
+      <span data-editable style="display:block;font-family:var(--font-mono);font-size:13px;color:color-mix(in srgb,var(--ink) 50%,transparent);margin-top:10px">2025末 7,212 → 2026中 8,637</span>
+    </div>
+    <div class="mt-drk-halo" data-anim="blur-in" style="position:absolute;top:220px;left:548px;width:396px;z-index:5">
+      <span data-editable style="display:block;font-family:var(--font-mono);font-size:14px;letter-spacing:.14em;color:color-mix(in srgb,var(--ink) 55%,transparent);text-transform:uppercase">MEMBERS</span>
+      <span data-editable style="display:block;font-family:var(--font-body);font-size:18px;font-weight:500;color:color-mix(in srgb,var(--ink) 75%,transparent);margin-top:8px">会员规模</span>
+      <span data-editable style="display:block;font-family:var(--font-display);font-size:48px;font-weight:700;color:var(--ink);margin-top:12px">6.8 亿</span>
+      <span data-editable style="display:block;font-family:var(--font-mono);font-size:13px;color:color-mix(in srgb,var(--ink) 50%,transparent);margin-top:10px">复购率 43% · 月活 1.9 亿</span>
+    </div>
+    <div class="mt-drk-halo" data-anim="blur-in" style="position:absolute;top:220px;left:976px;width:396px;z-index:5">
+      <span data-editable style="display:block;font-family:var(--font-mono);font-size:14px;letter-spacing:.14em;color:color-mix(in srgb,var(--ink) 55%,transparent);text-transform:uppercase">CUPS</span>
+      <span data-editable style="display:block;font-family:var(--font-body);font-size:18px;font-weight:500;color:color-mix(in srgb,var(--ink) 75%,transparent);margin-top:8px">累计出杯</span>
+      <span data-editable style="display:block;font-family:var(--font-display);font-size:48px;font-weight:700;color:var(--accent);margin-top:12px">2.8 亿杯</span>
+      <span data-editable style="display:block;font-family:var(--font-mono);font-size:13px;color:color-mix(in srgb,var(--ink) 50%,transparent);margin-top:10px">鲜果茶占 38% · 第一大品类</span>
+    </div>
+    <div class="mt-drk-halo" data-anim="blur-in" style="position:absolute;top:220px;left:1404px;width:396px;z-index:5">
+      <span data-editable style="display:block;font-family:var(--font-mono);font-size:14px;letter-spacing:.14em;color:color-mix(in srgb,var(--ink) 55%,transparent);text-transform:uppercase">DIRECT</span>
+      <span data-editable style="display:block;font-family:var(--font-body);font-size:18px;font-weight:500;color:color-mix(in srgb,var(--ink) 75%,transparent);margin-top:8px">直营占比</span>
+      <span data-editable style="display:block;font-family:var(--font-display);font-size:48px;font-weight:700;color:var(--ink);margin-top:12px">19.1%</span>
+      <span data-editable style="display:block;font-family:var(--font-mono);font-size:13px;color:color-mix(in srgb,var(--ink) 50%,transparent);margin-top:10px">1,653 家直营 · 全自营 SOP</span>
+    </div>
+
+    <!-- 经营明细（无框行表，间距分组） -->
+    <div data-anim="blur-in" style="position:absolute;top:470px;left:120px;width:800px;z-index:5">
+      <div data-editable style="font-family:var(--font-mono);font-size:13px;letter-spacing:.14em;color:color-mix(in srgb,var(--ink) 55%,transparent);text-transform:uppercase;margin-bottom:14px">DETAIL · 经营明细</div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;height:44px"><span data-editable style="font-family:var(--font-body);font-size:18px;color:color-mix(in srgb,var(--ink) 75%,transparent)">门店总数</span><span data-editable style="font-family:var(--font-mono);font-size:19px;font-weight:700;color:var(--ink)">8,637 家</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;height:44px"><span data-editable style="font-family:var(--font-body);font-size:18px;color:color-mix(in srgb,var(--ink) 75%,transparent)">覆盖城市</span><span data-editable style="font-family:var(--font-mono);font-size:19px;font-weight:700;color:var(--ink)">312 城</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;height:44px"><span data-editable style="font-family:var(--font-body);font-size:18px;color:color-mix(in srgb,var(--ink) 75%,transparent)">签约茶园</span><span data-editable style="font-family:var(--font-mono);font-size:19px;font-weight:700;color:var(--ink)">43 个</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;height:44px"><span data-editable style="font-family:var(--font-body);font-size:18px;color:color-mix(in srgb,var(--ink) 75%,transparent)">会员总数</span><span data-editable style="font-family:var(--font-mono);font-size:19px;font-weight:700;color:var(--ink)">6.8 亿</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;height:44px"><span data-editable style="font-family:var(--font-body);font-size:18px;color:color-mix(in srgb,var(--ink) 75%,transparent)">月活会员</span><span data-editable style="font-family:var(--font-mono);font-size:19px;font-weight:700;color:var(--ink)">1.9 亿</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;height:44px"><span data-editable style="font-family:var(--font-body);font-size:18px;color:color-mix(in srgb,var(--ink) 75%,transparent)">复购率</span><span data-editable style="font-family:var(--font-mono);font-size:19px;font-weight:700;color:var(--ink)">43%</span></div>
+    </div>
+
+    <!-- 增长轨迹 -->
+    <div data-anim="blur-in" style="position:absolute;top:470px;left:1020px;width:780px;z-index:5">
+      <div data-editable style="font-family:var(--font-mono);font-size:13px;letter-spacing:.14em;color:color-mix(in srgb,var(--ink) 55%,transparent);text-transform:uppercase;margin-bottom:18px">GROWTH · 门店增长轨迹</div>
+      <div style="display:flex;gap:48px">
+        <div style="flex:1">
+          <span data-editable style="display:block;font-family:var(--font-mono);font-size:14px;letter-spacing:.1em;color:color-mix(in srgb,var(--ink) 55%,transparent)">2023</span>
+          <span data-editable style="display:block;font-family:var(--font-display);font-size:34px;font-weight:700;color:var(--ink);margin-top:8px">5,412 家</span>
+        </div>
+        <div style="flex:1">
+          <span data-editable style="display:block;font-family:var(--font-mono);font-size:14px;letter-spacing:.1em;color:color-mix(in srgb,var(--ink) 55%,transparent)">2025</span>
+          <span data-editable style="display:block;font-family:var(--font-display);font-size:34px;font-weight:700;color:var(--ink);margin-top:8px">7,212 家</span>
+        </div>
+        <div class="mt-drk-halo" style="flex:1">
+          <span data-editable style="display:block;font-family:var(--font-mono);font-size:14px;letter-spacing:.1em;color:color-mix(in srgb,var(--ink) 55%,transparent)">2026 H1</span>
+          <span data-editable style="display:block;font-family:var(--font-display);font-size:34px;font-weight:700;color:var(--accent);margin-top:8px">8,637 家</span>
+        </div>
+      </div>
+    </div>
+
+    <div data-anim="blur-in" style="position:absolute;bottom:70px;left:120px;z-index:5">
+      <p data-editable style="font-family:var(--font-mono);font-size:13px;color:color-mix(in srgb,var(--ink) 50%,transparent);margin:0">注：口径含直营与山禾供应链合作门店；截至 2026-06-30。</p>
+    </div>
+
+    <div class="mt-drk-grain" data-editable-skip style="z-index:50"></div>
+
+    <div data-editable-skip style="position:absolute;bottom:32px;right:48px;z-index:60"><span style="font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;color:color-mix(in srgb,var(--ink) 40%,transparent)">D2 · 柔光暗房 · 04 / 08</span></div>
+
+  </section>
+</div>
+
+<!-- 05 · D2 · 柔光暗房 · ig1 -->
+<div class="slide-slot">
+  <section class="slide" data-slide-id="d2-ig1" data-ptype="ig1" style="font-family:var(--font-body);--paper:#14110e;--paper-tint:#211b16;--ink:#f0e6d8;--ink-tint:#2c241d;--accent:#e8a34c;--accent-on:#14110e;--font-display:'Songti SC','Noto Serif SC','STSong',serif;--font-body:'PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;--font-mono:'SF Mono','JetBrains Mono','Menlo',monospace;--texture-type:glow;--texture-layer:radial-gradient(120% 90% at 70% 10%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 60%);--texture-scope:cover;--ease-out:cubic-bezier(.1,.7,.2,1)" data-content-hash="445e0add9ed5">
+
+    <!-- 右半幅相纸微提亮（负片 / 正片对撞） -->
+    <div data-editable-skip style="position:absolute;top:0;right:0;width:50%;height:100%;background:var(--paper-tint);z-index:0"></div>
+
+    <div data-anim="blur-in" style="position:absolute;top:96px;left:120px;z-index:5">
+      <span data-editable style="font-family:var(--font-mono);font-size:14px;letter-spacing:.22em;color:color-mix(in srgb,var(--ink) 60%,transparent);text-transform:uppercase">COMPARE · 两种门店</span>
+    </div>
+
+    <div data-anim="blur-in" style="position:absolute;top:140px;left:120px;z-index:4">
+      <h2 data-editable style="font-family:var(--font-display);font-size:48px;font-weight:500;line-height:1.1;color:var(--ink);margin:0">标准店 × 旗舰店</h2>
+    </div>
+
+    <div data-anim="blur-in" style="position:absolute;top:212px;left:120px;z-index:5">
+      <p data-editable style="font-family:var(--font-body);font-size:19px;color:color-mix(in srgb,var(--ink) 55%,transparent);margin:0">负片与正片——基本盘与品牌高地的对照曝光。</p>
+    </div>
+
+    <div data-ig="compare-binary-cols" data-ig-skin="bare" style="position:absolute;top:300px;left:120px;right:120px;bottom:140px;z-index:2">
+      <div class="mt-drk-halo" data-ig-item data-anim="blur-in" style="position:absolute;top:0;left:0;width:700px">
+        <span data-editable style="display:block;font-family:var(--font-display);font-size:36px;font-weight:500;color:var(--ink)">标准门店</span>
+        <span data-editable style="display:block;font-family:var(--font-mono);font-size:16px;font-weight:600;color:color-mix(in srgb,var(--ink) 60%,transparent);margin-top:10px">8,428 家 · 基本盘</span>
+        <div style="margin-top:40px">
+          <span data-editable style="display:block;font-family:var(--font-mono);font-size:13px;letter-spacing:.12em;color:color-mix(in srgb,var(--ink) 55%,transparent)">单店日出杯</span>
+          <span data-editable style="display:block;font-family:var(--font-display);font-size:28px;font-weight:500;color:var(--ink);margin-top:6px">850 杯</span>
+        </div>
+        <div style="margin-top:40px">
+          <span data-editable style="display:block;font-family:var(--font-mono);font-size:13px;letter-spacing:.12em;color:color-mix(in srgb,var(--ink) 55%,transparent)">店型面积</span>
+          <span data-editable style="display:block;font-family:var(--font-display);font-size:28px;font-weight:500;color:var(--ink);margin-top:6px">40–80 ㎡</span>
+        </div>
+        <div style="margin-top:40px">
+          <span data-editable style="display:block;font-family:var(--font-mono);font-size:13px;letter-spacing:.12em;color:color-mix(in srgb,var(--ink) 55%,transparent)">角色</span>
+          <span data-editable style="display:block;font-family:var(--font-display);font-size:28px;font-weight:500;color:var(--ink);margin-top:6px">覆盖与周转</span>
+        </div>
+      </div>
+      <div class="mt-drk-halo" data-ig-item data-anim="blur-in" style="position:absolute;top:0;right:0;width:700px">
+        <span data-editable style="display:block;font-family:var(--font-display);font-size:36px;font-weight:500;color:var(--ink)">城市旗舰店</span>
+        <span data-editable style="display:block;font-family:var(--font-mono);font-size:16px;font-weight:600;color:color-mix(in srgb,var(--ink) 60%,transparent);margin-top:10px">361 家 · 品牌高地</span>
+        <div style="margin-top:40px">
+          <span data-editable style="display:block;font-family:var(--font-mono);font-size:13px;letter-spacing:.12em;color:color-mix(in srgb,var(--ink) 55%,transparent)">单店日出杯</span>
+          <span data-editable style="display:block;font-family:var(--font-display);font-size:28px;font-weight:500;color:var(--accent);margin-top:6px">2,300 杯</span>
+        </div>
+        <div style="margin-top:40px">
+          <span data-editable style="display:block;font-family:var(--font-mono);font-size:13px;letter-spacing:.12em;color:color-mix(in srgb,var(--ink) 55%,transparent)">店型面积</span>
+          <span data-editable style="display:block;font-family:var(--font-display);font-size:28px;font-weight:500;color:var(--ink);margin-top:6px">200–500 ㎡</span>
+        </div>
+        <div style="margin-top:40px">
+          <span data-editable style="display:block;font-family:var(--font-mono);font-size:13px;letter-spacing:.12em;color:color-mix(in srgb,var(--ink) 55%,transparent)">角色</span>
+          <span data-editable style="display:block;font-family:var(--font-display);font-size:28px;font-weight:500;color:var(--ink);margin-top:6px">首发与体验</span>
+        </div>
+      </div>
+      <!-- VS 中缝徽章（结构装饰层） -->
+      <div data-editable-skip style="position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);width:88px;height:88px;background:var(--accent);display:flex;align-items:center;justify-content:center;z-index:5">
+        <span style="font-family:var(--font-mono);font-size:26px;font-weight:700;color:var(--accent-on)">VS</span>
+      </div>
+    </div>
+
+    <div class="mt-drk-grain" data-editable-skip style="z-index:50"></div>
+
+    <div data-editable-skip style="position:absolute;bottom:32px;right:48px;z-index:60"><span style="font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;color:color-mix(in srgb,var(--ink) 40%,transparent)">D2 · 柔光暗房 · 05 / 08</span></div>
+
+  </section>
+</div>
+
+<!-- 06 · D2 · 柔光暗房 · ig2 -->
+<div class="slide-slot">
+  <section class="slide" data-slide-id="d2-ig2" data-ptype="ig2" style="font-family:var(--font-body);--paper:#14110e;--paper-tint:#211b16;--ink:#f0e6d8;--ink-tint:#2c241d;--accent:#e8a34c;--accent-on:#14110e;--font-display:'Songti SC','Noto Serif SC','STSong',serif;--font-body:'PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;--font-mono:'SF Mono','JetBrains Mono','Menlo',monospace;--texture-type:glow;--texture-layer:radial-gradient(120% 90% at 70% 10%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 60%);--texture-scope:cover;--ease-out:cubic-bezier(.1,.7,.2,1)" data-content-hash="091212488c7b">
+
+    <div data-anim="blur-in" style="position:absolute;top:96px;left:120px;z-index:5">
+      <span data-editable style="font-family:var(--font-mono);font-size:14px;letter-spacing:.22em;color:color-mix(in srgb,var(--ink) 60%,transparent);text-transform:uppercase">PROCESS · 一杯茶的四步</span>
+    </div>
+
+    <div data-anim="blur-in" style="position:absolute;top:140px;left:120px;z-index:4">
+      <h2 data-editable style="font-family:var(--font-display);font-size:48px;font-weight:500;line-height:1.1;color:var(--ink);margin:0">从茶园到柜台</h2>
+    </div>
+
+    <div data-anim="blur-in" style="position:absolute;top:212px;left:120px;z-index:5">
+      <p data-editable style="font-family:var(--font-body);font-size:19px;color:color-mix(in srgb,var(--ink) 55%,transparent);margin:0">四步顺序不可打乱——每一步都印进杯里。</p>
+    </div>
+
+    <div data-ig="sequence-steps" data-ig-skin="badge" style="position:absolute;top:340px;left:120px;right:120px;z-index:2">
+      <!-- 节点间连接线（结构装饰层） -->
+      <div data-editable-skip style="position:absolute;top:31px;left:372px;width:56px;height:1px;background:color-mix(in srgb,var(--ink) 22%,transparent)"></div>
+      <div data-editable-skip style="position:absolute;top:31px;left:812px;width:56px;height:1px;background:color-mix(in srgb,var(--ink) 22%,transparent)"></div>
+      <div data-editable-skip style="position:absolute;top:31px;left:1252px;width:56px;height:1px;background:color-mix(in srgb,var(--ink) 22%,transparent)"></div>
+
+      <div data-ig-item data-anim="blur-in" style="position:absolute;top:0;left:0;width:360px">
+        <div class="mt-drk-halo" style="position:relative">
+          <span data-editable style="font-family:var(--font-mono);font-size:56px;font-weight:700;color:var(--accent);line-height:1">01</span>
+        </div>
+        <span data-editable style="display:block;font-family:var(--font-display);font-size:28px;font-weight:500;color:var(--ink);margin-top:20px">产区直采</span>
+        <p data-editable style="font-family:var(--font-body);font-size:18px;line-height:1.7;color:color-mix(in srgb,var(--ink) 60%,transparent);margin:10px 0 0 0">43 个签约茶园，春茶 48 小时到仓</p>
+      </div>
+      <div data-ig-item data-anim="blur-in" style="position:absolute;top:0;left:440px;width:360px">
+        <div class="mt-drk-halo" style="position:relative">
+          <span data-editable style="font-family:var(--font-mono);font-size:56px;font-weight:700;color:var(--accent);line-height:1">02</span>
+        </div>
+        <span data-editable style="display:block;font-family:var(--font-display);font-size:28px;font-weight:500;color:var(--ink);margin-top:20px">现萃茶汤</span>
+        <p data-editable style="font-family:var(--font-body);font-size:18px;line-height:1.7;color:color-mix(in srgb,var(--ink) 60%,transparent);margin:10px 0 0 0">每 4 小时换茶底，不用隔夜茶</p>
+      </div>
+      <div data-ig-item data-anim="blur-in" style="position:absolute;top:0;left:880px;width:360px">
+        <div class="mt-drk-halo" style="position:relative">
+          <span data-editable style="font-family:var(--font-mono);font-size:56px;font-weight:700;color:var(--accent);line-height:1">03</span>
+        </div>
+        <span data-editable style="display:block;font-family:var(--font-display);font-size:28px;font-weight:500;color:var(--ink);margin-top:20px">鲜果现切</span>
+        <p data-editable style="font-family:var(--font-body);font-size:18px;line-height:1.7;color:color-mix(in srgb,var(--ink) 60%,transparent);margin:10px 0 0 0">门店当日切配，损耗率压到 6% 以内</p>
+      </div>
+      <div data-ig-item data-anim="blur-in" style="position:absolute;top:0;left:1320px;width:360px">
+        <div class="mt-drk-halo" style="position:relative">
+          <span data-editable style="font-family:var(--font-mono);font-size:56px;font-weight:700;color:var(--accent);line-height:1">04</span>
+        </div>
+        <span data-editable style="display:block;font-family:var(--font-display);font-size:28px;font-weight:500;color:var(--ink);margin-top:20px">出品校验</span>
+        <p data-editable style="font-family:var(--font-body);font-size:18px;line-height:1.7;color:color-mix(in srgb,var(--ink) 60%,transparent);margin:10px 0 0 0">杯杯过秤 ±5g，差评门店周复盘</p>
+      </div>
+    </div>
+
+    <div data-anim="blur-in" style="position:absolute;bottom:80px;left:120px;z-index:5">
+      <p data-editable style="font-family:var(--font-mono);font-size:13px;color:color-mix(in srgb,var(--ink) 50%,transparent);margin:0">编号即工艺顺序；连线只表方向，不是边框。</p>
+    </div>
+
+    <div class="mt-drk-grain" data-editable-skip style="z-index:50"></div>
+
+    <div data-editable-skip style="position:absolute;bottom:32px;right:48px;z-index:60"><span style="font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;color:color-mix(in srgb,var(--ink) 40%,transparent)">D2 · 柔光暗房 · 06 / 08</span></div>
+
+  </section>
+</div>
+
+<!-- 07 · D2 · 柔光暗房 · chart1 -->
+<div class="slide-slot">
+  <section class="slide" data-slide-id="d2-chart1" data-ptype="chart1" style="font-family:var(--font-body);--paper:#14110e;--paper-tint:#211b16;--ink:#f0e6d8;--ink-tint:#2c241d;--accent:#e8a34c;--accent-on:#14110e;--font-display:'Songti SC','Noto Serif SC','STSong',serif;--font-body:'PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;--font-mono:'SF Mono','JetBrains Mono','Menlo',monospace;--texture-type:glow;--texture-layer:radial-gradient(120% 90% at 70% 10%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 60%);--texture-scope:cover;--ease-out:cubic-bezier(.1,.7,.2,1);--chart-grid:color-mix(in srgb, var(--ink) 14%, transparent);--chart-label:color-mix(in srgb, var(--ink) 62%, transparent);--chart-series-1:var(--accent);--chart-series-2:color-mix(in srgb, var(--accent) 55%, var(--ink));--chart-series-3:color-mix(in srgb, var(--accent) 32%, var(--ink));--chart-series-4:color-mix(in srgb, var(--accent) 18%, var(--ink));--chart-series-5:color-mix(in srgb, var(--ink) 62%, var(--paper));--chart-series-6:color-mix(in srgb, var(--accent) 16%, var(--ink));--chart-series-7:color-mix(in srgb, var(--ink) 40%, var(--paper));--chart-series-8:color-mix(in srgb, var(--ink) 24%, var(--paper));--chart-bar-radius:0;--chart-stroke:2.5px" data-content-hash="4327d5b9e896">
+
+    <div data-anim="blur-in" style="position:absolute;top:84px;left:120px;z-index:5">
+      <span data-editable style="font-family:var(--font-mono);font-size:14px;letter-spacing:.22em;color:color-mix(in srgb,var(--ink) 60%,transparent);text-transform:uppercase">QUARTERLY CUPS · 季度售出杯量（亿杯）· 示例数据</span>
+    </div>
+
+    <div data-anim="blur-in" style="position:absolute;top:126px;left:120px;z-index:4">
+      <h2 data-editable style="font-family:var(--font-display);font-size:44px;font-weight:500;line-height:1.1;color:var(--ink);margin:0">季度杯量：全年 11.8 亿杯，Q4 创新高</h2>
+    </div>
+
+    <!-- 图例 -->
+    <div style="position:absolute;top:118px;right:120px;display:flex;gap:32px;z-index:5">
+      <div data-anim="blur-in" style="display:flex;align-items:center;gap:10px">
+        <div data-editable-skip style="width:18px;height:18px;background:var(--chart-series-5)"></div>
+        <span data-editable style="font-family:var(--font-body);font-size:18px;color:color-mix(in srgb,var(--ink) 80%,transparent)">现制茶饮</span>
+      </div>
+      <div data-anim="blur-in" style="display:flex;align-items:center;gap:10px">
+        <div data-editable-skip style="width:18px;height:18px;background:var(--chart-series-7)"></div>
+        <span data-editable style="font-family:var(--font-body);font-size:18px;color:color-mix(in srgb,var(--ink) 80%,transparent)">外卖到家</span>
+      </div>
+      <div data-anim="blur-in" style="display:flex;align-items:center;gap:10px">
+        <div data-editable-skip style="width:18px;height:18px;background:var(--chart-series-1)"></div>
+        <span data-editable style="font-family:var(--font-body);font-size:18px;color:color-mix(in srgb,var(--ink) 80%,transparent)">零售茶包</span>
+      </div>
+    </div>
+
+    <div data-ig="chart-stacked" data-anim="blur-in" style="position:absolute;top:250px;left:190px;width:1540px;height:500px;z-index:2">
+      <!-- 网格线（几何层） -->
+      <div data-editable-skip style="position:absolute;left:60px;right:0;top:0;border-top:1px dashed var(--chart-grid)"></div>
+      <div data-editable-skip style="position:absolute;left:60px;right:0;top:110px;border-top:1px dashed var(--chart-grid)"></div>
+      <div data-editable-skip style="position:absolute;left:60px;right:0;top:220px;border-top:1px dashed var(--chart-grid)"></div>
+      <div data-editable-skip style="position:absolute;left:60px;right:0;top:330px;border-top:1px dashed var(--chart-grid)"></div>
+      <div data-editable-skip style="position:absolute;left:60px;right:0;top:440px;border-top:1px solid color-mix(in srgb,var(--ink) 30%,transparent)"></div>
+      <!-- 目标线 3.0 亿 -->
+      <div data-editable-skip style="position:absolute;left:60px;right:0;top:110px;border-top:1px dashed var(--accent)"></div>
+      <span data-editable style="position:absolute;top:88px;right:0;font-family:var(--font-mono);font-size:13px;color:var(--accent)">季度目标 3.0 亿</span>
+      <!-- 轴标签 -->
+      <span data-editable style="position:absolute;left:0;top:-7px;font-family:var(--font-mono);font-size:14px;color:var(--chart-label)">4.0</span>
+      <span data-editable style="position:absolute;left:0;top:103px;font-family:var(--font-mono);font-size:14px;color:var(--chart-label)">3.0</span>
+      <span data-editable style="position:absolute;left:0;top:213px;font-family:var(--font-mono);font-size:14px;color:var(--chart-label)">2.0</span>
+      <span data-editable style="position:absolute;left:0;top:323px;font-family:var(--font-mono);font-size:14px;color:var(--chart-label)">1.0</span>
+      <span data-editable style="position:absolute;left:0;top:433px;font-family:var(--font-mono);font-size:14px;color:var(--chart-label)">0</span>
+      <!-- 柱（几何层）：Q1 2.4 = 1.8+0.4+0.2 -->
+      <div data-editable-skip style="position:absolute;left:140px;bottom:60px;width:130px;height:198px;background:var(--chart-series-5)"></div>
+      <div data-editable-skip style="position:absolute;left:140px;bottom:258px;width:130px;height:44px;background:var(--chart-series-7)"></div>
+      <div data-editable-skip style="position:absolute;left:140px;bottom:302px;width:130px;height:22px;background:var(--chart-series-1)"></div>
+      <!-- Q2 2.7 = 1.9+0.5+0.3 -->
+      <div data-editable-skip style="position:absolute;left:480px;bottom:60px;width:130px;height:209px;background:var(--chart-series-5)"></div>
+      <div data-editable-skip style="position:absolute;left:480px;bottom:269px;width:130px;height:55px;background:var(--chart-series-7)"></div>
+      <div data-editable-skip style="position:absolute;left:480px;bottom:324px;width:130px;height:33px;background:var(--chart-series-1)"></div>
+      <!-- Q3 3.1 = 2.0+0.6+0.5 -->
+      <div data-editable-skip style="position:absolute;left:820px;bottom:60px;width:130px;height:220px;background:var(--chart-series-5)"></div>
+      <div data-editable-skip style="position:absolute;left:820px;bottom:280px;width:130px;height:66px;background:var(--chart-series-7)"></div>
+      <div data-editable-skip style="position:absolute;left:820px;bottom:346px;width:130px;height:55px;background:var(--chart-series-1)"></div>
+      <!-- Q4 3.6 = 2.2+0.7+0.7 -->
+      <div data-editable-skip style="position:absolute;left:1160px;bottom:60px;width:130px;height:242px;background:var(--chart-series-5)"></div>
+      <div data-editable-skip style="position:absolute;left:1160px;bottom:302px;width:130px;height:77px;background:var(--chart-series-7)"></div>
+      <div data-editable-skip style="position:absolute;left:1160px;bottom:379px;width:130px;height:77px;background:var(--chart-series-1)"></div>
+      <!-- 柱顶数值（数值层：可编辑文字，几何不随改） -->
+      <span data-editable style="position:absolute;left:140px;top:148px;width:130px;text-align:center;font-family:var(--font-mono);font-size:15px;font-weight:700;color:var(--ink)">2.4</span>
+      <span data-editable style="position:absolute;left:480px;top:115px;width:130px;text-align:center;font-family:var(--font-mono);font-size:15px;font-weight:700;color:var(--ink)">2.7</span>
+      <span data-editable style="position:absolute;left:820px;top:71px;width:130px;text-align:center;font-family:var(--font-mono);font-size:15px;font-weight:700;color:var(--ink)">3.1</span>
+      <span data-editable style="position:absolute;left:1160px;top:16px;width:130px;text-align:center;font-family:var(--font-mono);font-size:15px;font-weight:700;color:var(--accent)">3.6</span>
+      <!-- 类目标签 -->
+      <span data-editable style="position:absolute;left:140px;top:456px;width:130px;text-align:center;font-family:var(--font-mono);font-size:15px;font-weight:600;color:var(--ink)">Q1</span>
+      <span data-editable style="position:absolute;left:480px;top:456px;width:130px;text-align:center;font-family:var(--font-mono);font-size:15px;font-weight:600;color:var(--ink)">Q2</span>
+      <span data-editable style="position:absolute;left:820px;top:456px;width:130px;text-align:center;font-family:var(--font-mono);font-size:15px;font-weight:600;color:var(--ink)">Q3</span>
+      <span data-editable style="position:absolute;left:1160px;top:456px;width:130px;text-align:center;font-family:var(--font-mono);font-size:15px;font-weight:600;color:var(--accent)">Q4</span>
+    </div>
+
+    <div data-anim="blur-in" style="position:absolute;bottom:64px;left:120px;z-index:5">
+      <p data-editable style="font-family:var(--font-mono);font-size:13px;color:color-mix(in srgb,var(--ink) 50%,transparent);margin:0">注：Q3 起零售茶包并表；以上为示例数据口径。</p>
+    </div>
+
+    <div class="mt-drk-grain" data-editable-skip style="z-index:50"></div>
+
+    <div data-editable-skip style="position:absolute;bottom:32px;right:48px;z-index:60"><span style="font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;color:color-mix(in srgb,var(--ink) 40%,transparent)">D2 · 柔光暗房 · 07 / 08</span></div>
+
+  </section>
+</div>
+
+<!-- 08 · D2 · 柔光暗房 · chart2 -->
+<div class="slide-slot">
+  <section class="slide" data-slide-id="d2-chart2" data-ptype="chart2" style="font-family:var(--font-body);--paper:#14110e;--paper-tint:#211b16;--ink:#f0e6d8;--ink-tint:#2c241d;--accent:#e8a34c;--accent-on:#14110e;--font-display:'Songti SC','Noto Serif SC','STSong',serif;--font-body:'PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;--font-mono:'SF Mono','JetBrains Mono','Menlo',monospace;--texture-type:glow;--texture-layer:radial-gradient(120% 90% at 70% 10%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 60%);--texture-scope:cover;--ease-out:cubic-bezier(.1,.7,.2,1);--chart-grid:color-mix(in srgb, var(--ink) 14%, transparent);--chart-label:color-mix(in srgb, var(--ink) 62%, transparent);--chart-series-1:var(--accent);--chart-series-2:color-mix(in srgb, var(--accent) 55%, var(--ink));--chart-series-3:color-mix(in srgb, var(--accent) 32%, var(--ink));--chart-series-4:color-mix(in srgb, var(--accent) 18%, var(--ink));--chart-series-5:color-mix(in srgb, var(--ink) 62%, var(--paper));--chart-series-6:color-mix(in srgb, var(--accent) 16%, var(--ink));--chart-series-7:color-mix(in srgb, var(--ink) 40%, var(--paper));--chart-series-8:color-mix(in srgb, var(--ink) 24%, var(--paper));--chart-bar-radius:0;--chart-stroke:2.5px" data-content-hash="470879a355e3">
+
+    <div data-anim="blur-in" style="position:absolute;top:84px;left:120px;z-index:5">
+      <span data-editable style="font-family:var(--font-mono);font-size:14px;letter-spacing:.22em;color:color-mix(in srgb,var(--ink) 60%,transparent);text-transform:uppercase">MONTHLY MEMBERS · 月活会员（亿）· 示例数据</span>
+    </div>
+
+    <div data-anim="blur-in" style="position:absolute;top:126px;left:120px;z-index:4">
+      <h2 data-editable style="font-family:var(--font-display);font-size:44px;font-weight:500;line-height:1.1;color:var(--ink);margin:0">月活会员：半年连升，六月 1.9 亿</h2>
+    </div>
+
+    <div class="mt-drk-halo" data-anim="blur-in" style="position:absolute;top:130px;right:140px;z-index:5;text-align:right">
+      <span data-editable style="display:block;font-family:var(--font-mono);font-size:13px;letter-spacing:.14em;color:color-mix(in srgb,var(--ink) 55%,transparent);text-transform:uppercase">H1 GROWTH · 半年增幅</span>
+      <span data-editable style="display:block;font-family:var(--font-display);font-size:34px;font-weight:700;color:var(--accent);margin-top:6px">+58%</span>
+    </div>
+
+    <div data-ig="chart-line" data-anim="blur-in" style="position:absolute;top:240px;left:190px;width:1540px;height:560px;z-index:2">
+      <!-- 网格线（几何层）：v 2.0→y40 … 1.0→y440 -->
+      <div data-editable-skip style="position:absolute;left:60px;right:0;top:40px;border-top:1px dashed var(--chart-grid)"></div>
+      <div data-editable-skip style="position:absolute;left:60px;right:0;top:120px;border-top:1px dashed var(--chart-grid)"></div>
+      <div data-editable-skip style="position:absolute;left:60px;right:0;top:200px;border-top:1px dashed var(--chart-grid)"></div>
+      <div data-editable-skip style="position:absolute;left:60px;right:0;top:280px;border-top:1px dashed var(--chart-grid)"></div>
+      <div data-editable-skip style="position:absolute;left:60px;right:0;top:360px;border-top:1px dashed var(--chart-grid)"></div>
+      <div data-editable-skip style="position:absolute;left:60px;right:0;top:440px;border-top:1px solid color-mix(in srgb,var(--ink) 30%,transparent)"></div>
+      <!-- 轴标签 -->
+      <span data-editable style="position:absolute;left:0;top:33px;font-family:var(--font-mono);font-size:14px;color:var(--chart-label)">2.0</span>
+      <span data-editable style="position:absolute;left:0;top:113px;font-family:var(--font-mono);font-size:14px;color:var(--chart-label)">1.8</span>
+      <span data-editable style="position:absolute;left:0;top:193px;font-family:var(--font-mono);font-size:14px;color:var(--chart-label)">1.6</span>
+      <span data-editable style="position:absolute;left:0;top:273px;font-family:var(--font-mono);font-size:14px;color:var(--chart-label)">1.4</span>
+      <span data-editable style="position:absolute;left:0;top:353px;font-family:var(--font-mono);font-size:14px;color:var(--chart-label)">1.2</span>
+      <span data-editable style="position:absolute;left:0;top:433px;font-family:var(--font-mono);font-size:14px;color:var(--chart-label)">1.0</span>
+      <!-- 折线（几何层）：1.2 1.3 1.5 1.6 1.8 1.9 -->
+      <svg data-editable-skip viewBox="0 0 1480 480" style="position:absolute;left:60px;top:0;width:1480px;height:480px;display:block">
+        <polyline data-anim="draw-line" points="90,400 350,360 610,280 870,240 1130,160 1390,120" fill="none" stroke="var(--chart-series-1)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="90" cy="400" r="4" fill="var(--chart-series-1)"/>
+        <circle cx="350" cy="360" r="4" fill="var(--chart-series-1)"/>
+        <circle cx="610" cy="280" r="4" fill="var(--chart-series-1)"/>
+        <circle cx="870" cy="240" r="4" fill="var(--chart-series-1)"/>
+        <circle cx="1130" cy="160" r="4" fill="var(--chart-series-1)"/>
+        <circle cx="1390" cy="120" r="13" fill="var(--chart-series-1)" opacity="0.22"/>
+        <circle cx="1390" cy="120" r="6" fill="var(--chart-series-1)"/>
+      </svg>
+      <!-- 点位数值（数值层） -->
+      <span data-editable style="position:absolute;left:120px;top:366px;width:60px;text-align:center;font-family:var(--font-mono);font-size:14px;color:color-mix(in srgb,var(--ink) 65%,transparent)">1.2</span>
+      <span data-editable style="position:absolute;left:380px;top:326px;width:60px;text-align:center;font-family:var(--font-mono);font-size:14px;color:color-mix(in srgb,var(--ink) 65%,transparent)">1.3</span>
+      <span data-editable style="position:absolute;left:640px;top:246px;width:60px;text-align:center;font-family:var(--font-mono);font-size:14px;color:color-mix(in srgb,var(--ink) 65%,transparent)">1.5</span>
+      <span data-editable style="position:absolute;left:900px;top:206px;width:60px;text-align:center;font-family:var(--font-mono);font-size:14px;color:color-mix(in srgb,var(--ink) 65%,transparent)">1.6</span>
+      <span data-editable style="position:absolute;left:1160px;top:126px;width:60px;text-align:center;font-family:var(--font-mono);font-size:14px;color:color-mix(in srgb,var(--ink) 65%,transparent)">1.8</span>
+      <span data-editable style="position:absolute;left:1410px;top:86px;width:80px;text-align:center;font-family:var(--font-mono);font-size:16px;font-weight:700;color:var(--accent)">1.9 亿</span>
+      <!-- 类目标签 -->
+      <span data-editable style="position:absolute;left:120px;top:456px;width:60px;text-align:center;font-family:var(--font-mono);font-size:15px;font-weight:600;color:var(--ink)">1月</span>
+      <span data-editable style="position:absolute;left:380px;top:456px;width:60px;text-align:center;font-family:var(--font-mono);font-size:15px;font-weight:600;color:var(--ink)">2月</span>
+      <span data-editable style="position:absolute;left:640px;top:456px;width:60px;text-align:center;font-family:var(--font-mono);font-size:15px;font-weight:600;color:var(--ink)">3月</span>
+      <span data-editable style="position:absolute;left:900px;top:456px;width:60px;text-align:center;font-family:var(--font-mono);font-size:15px;font-weight:600;color:var(--ink)">4月</span>
+      <span data-editable style="position:absolute;left:1160px;top:456px;width:60px;text-align:center;font-family:var(--font-mono);font-size:15px;font-weight:600;color:var(--ink)">5月</span>
+      <span data-editable style="position:absolute;left:1410px;top:456px;width:80px;text-align:center;font-family:var(--font-mono);font-size:15px;font-weight:600;color:var(--accent)">6月</span>
+    </div>
+
+    <div data-anim="blur-in" style="position:absolute;bottom:64px;left:120px;z-index:5">
+      <p data-editable style="font-family:var(--font-mono);font-size:13px;color:color-mix(in srgb,var(--ink) 50%,transparent);margin:0">注：月活为自然月去重口径；示例数据。</p>
+    </div>
+
+    <div class="mt-drk-grain" data-editable-skip style="z-index:50"></div>
+
+    <div data-editable-skip style="position:absolute;bottom:32px;right:48px;z-index:60"><span style="font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;color:color-mix(in srgb,var(--ink) 40%,transparent)">D2 · 柔光暗房 · 08 / 08</span></div>
+
+  </section>
+</div>
+
+</div>
+
+<!-- SLOT: 页码初始文本——生成时把 "1 / 1" 改为 "1 / N"（N=总页数） -->
+<div class="deck-chrome" id="chrome">1 / 8</div>
+
+<script>
+/* ============================================================
+   框架层 · 禁止修改
+   ============================================================ */
+(function(){
+  document.documentElement.classList.add('js');  /* 动效 .js 门槛：无 JS 时内容直接可见 */
+  var deck = document.getElementById('deck');
+  var chrome = document.getElementById('chrome');
+  var fxList = [];    /* canvas FX 实例（v5.1；reduced-motion 下恒为空；须在 fit() 首次调用前就位） */
+  var fxFrozen = false;
+
+  function slots(){ return Array.prototype.slice.call(deck.querySelectorAll('.slide-slot')); }
+
+  /* 烙入源层豁免（v7.3，契约 v7）：.baked-source 是烙入页完整保留的
+     HTML 源层（hidden，只参与 manifest/hash）。运行时文本引擎、动效
+     初始化、in-view 驱动的全部选择器经 liveEls 过滤，跳过其内部——
+     存量无 .baked-source 的 deck 过滤为恒等，零影响。 */
+  function inBaked(el){ return !!(el && el.closest && el.closest('.baked-source')); }
+  function liveEls(root, sel){
+    return Array.prototype.filter.call(root.querySelectorAll(sel), function(el){ return !inBaked(el); });
+  }
+
+  /* 缩放：整个 1920×1080 画布按容器比例缩放，绝不重排内容。
+     ResizeObserver 而非 window resize：iframe 尺寸变化、侧栏开合都算。 */
+  var lastScale = 0;
+  function fit(){
+    var s = Math.min(deck.clientWidth/1920, deck.clientHeight/1080);
+    if (Math.abs(s - lastScale) < 0.001) return;  /* 去抖：dvh 抖动 */
+    lastScale = s;
+    document.documentElement.style.setProperty('--slide-scale', s);
+    /* canvas FX 跟随缩放重配位图尺寸（v5.1；仅已初始化的实例） */
+    for (var fi = 0; fi < fxList.length; fi++){ if (fxList[fi].parts) fxSetup(fxList[fi]); }
+  }
+  if ('ResizeObserver' in window){ new ResizeObserver(fit).observe(deck); }
+  window.addEventListener('resize', fit);
+  fit();
+
+  /* 页码指示 */
+  function currentIndex(){
+    var list = slots();
+    var top = deck.scrollTop;
+    for (var i = 0; i < list.length; i++){
+      if (list[i].offsetTop + list[i].offsetHeight/2 > top + 8) return i;
+    }
+    return list.length - 1;
+  }
+  function updateChrome(){
+    chrome.textContent = (currentIndex()+1) + ' / ' + slots().length;
+  }
+  deck.addEventListener('scroll', function(){ requestAnimationFrame(updateChrome); }, {passive:true});
+  updateChrome();
+
+  /* 键盘翻页 */
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function go(i){
+    var list = slots();
+    i = Math.max(0, Math.min(list.length-1, i));
+    deck.scrollTo({top: list[i].offsetTop, behavior: reduceMotion ? 'auto' : 'smooth'});
+  }
+  window.addEventListener('keydown', function(e){
+    if (e.target && (e.target.isContentEditable || /^(INPUT|TEXTAREA)$/.test(e.target.tagName))) return;
+    if (e.key==='ArrowDown' || e.key==='PageDown' || e.key===' '){ e.preventDefault(); go(currentIndex()+1); }
+    else if (e.key==='ArrowUp' || e.key==='PageUp'){ e.preventDefault(); go(currentIndex()-1); }
+    else if (e.key==='Home'){ e.preventDefault(); go(0); }
+    else if (e.key==='End'){ e.preventDefault(); go(slots().length-1); }
+    else if (/^[0-9]$/.test(e.key)){
+      /* 章节直跳（v7）：数字键 1–9 跳第 N 个 data-chapter 章节页、0 回封面。
+         无 data-chapter 的老 deck 不动作、无副作用。 */
+      var ch = chapterSlots();
+      if (!ch.length) return;
+      if (e.key === '0'){ e.preventDefault(); go(0); }
+      else { var t = ch[parseInt(e.key, 10) - 1]; if (t){ e.preventDefault(); go(slots().indexOf(t)); } }
+    }
+  });
+
+  /* 章节跳转（skeleton v7）：data-chapter 声明章节页（.slide 上的属性，产物内容）；
+     .nav-link[href^="#"] 目录锚点平滑滚动到目标页——锚点目标是带 id 的
+     .slide 所在的 .slide-slot（滚动容器子项）。原生 <a> 天然 Tab 可达。 */
+  function chapterSlots(){
+    return slots().filter(function(s){ return s.querySelector('.slide[data-chapter]'); });
+  }
+  deck.addEventListener('click', function(e){
+    var a = e.target && e.target.closest ? e.target.closest('a.nav-link[href^="#"]') : null;
+    if (!a) return;
+    var target = document.getElementById(a.getAttribute('href').slice(1));
+    var slot = target && target.closest('.slide-slot');
+    if (!slot) return;
+    e.preventDefault();
+    go(slots().indexOf(slot));
+  });
+
+  /* data-rotate（v7，loop 型）：容器内 [data-rotate-item] 轮转 .active——
+     流水线活态隐喻。in-view 启动、离屏停帧；reduced-motion 不启动；
+     freeze 摘除并清空 active（编辑器编辑态与序列化口径见契约 v6.3）。 */
+  var rotateState = [];
+  function freezeRotate(){
+    rotateState.forEach(function(st){
+      if (st.timer) clearInterval(st.timer);
+      st.timer = null;
+      Array.prototype.forEach.call(st.items, function(it){ it.classList.remove('active'); });
+    });
+  }
+  if ('IntersectionObserver' in window && !reduceMotion){
+    var rotIO = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        var box = en.target, st = box.__rot;
+        if (en.isIntersecting){
+          if (!st){
+            var items = box.querySelectorAll('[data-rotate-item]');
+            if (!items.length) return;
+            st = box.__rot = { items: items, i: -1, timer: null };
+            rotateState.push(st);
+          }
+          if (!st.timer){
+            var step = function(){
+              Array.prototype.forEach.call(st.items, function(it){ it.classList.remove('active'); });
+              st.i = (st.i + 1) % st.items.length;
+              st.items[st.i].classList.add('active');
+            };
+            step();
+            st.timer = setInterval(step, 2400);
+          }
+        } else if (st && st.timer){
+          clearInterval(st.timer); st.timer = null;
+        }
+      });
+    }, {root: deck, threshold: 0.25});
+    liveEls(document, '[data-rotate]').forEach(function(box){ rotIO.observe(box); });
+  }
+
+  /* 背景配给（skeleton v4）：纯 CSS 按 class 配给（.cover-page /
+     .texture-on），无运行时状态——v3 的 texture-cover JS 机制已移除，
+     --texture-scope 降级为主题级许可声明（见框架 CSS 注释）。 */
+
+  /* ============================================================
+     运行时动效引擎（skeleton v3–v5）
+     chars/words/shatter：入场时把纯文本拆成 .sp-unit 序列执行动画，
+     完成后还原为纯文本节点；count-up：读终值滚动后精确还原原文本；
+     typewriter/scramble：逐字显影/乱码归位，完成还原原文本；
+     draw-line：量长藏线、入场描出。
+     滚动回滚默认不重复触发（与 .in-view 一次性语义一致）。
+     reduced-motion 下整组引擎不启动——文件里本来就是纯文本与完整图形。
+     ============================================================ */
+  var SPLIT_SEL = '[data-anim="chars"],[data-anim="words"],[data-anim="shatter"]';
+  var live = [];   /* 进行中的运行时动效元素（强制还原用） */
+
+  function track(el){ if (live.indexOf(el) < 0) live.push(el); }
+  function untrack(el){ var i = live.indexOf(el); if (i >= 0) live.splice(i, 1); }
+
+  /* 还原单个元素：终止进行中的动效，恢复纯文本 / 终值文本 */
+  function restoreEl(el){
+    if (el.__rt){
+      clearTimeout(el.__rt.timer);
+      if (el.__rt.raf) cancelAnimationFrame(el.__rt.raf);
+      if (el.__rt.finalText != null) el.textContent = el.__rt.finalText;
+      el.__rt = null;
+    }
+    /* 拆字残留兜底：塌缩为纯文本节点 */
+    if (el.querySelector && el.querySelector('.sp-unit')) el.textContent = el.textContent;
+    if (el.classList){ el.classList.remove('split-anim'); el.classList.remove('tw-live'); }
+    untrack(el);
+  }
+
+  /* 编辑器接口：进入编辑 / 序列化保存前调用（见 editing-contract.md）。
+     freeze（v5 新增）：冻结交互动效层——摘除 pointer tracker 与 scroll 族
+     JS 驱动、清空全部运行时 CSS 变量（--mx 系 / --rx 系 / --sp）；
+     read-progress 的纯 CSS scroll-timeline 由编辑器注入样式冻结。
+     v5.1 起 freeze 同时停掉全部 canvas FX、清屏并摘除运行时 width/height
+     属性（fxFrozen 后 in-view 回调不再重启，契约 v6.1）；v7 起 freeze
+     同时停掉 data-rotate 轮转并清空 .active（契约 v6.3）。 */
+  window.__pptxMotion = {
+    restore: restoreEl,
+    restoreAll: function(){ live.slice().forEach(restoreEl); },
+    freeze: function(){ freezePtr(); freezeFx(); freezeRotate(); }
+  };
+
+  function splitEl(el){
+    if (el.__rt) return;
+    var mode = el.getAttribute('data-anim');
+    var text = el.textContent;
+    var units = [];
+    if (mode === 'words'){
+      text.split(/(\s+)/).forEach(function(p){
+        if (p) units.push({ ws: /^\s+$/.test(p), t: p });
+      });
+    } else {
+      Array.from(text).forEach(function(ch){
+        units.push({ ws: /^\s$/.test(ch), t: ch });
+      });
+    }
+    el.__rt = { finalText: text, timer: null, raf: 0 };
+    track(el);
+    el.textContent = '';
+    var n = 0;
+    units.forEach(function(u){
+      if (u.ws){ el.appendChild(document.createTextNode(u.t)); return; }
+      var s = document.createElement('span');
+      s.className = 'sp-unit';
+      s.style.setProperty('--j', n++);
+      if (mode === 'shatter'){
+        /* 碎聚：确定性伪随机散布（同一文本每次入场形态一致，不逐帧随机） */
+        var seed = n * 137.5;
+        s.style.setProperty('--sx', (Math.sin(seed) * 1.6).toFixed(2) + 'em');
+        s.style.setProperty('--sy', (Math.cos(seed * 1.3) * 1.1).toFixed(2) + 'em');
+        s.style.setProperty('--sr', (Math.sin(seed * 2.1) * 40).toFixed(1) + 'deg');
+      }
+      s.appendChild(document.createTextNode(u.t));
+      el.appendChild(s);
+    });
+    el.classList.add('split-anim');
+    /* 动画完成后还原为纯文本：stagger 步长 × 个数 + 单项时长 + 余量 */
+    var step = mode === 'words' ? 90 : (mode === 'shatter' ? 40 : 45);
+    var dur  = mode === 'shatter' ? 800 : 600;
+    el.__rt.timer = setTimeout(function(){ restoreEl(el); }, n * step + dur + 250);
+  }
+
+  /* count-up：元素文本即终值（可含千分位/小数/前后缀），从 data-from 或 0 起滚 */
+  function countUp(el){
+    if (el.__rt) return;
+    var finalText = el.textContent;
+    var m = /-?[\d,]*\.?\d+/.exec(finalText);
+    if (!m) return;
+    var finalVal = parseFloat(m[0].replace(/,/g, ''));
+    if (isNaN(finalVal)) return;
+    var from = parseFloat(el.getAttribute('data-from'));
+    if (isNaN(from)) from = 0;
+    var decimals = (m[0].split('.')[1] || '').length;
+    var grouped = m[0].indexOf(',') >= 0;
+    function fmt(v){
+      var s = grouped
+        ? v.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
+        : v.toFixed(decimals);
+      return finalText.slice(0, m.index) + s + finalText.slice(m.index + m[0].length);
+    }
+    el.__rt = { finalText: finalText, timer: null, raf: 0 };
+    track(el);
+    var dur = 1400, t0 = null;
+    el.textContent = fmt(from);
+    function tick(t){
+      if (!el.__rt) return;   /* 被强制还原 */
+      if (t0 === null) t0 = t;
+      var k = Math.min(1, (t - t0) / dur);
+      var e = 1 - Math.pow(1 - k, 3);   /* easeOutCubic */
+      el.textContent = fmt(from + (finalVal - from) * e);
+      if (k < 1){ el.__rt.raf = requestAnimationFrame(tick); }
+      else { el.textContent = finalText; el.__rt = null; untrack(el); }   /* 终值精确还原原文本 */
+    }
+    el.__rt.raf = requestAnimationFrame(tick);
+  }
+
+  /* typewriter / scramble（skeleton v5，主题限定款——techy 系气质，见
+     references/motion.md v3）：纯文本节点在位，运行时逐字显影 / 乱码归位，
+     完成后精确还原原文本；还原语义与 count-up 相同（__rt.finalText）。 */
+  function typewriter(el){
+    if (el.__rt) return;
+    var text = el.textContent;
+    var chars = Array.from(text);
+    if (!chars.length) return;
+    el.__rt = { finalText: text, timer: null, raf: 0 };
+    track(el);
+    el.textContent = '';
+    el.classList.add('tw-live');
+    /* 速度随字数自适应：短句慢显韵味，长句不超 ~1.6s 总量 */
+    var step = Math.max(28, Math.min(70, Math.round(1600 / chars.length)));
+    var i = 0;
+    function tick(){
+      if (!el.__rt) return;   /* 被强制还原 */
+      i++;
+      el.textContent = chars.slice(0, i).join('');
+      if (i < chars.length){ el.__rt.timer = setTimeout(tick, step); }
+      else { el.textContent = text; el.classList.remove('tw-live'); el.__rt = null; untrack(el); }
+    }
+    el.__rt.timer = setTimeout(tick, 160);
+  }
+
+  function scramble(el){
+    if (el.__rt) return;
+    var text = el.textContent;
+    var chars = Array.from(text);
+    if (!chars.length) return;
+    var GLYPHS = '!<>-_\\/[]{}=+*^?#%01';
+    el.__rt = { finalText: text, timer: null, raf: 0 };
+    track(el);
+    var dur = 1100, t0 = null;
+    function tick(t){
+      if (!el.__rt) return;   /* 被强制还原 */
+      if (t0 === null) t0 = t;
+      var k = Math.min(1, (t - t0) / dur);
+      var settled = Math.floor(k * chars.length);
+      var frame = Math.floor(t / 50);
+      var out = '';
+      for (var i = 0; i < chars.length; i++){
+        var c = chars[i];
+        if (/\s/.test(c) || i < settled) out += c;
+        else out += GLYPHS[(i * 7 + frame) % GLYPHS.length];
+      }
+      el.textContent = out;
+      if (k < 1){ el.__rt.raf = requestAnimationFrame(tick); }
+      else { el.textContent = text; el.__rt = null; untrack(el); }   /* 终值精确还原原文本 */
+    }
+    el.__rt.raf = requestAnimationFrame(tick);
+  }
+
+  /* draw-line：加载时量长藏线（stroke-dashoffset=length），入场时归零描出。
+     量长失败（非几何元素）时退回整体淡入。 */
+  function prepDrawLine(el){
+    var len = 0;
+    try { len = el.getTotalLength(); } catch(e){}
+    if (!len) return;
+    el.__drawLen = len;
+    el.style.strokeDasharray = String(len);
+    el.style.strokeDashoffset = String(len);
+  }
+
+  /* 入场动效：页面进入视口时触发（一次性，回滚不重复） */
+  /* 加载时为每页的 [data-anim] 元素分配序号 --i（阶梯延迟的基数）；
+     mask-lines 的 .ml-inner 行内层单独编号（逐行遮罩阶梯，v5） */
+  slots().forEach(function(s){
+    var els = liveEls(s, '[data-anim]');
+    for (var i = 0; i < els.length; i++) els[i].style.setProperty('--i', i);
+    var inners = liveEls(s, '[data-anim="mask-lines"] .ml-inner');
+    for (var j = 0; j < inners.length; j++) inners[j].style.setProperty('--i', j);
+  });
+  if (!reduceMotion){
+    slots().forEach(function(s){
+      var lines = liveEls(s, '[data-anim="draw-line"]');
+      for (var i = 0; i < lines.length; i++) prepDrawLine(lines[i]);
+    });
+  }
+  function enterSlide(slide){
+    if (slide.classList.contains('in-view')) return;
+    if (!reduceMotion){
+      /* 运行时拆字：先拆再加 in-view（同一帧完成，避免先显后拆的闪烁） */
+      var splits = liveEls(slide, SPLIT_SEL);
+      for (var i = 0; i < splits.length; i++) splitEl(splits[i]);
+    }
+    slide.classList.add('in-view');
+    if (!reduceMotion){
+      var cus = liveEls(slide, '[data-anim="count-up"]');
+      for (var j = 0; j < cus.length; j++) countUp(cus[j]);
+      var tws = liveEls(slide, '[data-anim="typewriter"]');
+      for (var t = 0; t < tws.length; t++) typewriter(tws[t]);
+      var scs = liveEls(slide, '[data-anim="scramble"]');
+      for (var c = 0; c < scs.length; c++) scramble(scs[c]);
+      var dls = liveEls(slide, '[data-anim="draw-line"]');
+      for (var k = 0; k < dls.length; k++){
+        if (dls[k].__drawLen) dls[k].style.strokeDashoffset = '0';
+      }
+    }
+  }
+  if ('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (en.isIntersecting) enterSlide(en.target);
+      });
+    }, {root: deck, threshold: .35});
+    slots().forEach(function(s){ io.observe(s.querySelector('.slide')); });
+  } else {
+    slots().forEach(function(s){ enterSlide(s.querySelector('.slide')); });
+  }
+
+  /* scroll 族驱动（skeleton v5）：read-progress 是纯 CSS scroll-timeline
+     （见框架 CSS）；parallax / scrub / scrub-draw 由这里驱动——rAF 节流
+     监听 deck 滚动，把页穿越视口的进度写为 .slide 上的 --sp ∈ [0,1]
+     （0=整页在视口下方、0.5=居中、1=整页在上方），CSS calc 消费。
+     --sp 缺省值是静态终态：reduced-motion 下不启动，内容完整可见。 */
+  var spSlides = [];
+  var spRaf = 0, spListener = null;
+  function updateSp(){
+    spRaf = 0;
+    var vh = deck.clientHeight, top = deck.scrollTop;
+    for (var i = 0; i < spSlides.length; i++){
+      var r = spSlides[i];
+      var st = r.slot.offsetTop - top, sh = r.slot.offsetHeight;
+      var p = 1 - (st + sh) / (vh + sh);
+      if (p < 0) p = 0; else if (p > 1) p = 1;
+      r.slide.style.setProperty('--sp', p.toFixed(4));
+    }
+  }
+  if (!reduceMotion){
+    slots().forEach(function(s){
+      var slide = s.querySelector('.slide');
+      if (slide && liveEls(slide, '[data-scroll="parallax"],[data-scroll="scrub"],[data-scroll="scrub-draw"]').length)
+        spSlides.push({ slide: slide, slot: s });
+    });
+    if (spSlides.length){
+      spListener = function(){ if (!spRaf && !ptr.frozen) spRaf = requestAnimationFrame(updateSp); };
+      deck.addEventListener('scroll', spListener, {passive:true});
+      updateSp();
+    }
+  }
+
+  /* ============================================================
+     canvas FX runtime（skeleton v5.1 · F5 · fx 仪式层）
+     data-fx 声明的页面级仪式效果：constellation / starfield /
+     particle-drift / ascii-field（字符呼吸场，致敬 guizang ascii-bg）。
+     生成侧只能选类——密度/数量/速度上限全部烧死在 FX_DEFS 常量，
+     无任何参数通道；纪律（只许 .cover-page 仪式页、每页至多 1 个、
+     主题 G5「fx 许可」白名单）见 references/motion.md §4 fx 小节。
+     - 位图按渲染尺寸配：getBoundingClientRect（已含 --slide-scale
+       缩放）× devicePixelRatio（≤2）；fit() 缩放变化时重配；
+     - rAF 生命周期绑 in-view：离屏停帧（画面保留，回屏续播）；
+       首次入视口才初始化——从未入视口的 canvas 连 width/height
+       属性都没有，序列化零残留；
+     - reduced-motion 整组不初始化（fxList 恒空，canvas 恒空白）；
+     - 零事件监听：不碰 pointer/scroll，不劫持宿主（iframe 安全）；
+     - __pptxMotion.freeze() → freezeFx()：停帧 + 清屏 + 摘除
+       width/height，fxFrozen 后 in-view 回调不再重启。
+     ============================================================ */
+  var FX_DEFS = {
+    'constellation':  { n: 44,  vel: .008, link: .078, dotA: .5, lineA: .16 },
+    'starfield':      { n: 150, dotA: .8 },
+    'particle-drift': { n: 26,  dotA: .9 },
+    'ascii-field':    { cell: 26, dotA: .4 }
+  };
+  var FX_ASCII_PAL = '   ...:::---+++***';
+
+  function fxRng(seed){   /* 确定性伪随机（同 shatter：同一页面每次形态一致） */
+    var s = seed >>> 0;
+    return function(){ s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
+  }
+
+  /* 位图尺寸 = 渲染尺寸 × DPR（≤2）；canvas 坐标系即渲染 CSS 像素 */
+  function fxSetup(fx){
+    var r = fx.cv.getBoundingClientRect();
+    if (r.width < 4 || r.height < 4) return false;
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    fx.cv.width = Math.round(r.width * dpr);
+    fx.cv.height = Math.round(r.height * dpr);
+    fx.w = r.width; fx.h = r.height;
+    fx.ctx.setTransform(fx.cv.width / r.width, 0, 0, fx.cv.height / r.height, 0, 0);
+    return true;
+  }
+
+  /* 首次启动时构建：粒子用归一化坐标（[0,1]），缩放重配无需重建 */
+  function fxBuild(fx){
+    var rnd = fxRng(1237 + fx.idx * 9973);
+    var def = FX_DEFS[fx.type];
+    var cs = getComputedStyle(fx.slide);
+    fx.colInk = cs.color;   /* 当前文字色（dark 页即 paper） */
+    fx.colAccent = (cs.getPropertyValue('--accent') || '').trim() || cs.color;
+    fx.mono = (cs.getPropertyValue('--font-mono') || '').trim() || 'monospace';
+    var parts = [], i;
+    if (fx.type === 'constellation'){
+      for (i = 0; i < def.n; i++) parts.push({ x: rnd(), y: rnd(),
+        vx: (rnd() * 2 - 1) * def.vel, vy: (rnd() * 2 - 1) * def.vel });
+    } else if (fx.type === 'starfield'){
+      for (i = 0; i < def.n; i++) parts.push({ x: rnd(), y: rnd(),
+        r: .6 + rnd() * 1.4, ph: rnd() * 6.283, sp: .4 + rnd() * .8 });
+    } else if (fx.type === 'particle-drift'){
+      for (i = 0; i < def.n; i++) parts.push({ x: rnd(), y: rnd(),
+        r: 1.5 + rnd() * 3.5, vx: (rnd() * 2 - 1) * .004,
+        vy: -(.002 + rnd() * .004), ph: rnd() * 6.283 });
+    }
+    fx.parts = parts;
+  }
+
+  function fxDraw(fx, t, dt){
+    var ctx = fx.ctx, w = fx.w, h = fx.h, def = FX_DEFS[fx.type];
+    var i, j, p;
+    ctx.clearRect(0, 0, w, h);
+    if (fx.type === 'constellation'){
+      var link = def.link * w;
+      for (i = 0; i < fx.parts.length; i++){
+        p = fx.parts[i];
+        p.x += p.vx * dt; p.y += p.vy * dt;
+        if (p.x < 0 || p.x > 1) p.vx = -p.vx;
+        if (p.y < 0 || p.y > 1) p.vy = -p.vy;
+        p.x = Math.max(0, Math.min(1, p.x));
+        p.y = Math.max(0, Math.min(1, p.y));
+      }
+      ctx.strokeStyle = fx.colAccent;
+      ctx.lineWidth = Math.max(1, w / 1920);
+      for (i = 0; i < fx.parts.length; i++){
+        for (j = i + 1; j < fx.parts.length; j++){
+          var dx = (fx.parts[i].x - fx.parts[j].x) * w;
+          var dy = (fx.parts[i].y - fx.parts[j].y) * h;
+          var d = Math.sqrt(dx * dx + dy * dy);
+          if (d < link){
+            ctx.globalAlpha = (1 - d / link) * def.lineA;
+            ctx.beginPath();
+            ctx.moveTo(fx.parts[i].x * w, fx.parts[i].y * h);
+            ctx.lineTo(fx.parts[j].x * w, fx.parts[j].y * h);
+            ctx.stroke();
+          }
+        }
+      }
+      ctx.fillStyle = fx.colAccent;
+      ctx.globalAlpha = def.dotA;
+      var rc = Math.max(1.2, w * .0014);
+      for (i = 0; i < fx.parts.length; i++){
+        ctx.beginPath();
+        ctx.arc(fx.parts[i].x * w, fx.parts[i].y * h, rc, 0, 6.283);
+        ctx.fill();
+      }
+    } else if (fx.type === 'starfield'){
+      ctx.fillStyle = fx.colInk;
+      var rs = Math.max(.7, w / 1920);
+      for (i = 0; i < fx.parts.length; i++){
+        p = fx.parts[i];
+        ctx.globalAlpha = (.18 + .62 * (.5 + .5 * Math.sin(t * p.sp + p.ph))) * def.dotA;
+        ctx.beginPath();
+        ctx.arc(p.x * w, p.y * h, p.r * rs, 0, 6.283);
+        ctx.fill();
+      }
+    } else if (fx.type === 'particle-drift'){
+      ctx.fillStyle = fx.colInk;
+      var rp = Math.max(.8, w / 1920);
+      for (i = 0; i < fx.parts.length; i++){
+        p = fx.parts[i];
+        p.x += p.vx * dt; p.y += p.vy * dt;
+        if (p.y < -.03){ p.y = 1.03; p.x = (p.x + .37) % 1; }
+        if (p.x < -.03) p.x = 1.03; else if (p.x > 1.03) p.x = -.03;
+        ctx.globalAlpha = (.10 + .22 * (.5 + .5 * Math.sin(t * .9 + p.ph))) * def.dotA;
+        ctx.beginPath();
+        ctx.arc(p.x * w, p.y * h, p.r * rp, 0, 6.283);
+        ctx.fill();
+      }
+    } else if (fx.type === 'ascii-field'){
+      /* 字符呼吸场：sin 二维噪声场驱动字符显隐（mono 字符集） */
+      var cell = Math.max(16, w * def.cell / 1920);
+      var cols = Math.ceil(w / cell), rows = Math.ceil(h / cell);
+      ctx.font = '500 ' + Math.round(cell * .72) + 'px ' + fx.mono;
+      ctx.textBaseline = 'top';
+      ctx.fillStyle = fx.colInk;
+      var cx, cy;
+      for (cy = 0; cy < rows; cy++){
+        for (cx = 0; cx < cols; cx++){
+          var n = (Math.sin(cx * .18 + t) + Math.sin(cy * .24 - t * .7) +
+                   Math.sin((cx + cy) * .12 + t * .45) +
+                   Math.sin(Math.sqrt((cx - cols * .5) * (cx - cols * .5) +
+                                      (cy - rows * .5) * (cy - rows * .5)) * .16 - t * .55)) / 4;
+          var v = (n + 1) / 2;
+          if (v < .28) continue;
+          var ch = FX_ASCII_PAL[Math.min(FX_ASCII_PAL.length - 1, Math.floor(v * FX_ASCII_PAL.length))];
+          if (ch === ' ') continue;
+          ctx.globalAlpha = Math.min(def.dotA, .05 + (v - .28) * .55);
+          ctx.fillText(ch, cx * cell, cy * cell);
+        }
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function fxTick(fx, now){
+    if (!fx.running) return;
+    if (fx.last == null) fx.last = now;
+    var dt = Math.min(.1, (now - fx.last) / 1000);
+    fx.last = now;
+    fx.t += dt * (fx.type === 'ascii-field' ? .55 : 1);
+    fxDraw(fx, fx.t, dt);
+    fx.raf = requestAnimationFrame(function(n){ fxTick(fx, n); });
+  }
+  function fxStart(fx){
+    if (fx.running || fxFrozen) return;
+    if (!fx.parts){
+      if (!fxSetup(fx)) return;
+      fxBuild(fx);
+    }
+    fx.running = true; fx.last = null;
+    fx.raf = requestAnimationFrame(function(n){ fxTick(fx, n); });
+  }
+  function fxStop(fx){
+    fx.running = false;
+    if (fx.raf){ cancelAnimationFrame(fx.raf); fx.raf = 0; }
+  }
+  function freezeFx(){
+    fxFrozen = true;
+    for (var i = 0; i < fxList.length; i++){
+      fxStop(fxList[i]);
+      if (fxList[i].parts) fxList[i].ctx.clearRect(0, 0, fxList[i].w, fxList[i].h);
+      fxList[i].cv.removeAttribute('width');
+      fxList[i].cv.removeAttribute('height');
+    }
+  }
+
+  /* fx 实例收集与 in-view 生命周期：reduced-motion 整组不初始化 */
+  if (!reduceMotion){
+    var fxCvs = liveEls(deck, 'canvas[data-fx]');
+    for (var fc = 0; fc < fxCvs.length; fc++){
+      var fxType = fxCvs[fc].getAttribute('data-fx');
+      var fxSlide = fxCvs[fc].closest ? fxCvs[fc].closest('.slide') : null;
+      var fxCtx = fxCvs[fc].getContext && fxCvs[fc].getContext('2d');
+      if (!FX_DEFS[fxType] || !fxSlide || !fxCtx) continue;
+      fxList.push({ cv: fxCvs[fc], ctx: fxCtx, slide: fxSlide, type: fxType,
+                    idx: fc, parts: null, t: 0, last: null, raf: 0,
+                    running: false, w: 0, h: 0, colInk: '', colAccent: '', mono: '' });
+    }
+    if (fxList.length){
+      if ('IntersectionObserver' in window){
+        var fxIo = new IntersectionObserver(function(entries){
+          entries.forEach(function(en){
+            for (var i = 0; i < fxList.length; i++){
+              if (fxList[i].slide === en.target){
+                if (en.isIntersecting) fxStart(fxList[i]); else fxStop(fxList[i]);
+                break;
+              }
+            }
+          });
+        }, { root: deck, threshold: 0 });
+        fxList.forEach(function(f){ fxIo.observe(f.slide); });
+      } else {
+        fxList.forEach(fxStart);   /* 无 IO 降级：全部常开（同入场引擎语义） */
+      }
+    }
+  }
+
+  /* pointer tracker（skeleton v5 · ptr 族 / light 族 spotlight）：
+     rAF 节流 pointermove，只往指针所在 .slide 写 CSS 变量
+     （--mx/--my 百分比、--mxr/--myr ∈ [-1,1]），不碰 DOM 结构——编辑零冲突；
+     tilt / magnetic 是 per-element 监听 + pointerleave 回弹（CSS transition
+     承担回弹）。reduced-motion / 非 fine 指针（触屏）整组不启动；
+     全程 passive 监听，不劫持任何事件（iframe 嵌入安全）。 */
+  var ptr = { slide: null, raf: 0, onMove: null, onLeave: null, frozen: false };
+  function ptrResetSlide(s){
+    if (!s) return;
+    s.style.removeProperty('--mx'); s.style.removeProperty('--my');
+    s.style.removeProperty('--mxr'); s.style.removeProperty('--myr');
+  }
+  function freezePtr(){
+    ptr.frozen = true;
+    if (ptr.raf){ cancelAnimationFrame(ptr.raf); ptr.raf = 0; }
+    if (ptr.onMove){ deck.removeEventListener('pointermove', ptr.onMove); ptr.onMove = null; }
+    if (ptr.onLeave){ deck.removeEventListener('pointerleave', ptr.onLeave); ptr.onLeave = null; }
+    ptrResetSlide(ptr.slide); ptr.slide = null;
+    var els = deck.querySelectorAll('[data-ptr="tilt"],[data-ptr="magnetic"]');
+    for (var i = 0; i < els.length; i++){
+      els[i].style.removeProperty('--rx'); els[i].style.removeProperty('--ry');
+      els[i].style.removeProperty('--mgx'); els[i].style.removeProperty('--mgy');
+    }
+    /* scroll 族 JS 驱动一并冻结：摘除监听、清 --sp（CSS 缺省值回静态终态） */
+    if (spListener){ deck.removeEventListener('scroll', spListener); spListener = null; }
+    if (spRaf){ cancelAnimationFrame(spRaf); spRaf = 0; }
+    for (var j = 0; j < spSlides.length; j++) spSlides[j].slide.style.removeProperty('--sp');
+  }
+  (function initPointer(){
+    if (reduceMotion) return;
+    if (!(window.matchMedia && window.matchMedia('(pointer:fine)').matches)) return;
+    var needVars = !!liveEls(deck, '.spotlight,[data-ptr="parallax"]').length;
+    var tilts = liveEls(deck, '[data-ptr="tilt"]');
+    var magnets = liveEls(deck, '[data-ptr="magnetic"]');
+    if (!needVars && !tilts.length && !magnets.length) return;
+    if (needVars){
+      ptr.onMove = function(e){
+        if (ptr.raf || ptr.frozen) return;
+        var ev = e;
+        ptr.raf = requestAnimationFrame(function(){
+          ptr.raf = 0;
+          var slide = ev.target && ev.target.closest ? ev.target.closest('.slide') : null;
+          if (slide !== ptr.slide){ ptrResetSlide(ptr.slide); ptr.slide = slide; }
+          if (!slide) return;
+          var r = slide.getBoundingClientRect();
+          if (!r.width || !r.height) return;
+          var px = (ev.clientX - r.left) / r.width, py = (ev.clientY - r.top) / r.height;
+          slide.style.setProperty('--mx', (px * 100).toFixed(1) + '%');
+          slide.style.setProperty('--my', (py * 100).toFixed(1) + '%');
+          slide.style.setProperty('--mxr', (px * 2 - 1).toFixed(3));
+          slide.style.setProperty('--myr', (py * 2 - 1).toFixed(3));
+        });
+      };
+      ptr.onLeave = function(){ ptrResetSlide(ptr.slide); ptr.slide = null; };
+      deck.addEventListener('pointermove', ptr.onMove, {passive:true});
+      deck.addEventListener('pointerleave', ptr.onLeave, {passive:true});
+    }
+    /* tilt：倾角上限 ±6deg 烧死；离开回弹 */
+    Array.prototype.forEach.call(tilts, function(el){
+      el.addEventListener('pointermove', function(e){
+        if (ptr.frozen) return;
+        var r = el.getBoundingClientRect();
+        if (!r.width || !r.height) return;
+        var px = (e.clientX - r.left) / r.width - .5, py = (e.clientY - r.top) / r.height - .5;
+        el.style.setProperty('--ry', (px * 6).toFixed(2) + 'deg');
+        el.style.setProperty('--rx', (-py * 6).toFixed(2) + 'deg');
+      }, {passive:true});
+      el.addEventListener('pointerleave', function(){
+        el.style.removeProperty('--rx'); el.style.removeProperty('--ry');
+      }, {passive:true});
+    });
+    /* magnetic：向指针吸附，拉力系数 .18、位移上限 ±16px 烧死；离开回弹 */
+    Array.prototype.forEach.call(magnets, function(el){
+      el.addEventListener('pointermove', function(e){
+        if (ptr.frozen) return;
+        var r = el.getBoundingClientRect();
+        var dx = (e.clientX - (r.left + r.width / 2)) * .18;
+        var dy = (e.clientY - (r.top + r.height / 2)) * .18;
+        el.style.setProperty('--mgx', Math.max(-16, Math.min(16, dx)).toFixed(1) + 'px');
+        el.style.setProperty('--mgy', Math.max(-16, Math.min(16, dy)).toFixed(1) + 'px');
+      }, {passive:true});
+      el.addEventListener('pointerleave', function(){
+        el.style.removeProperty('--mgx'); el.style.removeProperty('--mgy');
+      }, {passive:true});
+    });
+  })();
+})();
+</script>
+</body>
+</html>

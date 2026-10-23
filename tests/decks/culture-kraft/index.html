@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>重读《乡土中国》 · 人文读书分享</title>
+<style>
+/* ============================================================
+   SLOT: theme tokens
+   从 references/themes.md 选定主题后，整套替换以下变量。
+   禁止混搭、禁止修改色值。
+   ============================================================ */
+:root{
+  /* 主题色（A4 牛皮纸） */
+  --paper:#eedfc7;
+  --paper-tint:#e0d0b6;
+  --ink:#2a1e13;
+  --ink-tint:#3a2a1d;
+  --accent:#2a1e13;
+  --accent-on:#eedfc7;
+  /* 字体栈（系统栈，离线可用） */
+  --font-display:"Songti SC","Noto Serif SC","STSong",serif;
+  --font-body:"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif;
+  --font-mono:"SF Mono","JetBrains Mono","Menlo",monospace;
+  /* 画布内边距（画布坐标系 px） */
+  --slide-pad:96px 120px;
+}
+
+/* ============================================================
+   框架层 · 禁止修改
+   处理：16:9 固定画布缩放、竖向滚动、键盘翻页、
+   入场动效、reduced-motion 降级、打印。
+   ============================================================ */
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  background:#111;
+  font-family:var(--font-body);
+  -webkit-font-smoothing:antialiased;
+  overscroll-behavior:none;
+}
+.deck{
+  height:100vh;
+  height:100dvh;
+  overflow-y:auto;
+  scroll-snap-type:y proximity;
+}
+.slide-slot{
+  width:100%;
+  height:calc(1080px * var(--slide-scale, .5));
+  margin:12px 0;
+  display:flex;
+  justify-content:center;
+  scroll-snap-align:start;
+  content-visibility:auto;
+}
+.slide{
+  width:1920px;
+  height:1080px;
+  flex:none;
+  position:relative;
+  overflow:hidden;
+  transform:scale(var(--slide-scale, .5));
+  transform-origin:top center;
+  background:var(--paper);
+  color:var(--ink);
+  padding:var(--slide-pad);
+}
+/* 暗色页变体 */
+.slide.dark{background:var(--ink);color:var(--paper)}
+
+/* 入场动效：给元素加 class="reveal"，可用 style="--d:.15s" 做阶梯延迟 */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease;transition-delay:var(--d,0s)}
+.slide.in-view .reveal{opacity:1;transform:none}
+@media (prefers-reduced-motion: reduce){
+  .reveal{opacity:1;transform:none;transition:none}
+}
+
+/* 界面 chrome：页码指示（在缩放画布之外） */
+.deck-chrome{
+  position:fixed;
+  right:20px;
+  bottom:16px;
+  font-family:var(--font-mono);
+  font-size:12px;
+  letter-spacing:.08em;
+  color:#888;
+  user-select:none;
+  pointer-events:none;
+  z-index:10;
+}
+
+/* 打印：每页一张 1920×1080（PDF 导出请用 Chrome/Edge） */
+@media print{
+  @page{size:1920px 1080px;margin:0}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{background:none}
+  .deck{height:auto;overflow:visible}
+  .slide-slot{height:1080px;margin:0;page-break-after:always}
+  .slide{transform:none !important}
+  .deck-chrome{display:none}
+  .reveal{opacity:1 !important;transform:none !important}
+}
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+  <!-- ==========================================================
+       SLOT: slides
+       每页结构（示例两页，生成时替换为真实内容）：
+       - data-slide-id：稳定语义 ID，禁止用页码
+       - data-editable：用户可见文字
+       - data-editable-image：可替换图片，src 指向 assets/ 相对路径
+       - data-editable-skip：纯装饰元素
+       ========================================================== -->
+
+  <div class="slide-slot">
+    <section class="slide dark" data-slide-id="cover" data-content-hash="d812b9fa8a5b">
+      <p data-editable-skip style="font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;opacity:.55">A HUMANITIES READING · 2026</p>
+      <h1 data-editable class="reveal" style="margin-top:220px;font-family:var(--font-display);font-size:140px;line-height:1.25;font-weight:700">重读《乡土中国》</h1>
+      <p data-editable class="reveal" style="--d:.15s;margin-top:48px;font-size:30px;opacity:.78">费孝通 著 · 一场跨越八十年的对话</p>
+      <div data-editable-skip style="margin-top:120px;width:96px;height:2px;background:var(--accent-on);opacity:.5"></div>
+      <p data-editable class="reveal" style="--d:.3s;margin-top:32px;font-size:20px;opacity:.6">人文读书分享 · 第二期</p>
+      <div data-editable-skip style="position:absolute;right:96px;top:-40px;font-family:var(--font-display);font-size:420px;line-height:1;font-weight:700;color:var(--accent-on);opacity:.07;user-select:none">乡土</div>
+    </section>
+  </div>
+
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="why-reread" data-content-hash="b71c1ecb9e27">
+      <p data-editable-skip style="font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;opacity:.55">01 · WHY RE-READ</p>
+      <h2 data-editable class="reveal" style="margin-top:32px;font-family:var(--font-display);font-size:64px;line-height:1.35;font-weight:700">一本八十年前的书，为什么还在解释今天？</h2>
+      <div style="margin-top:64px">
+        <div class="reveal" style="display:flex;align-items:baseline;gap:56px;padding:34px 0;border-top:1px solid var(--paper-tint)">
+          <span data-editable-skip style="font-family:var(--font-mono);font-size:22px;opacity:.45">01</span>
+          <h3 data-editable style="font-family:var(--font-display);font-size:34px;line-height:1.4;font-weight:700;width:420px;flex:none">因为我们还活在其中</h3>
+          <p data-editable style="font-size:22px;line-height:1.75;opacity:.8">差序格局、礼治秩序、长老统治——书中写下的乡土逻辑，并没有随着城市化退场，它仍然是我们处理人情、关系与信任的默认方式。</p>
+        </div>
+        <div class="reveal" style="--d:.12s;display:flex;align-items:baseline;gap:56px;padding:34px 0;border-top:1px solid var(--paper-tint)">
+          <span data-editable-skip style="font-family:var(--font-mono);font-size:22px;opacity:.45">02</span>
+          <h3 data-editable style="font-family:var(--font-display);font-size:34px;line-height:1.4;font-weight:700;width:420px;flex:none">因为城市没有取代乡土</h3>
+          <p data-editable style="font-size:22px;line-height:1.75;opacity:.8">住进高楼之后，我们把熟人社会搬进了手机：朋友圈的分组、点赞的远近亲疏、办事时先想的"有没有熟人"，水波纹一圈圈仍在向外推开。</p>
+        </div>
+        <div class="reveal" style="--d:.24s;display:flex;align-items:baseline;gap:56px;padding:34px 0;border-top:1px solid var(--paper-tint)">
+          <span data-editable-skip style="font-family:var(--font-mono);font-size:22px;opacity:.45">03</span>
+          <h3 data-editable style="font-family:var(--font-display);font-size:34px;line-height:1.4;font-weight:700;width:420px;flex:none">因为它教我们理解来处</h3>
+          <p data-editable style="font-size:22px;line-height:1.75;opacity:.8">读懂土地，才能读懂我们的父辈与来处，读懂那些说不出口、却根深蒂固地支配着日常行为的老规矩，以及我们对"家"的全部想象。</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="author-context" data-content-hash="d68c163444fa">
+      <p data-editable-skip style="font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;opacity:.55">02 · ORIGIN</p>
+      <div style="display:flex;gap:80px;margin-top:48px">
+        <div style="flex:1">
+          <h2 data-editable class="reveal" style="font-family:var(--font-display);font-size:64px;line-height:1.35;font-weight:700">一九四七年，十四篇讲义</h2>
+          <p data-editable class="reveal" style="--d:.12s;margin-top:40px;font-size:24px;line-height:1.9;text-align:justify">费孝通，江苏吴江人，中国社会学与人类学的奠基人之一。一九四七年，他将在西南联大讲授"乡村社会学"的讲稿整理为十四篇文章，连载于《世纪评论》，随后结集为这本薄薄的小书。</p>
+          <p data-editable class="reveal" style="--d:.24s;margin-top:32px;font-size:24px;line-height:1.9;text-align:justify;opacity:.85">书很薄，只有一百多页；问题却很重——中国的基层社会究竟是什么样子？它凭什么运转？八十年过去，这两个问题依然悬在我们头上。</p>
+        </div>
+        <div class="reveal" style="--d:.3s;width:460px;flex:none;border-left:1px solid var(--paper-tint);padding-left:48px">
+          <div style="padding:34px 0">
+            <p data-editable style="font-family:var(--font-display);font-size:52px;line-height:1.2;font-weight:700">1910</p>
+            <p data-editable style="margin-top:8px;font-size:20px;opacity:.7">生于江苏吴江，开弦弓村就在家附近</p>
+          </div>
+          <div style="padding:34px 0;border-top:1px solid var(--paper-tint)">
+            <p data-editable style="font-family:var(--font-display);font-size:52px;line-height:1.2;font-weight:700">1938</p>
+            <p data-editable style="margin-top:8px;font-size:20px;opacity:.7">博士论文《江村经济》震动国际学界</p>
+          </div>
+          <div style="padding:34px 0;border-top:1px solid var(--paper-tint)">
+            <p data-editable style="font-family:var(--font-display);font-size:52px;line-height:1.2;font-weight:700">1947</p>
+            <p data-editable style="margin-top:8px;font-size:20px;opacity:.7">《乡土中国》结集成书，一纸风行至今</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="slide-slot">
+    <section class="slide dark" data-slide-id="quote-xiangtu" data-content-hash="d88bd62bb555">
+      <p data-editable-skip style="text-align:center;font-family:var(--font-display);font-size:120px;line-height:1;opacity:.14">"</p>
+      <blockquote data-editable class="reveal" style="margin-top:64px;text-align:center;font-family:var(--font-display);font-size:72px;line-height:1.6;font-weight:700">从基层上看去，<br>中国社会是乡土性的。</blockquote>
+      <p data-editable class="reveal" style="--d:.15s;margin-top:56px;text-align:center;font-size:22px;opacity:.65">—— 《乡土中国 · 乡土本色》</p>
+      <blockquote data-editable class="reveal" style="--d:.3s;margin-top:104px;text-align:center;font-family:var(--font-display);font-size:30px;line-height:2;opacity:.85">以农为生的人，世代定居是常态，<br>迁移是变态。</blockquote>
+    </section>
+  </div>
+
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="reading-notes" data-content-hash="bb01830a7447">
+      <p data-editable-skip style="font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;opacity:.55">03 · READING NOTES</p>
+      <h2 data-editable class="reveal" style="margin-top:32px;font-family:var(--font-display);font-size:60px;line-height:1.35;font-weight:700">重读札记：熟人社会的体温</h2>
+      <p data-editable class="reveal" style="--d:.12s;margin-top:36px;font-size:26px;line-height:1.8;max-width:1400px;opacity:.85">这一次重读，我不再把它当作社会学的入门课本，而是一面镜子——照见我们如何从土地里走出来，又如何在城市里一遍遍重建"乡土"。</p>
+      <div class="reveal" style="--d:.24s;display:flex;gap:72px;margin-top:48px">
+        <p data-editable style="flex:1;font-size:22px;line-height:1.95;text-align:justify">"差序格局"是全书最著名的比喻：以"己"为中心，像石子投进水中，波纹一圈圈推出去，亲疏远近皆由关系而定。今天我们住进了商品房，门牌号取代了祠堂，可微信里的分组、饭局上的座次、办事时先想的"有没有熟人"，仍是那一圈波纹。差序格局没有消失，它只是换了一个容器。</p>
+        <p data-editable style="flex:1;font-size:22px;line-height:1.95;text-align:justify">"礼治秩序"同样如此。乡土社会不靠法律而靠礼俗，不靠外力而靠内心习以为常的敬畏。今天的规则多如牛毛，可真正让电梯里保持安静、让排队成为习惯的，仍是"不好意思"四个字。费孝通写的不是过去，而是中国社会的底层代码——版本不断更新，内核从未重写。</p>
+      </div>
+      <div data-editable-skip style="margin-top:56px;width:64px;height:1px;background:var(--ink)"></div>
+      <p data-editable class="reveal" style="--d:.36s;margin-top:32px;font-family:var(--font-display);font-size:30px;font-weight:700">乡土不在身后，乡土就在我们身上。</p>
+    </section>
+  </div>
+
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="key-terms" data-content-hash="2031ec1abc00">
+      <p data-editable-skip style="font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;opacity:.55">04 · KEY WORDS</p>
+      <div style="display:flex;gap:80px;margin-top:40px">
+        <div style="flex:1">
+          <h2 data-editable class="reveal" style="font-family:var(--font-display);font-size:96px;line-height:1.25;font-weight:700">差序格局</h2>
+          <p data-editable class="reveal" style="--d:.12s;margin-top:32px;font-size:24px;line-height:1.85;max-width:760px">一块石头丢进水里，一圈圈推出去的波纹——中国人的社会关系，就是这样以"己"为中心、由近及远展开的同心圆。</p>
+          <svg data-editable-skip class="reveal" style="--d:.24s;margin-top:56px" width="600" height="360" viewBox="0 0 600 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="300" cy="180" r="42" stroke="#2a1e13" stroke-width="2"/>
+            <circle cx="300" cy="180" r="92" stroke="#2a1e13" stroke-width="1.5" opacity=".7"/>
+            <circle cx="300" cy="180" r="140" stroke="#2a1e13" stroke-width="1" opacity=".45"/>
+            <circle cx="300" cy="180" r="176" stroke="#2a1e13" stroke-width="1" opacity=".25"/>
+            <circle cx="300" cy="180" r="10" fill="#2a1e13"/>
+          </svg>
+        </div>
+        <div class="reveal" style="--d:.3s;width:340px;flex:none;border-left:1px solid var(--paper-tint);padding-left:40px">
+          <div style="height:280px;overflow:hidden;padding:8px 0">
+            <h3 data-editable style="font-family:var(--font-display);font-size:32px;line-height:1.4;font-weight:700">礼治秩序</h3>
+            <p data-editable style="margin-top:12px;font-size:20px;line-height:1.8;opacity:.8">不靠法律靠礼俗，维持秩序的是内心习以为常的传统。</p>
+          </div>
+          <div style="height:280px;overflow:hidden;padding:8px 0;border-top:1px solid var(--paper-tint);margin-top:32px">
+            <h3 data-editable style="font-family:var(--font-display);font-size:32px;line-height:1.4;font-weight:700">长老统治</h3>
+            <p data-editable style="margin-top:12px;font-size:20px;line-height:1.8;opacity:.8">年长者的经验即权威，教化代替强制，同意权力让横暴权力退居其次。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="slide-slot">
+    <section class="slide dark" data-slide-id="the-land" data-content-hash="95f401d5a101">
+      <p data-editable-skip style="font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;opacity:.55">05 · THE LAND</p>
+      <div style="display:flex;gap:72px;margin-top:40px;align-items:center">
+        <div style="flex:1">
+          <h2 data-editable class="reveal" style="font-family:var(--font-display);font-size:64px;line-height:1.35;font-weight:700">土地是底色</h2>
+          <p data-editable class="reveal" style="--d:.12s;margin-top:36px;font-size:22px;line-height:1.9;max-width:640px;text-align:justify;opacity:.9">从江村的桑田到华北的麦浪，乡土中国的底色，是一代代人弯腰耕作的土地。今天我们谈论乡村振兴、谈论返乡青年，谈论的仍然是人与土地的关系。</p>
+          <p data-editable class="reveal" style="--d:.24s;margin-top:48px;font-size:20px;opacity:.55">占位图 · 直接替换 assets/ 目录下的同名文件即可换图</p>
+        </div>
+        <img data-editable-image data-image-slot="village-fields-4x3" data-image-intent="层叠田野与远山的乡土意象，暖纸色调，横幅构图" data-image-state="placeholder" src="assets/village-fields.svg" alt="层叠田野与远山的乡土意象插画（占位图）" style="width:840px;height:630px;object-fit:cover;display:block;flex:none">
+      </div>
+    </section>
+  </div>
+
+  <div class="slide-slot">
+    <section class="slide dark" data-slide-id="closing" data-content-hash="6e00345d422e">
+      <p data-editable-skip style="margin-top:280px;text-align:center;font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;opacity:.5">EPILOGUE</p>
+      <h2 data-editable class="reveal" style="margin-top:56px;text-align:center;font-family:var(--font-display);font-size:84px;line-height:1.4;font-weight:700">认识乡土，是为了看清我们出发的地方</h2>
+      <div data-editable-skip style="margin:64px auto 0;width:64px;height:2px;background:var(--accent-on);opacity:.5"></div>
+      <p data-editable class="reveal" style="--d:.15s;margin-top:48px;text-align:center;font-size:24px;opacity:.7">重读《乡土中国》 · 人文读书分享 · 谢谢聆听</p>
+    </section>
+  </div>
+
+</div>
+
+<div class="deck-chrome" id="chrome">1 / 1</div>
+
+<script>
+/* ============================================================
+   框架层 · 禁止修改
+   ============================================================ */
+(function(){
+  var deck = document.getElementById('deck');
+  var chrome = document.getElementById('chrome');
+
+  function slots(){ return Array.prototype.slice.call(deck.querySelectorAll('.slide-slot')); }
+
+  /* 缩放：整个 1920×1080 画布按容器比例缩放，绝不重排内容。
+     ResizeObserver 而非 window resize：iframe 尺寸变化、侧栏开合都算。 */
+  var lastScale = 0;
+  function fit(){
+    var s = Math.min(deck.clientWidth/1920, deck.clientHeight/1080);
+    if (Math.abs(s - lastScale) < 0.001) return;  /* 去抖：dvh 抖动 */
+    lastScale = s;
+    document.documentElement.style.setProperty('--slide-scale', s);
+  }
+  if ('ResizeObserver' in window){ new ResizeObserver(fit).observe(deck); }
+  window.addEventListener('resize', fit);
+  fit();
+
+  /* 页码指示 */
+  function currentIndex(){
+    var list = slots();
+    var top = deck.scrollTop;
+    for (var i = 0; i < list.length; i++){
+      if (list[i].offsetTop + list[i].offsetHeight/2 > top + 8) return i;
+    }
+    return list.length - 1;
+  }
+  function updateChrome(){
+    chrome.textContent = (currentIndex()+1) + ' / ' + slots().length;
+  }
+  deck.addEventListener('scroll', function(){ requestAnimationFrame(updateChrome); }, {passive:true});
+  updateChrome();
+
+  /* 键盘翻页 */
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function go(i){
+    var list = slots();
+    i = Math.max(0, Math.min(list.length-1, i));
+    deck.scrollTo({top: list[i].offsetTop, behavior: reduceMotion ? 'auto' : 'smooth'});
+  }
+  window.addEventListener('keydown', function(e){
+    if (e.target && (e.target.isContentEditable || /^(INPUT|TEXTAREA)$/.test(e.target.tagName))) return;
+    if (e.key==='ArrowDown' || e.key==='PageDown' || e.key===' '){ e.preventDefault(); go(currentIndex()+1); }
+    else if (e.key==='ArrowUp' || e.key==='PageUp'){ e.preventDefault(); go(currentIndex()-1); }
+    else if (e.key==='Home'){ e.preventDefault(); go(0); }
+    else if (e.key==='End'){ e.preventDefault(); go(slots().length-1); }
+  });
+
+  /* 入场动效：页面进入视口时触发 */
+  if ('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (en.isIntersecting) en.target.classList.add('in-view');
+      });
+    }, {root: deck, threshold: .35});
+    slots().forEach(function(s){ io.observe(s.querySelector('.slide')); });
+  } else {
+    slots().forEach(function(s){ s.querySelector('.slide').classList.add('in-view'); });
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="888" viewBox="0 0 760 888">
+  <rect width="760" height="888" fill="#1a1816"/>
+  <path d="M0 240 C 190 180 380 300 760 220" stroke="#e8e4df" stroke-width="1.5" fill="none" opacity="0.35"/>
+  <path d="M0 360 C 190 300 380 420 760 340" stroke="#d4a574" stroke-width="2" fill="none" opacity="0.85"/>
+  <path d="M0 480 C 190 420 380 540 760 460" stroke="#e8e4df" stroke-width="1.5" fill="none" opacity="0.3"/>
+  <path d="M0 600 C 190 540 380 660 760 580" stroke="#d4a574" stroke-width="1.5" fill="none" opacity="0.5"/>
+  <path d="M0 720 C 190 660 380 780 760 700" stroke="#e8e4df" stroke-width="1.5" fill="none" opacity="0.25"/>
+  <ellipse cx="540" cy="330" rx="90" ry="150" fill="#2a2724" stroke="#d4a574" stroke-width="1.5" transform="rotate(18 540 330)"/>
+  <path d="M540 180 C 555 260 555 400 540 480" stroke="#d4a574" stroke-width="1.5" fill="none" opacity="0.8"/>
+  <circle cx="180" cy="760" r="3" fill="#d4a574" opacity="0.7"/>
+  <circle cx="620" cy="640" r="2.5" fill="#e8e4df" opacity="0.5"/>
+  <text x="48" y="836" font-family="monospace" font-size="20" fill="#e8e4df" opacity="0.55" letter-spacing="4">WEST WIND / NO.2</text>
+</svg>

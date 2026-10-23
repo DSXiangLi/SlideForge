@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="640" viewBox="0 0 720 640">
+  <rect width="720" height="640" fill="#f0f0ee"/>
+  <!-- 顶部标注条 -->
+  <rect x="40" y="40" width="120" height="8" fill="#002FA7"/>
+  <text x="40" y="88" font-family="Menlo, monospace" font-size="20" letter-spacing="4" fill="#0a0a0a">MONOLITH</text>
+  <!-- 单体应用：一个大容器，内部模块挤在一起 -->
+  <rect x="40" y="120" width="640" height="320" fill="none" stroke="#0a0a0a" stroke-width="3"/>
+  <g fill="#0a0a0a" opacity="0.18">
+    <rect x="72" y="152" width="140" height="120"/>
+    <rect x="228" y="152" width="140" height="120"/>
+    <rect x="384" y="152" width="140" height="120"/>
+    <rect x="72" y="288" width="140" height="120"/>
+    <rect x="228" y="288" width="296" height="120"/>
+  </g>
+  <!-- 唯一高亮模块：即将被拆出的那一个 -->
+  <rect x="540" y="152" width="108" height="256" fill="#002FA7"/>
+  <!-- 连接：单点直连 -->
+  <line x1="360" y1="440" x2="360" y2="500" stroke="#0a0a0a" stroke-width="2"/>
+  <!-- 单一数据库 -->
+  <ellipse cx="360" cy="512" rx="120" ry="16" fill="none" stroke="#0a0a0a" stroke-width="3"/>
+  <path d="M240 512 v56 c0 9 54 16 120 16 c66 0 120 -7 120 -16 v-56" fill="none" stroke="#0a0a0a" stroke-width="3"/>
+  <text x="360" y="620" text-anchor="middle" font-family="Menlo, monospace" font-size="16" letter-spacing="3" fill="#0a0a0a" opacity="0.55">ONE PROCESS · ONE DATABASE</text>
+</svg>

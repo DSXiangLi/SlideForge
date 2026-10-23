@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="600" viewBox="0 0 1680 600">
+  <rect width="1680" height="600" fill="#f0f0ee"/>
+  <rect x="40" y="40" width="120" height="8" fill="#002FA7"/>
+  <text x="40" y="88" font-family="Menlo, monospace" font-size="20" letter-spacing="4" fill="#0a0a0a">MICROSERVICES · 14 SERVICES / 3 DOMAINS</text>
+  <!-- 连接线（1px hairline，先画线后画节点） -->
+  <g stroke="#0a0a0a" stroke-width="1" opacity="0.3">
+    <line x1="240" y1="300" x2="480" y2="180"/>
+    <line x1="240" y1="300" x2="480" y2="300"/>
+    <line x1="240" y1="300" x2="480" y2="420"/>
+    <line x1="480" y1="180" x2="760" y2="180"/>
+    <line x1="480" y1="300" x2="760" y2="300"/>
+    <line x1="480" y1="420" x2="760" y2="420"/>
+    <line x1="760" y1="180" x2="1040" y2="240"/>
+    <line x1="760" y1="300" x2="1040" y2="240"/>
+    <line x1="760" y1="300" x2="1040" y2="360"/>
+    <line x1="760" y1="420" x2="1040" y2="360"/>
+    <line x1="1040" y1="240" x2="1320" y2="180"/>
+    <line x1="1040" y1="360" x2="1320" y2="420"/>
+    <line x1="1320" y1="180" x2="1500" y2="300"/>
+    <line x1="1320" y1="420" x2="1500" y2="300"/>
+    <line x1="480" y1="180" x2="760" y2="420" stroke-dasharray="6 6"/>
+    <line x1="1040" y1="240" x2="1320" y2="420" stroke-dasharray="6 6"/>
+  </g>
+  <!-- 网关 -->
+  <rect x="160" y="264" width="160" height="72" fill="#0a0a0a"/>
+  <text x="240" y="308" text-anchor="middle" font-family="Menlo, monospace" font-size="20" fill="#fafaf8">GATEWAY</text>
+  <!-- 业务域一：交易 -->
+  <g fill="#fafaf8" stroke="#0a0a0a" stroke-width="2">
+    <rect x="400" y="144" width="160" height="72"/>
+    <rect x="400" y="264" width="160" height="72"/>
+    <rect x="400" y="384" width="160" height="72"/>
+    <rect x="680" y="144" width="160" height="72"/>
+    <rect x="680" y="264" width="160" height="72"/>
+    <rect x="680" y="384" width="160" height="72"/>
+    <rect x="960" y="204" width="160" height="72"/>
+    <rect x="960" y="324" width="160" height="72"/>
+    <rect x="1240" y="144" width="160" height="72"/>
+    <rect x="1240" y="384" width="160" height="72"/>
+    <rect x="1420" y="264" width="160" height="72"/>
+  </g>
+  <!-- 高亮：本次分享主角 order-service -->
+  <rect x="680" y="264" width="160" height="72" fill="#002FA7" stroke="none"/>
+  <text x="760" y="308" text-anchor="middle" font-family="Menlo, monospace" font-size="20" fill="#ffffff">order-svc</text>
+  <!-- 消息队列总线 -->
+  <line x1="400" y1="520" x2="1320" y2="520" stroke="#0a0a0a" stroke-width="3"/>
+  <g stroke="#0a0a0a" stroke-width="1" opacity="0.5">
+    <line x1="480" y1="456" x2="480" y2="520"/>
+    <line x1="760" y1="456" x2="760" y2="520"/>
+    <line x1="1040" y1="396" x2="1040" y2="520"/>
+    <line x1="1320" y1="456" x2="1320" y2="520"/>
+  </g>
+  <text x="1560" y="526" font-family="Menlo, monospace" font-size="16" letter-spacing="3" fill="#0a0a0a" opacity="0.55">EVENT BUS</text>
+  <!-- 可观测性底座 -->
+  <rect x="40" y="556" width="1600" height="4" fill="#0a0a0a" opacity="0.15"/>
+  <text x="40" y="588" font-family="Menlo, monospace" font-size="16" letter-spacing="3" fill="#0a0a0a" opacity="0.55">OBSERVABILITY BASELINE · TRACING / METRICS / ALERTING</text>
+</svg>

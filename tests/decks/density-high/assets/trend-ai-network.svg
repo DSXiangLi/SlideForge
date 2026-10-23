@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="460" height="360" viewBox="0 0 460 360">
+  <rect width="460" height="360" fill="#152a4a"/>
+  <!-- 连接边 -->
+  <g stroke="#f1f3f5" stroke-width="1.2" opacity=".45">
+    <line x1="230" y1="180" x2="90" y2="80"/>
+    <line x1="230" y1="180" x2="370" y2="70"/>
+    <line x1="230" y1="180" x2="60" y2="220"/>
+    <line x1="230" y1="180" x2="400" y2="200"/>
+    <line x1="230" y1="180" x2="130" y2="310"/>
+    <line x1="230" y1="180" x2="330" y2="300"/>
+    <line x1="90" y1="80" x2="370" y2="70"/>
+    <line x1="130" y1="310" x2="330" y2="300"/>
+    <line x1="60" y1="220" x2="130" y2="310"/>
+    <line x1="400" y1="200" x2="330" y2="300"/>
+  </g>
+  <!-- 成员节点 -->
+  <g fill="#f1f3f5">
+    <circle cx="90" cy="80" r="14"/>
+    <circle cx="370" cy="70" r="14"/>
+    <circle cx="60" cy="220" r="14"/>
+    <circle cx="400" cy="200" r="14"/>
+    <circle cx="130" cy="310" r="14"/>
+    <circle cx="330" cy="300" r="14"/>
+  </g>
+  <!-- AI 中心节点 -->
+  <circle cx="230" cy="180" r="34" fill="#f1f3f5"/>
+  <circle cx="230" cy="180" r="34" fill="none" stroke="#e4e8ec" stroke-width="10" opacity=".35"/>
+  <circle cx="230" cy="180" r="12" fill="#0a1f3d"/>
+</svg>

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="560" viewBox="0 0 560 560">
+  <rect width="560" height="560" fill="#f0f0ee"/>
+  <!-- 点阵网格 -->
+  <g fill="#1a1a1a" opacity=".45">
+    <circle cx="60" cy="60" r="5"/><circle cx="120" cy="60" r="5"/><circle cx="180" cy="60" r="5"/><circle cx="240" cy="60" r="5"/>
+    <circle cx="60" cy="120" r="5"/><circle cx="120" cy="120" r="5"/><circle cx="180" cy="120" r="5"/><circle cx="240" cy="120" r="5"/>
+    <circle cx="60" cy="180" r="5"/><circle cx="120" cy="180" r="5"/><circle cx="180" cy="180" r="5"/><circle cx="240" cy="180" r="5"/>
+    <circle cx="60" cy="240" r="5"/><circle cx="120" cy="240" r="5"/><circle cx="180" cy="240" r="5"/><circle cx="240" cy="240" r="5"/>
+    <circle cx="360" cy="360" r="5"/><circle cx="420" cy="360" r="5"/><circle cx="480" cy="360" r="5"/>
+    <circle cx="360" cy="420" r="5"/><circle cx="420" cy="420" r="5"/><circle cx="480" cy="420" r="5"/>
+    <circle cx="360" cy="480" r="5"/><circle cx="420" cy="480" r="5"/><circle cx="480" cy="480" r="5"/>
+  </g>
+  <!-- 柠檬黄主色块 -->
+  <rect x="280" y="60" width="220" height="220" fill="#FFD500"/>
+  <rect x="300" y="80" width="180" height="180" fill="none" stroke="#0a0a0a" stroke-width="2"/>
+  <!-- 能源圆环 -->
+  <circle cx="170" cy="390" r="110" fill="none" stroke="#0a0a0a" stroke-width="2"/>
+  <circle cx="170" cy="390" r="70" fill="none" stroke="#0a0a0a" stroke-width="1.5" opacity=".5"/>
+  <circle cx="170" cy="390" r="10" fill="#0a0a0a"/>
+  <!-- 闪电折线 -->
+  <polyline points="60,520 140,470 180,500 260,440 300,470 380,400" fill="none" stroke="#0a0a0a" stroke-width="3"/>
+  <circle cx="380" cy="400" r="8" fill="#FFD500" stroke="#0a0a0a" stroke-width="2"/>
+</svg>

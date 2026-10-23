@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="skeleton-version" content="3">
+<title>山丘咖啡 2026 上半年经营复盘 · 信息图系统 v2 验收</title>
+<style>
+/* ============================================================
+   SLOT: theme tokens
+   从 references/themes.md 选定主题后，整套替换以下变量。
+   禁止混搭、禁止修改色值。
+   G3 质感主题（如 C2/D2/D3）会额外携带 --texture-type /
+   --texture-layer / --texture-scope 三个 token，复制时一并带入。
+   ============================================================ */
+:root{
+  /* 主题色（D1 奶油物语） */
+  --paper:#fbf6ee;
+  --paper-tint:#f4ecdc;
+  --ink:#3d3229;
+  --ink-tint:#544738;
+  --accent:#c08334;
+  --accent-on:#fffaf0;
+  /* 字体栈（系统栈，离线可用） */
+  --font-display:"Yuanti SC","PingFang SC","Noto Sans SC",sans-serif;
+  --font-body:"Yuanti SC","PingFang SC","Noto Sans SC",sans-serif;
+  --font-mono:"SF Mono","JetBrains Mono","Menlo",monospace;
+  /* 画布内边距（画布坐标系 px） */
+  --slide-pad:96px 120px;
+  /* 图表 token（themes.md 统一推导规则；C/D 系圆角 ≤8px） */
+  --chart-grid:color-mix(in srgb, var(--ink) 12%, transparent);
+  --chart-label:color-mix(in srgb, var(--ink) 60%, transparent);
+  --chart-series-1:var(--accent);
+  --chart-series-2:color-mix(in srgb, var(--accent) 55%, var(--paper));
+  --chart-series-3:color-mix(in srgb, var(--accent) 32%, var(--paper));
+  --chart-series-4:color-mix(in srgb, var(--ink) 18%, var(--paper));
+  --chart-bar-radius:8px;
+  --chart-stroke:2.5px;
+}
+
+/* ============================================================
+   框架层 · 禁止修改
+   处理：16:9 固定画布缩放、竖向滚动、键盘翻页、
+   入场动效（含运行时拆字引擎）、质感槽位、
+   reduced-motion 降级、打印。
+   ============================================================ */
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  background:#111;
+  font-family:var(--font-body);
+  -webkit-font-smoothing:antialiased;
+  overscroll-behavior:none;
+}
+.deck{
+  height:100vh;
+  height:100dvh;
+  overflow-y:auto;
+  scroll-snap-type:y proximity;
+}
+.slide-slot{
+  width:100%;
+  height:calc(1080px * var(--slide-scale, .5));
+  margin:12px 0;
+  display:flex;
+  justify-content:center;
+  scroll-snap-align:start;
+  content-visibility:auto;
+}
+.slide{
+  width:1920px;
+  height:1080px;
+  flex:none;
+  position:relative;
+  overflow:hidden;
+  transform:scale(var(--slide-scale, .5));
+  transform-origin:top center;
+  background:var(--paper);
+  color:var(--ink);
+  padding:var(--slide-pad);
+}
+/* 暗色页变体 */
+.slide.dark{background:var(--ink);color:var(--paper)}
+
+/* 质感槽位（G3 texture，skeleton v3）：主题给 --texture-layer 时铺在页面
+   背景之上、内容之下；主题不给则为 none，零成本。
+   --texture-scope: cover 时骨架 JS 给 <html> 加 .texture-cover，
+   仅 .cover-page（封面/章节页，由生成侧标注）铺质感层。 */
+.slide::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:var(--texture-layer,none);
+}
+html.texture-cover .slide::before{background:none}
+html.texture-cover .slide.cover-page::before{background:var(--texture-layer)}
+
+/* 动效缓动 token（skeleton v3）：全 deck 只用这三种缓动，禁止逐页自定义。
+   出 = 入场显影；变 = 变换/移动；环 = 循环 ambience。规则见 references/motion.md */
+:root{
+  --ease-out:cubic-bezier(.22,1,.36,1);
+  --ease-shift:cubic-bezier(.7,0,.2,1);
+  --ease-loop:ease-in-out;
+}
+
+/* 入场动效：给元素加 class="reveal"，可用 style="--d:.15s" 做阶梯延迟。
+   .js 门槛：无 JS 环境（打印预览器/抓取器）下内容直接可见，动效只是增强。 */
+.js .reveal{opacity:0;transform:translateY(24px);transition:opacity .6s var(--ease-out),transform .6s var(--ease-out);transition-delay:var(--d,0s)}
+.js .slide.in-view .reveal{opacity:1;transform:none}
+
+/* 语义动效：section[data-animate] 选配方，元素 [data-anim] 标角色。
+   配方只调节奏与方向；框架 JS 在加载时为每个 [data-anim] 分配序号 --i。
+   规则与词汇表见 references/motion.md。 */
+.js [data-anim]{opacity:0;transform:translateY(24px);transition:opacity .6s var(--ease-out),transform .6s var(--ease-out);transition-delay:calc(var(--i,0)*75ms)}
+.js [data-anim="left"]{transform:translateX(-40px)}
+.js [data-anim="right"]{transform:translateX(40px)}
+.js [data-anim="line"]{transform:scaleX(0);transform-origin:left}
+.js [data-animate="hero"] [data-anim]{transition-duration:1s;transition-delay:calc(var(--i,0)*160ms)}
+.js [data-animate="quote"] [data-anim]{transition-duration:.55s;transition-delay:calc(var(--i,0)*220ms)}
+.js .slide.in-view [data-anim]{opacity:1;transform:none}
+
+/* ---- skeleton v3 recipe ---- */
+/* chars/words/shatter：文件中是纯文本，框架 JS 入场时拆成 .sp-unit 序列、
+   动画完成后还原为纯文本。容器只做快速整体淡入，逐字运动由 span 承担。 */
+.js [data-anim="chars"],.js [data-anim="words"],.js [data-anim="shatter"]{transform:none;transition:opacity .3s ease}
+.js .split-anim .sp-unit{display:inline-block;opacity:0;transform:translateY(.55em);transition:opacity .5s var(--ease-out),transform .55s var(--ease-out);transition-delay:calc(var(--j,0)*45ms)}
+.js [data-anim="words"].split-anim .sp-unit{transition-delay:calc(var(--j,0)*90ms)}
+.js [data-anim="shatter"].split-anim .sp-unit{transform:translate(var(--sx,0),var(--sy,1em)) rotate(var(--sr,0deg));transition-duration:.5s,.75s;transition-delay:calc(var(--j,0)*40ms)}
+.js .slide.in-view .split-anim .sp-unit{opacity:1;transform:none}
+/* count-up：数字滚动。保留整体淡入、去掉位移；数值滚动由框架 JS 驱动
+   （读元素文本终值，从 0 或 data-from 起滚），文本始终是纯文本。 */
+.js [data-anim="count-up"]{transform:none}
+/* draw-line：SVG 描边描绘。框架 JS 加载时量长藏线，入场时归零描出。 */
+.js [data-anim="draw-line"]{opacity:1;transform:none;transition:stroke-dashoffset 1.1s var(--ease-out);transition-delay:calc(var(--i,0)*75ms)}
+/* fill-bar：横向填充（进度/占比/横条图）。 */
+.js [data-anim="fill-bar"]{transform:scaleX(0);transform-origin:left center;transition:opacity .5s var(--ease-out),transform 1s var(--ease-out);transition-delay:calc(var(--i,0)*75ms)}
+
+/* 背景 ambience：只允许背景层/水印/呼吸点，强度上限烧死在参数里
+   （位移 ≤10px、不透明度摆幅 ≤.4、循环周期 ≥3s），不承载信息。 */
+@keyframes amb-pulse{0%,100%{opacity:.6}50%{opacity:1}}
+@keyframes amb-drift{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(10px,-8px,0)}}
+@keyframes amb-glow{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:.85;transform:scale(1.05)}}
+.js .amb-pulse{animation:amb-pulse 4s var(--ease-loop) infinite}
+.js .amb-drift{animation:amb-drift 9s var(--ease-loop) infinite}
+.js .amb-glow{animation:amb-glow 6s var(--ease-loop) infinite}
+
+@media (prefers-reduced-motion: reduce){
+  .js .reveal,.js [data-anim]{opacity:1;transform:none;transition:none}
+  .js .split-anim .sp-unit{opacity:1;transform:none;transition:none}
+  .js .amb-pulse,.js .amb-drift,.js .amb-glow{animation:none}
+}
+
+/* 界面 chrome：页码指示（在缩放画布之外） */
+.deck-chrome{
+  position:fixed;
+  right:20px;
+  bottom:16px;
+  font-family:var(--font-mono);
+  font-size:12px;
+  letter-spacing:.08em;
+  color:#888;
+  user-select:none;
+  pointer-events:none;
+  z-index:10;
+}
+
+/* 打印：每页一张 1920×1080（PDF 导出请用 Chrome/Edge） */
+@media print{
+  @page{size:1920px 1080px;margin:0}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{background:none}
+  .deck{height:auto;overflow:visible}
+  .slide-slot{height:1080px;margin:0;page-break-after:always}
+  .slide{transform:none !important}
+  .deck-chrome{display:none}
+  .reveal,[data-anim]{opacity:1 !important;transform:none !important}
+  .split-anim .sp-unit{opacity:1 !important;transform:none !important;transition:none !important}
+  [data-anim="draw-line"]{stroke-dashoffset:0 !important}
+}
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+  <!-- ==========================================================
+       SLOT: slides
+       每页结构（示例两页，生成时替换为真实内容）：
+       - data-slide-id：稳定语义 ID，禁止用页码
+       - data-editable：用户可见文字
+       - data-editable-image：可替换图片，src 指向 assets/ 相对路径
+       - data-editable-skip：纯装饰元素
+       - cover-page：封面/章节页标记（质感 --texture-scope:cover 时
+         只有这类页铺质感层；无质感主题可省略）
+       - data-anim：动效角色。chars/words/shatter 的元素里只写纯文本，
+         拆字由骨架 JS 运行时完成；count-up 直接写终值文本；
+         draw-line 标在 SVG 描边元素上；fill-bar 标在填充条上。
+       ========================================================== -->
+
+  <div class="slide-slot">
+    <section class="slide dark cover-page" data-slide-id="cover" data-content-hash="51e087b145e9">
+      <div data-editable-skip style="position:absolute;right:-60px;bottom:-140px;font-family:var(--font-display);font-size:600px;font-weight:600;line-height:1;color:var(--paper);opacity:.05;pointer-events:none">丘</div>
+      <div style="position:relative;height:100%;display:flex;flex-direction:column;justify-content:center">
+        <p data-editable style="font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;opacity:.55">HILL COFFEE · 2026 H1 REVIEW</p>
+        <h1 data-editable data-anim="chars" style="margin-top:40px;font-family:var(--font-display);font-size:112px;line-height:1.3;font-weight:600">山丘咖啡半年复盘</h1>
+        <p data-editable class="reveal" style="--d:.15s;margin-top:36px;font-size:26px;line-height:1.8;max-width:1080px;opacity:.78">门店过四十家之后，增长的主语从"开更多店"换成"让每家店更健康"：本复盘覆盖经营数字、新品管线、渠道结构与会员闭环四件事。</p>
+        <div data-editable-skip style="margin-top:72px;border-radius:12px;background:var(--ink-tint);padding:22px 28px;display:flex;justify-content:space-between;align-items:baseline;max-width:1080px">
+          <p data-editable style="font-family:var(--font-mono);font-size:16px;font-weight:500;letter-spacing:.08em;opacity:.6">示例数据 · 仅用于信息图组件验收 · 2026 年 9 月</p>
+          <p data-editable-skip style="font-family:var(--font-mono);font-size:14px;font-weight:500;letter-spacing:.2em;opacity:.4">VOL. H1 / CREAM</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="key-metrics" data-content-hash="1daef741ec48">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <p data-editable style="font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;opacity:.55">01 · 总览 OVERVIEW</p>
+        <p data-editable-skip style="font-family:var(--font-mono);font-size:14px;font-weight:500;letter-spacing:.2em;opacity:.4">HILL COFFEE 2026 H1</p>
+      </div>
+      <div data-editable-skip style="margin-top:20px;height:20px;border-radius:10px;background:var(--paper-tint);width:240px"></div>
+      <h2 data-editable class="reveal" style="margin-top:40px;font-family:var(--font-display);font-size:72px;line-height:1.3;font-weight:600">上半年，四个关键数字</h2>
+      <div data-ig="list-grid" data-ig-skin="stat" class="reveal" style="--d:.15s;margin-top:56px;display:grid;grid-template-columns:1fr 1fr;gap:28px">
+        <div data-ig-item style="border-radius:20px;background:var(--paper-tint);padding:40px 44px">
+          <p data-editable style="font-family:var(--font-mono);font-size:16px;font-weight:500;letter-spacing:.12em;opacity:.55">上半年营业收入</p>
+          <p data-editable style="margin-top:18px;font-family:var(--font-display);font-size:112px;line-height:1.1;font-weight:600">1.42<em style="font-size:.4em;font-style:normal;opacity:.55">亿元</em></p>
+          <p data-editable style="margin-top:16px;font-size:18px;line-height:1.6;opacity:.72">同比增长 19%，同店销售贡献过半。</p>
+        </div>
+        <div data-ig-item style="border-radius:20px;background:var(--paper-tint);padding:40px 44px">
+          <p data-editable style="font-family:var(--font-mono);font-size:16px;font-weight:500;letter-spacing:.12em;opacity:.55">门店总数</p>
+          <p data-editable style="margin-top:18px;font-family:var(--font-display);font-size:72px;line-height:1.15;font-weight:600">42<em style="font-size:.4em;font-style:normal;opacity:.55">家</em></p>
+          <p data-editable style="margin-top:14px;font-size:18px;line-height:1.6;opacity:.72">上半年净增 10 家，全部实现当月现金流为正。</p>
+        </div>
+        <div data-ig-item style="border-radius:20px;background:var(--paper-tint);padding:40px 44px">
+          <p data-editable style="font-family:var(--font-mono);font-size:16px;font-weight:500;letter-spacing:.12em;opacity:.55">会员总数</p>
+          <p data-editable data-anim="count-up" style="margin-top:18px;font-family:var(--font-display);font-size:72px;line-height:1.15;font-weight:600">38万</p>
+          <p data-editable style="margin-top:14px;font-size:18px;line-height:1.6;opacity:.72">月活会员占比 41%，小程序下单占会员订单 73%。</p>
+        </div>
+        <div data-ig-item style="border-radius:20px;background:var(--paper-tint);padding:40px 44px">
+          <p data-editable style="font-family:var(--font-mono);font-size:16px;font-weight:500;letter-spacing:.12em;opacity:.55">会员 90 天复购率</p>
+          <p data-editable style="margin-top:18px;font-family:var(--font-display);font-size:72px;line-height:1.15;font-weight:600">47<em style="font-size:.4em;font-style:normal;opacity:.55">%</em></p>
+          <p data-editable style="margin-top:14px;font-size:18px;line-height:1.6;opacity:.72">同比提升 6 个百分点，权益改版是主要拉动。</p>
+        </div>
+      </div>
+      <p data-editable class="reveal" style="--d:.3s;margin-top:36px;font-size:16px;font-weight:500;line-height:1.7;opacity:.5">示例数据 · 量级参照连锁咖啡行业公开经营口径。</p>
+    </section>
+  </div>
+
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="launch-pipeline" data-content-hash="6aec1b70c9c6">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <p data-editable style="font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;opacity:.55">02 · 管线 PIPELINE</p>
+        <p data-editable-skip style="font-family:var(--font-mono);font-size:14px;font-weight:500;letter-spacing:.2em;opacity:.4">HILL COFFEE 2026 H1</p>
+      </div>
+      <div data-editable-skip style="margin-top:20px;height:20px;border-radius:10px;background:var(--paper-tint);width:240px"></div>
+      <h2 data-editable class="reveal" style="margin-top:40px;font-family:var(--font-display);font-size:72px;line-height:1.3;font-weight:600">新品上市，五步管线</h2>
+      <div data-ig="sequence-steps" data-ig-skin="badge" class="reveal" style="--d:.15s;margin-top:88px;position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:28px">
+        <div data-editable-skip style="position:absolute;left:34px;right:34px;top:33px;height:2px;background:var(--ink-tint);opacity:.25"></div>
+        <div data-ig-item style="position:relative">
+          <div data-editable-skip style="width:68px;height:68px;border-radius:50%;background:var(--ink);color:var(--paper);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:22px;font-weight:600">01</div>
+          <p data-editable style="margin-top:22px;font-family:var(--font-display);font-size:27px;font-weight:600">立项评审</p>
+          <p data-editable style="margin-top:10px;font-size:17px;line-height:1.6;opacity:.72">双周提案会，过会率约三成。</p>
+        </div>
+        <div data-ig-item style="position:relative">
+          <div data-editable-skip style="width:68px;height:68px;border-radius:50%;background:var(--ink);color:var(--paper);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:22px;font-weight:600">02</div>
+          <p data-editable style="margin-top:22px;font-family:var(--font-display);font-size:27px;font-weight:600">配方开发</p>
+          <p data-editable style="margin-top:10px;font-size:17px;line-height:1.6;opacity:.72">烘焙曲线与萃取参数定版。</p>
+        </div>
+        <div data-ig-item style="position:relative">
+          <div data-editable-skip style="width:68px;height:68px;border-radius:50%;background:var(--accent);color:var(--accent-on);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:22px;font-weight:600">03</div>
+          <p data-editable style="margin-top:22px;font-family:var(--font-display);font-size:27px;font-weight:600">杯测校准</p>
+          <p data-editable style="margin-top:10px;font-size:17px;line-height:1.6;opacity:.72">两轮杯测，达标才进试售。</p>
+          <div data-ig="chart-progress" style="margin-top:18px;border-radius:16px;background:var(--paper-tint);padding:16px 18px">
+            <div style="display:flex;align-items:center;gap:10px">
+              <span data-editable style="flex:none;width:70px;font-size:16px;color:var(--chart-label)">内部杯测</span>
+              <span data-editable-skip style="flex:1;height:10px;border-radius:5px;background:var(--paper)"><span data-anim="fill-bar" style="display:block;height:100%;width:92%;border-radius:5px;background:var(--chart-series-1)"></span></span>
+              <span data-editable style="flex:none;font-family:var(--font-mono);font-size:16px;font-feature-settings:'tnum'">92%</span>
+            </div>
+            <div style="margin-top:12px;display:flex;align-items:center;gap:10px">
+              <span data-editable style="flex:none;width:70px;font-size:16px;color:var(--chart-label)">盲测复评</span>
+              <span data-editable-skip style="flex:1;height:10px;border-radius:5px;background:var(--paper)"><span data-anim="fill-bar" style="display:block;height:100%;width:87%;border-radius:5px;background:var(--chart-series-2)"></span></span>
+              <span data-editable style="flex:none;font-family:var(--font-mono);font-size:16px;font-feature-settings:'tnum'">87%</span>
+            </div>
+          </div>
+        </div>
+        <div data-ig-item style="position:relative">
+          <div data-editable-skip style="width:68px;height:68px;border-radius:50%;background:var(--ink);color:var(--paper);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:22px;font-weight:600">04</div>
+          <p data-editable style="margin-top:22px;font-family:var(--font-display);font-size:27px;font-weight:600">小批量试售</p>
+          <p data-editable style="margin-top:10px;font-size:17px;line-height:1.6;opacity:.72">五家旗舰店试销两周看复购。</p>
+        </div>
+        <div data-ig-item style="position:relative">
+          <div data-editable-skip style="width:68px;height:68px;border-radius:50%;background:var(--ink);color:var(--paper);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:22px;font-weight:600">05</div>
+          <p data-editable style="margin-top:22px;font-family:var(--font-display);font-size:27px;font-weight:600">全量上市</p>
+          <p data-editable style="margin-top:10px;font-size:17px;line-height:1.6;opacity:.72">全渠道上架，配套会员首发权益。</p>
+        </div>
+      </div>
+      <p data-editable class="reveal" style="--d:.3s;margin-top:64px;font-size:16px;font-weight:500;line-height:1.7;opacity:.5">示例数据 · 通过率为内部口径；管线名称与步骤为真实流程描述。</p>
+    </section>
+  </div>
+
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="channel-compare" data-content-hash="cf15293cebb3">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <p data-editable style="font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;opacity:.55">03 · 渠道 CHANNEL</p>
+        <p data-editable-skip style="font-family:var(--font-mono);font-size:14px;font-weight:500;letter-spacing:.2em;opacity:.4">HILL COFFEE 2026 H1</p>
+      </div>
+      <div data-editable-skip style="margin-top:20px;height:20px;border-radius:10px;background:var(--paper-tint);width:240px"></div>
+      <h2 data-editable class="reveal" style="margin-top:40px;font-family:var(--font-display);font-size:72px;line-height:1.3;font-weight:600">直营与加盟，两种增长质量</h2>
+      <div data-ig="compare-binary-cols" data-ig-skin="card" class="reveal" style="--d:.15s;margin-top:56px;position:relative;display:grid;grid-template-columns:1fr 1fr;gap:64px">
+        <div data-editable-skip style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:88px;height:88px;border-radius:50%;background:var(--accent);color:var(--accent-on);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:24px;font-weight:600;z-index:2">VS</div>
+        <div data-ig-item style="border-radius:24px;background:var(--paper-tint);padding:48px 56px;box-shadow:0 8px 24px color-mix(in srgb, var(--ink) 8%, transparent)">
+          <p data-editable style="font-family:var(--font-display);font-size:40px;font-weight:600">直营门店</p>
+          <div style="margin-top:32px;display:grid;grid-template-columns:1fr auto;row-gap:24px;align-items:baseline">
+            <p data-editable style="font-size:19px;line-height:1.6;opacity:.72">门店数</p>
+            <p data-editable style="font-family:var(--font-mono);font-size:30px;font-weight:600;font-feature-settings:'tnum'">18 家</p>
+            <p data-editable style="font-size:19px;line-height:1.6;opacity:.72">营收占比</p>
+            <p data-editable style="font-family:var(--font-mono);font-size:30px;font-weight:600;font-feature-settings:'tnum'">54%</p>
+            <p data-editable style="font-size:19px;line-height:1.6;opacity:.72">上半年净增</p>
+            <p data-editable style="font-family:var(--font-mono);font-size:30px;font-weight:600;font-feature-settings:'tnum'">3 家</p>
+          </div>
+        </div>
+        <div data-ig-item style="border-radius:24px;background:var(--paper-tint);padding:48px 56px;opacity:.55">
+          <p data-editable style="font-family:var(--font-display);font-size:40px;font-weight:600">加盟门店</p>
+          <div style="margin-top:32px;display:grid;grid-template-columns:1fr auto;row-gap:24px;align-items:baseline">
+            <p data-editable style="font-size:19px;line-height:1.6;opacity:.72">门店数</p>
+            <p data-editable style="font-family:var(--font-mono);font-size:30px;font-weight:600;font-feature-settings:'tnum'">24 家</p>
+            <p data-editable style="font-size:19px;line-height:1.6;opacity:.72">营收占比</p>
+            <p data-editable style="font-family:var(--font-mono);font-size:30px;font-weight:600;font-feature-settings:'tnum'">46%</p>
+            <p data-editable style="font-size:19px;line-height:1.6;opacity:.72">上半年净增</p>
+            <p data-editable style="font-family:var(--font-mono);font-size:30px;font-weight:600;font-feature-settings:'tnum'">7 家</p>
+          </div>
+        </div>
+      </div>
+      <p data-editable class="reveal" style="--d:.3s;margin-top:44px;font-size:16px;font-weight:500;line-height:1.7;opacity:.5">示例数据 · 口径为 2026 年 6 月末门店网络与上半年营业收入。</p>
+    </section>
+  </div>
+
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="brand-system" data-content-hash="48af0a383bb6">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <p data-editable style="font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;opacity:.55">04 · 体系 SYSTEM</p>
+        <p data-editable-skip style="font-family:var(--font-mono);font-size:14px;font-weight:500;letter-spacing:.2em;opacity:.4">HILL COFFEE 2026 H1</p>
+      </div>
+      <div data-editable-skip style="margin-top:20px;height:20px;border-radius:10px;background:var(--paper-tint);width:240px"></div>
+      <div style="margin-top:40px;display:grid;grid-template-columns:680px 1fr;gap:72px;align-items:center">
+        <div data-ig="hierarchy-concentric" data-ig-skin="bare" class="reveal" style="--d:.15s;position:relative;width:640px;height:640px">
+          <div data-editable-skip style="position:absolute;inset:0;border-radius:50%;border:1.5px solid var(--ink-tint);opacity:.4"></div>
+          <div data-editable-skip style="position:absolute;inset:100px;border-radius:50%;border:1.5px solid var(--ink-tint);opacity:.55"></div>
+          <div data-editable-skip style="position:absolute;inset:200px;border-radius:50%;background:var(--accent)"></div>
+          <div data-ig-item style="position:absolute;left:0;right:0;top:26px;text-align:center">
+            <p data-editable style="font-family:var(--font-display);font-size:26px;font-weight:600">社群文化</p>
+            <p data-editable style="margin-top:6px;font-size:16px;opacity:.72">会员活动 · 城市骑行 · 宠物友好</p>
+          </div>
+          <div data-ig-item style="position:absolute;left:0;right:0;top:126px;text-align:center">
+            <p data-editable style="font-family:var(--font-display);font-size:26px;font-weight:600">空间体验</p>
+            <p data-editable style="margin-top:6px;font-size:16px;opacity:.72">第三空间 · 社区店型</p>
+          </div>
+          <div data-ig-item style="position:absolute;left:0;right:0;top:272px;text-align:center">
+            <p data-editable style="font-family:var(--font-display);font-size:30px;font-weight:600;color:var(--accent-on)">咖啡品质</p>
+            <p data-editable style="margin-top:6px;font-size:16px;color:var(--accent-on);opacity:.85">豆源 · 烘焙 · 品控</p>
+          </div>
+        </div>
+        <div>
+          <h2 data-editable class="reveal" style="font-family:var(--font-display);font-size:72px;line-height:1.3;font-weight:600">品牌体系，<br>品质是内核</h2>
+          <p data-editable class="reveal" style="--d:.1s;margin-top:32px;font-size:22px;line-height:1.8;opacity:.78">外层体验可以复制，内核的供应链与品控不行。上半年的投入顺序：先烘焙工坊，再门店扩张。</p>
+          <div data-editable-skip class="reveal" style="--d:.2s;margin-top:48px;border-radius:16px;background:var(--paper-tint);padding:28px 32px">
+            <p data-editable style="font-size:19px;line-height:1.7">烘焙工坊二期于 5 月投产，烘焙自给率从 61% 提升至 <b>88%</b>。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="slide-slot">
+    <section class="slide dark" data-slide-id="member-loop" data-content-hash="36e5c1542520">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <p data-editable style="font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;opacity:.55">05 · 会员 MEMBERSHIP</p>
+        <p data-editable-skip style="font-family:var(--font-mono);font-size:14px;font-weight:500;letter-spacing:.2em;opacity:.4">HILL COFFEE 2026 H1</p>
+      </div>
+      <div data-editable-skip style="margin-top:20px;height:20px;border-radius:10px;background:var(--paper-tint);width:240px"></div>
+      <div style="margin-top:40px;display:grid;grid-template-columns:640px 1fr;gap:64px;align-items:center">
+        <div>
+          <h2 data-editable class="reveal" style="font-family:var(--font-display);font-size:72px;line-height:1.3;font-weight:600">会员运营开始闭环</h2>
+          <p data-editable class="reveal" style="--d:.1s;margin-top:28px;font-size:22px;line-height:1.8;opacity:.78">消费、积分、权益、回访四环节打通之后，会员从"发券对象"变成可运营的资产。</p>
+          <div class="reveal" style="--d:.2s;margin-top:44px;border-radius:16px;background:var(--ink-tint);padding:28px 32px">
+            <p data-editable style="font-size:19px;line-height:1.7;opacity:.85">权益改版上线三个月，会员月均到店频次从 3.1 次升至 4.2 次（示例口径）。</p>
+          </div>
+        </div>
+        <div class="reveal" style="--d:.25s;position:relative;display:flex;justify-content:center">
+          <div data-ig="relation-circle-loop" data-ig-skin="bare" style="position:relative;width:560px;height:560px">
+            <div data-editable-skip style="position:absolute;left:50%;top:50%;width:420px;height:420px;transform:translate(-50%,-50%);border:1.5px dashed var(--ink-tint);border-radius:50%"></div>
+            <div data-editable-skip style="position:absolute;left:478px;top:82px;transform:translate(-50%,-50%) rotate(45deg);font-size:28px;color:var(--accent)">→</div>
+            <div data-editable-skip style="position:absolute;left:478px;top:478px;transform:translate(-50%,-50%) rotate(135deg);font-size:28px;color:var(--accent)">→</div>
+            <div data-editable-skip style="position:absolute;left:82px;top:478px;transform:translate(-50%,-50%) rotate(225deg);font-size:28px;color:var(--accent)">→</div>
+            <div data-editable-skip style="position:absolute;left:82px;top:82px;transform:translate(-50%,-50%) rotate(315deg);font-size:28px;color:var(--accent)">→</div>
+            <div data-ig-item style="position:absolute;left:50%;top:0;transform:translate(-50%,-50%);width:236px;background:var(--ink);border-radius:20px;padding:16px 20px;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.35)">
+              <p data-editable style="font-family:var(--font-display);font-size:24px;font-weight:600">到店消费</p>
+              <p data-editable style="margin-top:6px;font-size:16px;line-height:1.6;opacity:.72">小程序下单自动积分</p>
+            </div>
+            <div data-ig-item style="position:absolute;left:100%;top:50%;transform:translate(-50%,-50%);width:236px;background:var(--ink);border-radius:20px;padding:16px 20px;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.35)">
+              <p data-editable style="font-family:var(--font-display);font-size:24px;font-weight:600">积分累计</p>
+              <p data-editable style="margin-top:6px;font-size:16px;line-height:1.6;opacity:.72">等级随年度消费滚动</p>
+            </div>
+            <div data-ig-item style="position:absolute;left:50%;top:100%;transform:translate(-50%,-50%);width:236px;background:var(--ink);border-radius:20px;padding:16px 20px;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.35)">
+              <p data-editable style="font-family:var(--font-display);font-size:24px;font-weight:600">权益兑换</p>
+              <p data-editable style="margin-top:6px;font-size:16px;line-height:1.6;opacity:.72">升杯 / 周边 / 烘焙体验课</p>
+            </div>
+            <div data-ig-item style="position:absolute;left:0;top:50%;transform:translate(-50%,-50%);width:236px;background:var(--ink);border-radius:20px;padding:16px 20px;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.35)">
+              <p data-editable style="font-family:var(--font-display);font-size:24px;font-weight:600">社群回访</p>
+              <p data-editable style="margin-top:6px;font-size:16px;line-height:1.6;opacity:.72">沉睡会员定向唤醒</p>
+            </div>
+            <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center">
+              <p data-editable style="font-family:var(--font-display);font-size:34px;font-weight:600;color:var(--accent)">会员闭环</p>
+              <p data-editable style="margin-top:8px;font-size:17px;opacity:.72">四环节月度轮转</p>
+            </div>
+          </div>
+          <div data-editable-skip style="position:absolute;right:-8px;top:-32px;display:flex;align-items:flex-start;gap:0">
+            <div style="border-radius:12px;background:var(--accent);padding:10px 18px">
+              <p data-editable style="font-family:var(--font-mono);font-size:17px;font-weight:600;color:var(--accent-on)">会员贡献营收 63%</p>
+            </div>
+            <svg data-editable-skip width="150" height="130" viewBox="0 0 150 130" style="margin-left:6px;overflow:visible">
+              <path data-anim="draw-line" d="M12 12 C 48 56, 78 84, 128 116" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <p data-editable class="reveal" style="--d:.3s;margin-top:28px;font-size:16px;font-weight:500;line-height:1.7;opacity:.5">示例数据 · 营收贡献按会员订单口径估算。</p>
+    </section>
+  </div>
+
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="closing" style="display:flex;flex-direction:column;justify-content:center" data-content-hash="b4352e3bee44">
+      <p data-editable style="font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;opacity:.55">06 · 判断 JUDGMENT</p>
+      <blockquote class="reveal" style="margin-top:56px;border-radius:24px;background:var(--paper-tint);padding:64px 72px;max-width:1500px">
+        <p data-editable style="font-family:var(--font-display);font-size:52px;line-height:1.5;font-weight:600">下半年的预算顺序只有一条：先让 42 家店更健康，再谈第 43 家。</p>
+        <p data-editable style="margin-top:28px;font-family:var(--font-mono);font-size:16px;font-weight:500;letter-spacing:.08em;opacity:.55">——经营复盘会结论 · 山丘咖啡运营部（示例表述）</p>
+      </blockquote>
+      <div data-editable-skip class="reveal" style="--d:.25s;margin-top:64px;display:flex;justify-content:space-between;align-items:baseline">
+        <p data-editable style="font-family:var(--font-mono);font-size:16px;font-weight:500;letter-spacing:.08em;opacity:.6">山丘咖啡 2026 上半年经营复盘 · 示例数据 · 完</p>
+        <p data-editable-skip style="font-family:var(--font-mono);font-size:14px;font-weight:500;letter-spacing:.2em;opacity:.4">END / 07</p>
+      </div>
+    </section>
+  </div>
+
+</div>
+
+<!-- SLOT: 页码初始文本——生成时把 "1 / 1" 改为 "1 / N"（N=总页数） -->
+<div class="deck-chrome" id="chrome">1 / 7</div>
+
+<script>
+/* ============================================================
+   框架层 · 禁止修改
+   ============================================================ */
+(function(){
+  document.documentElement.classList.add('js');  /* 动效 .js 门槛：无 JS 时内容直接可见 */
+  var deck = document.getElementById('deck');
+  var chrome = document.getElementById('chrome');
+
+  function slots(){ return Array.prototype.slice.call(deck.querySelectorAll('.slide-slot')); }
+
+  /* 缩放：整个 1920×1080 画布按容器比例缩放，绝不重排内容。
+     ResizeObserver 而非 window resize：iframe 尺寸变化、侧栏开合都算。 */
+  var lastScale = 0;
+  function fit(){
+    var s = Math.min(deck.clientWidth/1920, deck.clientHeight/1080);
+    if (Math.abs(s - lastScale) < 0.001) return;  /* 去抖：dvh 抖动 */
+    lastScale = s;
+    document.documentElement.style.setProperty('--slide-scale', s);
+  }
+  if ('ResizeObserver' in window){ new ResizeObserver(fit).observe(deck); }
+  window.addEventListener('resize', fit);
+  fit();
+
+  /* 页码指示 */
+  function currentIndex(){
+    var list = slots();
+    var top = deck.scrollTop;
+    for (var i = 0; i < list.length; i++){
+      if (list[i].offsetTop + list[i].offsetHeight/2 > top + 8) return i;
+    }
+    return list.length - 1;
+  }
+  function updateChrome(){
+    chrome.textContent = (currentIndex()+1) + ' / ' + slots().length;
+  }
+  deck.addEventListener('scroll', function(){ requestAnimationFrame(updateChrome); }, {passive:true});
+  updateChrome();
+
+  /* 键盘翻页 */
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function go(i){
+    var list = slots();
+    i = Math.max(0, Math.min(list.length-1, i));
+    deck.scrollTo({top: list[i].offsetTop, behavior: reduceMotion ? 'auto' : 'smooth'});
+  }
+  window.addEventListener('keydown', function(e){
+    if (e.target && (e.target.isContentEditable || /^(INPUT|TEXTAREA)$/.test(e.target.tagName))) return;
+    if (e.key==='ArrowDown' || e.key==='PageDown' || e.key===' '){ e.preventDefault(); go(currentIndex()+1); }
+    else if (e.key==='ArrowUp' || e.key==='PageUp'){ e.preventDefault(); go(currentIndex()-1); }
+    else if (e.key==='Home'){ e.preventDefault(); go(0); }
+    else if (e.key==='End'){ e.preventDefault(); go(slots().length-1); }
+  });
+
+  /* 质感槽位：--texture-scope: cover 时只有 .cover-page 铺质感层 */
+  var scope = '';
+  try { scope = getComputedStyle(document.documentElement).getPropertyValue('--texture-scope').trim(); } catch(e){}
+  if (scope === 'cover') document.documentElement.classList.add('texture-cover');
+
+  /* ============================================================
+     运行时动效引擎（skeleton v3）
+     chars/words/shatter：入场时把纯文本拆成 .sp-unit 序列执行动画，
+     完成后还原为纯文本节点；count-up：读终值滚动后精确还原原文本；
+     draw-line：量长藏线、入场描出。
+     滚动回滚默认不重复触发（与 .in-view 一次性语义一致）。
+     reduced-motion 下整组引擎不启动——文件里本来就是纯文本与完整图形。
+     ============================================================ */
+  var SPLIT_SEL = '[data-anim="chars"],[data-anim="words"],[data-anim="shatter"]';
+  var live = [];   /* 进行中的运行时动效元素（强制还原用） */
+
+  function track(el){ if (live.indexOf(el) < 0) live.push(el); }
+  function untrack(el){ var i = live.indexOf(el); if (i >= 0) live.splice(i, 1); }
+
+  /* 还原单个元素：终止进行中的动效，恢复纯文本 / 终值文本 */
+  function restoreEl(el){
+    if (el.__rt){
+      clearTimeout(el.__rt.timer);
+      if (el.__rt.raf) cancelAnimationFrame(el.__rt.raf);
+      if (el.__rt.finalText != null) el.textContent = el.__rt.finalText;
+      el.__rt = null;
+    }
+    /* 拆字残留兜底：塌缩为纯文本节点 */
+    if (el.querySelector && el.querySelector('.sp-unit')) el.textContent = el.textContent;
+    if (el.classList) el.classList.remove('split-anim');
+    untrack(el);
+  }
+
+  /* 编辑器接口：进入编辑 / 序列化保存前调用（见 editing-contract.md） */
+  window.__pptxMotion = {
+    restore: restoreEl,
+    restoreAll: function(){ live.slice().forEach(restoreEl); }
+  };
+
+  function splitEl(el){
+    if (el.__rt) return;
+    var mode = el.getAttribute('data-anim');
+    var text = el.textContent;
+    var units = [];
+    if (mode === 'words'){
+      text.split(/(\s+)/).forEach(function(p){
+        if (p) units.push({ ws: /^\s+$/.test(p), t: p });
+      });
+    } else {
+      Array.from(text).forEach(function(ch){
+        units.push({ ws: /^\s$/.test(ch), t: ch });
+      });
+    }
+    el.__rt = { finalText: text, timer: null, raf: 0 };
+    track(el);
+    el.textContent = '';
+    var n = 0;
+    units.forEach(function(u){
+      if (u.ws){ el.appendChild(document.createTextNode(u.t)); return; }
+      var s = document.createElement('span');
+      s.className = 'sp-unit';
+      s.style.setProperty('--j', n++);
+      if (mode === 'shatter'){
+        /* 碎聚：确定性伪随机散布（同一文本每次入场形态一致，不逐帧随机） */
+        var seed = n * 137.5;
+        s.style.setProperty('--sx', (Math.sin(seed) * 1.6).toFixed(2) + 'em');
+        s.style.setProperty('--sy', (Math.cos(seed * 1.3) * 1.1).toFixed(2) + 'em');
+        s.style.setProperty('--sr', (Math.sin(seed * 2.1) * 40).toFixed(1) + 'deg');
+      }
+      s.appendChild(document.createTextNode(u.t));
+      el.appendChild(s);
+    });
+    el.classList.add('split-anim');
+    /* 动画完成后还原为纯文本：stagger 步长 × 个数 + 单项时长 + 余量 */
+    var step = mode === 'words' ? 90 : (mode === 'shatter' ? 40 : 45);
+    var dur  = mode === 'shatter' ? 800 : 600;
+    el.__rt.timer = setTimeout(function(){ restoreEl(el); }, n * step + dur + 250);
+  }
+
+  /* count-up：元素文本即终值（可含千分位/小数/前后缀），从 data-from 或 0 起滚 */
+  function countUp(el){
+    if (el.__rt) return;
+    var finalText = el.textContent;
+    var m = /-?[\d,]*\.?\d+/.exec(finalText);
+    if (!m) return;
+    var finalVal = parseFloat(m[0].replace(/,/g, ''));
+    if (isNaN(finalVal)) return;
+    var from = parseFloat(el.getAttribute('data-from'));
+    if (isNaN(from)) from = 0;
+    var decimals = (m[0].split('.')[1] || '').length;
+    var grouped = m[0].indexOf(',') >= 0;
+    function fmt(v){
+      var s = grouped
+        ? v.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
+        : v.toFixed(decimals);
+      return finalText.slice(0, m.index) + s + finalText.slice(m.index + m[0].length);
+    }
+    el.__rt = { finalText: finalText, timer: null, raf: 0 };
+    track(el);
+    var dur = 1400, t0 = null;
+    el.textContent = fmt(from);
+    function tick(t){
+      if (!el.__rt) return;   /* 被强制还原 */
+      if (t0 === null) t0 = t;
+      var k = Math.min(1, (t - t0) / dur);
+      var e = 1 - Math.pow(1 - k, 3);   /* easeOutCubic */
+      el.textContent = fmt(from + (finalVal - from) * e);
+      if (k < 1){ el.__rt.raf = requestAnimationFrame(tick); }
+      else { el.textContent = finalText; el.__rt = null; untrack(el); }   /* 终值精确还原原文本 */
+    }
+    el.__rt.raf = requestAnimationFrame(tick);
+  }
+
+  /* draw-line：加载时量长藏线（stroke-dashoffset=length），入场时归零描出。
+     量长失败（非几何元素）时退回整体淡入。 */
+  function prepDrawLine(el){
+    var len = 0;
+    try { len = el.getTotalLength(); } catch(e){}
+    if (!len) return;
+    el.__drawLen = len;
+    el.style.strokeDasharray = String(len);
+    el.style.strokeDashoffset = String(len);
+  }
+
+  /* 入场动效：页面进入视口时触发（一次性，回滚不重复） */
+  /* 加载时为每页的 [data-anim] 元素分配序号 --i（阶梯延迟的基数） */
+  slots().forEach(function(s){
+    var els = s.querySelectorAll('[data-anim]');
+    for (var i = 0; i < els.length; i++) els[i].style.setProperty('--i', i);
+  });
+  if (!reduceMotion){
+    slots().forEach(function(s){
+      var lines = s.querySelectorAll('[data-anim="draw-line"]');
+      for (var i = 0; i < lines.length; i++) prepDrawLine(lines[i]);
+    });
+  }
+  function enterSlide(slide){
+    if (slide.classList.contains('in-view')) return;
+    if (!reduceMotion){
+      /* 运行时拆字：先拆再加 in-view（同一帧完成，避免先显后拆的闪烁） */
+      var splits = slide.querySelectorAll(SPLIT_SEL);
+      for (var i = 0; i < splits.length; i++) splitEl(splits[i]);
+    }
+    slide.classList.add('in-view');
+    if (!reduceMotion){
+      var cus = slide.querySelectorAll('[data-anim="count-up"]');
+      for (var j = 0; j < cus.length; j++) countUp(cus[j]);
+      var dls = slide.querySelectorAll('[data-anim="draw-line"]');
+      for (var k = 0; k < dls.length; k++){
+        if (dls[k].__drawLen) dls[k].style.strokeDashoffset = '0';
+      }
+    }
+  }
+  if ('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (en.isIntersecting) enterSlide(en.target);
+      });
+    }, {root: deck, threshold: .35});
+    slots().forEach(function(s){ io.observe(s.querySelector('.slide')); });
+  } else {
+    slots().forEach(function(s){ enterSlide(s.querySelector('.slide')); });
+  }
+})();
+</script>
+</body>
+</html>

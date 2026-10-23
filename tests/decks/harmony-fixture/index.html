@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="skeleton-version" content="7.4">
+<meta name="theme-id" content="harmony-fixture">
+<title>色彩一致性校验夹具 · harmony-fixture</title>
+<style>
+:root{
+  --paper:#f2efe8;
+  --paper2:#e4ddcd;
+  --ink:#17171c;
+  --ink2:#3d3d46;
+  --accent:#b4232a;
+  --accent2:#1f4e79;
+  --font-display:"Songti SC","Noto Serif SC",serif;
+  --font-body:"PingFang SC","Noto Sans SC",sans-serif;
+  --font-mono:"SF Mono","Menlo",monospace;
+  --slide-pad:96px 120px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{background:#111;font-family:var(--font-body)}
+.deck{height:100vh;overflow-y:auto;scroll-snap-type:y proximity}
+.slide-slot{width:100%;height:calc(1080px * var(--slide-scale, .5));margin:12px 0;display:flex;justify-content:center;scroll-snap-align:start}
+.slide{width:1920px;height:1080px;flex:none;position:relative;overflow:hidden;transform:scale(var(--slide-scale, .5));transform-origin:top center;background:var(--paper);color:var(--ink);padding:var(--slide-pad)}
+.slide h2{font-family:var(--font-display);font-size:64px;margin-bottom:48px}
+.slide img.illu{display:block;width:960px;height:540px;object-fit:cover}
+.slide[data-render-mode="baked"]{padding:0}
+.slide[data-render-mode="baked"]>img[data-image-slot^="page-baked"]{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+</style>
+</head>
+<body>
+<div class="deck">
+
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="p-token">
+      <h2 data-editable>纯 token 色图：应全过</h2>
+      <img class="illu" src="assets/tokens.png" alt="token 色条带"
+           data-editable-image
+           data-image-slot="illu-band-16x9"
+           data-image-intent="主题三色条带（夹具）"
+           data-image-state="generated">
+    </section>
+  </div>
+
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="p-foreign">
+      <h2 data-editable>纯无关色图：应触发 A+B</h2>
+      <img class="illu" src="assets/foreign.png" alt="无关色条带"
+           data-editable-image
+           data-image-slot="illu-band-16x9"
+           data-image-intent="荧光色条带（夹具）"
+           data-image-state="generated">
+    </section>
+  </div>
+
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="p-mixed" data-render-mode="baked">
+      <img src="assets/mixed.png" alt="烙入页混合色"
+           data-editable-image
+           data-image-slot="page-baked-16x9"
+           data-image-intent="accent 与荧光紫对半（夹具）"
+           data-image-state="generated">
+      <div class="baked-source" hidden>
+        <h2 data-editable>烙入混合页：只触发 A</h2>
+      </div>
+    </section>
+  </div>
+
+</div>
+</body>
+</html>

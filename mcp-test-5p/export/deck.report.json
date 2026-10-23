@@ -1,0 +1,1201 @@
+{
+  "deck": "/home/lixiang/Desktop/pptx-html-design/.pptx-html/jobs/d53941ee-d5c5-4a97-825e-fad9cd78122d/attempt-1/work/mcp-test-5p/index.html",
+  "generated_at": "2026-10-14T00:05:26.236560+00:00",
+  "exporter": "export-pptx-editable.py (C3)",
+  "out": "/home/lixiang/Desktop/pptx-html-design/.pptx-html/jobs/d53941ee-d5c5-4a97-825e-fad9cd78122d/attempt-1/work/mcp-test-5p/export/deck.pptx",
+  "pages": [
+    {
+      "slide_id": "cover",
+      "render_mode": "html",
+      "counts": {
+        "text": 6,
+        "shape": 0,
+        "image": 0,
+        "bg": 1,
+        "chart": 0,
+        "raster": 2
+      },
+      "charts": [],
+      "rasterized": [
+        "filter-blend"
+      ],
+      "fixes": [],
+      "overlap_resolved": [],
+      "uncovered": [
+        "bleed-clipped:raster(出血裁剪)"
+      ]
+    },
+    {
+      "slide_id": "why",
+      "render_mode": "html",
+      "counts": {
+        "text": 10,
+        "shape": 1,
+        "image": 0,
+        "bg": 1,
+        "chart": 0,
+        "raster": 0
+      },
+      "charts": [],
+      "rasterized": [],
+      "fixes": [],
+      "overlap_resolved": [],
+      "uncovered": []
+    },
+    {
+      "slide_id": "how",
+      "render_mode": "html",
+      "counts": {
+        "text": 11,
+        "shape": 1,
+        "image": 0,
+        "bg": 1,
+        "chart": 0,
+        "raster": 3
+      },
+      "charts": [],
+      "rasterized": [
+        "filter-blend"
+      ],
+      "fixes": [],
+      "overlap_resolved": [],
+      "uncovered": []
+    },
+    {
+      "slide_id": "what",
+      "render_mode": "html",
+      "counts": {
+        "text": 13,
+        "shape": 1,
+        "image": 0,
+        "bg": 1,
+        "chart": 0,
+        "raster": 0
+      },
+      "charts": [],
+      "rasterized": [],
+      "fixes": [],
+      "overlap_resolved": [],
+      "uncovered": []
+    },
+    {
+      "slide_id": "closing",
+      "render_mode": "html",
+      "counts": {
+        "text": 4,
+        "shape": 0,
+        "image": 0,
+        "bg": 1,
+        "chart": 0,
+        "raster": 2
+      },
+      "charts": [],
+      "rasterized": [
+        "filter-blend"
+      ],
+      "fixes": [],
+      "overlap_resolved": [],
+      "uncovered": [
+        "bleed-clipped:raster(出血裁剪)"
+      ]
+    }
+  ],
+  "items": [
+    {
+      "slide_id": "cover",
+      "items": [
+        {
+          "kind": "raster",
+          "rect": {
+            "left": 1460,
+            "top": 0,
+            "width": 460,
+            "height": 420
+          },
+          "box": null,
+          "wrap": null,
+          "burned_text": null,
+          "fontSizePx": null,
+          "first_text": ""
+        },
+        {
+          "kind": "raster",
+          "rect": {
+            "left": 76.796875,
+            "top": 800,
+            "width": 440,
+            "height": 280
+          },
+          "box": null,
+          "wrap": null,
+          "burned_text": null,
+          "fontSizePx": null,
+          "first_text": ""
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 120,
+            "top": 276,
+            "width": 1680,
+            "height": 24
+          },
+          "box": {
+            "left": 120,
+            "top": 276.28125,
+            "width": 298.12851562500003,
+            "height": 29.6
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 20,
+          "first_text": "HTML PPTX DESIGN SYSTEM"
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 120,
+            "top": 330,
+            "width": 1680,
+            "height": 150
+          },
+          "box": {
+            "left": 120,
+            "top": 345.0,
+            "width": 947.5056,
+            "height": 177.6
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 120,
+          "first_text": "把 PPT 做成网页"
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 120,
+            "top": 516,
+            "width": 1680,
+            "height": 48
+          },
+          "box": {
+            "left": 120,
+            "top": 525.0,
+            "width": 955.8000000000001,
+            "height": 44.4
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 30,
+          "first_text": "HTML 幻灯片的设计与交付——一份文件，既是演示，也是交付物"
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 120,
+            "top": 644,
+            "width": 147.875,
+            "height": 47.6875
+          },
+          "box": {
+            "left": 120,
+            "top": 646.1,
+            "width": 112.17076171875,
+            "height": 31.08
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 21,
+          "first_text": "01 · 为什么"
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 291.875,
+            "top": 644,
+            "width": 147.875,
+            "height": 47.6875
+          },
+          "box": {
+            "left": 291.875,
+            "top": 646.1,
+            "width": 112.17076171875,
+            "height": 31.08
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 21,
+          "first_text": "02 · 怎么做"
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 463.75,
+            "top": 644,
+            "width": 189.875,
+            "height": 47.6875
+          },
+          "box": {
+            "left": 463.75,
+            "top": 646.1,
+            "width": 157.53076171875,
+            "height": 31.08
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 21,
+          "first_text": "03 · 交付了什么"
+        }
+      ]
+    },
+    {
+      "slide_id": "why",
+      "items": [
+        {
+          "kind": "text",
+          "rect": {
+            "left": 120,
+            "top": 96,
+            "width": 1680,
+            "height": 21
+          },
+          "box": {
+            "left": 120,
+            "top": 96.253125,
+            "width": 93.32718750000001,
+            "height": 26.64
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 18,
+          "first_text": "01 · WHY"
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 120,
+            "top": 139,
+            "width": 1680,
+            "height": 85.796875
+          },
+          "box": {
+            "left": 120,
+            "top": 148.9,
+            "width": 806.24808,
+            "height": 97.67999999999999
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 66,
+          "first_text": "传统 PPT 交付的三个断层"
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 235.21875,
+            "top": 339.796875,
+            "width": 714,
+            "height": 47.59375
+          },
+          "box": {
+            "left": 235.21875,
+            "top": 346.596875,
+            "width": 110.16000000000001,
+            "height": 50.32
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 34,
+          "first_text": "不可改"
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 235.21875,
+            "top": 397.390625,
+            "width": 714,
+            "height": 35.6875
+          },
+          "box": {
+            "left": 235.21875,
+            "top": 404.740625,
+            "width": 782.46,
+            "height": 31.08
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 21,
+          "first_text": "二进制格式把内容锁在源软件里——改一处措辞，也要回到原工具重新导出。"
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 235.21875,
+            "top": 519.078125,
+            "width": 693,
+            "height": 47.59375
+          },
+          "box": {
+            "left": 235.21875,
+            "top": 525.878125,
+            "width": 110.16000000000001,
+            "height": 50.32
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 34,
+          "first_text": "不可验"
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 235.21875,
+            "top": 576.671875,
+            "width": 693,
+            "height": 35.6875
+          },
+          "box": {
+            "left": 235.21875,
+            "top": 584.021875,
+            "width": 748.44,
+            "height": 31.08
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 21,
+          "first_text": "排版溢出、字体缺失、比例失调，往往要到演讲现场投影时才第一次暴露。"
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 235.21875,
+            "top": 698.359375,
+            "width": 742.015625,
+            "height": 47.59375
+          },
+          "box": {
+            "left": 235.21875,
+            "top": 705.159375,
+            "width": 110.16000000000001,
+            "height": 50.32
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 34,
+          "first_text": "不可嵌"
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 235.21875,
+            "top": 755.953125,
+            "width": 742.015625,
+            "height": 35.6875
+          },
+          "box": {
+            "left": 235.21875,
+            "top": 763.303125,
+            "width": 812.714765625,
+            "height": 31.08
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 21,
+          "first_text": "它进不了网页与文档流——不能 iframe 嵌入，不能版本管理，不能被程序处理。"
+        },
+        {
+          "kind": "shape",
+          "rect": {
+            "left": 120,
+            "top": 1013,
+            "width": 1680,
+            "height": 33
+          },
+          "box": null,
+          "wrap": null,
+          "burned_text": null,
+          "fontSizePx": null,
+          "first_text": ""
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 120,
+            "top": 1030,
+            "width": 98.296875,
+            "height": 16
+          },
+          "box": {
+            "left": 120,
+            "top": 1030.196875,
+            "width": 106.15568906250002,
+            "height": 20.72
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 14,
+          "first_text": "HTML PPTX"
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 1723.546875,
+            "top": 1030,
+            "width": 76.453125,
+            "height": 16
+          },
+          "box": {
+            "left": 1723.546875,
+            "top": 1030.196875,
+            "width": 82.5655359375,
+            "height": 20.72
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 14,
+          "first_text": "PAGE 02"
+        }
+      ]
+    },
+    {
+      "slide_id": "how",
+      "items": [
+        {
+          "kind": "text",
+          "rect": {
+            "left": 120,
+            "top": 96,
+            "width": 1680,
+            "height": 21
+          },
+          "box": {
+            "left": 120,
+            "top": 96.253125,
+            "width": 93.32718750000001,
+            "height": 26.64
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 18,
+          "first_text": "02 · HOW"
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 120,
+            "top": 139,
+            "width": 1680,
+            "height": 85.796875
+          },
+          "box": {
+            "left": 120,
+            "top": 148.9,
+            "width": 997.9200000000001,
+            "height": 97.67999999999999
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 66,
+          "first_text": "三段式系统：生成、编辑、桥接"
+        },
+        {
+          "kind": "raster",
+          "rect": {
+            "left": 120,
+            "top": 304.796875,
+            "width": 538.65625,
+            "height": 302.984375
+          },
+          "box": null,
+          "wrap": null,
+          "burned_text": null,
+          "fontSizePx": null,
+          "first_text": ""
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 165,
+            "top": 421.984375,
+            "width": 448.65625,
+            "height": 44.796875
+          },
+          "box": {
+            "left": 165,
+            "top": 428.384375,
+            "width": 138.24,
+            "height": 47.36
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 32,
+          "first_text": "生成技能"
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 165,
+            "top": 482.78125,
+            "width": 448.65625,
+            "height": 68
+          },
+          "box": {
+            "left": 165,
+            "top": 489.78125,
+            "width": 457.629375,
+            "height": 85.0
+          },
+          "wrap": "square",
+          "burned_text": null,
+          "fontSizePx": 20,
+          "first_text": "从简报到 HTML：先脑暴冻结需求，再按主题落"
+        },
+        {
+          "kind": "raster",
+          "rect": {
+            "left": 690.65625,
+            "top": 304.796875,
+            "width": 538.671875,
+            "height": 302.984375
+          },
+          "box": null,
+          "wrap": null,
+          "burned_text": null,
+          "fontSizePx": null,
+          "first_text": ""
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 735.65625,
+            "top": 421.984375,
+            "width": 448.671875,
+            "height": 44.796875
+          },
+          "box": {
+            "left": 735.65625,
+            "top": 428.384375,
+            "width": 207.36,
+            "height": 47.36
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 32,
+          "first_text": "单文件编辑器"
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 735.65625,
+            "top": 482.78125,
+            "width": 448.671875,
+            "height": 68
+          },
+          "box": {
+            "left": 735.65625,
+            "top": 489.78125,
+            "width": 457.6453125,
+            "height": 85.0
+          },
+          "wrap": "square",
+          "burned_text": null,
+          "fontSizePx": 20,
+          "first_text": "在页面里就地改文字、换图片，保存直接写回 "
+        },
+        {
+          "kind": "raster",
+          "rect": {
+            "left": 1261.328125,
+            "top": 304.796875,
+            "width": 538.671875,
+            "height": 302.984375
+          },
+          "box": null,
+          "wrap": null,
+          "burned_text": null,
+          "fontSizePx": null,
+          "first_text": ""
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 1306.328125,
+            "top": 421.984375,
+            "width": 448.671875,
+            "height": 44.796875
+          },
+          "box": {
+            "left": 1306.328125,
+            "top": 428.384375,
+            "width": 103.68,
+            "height": 47.36
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 32,
+          "first_text": "本地桥"
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 1306.328125,
+            "top": 482.78125,
+            "width": 448.671875,
+            "height": 68
+          },
+          "box": {
+            "left": 1306.328125,
+            "top": 489.78125,
+            "width": 457.6453125,
+            "height": 85.0
+          },
+          "wrap": "square",
+          "burned_text": null,
+          "fontSizePx": 20,
+          "first_text": "编辑器与 AI 之间的托管通道：隔离工作副本、验"
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 120,
+            "top": 679.78125,
+            "width": 1680,
+            "height": 37.390625
+          },
+          "box": {
+            "left": 120,
+            "top": 687.48125,
+            "width": 689.0400000000001,
+            "height": 32.56
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 22,
+          "first_text": "三者围绕同一个约定工作：文件是唯一事实源，标记是唯一协议。"
+        },
+        {
+          "kind": "shape",
+          "rect": {
+            "left": 120,
+            "top": 1013,
+            "width": 1680,
+            "height": 33
+          },
+          "box": null,
+          "wrap": null,
+          "burned_text": null,
+          "fontSizePx": null,
+          "first_text": ""
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 120,
+            "top": 1030,
+            "width": 98.296875,
+            "height": 16
+          },
+          "box": {
+            "left": 120,
+            "top": 1030.196875,
+            "width": 106.15568906250002,
+            "height": 20.72
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 14,
+          "first_text": "HTML PPTX"
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 1723.546875,
+            "top": 1030,
+            "width": 76.453125,
+            "height": 16
+          },
+          "box": {
+            "left": 1723.546875,
+            "top": 1030.196875,
+            "width": 82.5655359375,
+            "height": 20.72
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 14,
+          "first_text": "PAGE 03"
+        }
+      ]
+    },
+    {
+      "slide_id": "what",
+      "items": [
+        {
+          "kind": "text",
+          "rect": {
+            "left": 120,
+            "top": 96,
+            "width": 1680,
+            "height": 21
+          },
+          "box": {
+            "left": 120,
+            "top": 96.253125,
+            "width": 104.99308593750001,
+            "height": 26.64
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 18,
+          "first_text": "03 · WHAT"
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 120,
+            "top": 139,
+            "width": 1680,
+            "height": 85.796875
+          },
+          "box": {
+            "left": 120,
+            "top": 148.9,
+            "width": 855.36,
+            "height": 97.67999999999999
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 66,
+          "first_text": "从简报到交付的四步流水线"
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 120,
+            "top": 452.796875,
+            "width": 351,
+            "height": 42
+          },
+          "box": {
+            "left": 120,
+            "top": 458.796875,
+            "width": 64.80000000000001,
+            "height": 44.4
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 30,
+          "first_text": "脑暴"
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 120,
+            "top": 506.796875,
+            "width": 351,
+            "height": 34
+          },
+          "box": {
+            "left": 120,
+            "top": 513.796875,
+            "width": 345.6,
+            "height": 29.6
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 20,
+          "first_text": "结构化问题冻结需求，不边做边问。"
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 563,
+            "top": 452.796875,
+            "width": 351,
+            "height": 42
+          },
+          "box": {
+            "left": 563,
+            "top": 458.796875,
+            "width": 64.80000000000001,
+            "height": 44.4
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 30,
+          "first_text": "生成"
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 563,
+            "top": 506.796875,
+            "width": 351,
+            "height": 34
+          },
+          "box": {
+            "left": 563,
+            "top": 513.796875,
+            "width": 367.20000000000005,
+            "height": 29.6
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 20,
+          "first_text": "主题冻结后落码，逐页一个视觉重心。"
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 1006,
+            "top": 452.796875,
+            "width": 351,
+            "height": 42
+          },
+          "box": {
+            "left": 1006,
+            "top": 458.796875,
+            "width": 129.60000000000002,
+            "height": 44.4
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 30,
+          "first_text": "双闸验收"
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 1006,
+            "top": 506.796875,
+            "width": 351,
+            "height": 34
+          },
+          "box": {
+            "left": 1006,
+            "top": 513.796875,
+            "width": 345.6,
+            "height": 29.6
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 20,
+          "first_text": "渲染校验查溢出，容量门禁查超载。"
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 1449,
+            "top": 452.796875,
+            "width": 351,
+            "height": 42
+          },
+          "box": {
+            "left": 1449,
+            "top": 458.796875,
+            "width": 64.80000000000001,
+            "height": 44.4
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 30,
+          "first_text": "导出"
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 1449,
+            "top": 506.796875,
+            "width": 351,
+            "height": 34
+          },
+          "box": {
+            "left": 1449,
+            "top": 513.796875,
+            "width": 370.21640625000003,
+            "height": 29.6
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 20,
+          "first_text": "双轨 PPTX：可编辑轨与保真轨并行。"
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 120,
+            "top": 636.796875,
+            "width": 1680,
+            "height": 37.390625
+          },
+          "box": {
+            "left": 120,
+            "top": 644.496875,
+            "width": 819.72,
+            "height": 32.56
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 22,
+          "first_text": "每一步都有机器可验的出口标准——不达标就停下修，不带着问题进下一步。"
+        },
+        {
+          "kind": "shape",
+          "rect": {
+            "left": 120,
+            "top": 1013,
+            "width": 1680,
+            "height": 33
+          },
+          "box": null,
+          "wrap": null,
+          "burned_text": null,
+          "fontSizePx": null,
+          "first_text": ""
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 120,
+            "top": 1030,
+            "width": 98.296875,
+            "height": 16
+          },
+          "box": {
+            "left": 120,
+            "top": 1030.196875,
+            "width": 106.15568906250002,
+            "height": 20.72
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 14,
+          "first_text": "HTML PPTX"
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 1723.546875,
+            "top": 1030,
+            "width": 76.453125,
+            "height": 16
+          },
+          "box": {
+            "left": 1723.546875,
+            "top": 1030.196875,
+            "width": 82.5655359375,
+            "height": 20.72
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 14,
+          "first_text": "PAGE 04"
+        }
+      ]
+    },
+    {
+      "slide_id": "closing",
+      "items": [
+        {
+          "kind": "raster",
+          "rect": {
+            "left": 1490,
+            "top": 710,
+            "width": 430,
+            "height": 370
+          },
+          "box": null,
+          "wrap": null,
+          "burned_text": null,
+          "fontSizePx": null,
+          "first_text": ""
+        },
+        {
+          "kind": "raster",
+          "rect": {
+            "left": 153.59375,
+            "top": 0,
+            "width": 400,
+            "height": 270
+          },
+          "box": null,
+          "wrap": null,
+          "burned_text": null,
+          "fontSizePx": null,
+          "first_text": ""
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 120,
+            "top": 296,
+            "width": 1680,
+            "height": 24
+          },
+          "box": {
+            "left": 120,
+            "top": 296.28125,
+            "width": 90.73476562500001,
+            "height": 29.6
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 20,
+          "first_text": "CLOSING"
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 120,
+            "top": 350,
+            "width": 1680,
+            "height": 125
+          },
+          "box": {
+            "left": 120,
+            "top": 362.5,
+            "width": 540.0,
+            "height": 148.0
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 100,
+          "first_text": "文件即真相"
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 120,
+            "top": 511,
+            "width": 1680,
+            "height": 54.390625
+          },
+          "box": {
+            "left": 120,
+            "top": 521.2,
+            "width": 1240.3219921875,
+            "height": 50.32
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 34,
+          "first_text": "一个 HTML 文件，就是全部交付物——可演示、可编辑、可嵌入、可导出。"
+        },
+        {
+          "kind": "text",
+          "rect": {
+            "left": 120,
+            "top": 675.390625,
+            "width": 596.515625,
+            "height": 45
+          },
+          "box": {
+            "left": 120,
+            "top": 677.390625,
+            "width": 598.862109375,
+            "height": 29.6
+          },
+          "wrap": "none",
+          "burned_text": null,
+          "fontSizePx": 20,
+          "first_text": "演示提示：滚动或方向键翻页 · 数字键 1–3 直跳章节 · 0 回封面"
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "text": 44,
+    "shape": 3,
+    "image": 0,
+    "chart": 0,
+    "raster": 7
+  },
+  "native_text_ratio": 1.0,
+  "native_infographic_ratio": 1.0,
+  "fonts_embedded": [
+    {
+      "file": "sf-pro-display.ttf",
+      "family": "Microsoft YaHei",
+      "slot": "regular"
+    },
+    {
+      "file": "sf-pro-display.ttf",
+      "family": "Segoe UI",
+      "slot": "regular"
+    },
+    {
+      "file": "helvetica-neue.ttf",
+      "family": "Arial",
+      "slot": "regular"
+    },
+    {
+      "file": "helvetica-neue.ttf",
+      "family": "Microsoft YaHei",
+      "slot": "regular"
+    },
+    {
+      "file": "sf-mono.ttf",
+      "family": "Consolas",
+      "slot": "regular"
+    },
+    {
+      "file": "sf-mono.ttf",
+      "family": "Microsoft YaHei",
+      "slot": "regular"
+    }
+  ],
+  "fonts_skipped": [],
+  "fonts_note": null,
+  "margin_mode": "normal",
+  "font_plan": [
+    "display 栈：SF Pro Display → 内嵌声明为 Microsoft YaHei/Segoe UI（fsType=0x0000）",
+    "body 栈：Helvetica Neue → 内嵌声明为 Arial/Microsoft YaHei（fsType=0x0000）",
+    "mono 栈：SF Mono → 内嵌声明为 Consolas/Microsoft YaHei（fsType=0x0000）",
+    "候选度量源：file（fc-match 替换近似（Arial））",
+    "候选度量源：file（fc-match 替换近似（Consolas））",
+    "候选度量源：file（fc-match 替换近似（Microsoft YaHei））",
+    "候选度量源：file（fc-match 替换近似（SimSun））",
+    "候选度量源：file（内嵌/本地字体文件）"
+  ],
+  "verify": {
+    "status": "done",
+    "threshold_catastrophic_pct": 40.0,
+    "text_coverage_min": 0.98,
+    "page_diffs": [
+      {
+        "slide_id": "cover",
+        "diff_pct": 12.4,
+        "text_coverage": 1.0
+      },
+      {
+        "slide_id": "why",
+        "diff_pct": 7.44,
+        "text_coverage": 1.0
+      },
+      {
+        "slide_id": "how",
+        "diff_pct": 7.949,
+        "text_coverage": 1.0
+      },
+      {
+        "slide_id": "what",
+        "diff_pct": 7.313,
+        "text_coverage": 1.0
+      },
+      {
+        "slide_id": "closing",
+        "diff_pct": 10.382,
+        "text_coverage": 1.0
+      }
+    ],
+    "degraded": [],
+    "role": "reference（视觉 QA 参考口径，非门禁；门禁=数学认证）"
+  },
+  "certify": {
+    "ok": true,
+    "rounds": 1,
+    "fixes": 0
+  },
+  "degraded_pages": [],
+  "unsafe_fonts": {}
+}

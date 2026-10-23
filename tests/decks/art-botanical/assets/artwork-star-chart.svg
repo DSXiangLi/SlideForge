@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="520" viewBox="0 0 1680 520">
+  <rect width="1680" height="520" fill="#1a1816"/>
+  <line x1="240" y1="120" x2="520" y2="220" stroke="#e8e4df" stroke-width="1" opacity="0.4"/>
+  <line x1="520" y1="220" x2="760" y2="110" stroke="#e8e4df" stroke-width="1" opacity="0.4"/>
+  <line x1="760" y1="110" x2="1050" y2="260" stroke="#e8e4df" stroke-width="1" opacity="0.4"/>
+  <line x1="1050" y1="260" x2="1360" y2="150" stroke="#e8e4df" stroke-width="1" opacity="0.4"/>
+  <circle cx="240" cy="120" r="6" fill="#d4a574"/>
+  <circle cx="520" cy="220" r="5" fill="#e8e4df" opacity="0.85"/>
+  <circle cx="760" cy="110" r="7" fill="#d4a574"/>
+  <circle cx="1050" cy="260" r="5" fill="#e8e4df" opacity="0.85"/>
+  <circle cx="1360" cy="150" r="6" fill="#d4a574"/>
+  <circle cx="760" cy="110" r="60" fill="none" stroke="#d4a574" stroke-width="1" opacity="0.35"/>
+  <circle cx="120" cy="380" r="2.5" fill="#e8e4df" opacity="0.5"/>
+  <circle cx="420" cy="430" r="2" fill="#e8e4df" opacity="0.4"/>
+  <circle cx="900" cy="400" r="2.5" fill="#d4a574" opacity="0.6"/>
+  <circle cx="1250" cy="440" r="2" fill="#e8e4df" opacity="0.45"/>
+  <circle cx="1560" cy="360" r="2.5" fill="#e8e4df" opacity="0.5"/>
+  <path d="M0 470 C 420 430 1260 510 1680 460 L1680 520 L0 520 Z" fill="#2a2724" opacity="0.8"/>
+  <text x="48" y="488" font-family="monospace" font-size="20" fill="#e8e4df" opacity="0.6" letter-spacing="4">STAR CHART / NO.3</text>
+</svg>

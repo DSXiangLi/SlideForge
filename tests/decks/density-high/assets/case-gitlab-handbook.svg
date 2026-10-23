@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="540" height="640" viewBox="0 0 540 640">
+  <rect width="540" height="640" fill="#e4e8ec"/>
+  <!-- 叠放的手册页面 -->
+  <rect x="110" y="150" width="360" height="440" fill="#f1f3f5" stroke="#152a4a" stroke-width="1.5" transform="rotate(3 290 370)"/>
+  <rect x="90" y="120" width="360" height="440" fill="#f1f3f5" stroke="#152a4a" stroke-width="1.5" transform="rotate(-2 270 340)"/>
+  <rect x="70" y="90" width="360" height="440" fill="#f1f3f5" stroke="#0a1f3d" stroke-width="2"/>
+  <!-- 封面标题区 -->
+  <rect x="110" y="140" width="180" height="14" fill="#0a1f3d"/>
+  <rect x="110" y="168" width="120" height="10" fill="#152a4a"/>
+  <!-- 条目线 -->
+  <g stroke="#152a4a" stroke-width="2" opacity=".55">
+    <line x1="110" y1="230" x2="390" y2="230"/>
+    <line x1="110" y1="262" x2="390" y2="262"/>
+    <line x1="110" y1="294" x2="390" y2="294"/>
+    <line x1="110" y1="326" x2="390" y2="326"/>
+    <line x1="110" y1="358" x2="390" y2="358"/>
+    <line x1="110" y1="390" x2="390" y2="390"/>
+    <line x1="110" y1="422" x2="390" y2="422"/>
+    <line x1="110" y1="454" x2="320" y2="454"/>
+  </g>
+  <!-- 章节序号点 -->
+  <g fill="#0a1f3d">
+    <circle cx="92" cy="230" r="4"/><circle cx="92" cy="262" r="4"/><circle cx="92" cy="294" r="4"/><circle cx="92" cy="326" r="4"/>
+    <circle cx="92" cy="358" r="4"/><circle cx="92" cy="390" r="4"/><circle cx="92" cy="422" r="4"/><circle cx="92" cy="454" r="4"/>
+  </g>
+  <!-- 页脚页码带 -->
+  <rect x="70" y="492" width="360" height="38" fill="#0a1f3d"/>
+  <rect x="92" y="507" width="60" height="8" fill="#f1f3f5" opacity=".8"/>
+  <rect x="380" y="507" width="28" height="8" fill="#f1f3f5" opacity=".8"/>
+</svg>

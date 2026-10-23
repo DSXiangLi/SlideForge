@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="640" viewBox="0 0 520 640">
+  <rect width="520" height="640" fill="#0a0a0a"/>
+  <!-- 上升柱阵 -->
+  <g>
+    <rect x="60" y="440" width="64" height="140" fill="#1a1a1a"/>
+    <rect x="148" y="380" width="64" height="200" fill="#1a1a1a"/>
+    <rect x="236" y="420" width="64" height="160" fill="#1a1a1a"/>
+    <rect x="324" y="300" width="64" height="280" fill="#1a1a1a"/>
+    <rect x="412" y="220" width="64" height="360" fill="#FFD500"/>
+  </g>
+  <!-- 趋势线 -->
+  <polyline points="92,400 180,340 268,380 356,260 444,170" fill="none" stroke="#fafaf8" stroke-width="2" stroke-dasharray="8 8"/>
+  <circle cx="444" cy="170" r="9" fill="#FFD500"/>
+  <!-- 基线与刻度点 -->
+  <line x1="40" y1="580" x2="496" y2="580" stroke="#fafaf8" stroke-width="1.5" opacity=".6"/>
+  <g fill="#fafaf8" opacity=".5">
+    <circle cx="92" cy="580" r="4"/><circle cx="180" cy="580" r="4"/><circle cx="268" cy="580" r="4"/><circle cx="356" cy="580" r="4"/><circle cx="444" cy="580" r="4"/>
+  </g>
+</svg>

@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "pptx-html-bridge": {
+      "command": "python3",
+      "args": ["tools/edit.py", "--mcp", "--convert"],
+      "cwd": "/home/lixiang/Desktop/pptx-html-design",
+      "toolTimeoutMs": 86500000
+    }
+  }
+}

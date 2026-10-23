@@ -1,0 +1,1905 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="skeleton-version" content="7.1">
+<title>SmartForge · 自媒体全链路营销系统</title>
+<style>
+/* ============================================================
+   SLOT: theme tokens
+   从 references/themes.md 选定主题后，整套替换以下变量。
+   禁止混搭、禁止修改色值。
+   G3 质感主题会额外携带 --texture-type / --texture-layer /
+   --texture-scope 三个 token，复制时一并带入（v4 起
+   --texture-scope 是许可声明，配给机制见框架层"背景配给制"）。
+   ============================================================ */
+:root{
+  /* C1 信号黑 · 基底信号橙（默认变体，themes.md 整套复制） */
+  --paper:#1a1a1a;
+  --paper-tint:#242424;
+  --ink:#ffffff;
+  --ink-tint:#0f0f0f;
+  --accent:#FF5722;
+  --accent-on:#1a1a1a;
+  /* G3 质感：flat 立场——无质感层，靠色块与字重压强 */
+  --texture-type: flat;
+  --texture-layer: none;
+  --texture-scope: cover;
+  /* 字体栈（系统栈，离线可用） */
+  --font-display:"Arial Black","PingFang SC","Noto Sans SC",sans-serif;
+  --font-body:"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif;
+  --font-mono:"SF Mono","JetBrains Mono","Menlo",monospace;
+  /* 画布内边距（画布坐标系 px） */
+  --slide-pad:96px 120px;
+}
+
+/* ============================================================
+   框架层 · 禁止修改
+   处理：16:9 固定画布缩放、竖向滚动、键盘翻页、章节跳转（v7：data-chapter
+   + nav-link 锚点 + 数字键直跳）、mend-bar 双态修复条与 data-rotate
+   轮转高亮（v7）、
+   入场动效（含运行时拆字/打字机/乱码引擎）、scroll 驱动动效
+   （scroll-timeline + sticky 页间效果）、pointer tracker
+   （--mx/--my 变量 + tilt/magnetic）、canvas FX 仪式层
+   （data-fx，密度/数量/速度烧死，in-view 生命周期，离屏停帧）、
+   质感槽位与背景配给制、
+   刊头家具样式（masthead/mastfoot）、reduced-motion 降级、打印。
+   ============================================================ */
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  background:#111;
+  font-family:var(--font-body);
+  -webkit-font-smoothing:antialiased;
+  overscroll-behavior:none;
+}
+.deck{
+  height:100vh;
+  height:100dvh;
+  overflow-y:auto;
+  scroll-snap-type:y proximity;
+}
+.slide-slot{
+  width:100%;
+  height:calc(1080px * var(--slide-scale, .5));
+  margin:12px 0;
+  display:flex;
+  justify-content:center;
+  scroll-snap-align:start;
+  content-visibility:auto;
+}
+.slide{
+  width:1920px;
+  height:1080px;
+  flex:none;
+  position:relative;
+  overflow:hidden;
+  transform:scale(var(--slide-scale, .5));
+  transform-origin:top center;
+  background:var(--paper);
+  color:var(--ink);
+  padding:var(--slide-pad);
+}
+/* 暗色页变体 */
+.slide.dark{background:var(--ink);color:var(--paper)}
+
+/* 质感槽位与背景配给制（skeleton v4 · 高级感要素 7）：
+   --texture-layer 默认不渲染——只铺两类页面：
+   仪式页（封面/章节/封底，生成侧标 .cover-page）与显式声明的正文页
+   （生成侧逐页加 .texture-on；纪律见 references/motion.md §4）。
+   主题的 --texture-scope 是许可声明而非开关：cover=只许仪式页（缺省
+   立场），all=允许正文页铺（仍需逐页 .texture-on 落码，骨架不自动
+   全铺）。无质感主题（flat）该层为 none，零成本。 */
+.slide::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:none;
+}
+.slide.cover-page::before,.slide.texture-on::before{background:var(--texture-layer,none)}
+
+/* 刊头家具（skeleton v4 · 高级感要素 6）：页眉（左 kicker 位 /
+   右页码或日期位）与页脚 hairline 元信息行。样式在框架层烧死
+   （mono、大写、加宽字距、低透明、hairline 分隔线）；结构与内容是
+   可选 SLOT——生成侧逐页决定放不放、放什么，整件可省略（仪式页
+   通常省略：仪式感来自留白，不来自家具）。家具定位在画布内边距带
+   （--slide-pad:96px 120px）内，不与正文争版面。
+   家具内容若是中文，生成侧须把 letter-spacing 归零（中文不加宽字距）。 */
+.masthead{
+  position:absolute;top:40px;left:120px;right:120px;
+  display:flex;justify-content:space-between;align-items:baseline;gap:2em;
+  font-family:var(--font-mono);font-size:15px;font-weight:500;
+  letter-spacing:.22em;text-transform:uppercase;opacity:.6;
+}
+.mastfoot{
+  position:absolute;left:120px;right:120px;bottom:34px;
+  display:flex;justify-content:space-between;align-items:baseline;gap:2em;
+  padding-top:16px;border-top:1px solid color-mix(in srgb, currentColor 22%, transparent);
+  font-family:var(--font-mono);font-size:14px;font-weight:500;
+  letter-spacing:.18em;text-transform:uppercase;opacity:.55;
+}
+
+/* 动效缓动 token（skeleton v3）：全 deck 只用这三种缓动，禁止逐页自定义。
+   出 = 入场显影；变 = 变换/移动；环 = 循环 ambience。规则见 references/motion.md */
+:root{
+  --ease-out:cubic-bezier(.22,1,.36,1);
+  --ease-shift:cubic-bezier(.7,0,.2,1);
+  --ease-loop:ease-in-out;
+}
+
+/* 入场动效：给元素加 class="reveal"，可用 style="--d:.15s" 做阶梯延迟。
+   .js 门槛：无 JS 环境（打印预览器/抓取器）下内容直接可见，动效只是增强。 */
+.js .reveal{opacity:0;transform:translateY(24px);transition:opacity .6s var(--ease-out),transform .6s var(--ease-out);transition-delay:var(--d,0s)}
+.js .slide.in-view .reveal{opacity:1;transform:none}
+
+/* 语义动效：section[data-animate] 选配方，元素 [data-anim] 标角色。
+   配方只调节奏与方向；框架 JS 在加载时为每个 [data-anim] 分配序号 --i。
+   规则与词汇表见 references/motion.md。 */
+.js [data-anim]{opacity:0;transform:translateY(24px);transition:opacity .6s var(--ease-out),transform .6s var(--ease-out);transition-delay:calc(var(--i,0)*75ms)}
+.js [data-anim="left"]{transform:translateX(-40px)}
+.js [data-anim="right"]{transform:translateX(40px)}
+.js [data-anim="line"]{transform:scaleX(0);transform-origin:left}
+.js [data-animate="hero"] [data-anim]{transition-duration:1s;transition-delay:calc(var(--i,0)*160ms)}
+.js [data-animate="quote"] [data-anim]{transition-duration:.55s;transition-delay:calc(var(--i,0)*220ms)}
+.js .slide.in-view [data-anim]{opacity:1;transform:none}
+
+/* ---- skeleton v3 recipe ---- */
+/* chars/words/shatter：文件中是纯文本，框架 JS 入场时拆成 .sp-unit 序列、
+   动画完成后还原为纯文本。容器只做快速整体淡入，逐字运动由 span 承担。 */
+.js [data-anim="chars"],.js [data-anim="words"],.js [data-anim="shatter"]{transform:none;transition:opacity .3s ease}
+.js .split-anim .sp-unit{display:inline-block;opacity:0;transform:translateY(.55em);transition:opacity .5s var(--ease-out),transform .55s var(--ease-out);transition-delay:calc(var(--j,0)*45ms)}
+.js [data-anim="words"].split-anim .sp-unit{transition-delay:calc(var(--j,0)*90ms)}
+.js [data-anim="shatter"].split-anim .sp-unit{transform:translate(var(--sx,0),var(--sy,1em)) rotate(var(--sr,0deg));transition-duration:.5s,.75s;transition-delay:calc(var(--j,0)*40ms)}
+.js .slide.in-view .split-anim .sp-unit{opacity:1;transform:none}
+/* count-up：数字滚动。保留整体淡入、去掉位移；数值滚动由框架 JS 驱动
+   （读元素文本终值，从 0 或 data-from 起滚），文本始终是纯文本。 */
+.js [data-anim="count-up"]{transform:none}
+/* draw-line：SVG 描边描绘。框架 JS 加载时量长藏线，入场时归零描出。 */
+.js [data-anim="draw-line"]{opacity:1;transform:none;transition:stroke-dashoffset 1.1s var(--ease-out);transition-delay:calc(var(--i,0)*75ms)}
+/* fill-bar：横向填充（进度/占比/横条图）。 */
+.js [data-anim="fill-bar"]{transform:scaleX(0);transform-origin:left center;transition:opacity .5s var(--ease-out),transform 1s var(--ease-out);transition-delay:calc(var(--i,0)*75ms)}
+
+/* ---- skeleton v5 recipe（动效词汇库 8 族，规则见 references/motion.md v3）---- */
+/* enter 族补全（触发器：inview 一次性，纯 CSS 过渡；终态由通用 .in-view 规则给出） */
+.js [data-anim="blur-in"]{transform:none;filter:blur(14px);transition:opacity .8s var(--ease-out),filter .8s var(--ease-out);transition-delay:calc(var(--i,0)*75ms)}
+.js .slide.in-view [data-anim="blur-in"]{filter:blur(0)}
+.js [data-anim="scale-pop"]{transform:scale(.86);transition:opacity .45s var(--ease-out),transform .55s var(--ease-out);transition-delay:calc(var(--i,0)*75ms)}
+.js [data-anim="wipe-clip"]{transform:none;clip-path:inset(0 100% 0 0);transition:opacity .3s ease,clip-path .9s var(--ease-shift);transition-delay:calc(var(--i,0)*75ms)}
+.js .slide.in-view [data-anim="wipe-clip"]{clip-path:inset(0 0 0 0)}
+.js [data-anim="rise-in"]{transform:translateY(64px);transition:opacity .7s var(--ease-out),transform .8s var(--ease-out);transition-delay:calc(var(--i,0)*75ms)}
+.js [data-anim="persp-in"]{transform:perspective(1200px) rotateX(12deg) translateY(48px);transform-origin:center bottom;transition:opacity .6s var(--ease-out),transform .9s var(--ease-out);transition-delay:calc(var(--i,0)*75ms)}
+
+/* text 族扩展：mask-lines 逐行遮罩——生成侧显式分行（.ml-line 外遮罩 +
+   .ml-inner 内层位移，内层是 data-editable 叶子），文本节点完整不拆，纯 CSS。 */
+.js [data-anim="mask-lines"]{opacity:1;transform:none;transition:none}
+.js [data-anim="mask-lines"] .ml-line{display:block;overflow:hidden}
+.js [data-anim="mask-lines"] .ml-inner{display:inline-block;transform:translateY(112%);transition:transform .85s var(--ease-out);transition-delay:calc(var(--i,0)*110ms)}
+.js .slide.in-view [data-anim="mask-lines"] .ml-inner{transform:none}
+/* gradient-flow 流光字：color 保留本色兜底，透明只走 -webkit-text-fill-color
+   （不支持 background-clip:text 的环境看到纯色文字）；编辑态由编辑器强制
+   还原本色（契约 v6「透明填充类效果」条款）。 */
+.js [data-anim="gradient-flow"]{background-image:linear-gradient(100deg,currentColor 42%,var(--accent) 50%,currentColor 58%);background-size:220% 100%;background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:gradient-flow 7s var(--ease-loop) infinite}
+@keyframes gradient-flow{0%{background-position:0% 0}100%{background-position:-220% 0}}
+/* typewriter 光标（主题限定款；打字/还原由框架 JS 引擎驱动，tw-live 是运行时 class） */
+.js [data-anim="typewriter"].tw-live::after{content:"";display:inline-block;width:.09em;height:.9em;margin-left:.06em;background:currentColor;vertical-align:-.08em;animation:tw-caret 1s steps(1) infinite}
+@keyframes tw-caret{50%{opacity:0}}
+
+/* 文字效果词汇（v7.1，规则见 references/typography.md「文字效果词汇」节）：
+   纯 CSS 文字处理——文字保持纯文本 + data-editable，无运行时状态。
+   --tt-c 是效果色槽位（默认跟随 ink；产物可设 var(--accent) 等）。 */
+.tt-outline{--tt-c:var(--ink);color:transparent;-webkit-text-stroke:1.5px var(--tt-c)}
+.tt-strike{text-decoration:line-through;text-decoration-thickness:.07em;text-decoration-color:var(--tt-c,currentColor)}
+.tt-mark{background:linear-gradient(transparent 62%,color-mix(in srgb,var(--accent) 45%,transparent) 62%)}
+.tt-uline{box-shadow:inset 0 -.12em 0 0 var(--accent)}
+
+/* data 族补全：fill-bar-y 竖柱生长（transform-origin 底部）；
+   ring 环形进度——生成侧给 SVG circle 写 pathLength="100" 与 style="--val:N"，
+   纯 CSS 无 JS，--val 是产物内容不是运行时状态。 */
+.js [data-anim="fill-bar-y"]{transform:scaleY(0);transform-origin:bottom center;transition:opacity .5s var(--ease-out),transform 1s var(--ease-out);transition-delay:calc(var(--i,0)*75ms)}
+.js [data-anim="ring"]{opacity:1;transform:none;stroke-dasharray:100;stroke-dashoffset:100;transition:stroke-dashoffset 1.2s var(--ease-out);transition-delay:calc(var(--i,0)*75ms)}
+.js .slide.in-view [data-anim="ring"]{stroke-dashoffset:calc(100 - var(--val,0))}
+
+/* mend-bar（v7，data 族）：双态修复条——入视口先填充到 --from（警示渐变，
+   建立张力），1.8s 后收窄到 --val 并切换 accent 纯态（修复完成）。
+   --from/--val 是产物内容（同 fill-bar --val 口径），纯 CSS .in-view 触发，无 JS。 */
+[data-anim="mend-bar"]{transform-origin:left center;transform:scaleX(calc(var(--val,100)/100));background:var(--accent)}
+.js [data-anim="mend-bar"]{transform:scaleX(0);background:linear-gradient(90deg,#ff3355,#ff6b2e 45%,#ffd93e);transition:transform 1.5s var(--ease-shift),background 1s ease 1.8s}
+.js .slide.in-view [data-anim="mend-bar"]{transform:scaleX(calc(var(--from,100)/100));background:var(--accent);animation:mend-final 1.2s var(--ease-shift) 1.8s forwards}
+@keyframes mend-final{to{transform:scaleX(calc(var(--val,100)/100))}}
+
+/* data-rotate（v7，loop 型）：容器内 [data-rotate-item] 轮转 .active
+   （流水线活态，JS 驱动，in-view 启动/离屏停）。骨架只给最小默认样式，
+   active 态的加强造型（描边/底色等）由产物/主题定义。 */
+.js [data-rotate-item]{transition:color .4s var(--ease-out),border-color .4s var(--ease-out),background-color .4s var(--ease-out)}
+.js [data-rotate-item].active{color:var(--accent)}
+
+/* link 族：dash-flow 流动虚线（dasharray 由生成侧定，默认 6 10）；
+   flow-dot 沿线粒子——HTML 圆点 + offset-path，--flow-path 由生成侧写与
+   可见线相同的路径数据；offset-path 不支持时藏点留线。 */
+.js .dash-flow{stroke-dasharray:6 10;animation:dash-flow 1.6s linear infinite}
+@keyframes dash-flow{to{stroke-dashoffset:-48}}
+.js .flow-dot{position:absolute;top:0;left:0;width:14px;height:14px;border-radius:50%;background:var(--accent);opacity:0;pointer-events:none;offset-path:var(--flow-path);offset-rotate:0deg;animation:flow-dot var(--flow-dur,4.5s) linear infinite;animation-delay:var(--d,0s)}
+@supports (offset-path:path("M0 0")){ .js .flow-dot{opacity:1} }
+@keyframes flow-dot{from{offset-distance:0%}to{offset-distance:100%}}
+
+/* amb 族补全（只许背景层；位移 ≤24px、缩放 ≤1.08、循环 ≥12s 上限烧死） */
+.js .amb-noise{animation:amb-noise 1.4s steps(2) infinite}
+@keyframes amb-noise{0%,100%{background-position:0 0}25%{background-position:-3% 2%}50%{background-position:2% -3%}75%{background-position:-2% -2%}}
+.js .amb-gradient-blob{animation:amb-gradient-blob 16s var(--ease-loop) infinite}
+@keyframes amb-gradient-blob{0%,100%{transform:translate3d(0,0,0) scale(1)}33%{transform:translate3d(24px,-18px,0) scale(1.06)}66%{transform:translate3d(-16px,12px,0) scale(.97)}}
+.js .amb-kenburns{animation:amb-kenburns 26s var(--ease-loop) infinite alternate}
+@keyframes amb-kenburns{from{transform:scale(1) translate(0,0)}to{transform:scale(1.08) translate(-1.2%,1%)}}
+.js .amb-marquee{animation:amb-marquee max(var(--marquee-dur,22s),12s) linear infinite}
+@keyframes amb-marquee{to{transform:translateX(-50%)}}
+
+/* light 族（光效装饰件，一律 data-editable-skip；spotlight 消费 pointer
+   tracker 写在 .slide 上的 --mx/--my 变量，tracker 不启动时停在默认位） */
+.js .light-sweep{position:relative;overflow:hidden}
+.js .light-sweep::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(105deg,transparent 42%,rgba(255,255,255,.22) 50%,transparent 58%);transform:translateX(-130%);animation:light-sweep 5.5s var(--ease-loop) infinite}
+@keyframes light-sweep{0%{transform:translateX(-130%)}60%,100%{transform:translateX(130%)}}
+@property --beam-angle{syntax:'<angle>';initial-value:0deg;inherits:false}
+.js .border-beam{position:relative}
+.js .border-beam::before{content:"";position:absolute;inset:0;padding:2px;border-radius:inherit;pointer-events:none;background:conic-gradient(from var(--beam-angle),transparent 68%,var(--accent) 84%,transparent 100%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude;animation:border-beam 4.5s linear infinite}
+@keyframes border-beam{to{--beam-angle:360deg}}
+.js .god-rays{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.js .god-rays::before{content:"";position:absolute;left:50%;top:-35%;width:170%;aspect-ratio:1;transform:translateX(-50%);background:repeating-conic-gradient(from 168deg at 50% 0%,color-mix(in srgb,var(--accent) 9%,transparent) 0 5deg,transparent 5deg 15deg);-webkit-mask:radial-gradient(75% 60% at 50% 0%,#000,transparent 72%);mask:radial-gradient(75% 60% at 50% 0%,#000,transparent 72%);animation:god-rays 15s var(--ease-loop) infinite}
+@keyframes god-rays{0%,100%{transform:translateX(-50%) rotate(-2deg)}50%{transform:translateX(-50%) rotate(2deg)}}
+.js .light-leak{position:absolute;inset:-15%;pointer-events:none;background:radial-gradient(42% 55% at 30% 40%,color-mix(in srgb,var(--accent) 15%,transparent),transparent 70%);animation:light-leak 12s var(--ease-loop) infinite}
+@keyframes light-leak{0%,100%{transform:translate(0,0);opacity:.75}50%{transform:translate(6%,-4%);opacity:1}}
+.js .spotlight{position:absolute;inset:0;pointer-events:none;background:radial-gradient(560px circle at var(--mx,50%) var(--my,30%),color-mix(in srgb,var(--accent) 14%,transparent),transparent 70%)}
+
+/* ptr 族（pointer tracker 驱动，只消费 CSS 变量；无 fine 指针或
+   reduced-motion 时变量不写入，元素停在设计位。位移/倾角上限烧死：
+   parallax ≤28px、tilt ±6deg、magnetic ±16px） */
+.js [data-ptr="parallax"]{transform:translate(clamp(-28px,calc(var(--mxr,0)*var(--pdepth,20px)),28px),clamp(-28px,calc(var(--myr,0)*var(--pdepth,20px)),28px));transition:transform .5s var(--ease-out)}
+.js [data-ptr="tilt"]{transform:perspective(1000px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .45s var(--ease-out)}
+.js [data-ptr="magnetic"]{transform:translate(var(--mgx,0px),var(--mgy,0px));transition:transform .4s var(--ease-out)}
+
+/* fx 仪式层（skeleton v5.1 · F5）：canvas 2D 页面级仪式效果
+   （constellation/starfield/particle-drift/ascii-field），只许 .cover-page
+   仪式页，每页至多 1 个，且只有主题 G5「fx 许可」白名单内的效果可用；
+   生成侧只写 <canvas data-fx="…"> 选类——密度/数量/速度全部烧死在
+   框架 JS 常量，无可调参数（纪律见 references/motion.md §4 fx 小节）。
+   z-index:-1：.slide 的 transform 建立了层叠上下文，canvas 垫在页背景
+   之上、全部内容之下（含非定位文字），内容侧无需补定位。
+   无 JS / reduced-motion / 打印：canvas 恒为空白透明层，零痕迹。 */
+[data-fx]{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:-1}
+
+/* scroll 族（skeleton v5 · L5）：
+   - read-progress：纯 CSS scroll-timeline（整 deck 进度语义天然匹配，
+     @supports 外 display:none）；
+   - parallax / scrub / scrub-draw：语义是"页/元素穿过视口的进度"。CSS
+     view() 时间线在 .slide{overflow:hidden} 画布下会错误绑定到不滚动的
+     画布（overflow:hidden 按规范也是滚动容器），实测进度冻结
+     （Chromium 145 headless 确认）——因此这三个 recipe 由框架 JS 驱动：
+     rAF 节流监听 deck 滚动，把页的穿越进度写为 .slide 上的 --sp ∈ [0,1]
+     （0=整页在视口下方、0.5=居中、1=整页在视口上方），CSS 用 calc 消费，
+     强度上限烧死在公式里。--sp 缺省值 = 静态终态：reduced-motion / 无 JS /
+     编辑器冻结（__pptxMotion.freeze() 会移除 --sp）下内容完整可见。 */
+@supports (animation-timeline: view()){
+  .deck{scroll-timeline-name:--deck-scroll}
+  .js .read-progress{display:block;animation:read-progress linear both;animation-timeline:--deck-scroll}
+}
+@keyframes read-progress{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+/* 阅读进度线：生成侧可选放 <div class="read-progress" data-editable-skip>
+   ——必须是 .deck 的最后一个子元素（具名 scroll-timeline 只对时间线声明
+   元素的后代可见，放 body 级拿不到 --deck-scroll）。缺省 display:none——
+   只有支持 scroll-timeline 的环境才显示。 */
+.read-progress{display:none;position:fixed;top:0;left:0;right:0;height:3px;background:var(--accent);transform-origin:left center;z-index:20;pointer-events:none}
+/* parallax：data-depth 分层位移（上限 ±64px 烧死） */
+.js [data-scroll="parallax"]{transform:translateY(clamp(-64px, calc((0.5 - var(--sp,.5)) * var(--depth,1) * 96px), 64px))}
+/* scrub：进度链接显影（页进入下半视口时完成显影，之后保持终态） */
+.js [data-scroll="scrub"]{opacity:clamp(0, calc((var(--sp,1) - .12) * 3), 1);transform:translateY(clamp(0px, calc((0.5 - var(--sp,.5)) * 160px), 40px))}
+/* scrub-draw：draw-line 的滚动变体（生成侧给 path 写 pathLength="100"） */
+.js [data-scroll="scrub-draw"]{stroke-dasharray:100;stroke-dashoffset:calc((1 - clamp(0, calc((var(--sp,1) - .15) / .7), 1)) * 100)}
+/* 页间 sticky 效果（纯 CSS）：cover=揭盖（本页钉住、下页滑过覆盖）；
+   stack=卡片叠放（同组 slot 由生成侧递推写 style="--pin-i:0,1,2…" 形成
+   错位叠顶）。两类 slot 退出 scroll-snap，避免吸附与钉住互搏。 */
+.slide-slot{position:relative;z-index:1}
+.slide-slot[data-scroll="cover"]{position:sticky;top:12px;z-index:0;scroll-snap-align:none}
+.slide-slot[data-scroll="stack"]{position:sticky;top:calc(12px + var(--pin-i,0)*44px);z-index:0;scroll-snap-align:none}
+
+/* 背景 ambience：只允许背景层/水印/呼吸点，强度上限烧死在参数里
+   （位移 ≤10px、不透明度摆幅 ≤.4、循环周期 ≥3s），不承载信息。 */
+@keyframes amb-pulse{0%,100%{opacity:.6}50%{opacity:1}}
+@keyframes amb-drift{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(10px,-8px,0)}}
+@keyframes amb-glow{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:.85;transform:scale(1.05)}}
+.js .amb-pulse{animation:amb-pulse 4s var(--ease-loop) infinite}
+.js .amb-drift{animation:amb-drift 9s var(--ease-loop) infinite}
+.js .amb-glow{animation:amb-glow 6s var(--ease-loop) infinite}
+
+@media (prefers-reduced-motion: reduce){
+  .js .reveal,.js [data-anim]{opacity:1;transform:none;transition:none}
+  .js [data-anim="blur-in"]{filter:none}
+  .js [data-anim="wipe-clip"]{clip-path:inset(0 0 0 0)}
+  .js [data-anim="mask-lines"] .ml-inner{transform:none;transition:none}
+  .js [data-anim="ring"]{stroke-dashoffset:calc(100 - var(--val,0));transition:none}
+  .js [data-anim="gradient-flow"]{animation:none}
+  .js [data-anim="typewriter"].tw-live::after{animation:none}
+  .js [data-anim="mend-bar"]{transform:scaleX(calc(var(--val,100)/100));background:var(--accent);animation:none;transition:none}
+  .js [data-rotate-item].active{color:inherit}
+  .js .split-anim .sp-unit{opacity:1;transform:none;transition:none}
+  .js .amb-pulse,.js .amb-drift,.js .amb-glow,.js .amb-noise,.js .amb-gradient-blob,.js .amb-kenburns,.js .amb-marquee{animation:none}
+  .js .light-sweep::after,.js .border-beam::before,.js .god-rays::before,.js .light-leak,.js .dash-flow,.js .flow-dot{animation:none}
+  .js .read-progress{animation:none;display:none}
+  /* ptr/scroll 族：tracker 与 --sp 驱动由 JS 侧整体不启动，变量不写入即停在终态 */
+}
+
+/* 界面 chrome：页码指示（在缩放画布之外） */
+.deck-chrome{
+  position:fixed;
+  right:20px;
+  bottom:16px;
+  font-family:var(--font-mono);
+  font-size:12px;
+  letter-spacing:.08em;
+  color:#888;
+  user-select:none;
+  pointer-events:none;
+  z-index:10;
+}
+
+/* 打印：每页一张 1920×1080（PDF 导出请用 Chrome/Edge） */
+@media print{
+  @page{size:1920px 1080px;margin:0}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{background:none}
+  .deck{height:auto;overflow:visible}
+  .slide-slot{height:1080px;margin:0;page-break-after:always}
+  .slide{transform:none !important}
+  .deck-chrome{display:none}
+  .reveal,[data-anim]{opacity:1 !important;transform:none !important;transition:none !important;filter:none !important;clip-path:none !important}
+  .split-anim .sp-unit{opacity:1 !important;transform:none !important;transition:none !important}
+  [data-anim="mask-lines"] .ml-inner{transform:none !important;transition:none !important}
+  [data-anim="ring"]{stroke-dashoffset:calc(100 - var(--val,0)) !important;transition:none !important}
+  [data-anim="mend-bar"]{transform:scaleX(calc(var(--val,100)/100)) !important;background:var(--accent) !important;animation:none !important;transition:none !important}
+  [data-anim="draw-line"]{stroke-dashoffset:0 !important}
+  [data-anim="gradient-flow"]{animation:none !important}
+  [class*="amb-"],[class*="light-"],.dash-flow,.flow-dot,[data-scroll],.read-progress,
+  .light-sweep::after,.border-beam::before,.god-rays::before{animation:none !important}
+  [data-scroll="parallax"],[data-scroll="scrub"]{transform:none !important;opacity:1 !important}
+  [data-scroll="scrub-draw"]{stroke-dashoffset:0 !important}
+  .read-progress{display:none !important}
+  [data-fx]{display:none !important}
+}
+
+/* ============================================================
+   SLOT: theme css（skeleton v6 起）
+   选定主题后，从 references/themes.md 该主题 G9 的 css 块
+   逐字复制到此处；无母题的主题留空即合法。
+   只允许三类规则：① :root{} token 重定义（缓动签名等——
+   本槽位在框架层之后，:root 重定义可覆盖框架 token）；
+   ② .mt-* 前缀母题类（命名空间防碰撞，类名全库唯一）；
+   ③ .mt-* 的伪元素/后代装饰。
+   颜色只许 var(--*)/color-mix() 引用 token，禁字面 hex；
+   禁外部 url()；禁覆盖框架选择器（.slide/.masthead 等）。
+   ============================================================ */
+
+/* C1 信号黑 · 装饰母题 + 缓动签名 */
+:root{--ease-out:cubic-bezier(.2,1.25,.3,1)}
+.mt-sig-bar{display:block;width:64px;height:10px;background:var(--accent)}
+.mt-sig-folio{position:absolute;right:2%;bottom:-.16em;z-index:0;pointer-events:none;user-select:none;font-family:var(--font-display);font-weight:900;font-size:30vh;line-height:.8;color:color-mix(in srgb,var(--ink) 7%,transparent)}
+.mt-sig-mark{display:inline-block;width:.55em;height:.55em;background:var(--accent)}
+
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+  <!-- ==========================================================
+       SLOT: slides
+       每页结构（示例两页，生成时替换为真实内容）：
+       - data-slide-id：稳定语义 ID，禁止用页码
+       - data-editable：用户可见文字
+       - data-editable-image：可替换图片，src 指向 assets/ 相对路径
+       - data-editable-skip：纯装饰元素
+       - cover-page：封面/章节/封底标记（仪式页自动铺质感层）
+       - texture-on：正文页铺质感层的显式声明（背景配给制，仅
+         --texture-scope:all 的主题允许；逐页声明，不自动全铺）
+       - 刊头家具（可选，v4）：<header class="masthead">（左 kicker 位 /
+         右页码或日期位）与 <footer class="mastfoot">（hairline 元信息
+         行）——样式在框架层，内容逐页填，整件可省略；仪式页通常省略。
+         家具文字是用户可见内容，标 data-editable。
+       - data-anim：动效角色。chars/words/shatter 的元素里只写纯文本，
+         拆字由骨架 JS 运行时完成；typewriter/scramble 同理（主题限定款）；
+         count-up 直接写终值文本；draw-line 标在 SVG 描边元素上；
+         fill-bar/fill-bar-y 标在填充条上；ring 标在带 pathLength="100"
+         与 style="--val:N" 的 SVG circle 上；mask-lines 标在含
+         .ml-line>.ml-inner 分行结构的容器上（.ml-inner 是 data-editable 叶子）。
+         enter 族补全：blur-in / scale-pop / wipe-clip / rise-in / persp-in。
+       - data-ptr：pointer 族。spotlight（class，依赖 --mx/--my）/ tilt /
+         magnetic / parallax（--pdepth 力度）。tracker 只写 CSS 变量。
+       - data-scroll：scroll 族。parallax（--depth 分层）/ scrub / scrub-draw
+         （pathLength="100" 的 path）写在元素上；cover / stack（--pin-i 递推）
+         写在 .slide-slot 上做页间效果；read-progress 是放在 .deck 内最后的
+         进度线 div（具名 scroll-timeline 只对 .deck 后代可见）。
+       - amb-*/light-* class：循环氛围与光效装饰件，一律 data-editable-skip；
+         dash-flow / flow-dot（--flow-path 路径数据）也是 class 装饰件。
+       - data-fx（v5.1，fx 仪式层）：<canvas data-fx="constellation|starfield|
+         particle-drift|ascii-field" data-editable-skip aria-hidden="true">，
+         只许 .cover-page 仪式页、每页至多 1 个、主题 G5「fx 许可」白名单内
+         才可用；参数全部烧死在骨架，生成侧只能选类。
+       - mend-bar（v7）：data-anim="mend-bar" 标在填充条上，inline style 写
+         --from（起始警示值）与 --val（目标值），先填充后收窄并切 accent 纯态。
+       - data-rotate（v7）：标在容器上，其内 [data-rotate-item] 子项轮转
+         .active（流水线活态）；active 加强造型由产物/主题定义。
+       - 章节跳转（v7）：章节页 .slide 加 data-chapter="章节名" 与 id（同
+         data-slide-id）；目录链接 <a class="nav-link" href="#id">；键盘
+         数字键 1–9 直跳第 N 章、0/Home 回封面、End 到末页。
+       - 词汇表与纪律（五层启用矩阵/主题限定/注意力预算）见 references/motion.md。
+       ========================================================== -->
+
+  <style>
+  /* ===== 产物样式 · smartforge-c1（本 deck 私有，非框架层、非主题 SLOT）=====
+     文本容器六型（components.md §13）结构样式 + data-rotate active 加强
+     （c1 气质：accent 描边 + 微光，K 期设计口径——active 造型属主题/产物主权）。
+     v2 密度重做：标注层（typography §5：mono 12–16px + 低明度 40–65% +
+     短文本）全量落地为 .anno/.anno-sm 两款；颜色一律 var(--*)/color-mix()
+     引用 token，无字面 hex，无外部 url()。 */
+  .pg-title{font-family:var(--font-display);font-weight:900;line-height:1.15}
+  .pg-kicker{font-family:var(--font-mono);font-size:16px;font-weight:500;letter-spacing:0;color:color-mix(in srgb,var(--ink) 55%,transparent)}
+  .eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--font-mono);font-size:15px;font-weight:500;letter-spacing:0;color:color-mix(in srgb,var(--ink) 50%,transparent)}
+  .note-line{font-family:var(--font-mono);font-size:15px;font-weight:500;letter-spacing:0;line-height:1.6;color:color-mix(in srgb,var(--ink) 50%,transparent)}
+  /* 标注层（K 期深化）：印刷肌理，不承载关键结论 */
+  .anno{font-family:var(--font-mono);font-size:13px;font-weight:500;letter-spacing:.08em;line-height:1.55;color:color-mix(in srgb,var(--ink) 46%,transparent)}
+  .anno-sm{font-size:12px;color:color-mix(in srgb,var(--ink) 42%,transparent)}
+  /* 版头/分节头：左题右注 */
+  .head-row{display:flex;justify-content:space-between;align-items:flex-end;gap:40px}
+  .anno-col{display:flex;flex-direction:column;gap:6px;align-items:flex-end;text-align:right;flex:none}
+  .lede-row{display:flex;justify-content:space-between;align-items:baseline;gap:40px}
+  .lede{font-size:20px;line-height:1.6;color:color-mix(in srgb,var(--ink) 72%,transparent)}
+  .cell-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+  /* 容器边界义务（v5 · components.md §13 硬规则 + §12 暗底例外 +
+     隔离实验 C 版「面+框」裁决）：高密度容器区 = 面（灰档 paper-tint /
+     墨档 ink-tint）+ 1px hairline 细框（ink 18%，母题 color-mix 口径）。
+     同页同构：同 gap / 同 padding / 同边界手段；封面/收束 accent 满版
+     色块不加框（仪式页特权）；卡内 accent 小件（mend-bar 条 / rotate
+     active 描边）保持 accent——细框是容器边界，accent 是焦点。 */
+  .tick-cell,.mcard,.pipe-card,.vcol,.stack-row,.kv-band,.kv-block,.out-cell{border:1px solid color-mix(in srgb,var(--ink) 18%,transparent)}
+  /* 封面目录（nav-link 章节锚点，skeleton v7） */
+  .toc-row{display:flex;gap:12px}
+  a.nav-link{flex:1;display:flex;align-items:baseline;gap:14px;background:var(--paper-tint);padding:22px 24px;text-decoration:none;color:var(--ink)}
+  a.nav-link:hover{background:var(--accent);color:var(--accent-on)}
+  a.nav-link:hover .toc-no{color:var(--accent-on)}
+  .toc-no{font-family:var(--font-mono);font-size:16px;font-weight:600;color:var(--accent)}
+  .toc-name{font-size:22px;font-weight:600}
+  .toc-sub{margin-left:auto}
+  /* 数据带 ticker（§13） */
+  .ticker{display:flex;gap:24px}
+  .tick-cell{flex:1;min-height:520px;background:var(--paper-tint);padding:40px 36px;display:flex;flex-direction:column}
+  .tick-from{font-family:var(--font-display);font-weight:800;font-size:54px;line-height:1.1;color:color-mix(in srgb,var(--ink) 42%,transparent)}
+  .tick-arrow{font-family:var(--font-display);font-weight:800;font-size:34px;color:color-mix(in srgb,var(--ink) 42%,transparent)}
+  .tick-to{font-family:var(--font-display);font-weight:900;font-size:132px;line-height:1.05;color:var(--accent)}
+  .tick-desc{font-size:19px;line-height:1.6;color:color-mix(in srgb,var(--ink) 85%,transparent)}
+  /* 指标卡 metric-card（§13） */
+  .mcard-row{display:flex;gap:20px}
+  .mcard{flex:1;background:var(--paper-tint);padding:30px 28px;display:flex;flex-direction:column;gap:14px}
+  .mcard-title{font-size:28px;font-weight:800}
+  .mcard-desc{font-size:18px;line-height:1.6;color:color-mix(in srgb,var(--ink) 80%,transparent)}
+  .mend-track{height:10px;background:var(--ink-tint)}
+  .mend-fill{height:100%}
+  /* 流水线三段卡 + data-rotate active 加强（v2：清单项带 mono 序号 + 类型标签） */
+  .pipe-row{display:flex;gap:36px;position:relative;min-height:460px}
+  .pipe-card{flex:1;background:var(--paper-tint);padding:30px;display:flex;flex-direction:column;gap:14px}
+  .pipe-stage{font-size:32px;font-weight:800}
+  .pipe-list{list-style:none;display:flex;flex-direction:column;gap:10px}
+  .pipe-list li{display:flex;align-items:baseline;gap:10px;font-size:18px;line-height:1.5}
+  .li-ord{font-family:var(--font-mono);font-size:12px;font-weight:500;width:24px;flex:none;color:color-mix(in srgb,var(--ink) 42%,transparent)}
+  .li-tag{margin-left:auto;font-family:var(--font-mono);font-size:12px;font-weight:500;letter-spacing:.06em;color:color-mix(in srgb,var(--ink) 42%,transparent)}
+  .pipe-link-label{position:absolute;top:44%;transform:translateX(-50%);z-index:2}
+  /* 指标条元信息行（p3 漏洞卡：LEAK RATE label + 值） */
+  .bar-meta{display:flex;justify-content:space-between;align-items:baseline}
+  .bar-val{font-family:var(--font-mono);font-size:14px;font-weight:600;color:color-mix(in srgb,var(--ink) 65%,transparent)}
+  .pipe-links{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+  #pipeline [data-rotate-item]{outline:2px solid transparent;transition:outline-color .4s var(--ease-out),box-shadow .4s var(--ease-out),color .4s var(--ease-out)}
+  #pipeline [data-rotate-item].active{color:var(--ink);outline-color:var(--accent);box-shadow:0 0 28px color-mix(in srgb,var(--accent) 32%,transparent)}
+  #pipeline [data-rotate-item].active .pipe-stage{color:var(--accent)}
+  /* 字段行 kv-rows（§13）：横向状态带 + 纵向字段块两种形态 */
+  .kv-band{display:flex;gap:36px;background:var(--ink-tint);padding:22px 36px}
+  .kv-cell{flex:1;display:flex;justify-content:space-between;align-items:baseline;gap:16px}
+  .kv-label{font-family:var(--font-mono);font-size:15px;font-weight:500;letter-spacing:0;color:color-mix(in srgb,var(--ink) 48%,transparent)}
+  .kv-value{font-size:21px;font-weight:600;white-space:nowrap}
+  .kv-block{background:var(--ink-tint);padding:36px 40px;display:flex;flex-direction:column}
+  .kv-row{display:flex;justify-content:space-between;align-items:baseline;gap:24px;padding:15px 0}
+  .kv-row + .kv-row{margin-top:6px}
+  /* 对照列 versus-cols（§13） */
+  .vcols{display:flex;gap:28px}
+  .vcol{flex:1;display:flex;flex-direction:column;gap:12px;background:var(--paper-tint);padding-bottom:14px}
+  .vcol-head{display:flex;align-items:baseline;gap:16px;padding:16px 32px}
+  .vcol-head-accent{background:var(--accent);color:var(--accent-on)}
+  /* v5：列体已有灰档面——WIDE 列头降纸档（透明），避免同色面叠面；
+     DEEP accent 列头保持全页唯一焦点块（§12 单焦点） */
+  .vcol-head-tint{background:transparent}
+  .vrow{display:flex;flex-direction:column;gap:8px;padding:4px 32px}
+  .vrow-title{font-size:26px;font-weight:800}
+  .vrow-desc{font-size:18px;line-height:1.55;color:color-mix(in srgb,var(--ink) 78%,transparent)}
+  /* 堆栈层 stack-rows（§13，v2：右侧注记轨 stack-rail 承担 ④ 注层） */
+  .stack{display:flex;flex-direction:column;gap:18px}
+  .stack-row{display:flex;align-items:center;gap:40px;background:var(--paper-tint);padding:26px 36px}
+  .stack-name{font-size:34px;font-weight:800;white-space:nowrap}
+  .stack-items{display:flex;flex-wrap:wrap;align-items:center;gap:14px;font-size:19px;line-height:1.6;color:color-mix(in srgb,var(--ink) 88%,transparent)}
+  .stack-rail{margin-left:auto;flex:none;width:300px;display:flex;flex-direction:column;gap:8px}
+  .rail-row{display:flex;justify-content:space-between;align-items:baseline;gap:16px}
+  /* 状态 chips（p7）与产出物条（p7 out-strip） */
+  .chip-row{display:flex;gap:12px;flex-wrap:wrap}
+  .chip{font-family:var(--font-mono);font-size:13px;font-weight:500;letter-spacing:.08em;color:color-mix(in srgb,var(--ink) 55%,transparent);background:var(--paper-tint);padding:8px 14px}
+  .out-strip{display:flex;gap:20px}
+  .out-cell{flex:1;background:var(--paper-tint);padding:22px 24px;display:flex;flex-direction:column;gap:8px}
+  .out-name{font-size:20px;font-weight:700}
+  /* 注记块 note-block（§13）：信号方块作注记标头（母题作 eyebrow 位） */
+  .note-block{display:flex;align-items:flex-start;gap:12px}
+  /* 中文标注不加字距（标注层纪律）；置于末位保证覆盖 */
+  .anno-cn{letter-spacing:0}
+  /* 背景隐性运动（L4 全局款 · motion.md §6）：信号噪点底纹——data-URI
+     turbulence 细颗粒（无外部 url()、无字面 hex、无关键字色值），骨架
+     amb-noise 循环驱动（1.4s steps(2) 微 jitter，周期/幅度为骨架烧死值）。
+     封面让位 constellation fx（fx 优先不叠加），p2–p8 全铺。 */
+  .sig-noise{position:absolute;inset:0;z-index:3;pointer-events:none;opacity:.04;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.6 0'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>");background-size:160px 160px}
+  /* 装饰呼吸（§6 装饰家具层）：巨号页码超低频呼吸——周期 8s、opacity
+     摆幅 .08（骨架 amb 上限 摆幅≤.4 / 周期≥3s 内取最小）；reduced-motion 停用 */
+  .folio-breath{animation:folio-breath 8s var(--ease-loop) infinite}
+  @keyframes folio-breath{0%,100%{opacity:1}50%{opacity:.92}}
+  @media (prefers-reduced-motion: reduce){.folio-breath{animation:none}}
+  </style>
+
+  <!-- p1 封面：宣言谱系 · chars 巨字 + 橙色块 wipe-clip + constellation 仪式层 + 目录 nav-link ×5 -->
+  <div class="slide-slot">
+    <section class="slide cover-page" data-slide-id="cover" data-animate="hero" data-content-hash="a2f07579f726">
+      <canvas data-fx="constellation" data-editable-skip aria-hidden="true"></canvas>
+      <div style="height:100%;display:flex;flex-direction:column;justify-content:space-between">
+        <div>
+          <span class="mt-sig-bar" data-editable-skip></span>
+          <p data-editable class="pg-kicker" style="margin-top:28px">全国高校 AI 创新大赛 · 2026</p>
+          <p data-editable class="anno" style="margin-top:14px">ISSUE 2026 · FORMAT 16:9 WEB · STACK ZERO-ASSET · VER V2.0</p>
+        </div>
+        <div>
+          <h1 class="pg-title" style="font-size:188px"><span data-editable data-anim="chars">SMART </span><span data-editable data-anim="chars" class="tt-outline">FORGE</span></h1>
+          <div data-anim="wipe-clip" style="margin-top:36px;display:inline-block;background:var(--accent);padding:18px 34px">
+            <span data-editable class="pg-title" style="font-size:88px;color:var(--accent-on)">内容流水线</span>
+          </div>
+          <p data-editable class="reveal" style="--d:.35s;margin-top:34px;font-size:28px;color:color-mix(in srgb,var(--ink) 75%,transparent)">自媒体全链路营销系统 —— 把内容生产从外包手艺变成平台流水线</p>
+        </div>
+        <nav aria-label="章节目录">
+          <p data-editable class="note-line" style="margin-bottom:16px">目录 · CONTENTS ｜ 点击跳转 · 数字键 1–5 直跳章节 · 0 回封面 · END 到末页</p>
+          <div class="toc-row">
+            <a class="nav-link" href="#pain"><span class="toc-no" data-editable>01</span><span class="toc-name" data-editable>背景与痛点</span><span class="toc-sub anno anno-sm" data-editable>WHY NOW</span></a>
+            <a class="nav-link" href="#pipeline"><span class="toc-no" data-editable>02</span><span class="toc-name" data-editable>流水线</span><span class="toc-sub anno anno-sm" data-editable>PIPELINE</span></a>
+            <a class="nav-link" href="#deep-wide"><span class="toc-no" data-editable>03</span><span class="toc-name" data-editable>创新×复用</span><span class="toc-sub anno anno-sm" data-editable>DEEP × WIDE</span></a>
+            <a class="nav-link" href="#arch"><span class="toc-no" data-editable>04</span><span class="toc-name" data-editable>架构</span><span class="toc-sub anno anno-sm" data-editable>STACK</span></a>
+            <a class="nav-link" href="#online"><span class="toc-no" data-editable>05</span><span class="toc-name" data-editable>实践案例</span><span class="toc-sub anno anno-sm" data-editable>LIVE CASE</span></a>
+          </div>
+        </nav>
+      </div>
+    </section>
+  </div>
+
+  <!-- p2 反差数据带：数据英雄谱系 · ticker 三格 from→to + kv 图例带 + note-block
+       （v2 密度：格内 FROM/TO 标尺 + 单位/差额/来源标注层全量落地） -->
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="impact" data-content-hash="04721641162c">
+      <header class="masthead">
+        <span data-editable>SMART FORGE · CONTENT PIPELINE</span>
+        <span data-editable>02 / 08</span>
+      </header>
+      <span class="mt-sig-folio folio-breath" data-editable-skip>02</span>
+      <span class="mt-sig-bar" data-editable-skip></span>
+      <div class="head-row" style="margin-top:20px">
+        <h2 data-editable data-anim="chars" class="pg-title" style="font-size:108px">三笔账，全归零</h2>
+        <div class="anno-col" style="margin-bottom:16px">
+          <p data-editable class="anno">UNIT · CNY / 条</p>
+          <p data-editable class="anno">READ · FROM → TO</p>
+          <p data-editable class="anno anno-cn">BASIS · 示例口径</p>
+        </div>
+      </div>
+      <div class="lede-row" style="margin-top:14px">
+        <p data-editable class="lede">外包报价与平台内产的同口径对照——三笔账全部归零。</p>
+        <p data-editable class="anno">TICKER · 01–03</p>
+      </div>
+      <div class="ticker" style="margin-top:28px">
+        <div class="tick-cell" style="min-height:470px;padding:32px 32px">
+          <div class="cell-head">
+            <p data-editable class="eyebrow">01 · 资讯成本</p>
+            <p data-editable class="anno">T-01</p>
+          </div>
+          <p data-editable class="anno anno-sm" style="margin-top:10px">TYPE · COST / 单条</p>
+          <p data-editable class="anno anno-sm" style="margin-top:22px">FROM</p>
+          <p style="margin-top:2px"><span data-editable class="tick-from tt-strike">¥2,000</span> <span class="tick-arrow" data-editable-skip>→</span></p>
+          <p data-editable class="anno anno-sm" style="margin-top:8px">TO</p>
+          <p data-editable data-anim="scale-pop" class="tick-to" style="margin-top:2px">¥0</p>
+          <p data-editable class="anno" style="margin-top:8px">DELTA · −100%</p>
+          <p data-editable class="tick-desc" style="margin-top:auto;padding-top:16px">外包单条资讯 → 平台内产</p>
+          <p data-editable class="note-line" style="margin-top:12px">单条图文资讯 · 外包报价口径</p>
+          <p data-editable class="anno anno-sm anno-cn" style="margin-top:8px">SRC · 示例口径</p>
+        </div>
+        <div class="tick-cell" style="min-height:470px;padding:32px 32px">
+          <div class="cell-head">
+            <p data-editable class="eyebrow">02 · 视频成本</p>
+            <p data-editable class="anno">T-02</p>
+          </div>
+          <p data-editable class="anno anno-sm" style="margin-top:10px">TYPE · COST / 90s</p>
+          <p data-editable class="anno anno-sm" style="margin-top:22px">FROM</p>
+          <p style="margin-top:2px"><span data-editable data-anim="count-up" data-from="0" class="tick-from tt-strike">¥20,000</span> <span class="tick-arrow" data-editable-skip>→</span></p>
+          <p data-editable class="anno anno-sm" style="margin-top:8px">TO</p>
+          <p data-editable data-anim="scale-pop" class="tick-to" style="margin-top:2px">¥0</p>
+          <p data-editable class="anno" style="margin-top:8px">DELTA · −100%</p>
+          <p data-editable class="tick-desc" style="margin-top:auto;padding-top:16px">近 2 万一条 90s 视频 → 一键产出</p>
+          <p data-editable class="note-line" style="margin-top:12px">90s 短视频 · 外包报价口径</p>
+          <p data-editable class="anno anno-sm anno-cn" style="margin-top:8px">SRC · 示例口径</p>
+        </div>
+        <div class="tick-cell" style="min-height:470px;padding:32px 32px">
+          <div class="cell-head">
+            <p data-editable class="eyebrow">03 · 工具收敛</p>
+            <p data-editable class="anno">T-03</p>
+          </div>
+          <p data-editable class="anno anno-sm" style="margin-top:10px">TYPE · COUNT / 款</p>
+          <p data-editable class="anno anno-sm" style="margin-top:22px">FROM</p>
+          <p style="margin-top:2px"><span data-editable class="tick-from tt-strike">5+</span> <span class="tick-arrow" data-editable-skip>→</span></p>
+          <p data-editable class="anno anno-sm" style="margin-top:8px">TO</p>
+          <p data-editable data-anim="scale-pop" class="tick-to" style="margin-top:2px">1</p>
+          <p data-editable class="anno" style="margin-top:8px">DELTA · −80%</p>
+          <p data-editable class="tick-desc" style="margin-top:auto;padding-top:16px">外部工具 → 统一工作台</p>
+          <p data-editable class="note-line" style="margin-top:12px">全链路外部工具计数</p>
+          <p data-editable class="anno anno-sm anno-cn" style="margin-top:8px">SRC · 示例口径</p>
+        </div>
+      </div>
+      <div class="kv-band" style="margin-top:22px">
+        <div class="kv-cell"><span data-editable class="kv-label">BEFORE</span><span data-editable class="kv-value">外包报价</span></div>
+        <div class="kv-cell"><span data-editable class="kv-label">AFTER</span><span data-editable class="kv-value">平台内产</span></div>
+        <div class="kv-cell"><span data-editable class="kv-label">BILLS</span><span data-editable class="kv-value">3 笔账</span></div>
+        <div class="kv-cell"><span data-editable class="kv-label">DELTA</span><span data-editable class="kv-value">全部归零</span></div>
+        <div class="kv-cell"><span data-editable class="kv-label">BASIS</span><span data-editable class="kv-value">示例口径</span></div>
+        <div class="kv-cell"><span data-editable class="kv-label">FLOW</span><span data-editable class="kv-value">FROM → TO</span></div>
+      </div>
+      <div class="note-block" style="margin-top:18px">
+        <span class="mt-sig-mark" data-editable-skip style="flex:none;margin-top:6px"></span>
+        <div>
+          <p data-editable class="note-line">注：成本为单条物料外包报价与平台内产口径对比；工具数为内容生产全链路所用外部工具计数。</p>
+          <p data-editable class="anno anno-cn" style="margin-top:6px">NOTE · DELTA 为 FROM → TO 变化幅度 · 示例口径</p>
+        </div>
+      </div>
+      <footer class="mastfoot">
+        <span data-editable style="letter-spacing:0">全国高校 AI 创新大赛 · 2026</span>
+        <span data-editable>DATA · THREE BILLS</span>
+      </footer>
+      <div class="sig-noise amb-noise" data-editable-skip aria-hidden="true"></div>
+    </section>
+  </div>
+
+  <!-- p3 章节 01 背景与痛点：3 驱动（metric-card）+ 4 漏洞（metric-card + mend-bar） -->
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="pain" data-chapter="背景与痛点" id="pain" data-content-hash="94078d236c5a">
+      <header class="masthead">
+        <span data-editable style="letter-spacing:0">01 · 背景与痛点</span>
+        <span data-editable>03 / 08</span>
+      </header>
+      <span class="mt-sig-folio folio-breath" data-editable-skip>03</span>
+      <span class="mt-sig-bar" data-editable-skip></span>
+      <div class="head-row" style="margin-top:20px">
+        <h2 data-editable data-anim="chars" class="pg-title" style="font-size:96px">三重驱动，四处漏损</h2>
+        <div class="anno-col" style="margin-bottom:12px">
+          <p data-editable class="anno">DRIVERS ×3 · LEAKS ×4</p>
+          <p data-editable class="anno">TARGET · ALL → 0%</p>
+        </div>
+      </div>
+      <p data-editable class="lede" style="margin-top:12px">监管、流量、习惯三重驱动已经就位；现状链路仍有四处漏损——修复目标全部归零。</p>
+      <div class="cell-head" style="margin-top:20px">
+        <p data-editable class="eyebrow">DRIVERS · 三重驱动 · WHY NOW</p>
+        <p data-editable class="anno">TYPE · EXT ×2 / INT ×1</p>
+      </div>
+      <div class="mcard-row" style="margin-top:12px">
+        <div class="mcard" data-anim>
+          <p class="eyebrow"><span class="mt-sig-mark" data-editable-skip></span><span data-editable>DRIVER · 01</span></p>
+          <p data-editable class="mcard-title">新规约束</p>
+          <p data-editable class="mcard-desc">监管要求内容全程留痕</p>
+          <p data-editable class="mcard-desc" style="color:color-mix(in srgb,var(--ink) 60%,transparent)">→ 合规能力成为入场门槛</p>
+          <p data-editable class="anno" style="margin-top:auto">TYPE · EXTERNAL</p>
+          <p data-editable class="note-line">REGULATION</p>
+        </div>
+        <div class="mcard" data-anim>
+          <p class="eyebrow"><span class="mt-sig-mark" data-editable-skip></span><span data-editable>DRIVER · 02</span></p>
+          <p data-editable class="mcard-title">流量增长</p>
+          <p data-editable class="mcard-desc">自媒体渠道获客占比持续上升</p>
+          <p data-editable class="mcard-desc" style="color:color-mix(in srgb,var(--ink) 60%,transparent)">→ 内容生产需求持续放大</p>
+          <p data-editable class="anno" style="margin-top:auto">TYPE · EXTERNAL</p>
+          <p data-editable class="note-line">TRAFFIC</p>
+        </div>
+        <div class="mcard" data-anim>
+          <p class="eyebrow"><span class="mt-sig-mark" data-editable-skip></span><span data-editable>DRIVER · 03</span></p>
+          <p data-editable class="mcard-title">习惯迁移</p>
+          <p data-editable class="mcard-desc">团队已习惯 AI 辅助创作</p>
+          <p data-editable class="mcard-desc" style="color:color-mix(in srgb,var(--ink) 60%,transparent)">→ 工具化生产已被接受</p>
+          <p data-editable class="anno" style="margin-top:auto">TYPE · INTERNAL</p>
+          <p data-editable class="note-line">ADOPTION</p>
+        </div>
+      </div>
+      <div class="cell-head" style="margin-top:20px">
+        <p data-editable class="eyebrow">LEAKS · 四大漏洞 —— 修复目标：全部归零</p>
+        <p data-editable class="anno">MEND-BAR · 双态修复 ×4</p>
+      </div>
+      <div class="mcard-row" style="margin-top:12px">
+        <div class="mcard" data-anim>
+          <p data-editable class="eyebrow">LEAK · 01</p>
+          <p data-editable class="mcard-title">成本不可控</p>
+          <p data-editable class="mcard-desc"><span class="tt-mark">¥2K / 条</span>资讯 · ¥20K / 90s 视频</p>
+          <div class="bar-meta" style="margin-top:auto">
+            <span data-editable class="anno">LEAK RATE</span>
+            <span data-editable class="bar-val">94% → 0%</span>
+          </div>
+          <div class="mend-track" data-editable-skip><div class="mend-fill" data-anim="mend-bar" style="--from:94;--val:0"></div></div>
+          <p data-editable class="anno anno-sm anno-cn">SRC · 现状评估 · 示例口径</p>
+        </div>
+        <div class="mcard" data-anim>
+          <p data-editable class="eyebrow">LEAK · 02</p>
+          <p data-editable class="mcard-title">链路碎片化</p>
+          <p data-editable class="mcard-desc"><span class="tt-mark">≥5 款工具</span> · 无统一工作台</p>
+          <div class="bar-meta" style="margin-top:auto">
+            <span data-editable class="anno">LEAK RATE</span>
+            <span data-editable class="bar-val">86% → 0%</span>
+          </div>
+          <div class="mend-track" data-editable-skip><div class="mend-fill" data-anim="mend-bar" style="--from:86;--val:0"></div></div>
+          <p data-editable class="anno anno-sm anno-cn">SRC · 现状评估 · 示例口径</p>
+        </div>
+        <div class="mcard" data-anim>
+          <p data-editable class="eyebrow">LEAK · 03</p>
+          <p data-editable class="mcard-title">资产无法沉淀</p>
+          <p data-editable class="mcard-desc">0 组织级素材库 · 0 提示词库</p>
+          <div class="bar-meta" style="margin-top:auto">
+            <span data-editable class="anno">LEAK RATE</span>
+            <span data-editable class="bar-val">100% → 0%</span>
+          </div>
+          <div class="mend-track" data-editable-skip><div class="mend-fill" data-anim="mend-bar" style="--from:100;--val:0"></div></div>
+          <p data-editable class="anno anno-sm anno-cn">SRC · 现状评估 · 示例口径</p>
+        </div>
+        <div class="mcard" data-anim>
+          <p data-editable class="eyebrow">LEAK · 04</p>
+          <p data-editable class="mcard-title">合规难闭环</p>
+          <p data-editable class="mcard-desc"><span class="tt-mark">无全程留痕</span> · 难以追溯</p>
+          <div class="bar-meta" style="margin-top:auto">
+            <span data-editable class="anno">LEAK RATE</span>
+            <span data-editable class="bar-val">78% → 0%</span>
+          </div>
+          <div class="mend-track" data-editable-skip><div class="mend-fill" data-anim="mend-bar" style="--from:78;--val:0"></div></div>
+          <p data-editable class="anno anno-sm anno-cn">SRC · 现状评估 · 示例口径</p>
+        </div>
+      </div>
+      <div class="note-block" style="margin-top:12px">
+        <span class="mt-sig-mark" data-editable-skip style="flex:none;margin-top:6px"></span>
+        <div>
+          <p data-editable class="note-line">注：漏损率为各环节流失占比的现状评估（示例口径）；修复条表达 现状 → 目标，几何不随文字改。</p>
+          <p data-editable class="anno" style="margin-top:6px">MEND-BAR · --FROM → --VAL · 双态</p>
+        </div>
+      </div>
+      <footer class="mastfoot">
+        <span data-editable style="letter-spacing:0">全国高校 AI 创新大赛 · 2026</span>
+        <span data-editable>WHY NOW · DRIVERS × LEAKS</span>
+      </footer>
+      <div class="sig-noise amb-noise" data-editable-skip aria-hidden="true"></div>
+    </section>
+  </div>
+
+  <!-- p4 章节 02 流水线：data-rotate 三段卡 + draw-line 连接 + kv-rows 系统状态带 -->
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="pipeline" data-chapter="流水线" id="pipeline" data-content-hash="680b52c2ef73">
+      <header class="masthead">
+        <span data-editable style="letter-spacing:0">02 · 流水线</span>
+        <span data-editable>04 / 08</span>
+      </header>
+      <span class="mt-sig-folio folio-breath" data-editable-skip>04</span>
+      <span class="mt-sig-bar" data-editable-skip></span>
+      <div class="head-row" style="margin-top:20px">
+        <h2 data-editable data-anim="chars" class="pg-title" style="font-size:96px">需求进，物料出</h2>
+        <div class="anno-col" style="margin-bottom:12px">
+          <p data-editable class="anno">STAGES · 3</p>
+          <p data-editable class="anno">ITEMS · 4 + 7 + 4</p>
+        </div>
+      </div>
+      <div class="lede-row" style="margin-top:14px">
+        <p data-editable class="lede">业务需求进，四类物料出——一条流水线完成全部内容生产。</p>
+        <p data-editable class="anno">FLOW · IN → FORGE → OUT</p>
+      </div>
+      <div class="pipe-row" data-rotate style="margin-top:30px">
+        <svg class="pipe-links" viewBox="0 0 1680 460" preserveAspectRatio="none" data-editable-skip aria-hidden="true">
+          <path data-anim="draw-line" d="M540 230 L570 230 M563 222 L572 230 L563 238" fill="none" stroke="color-mix(in srgb,var(--ink) 55%,transparent)" stroke-width="3"/>
+          <path data-anim="draw-line" d="M1110 230 L1140 230 M1133 222 L1142 230 L1133 238" fill="none" stroke="color-mix(in srgb,var(--ink) 55%,transparent)" stroke-width="3"/>
+        </svg>
+        <span data-editable class="anno anno-sm pipe-link-label" style="left:554px">EXTRACT</span>
+        <span data-editable class="anno anno-sm pipe-link-label" style="left:1126px">PRODUCE</span>
+        <div class="pipe-card" data-rotate-item>
+          <div class="cell-head">
+            <p data-editable class="eyebrow">STAGE 01 · INPUT</p>
+            <p data-editable class="anno">PHASE 1/3</p>
+          </div>
+          <p data-editable class="pipe-stage">需求输入</p>
+          <ul class="pipe-list">
+            <li><span data-editable class="li-ord">01</span><span data-editable>业务需求</span><span data-editable class="li-tag">BIZ</span></li>
+            <li><span data-editable class="li-ord">02</span><span data-editable>市场行情</span><span data-editable class="li-tag">MKT</span></li>
+            <li><span data-editable class="li-ord">03</span><span data-editable>热点事件</span><span data-editable class="li-tag">HOT</span></li>
+            <li><span data-editable class="li-ord">04</span><span data-editable>行业观点</span><span data-editable class="li-tag">OP</span></li>
+          </ul>
+          <div class="cell-head" style="margin-top:auto">
+            <p data-editable class="note-line">4 类原料</p>
+            <p data-editable class="anno anno-sm anno-cn">VIA · 业务侧提交</p>
+          </div>
+        </div>
+        <div class="pipe-card" data-rotate-item>
+          <div class="cell-head">
+            <p data-editable class="eyebrow">STAGE 02 · FORGE</p>
+            <p data-editable class="anno">PHASE 2/3</p>
+          </div>
+          <p data-editable class="pipe-stage">智能锻造</p>
+          <ul class="pipe-list">
+            <li><span data-editable class="li-ord">01</span><span data-editable>识图改字</span><span data-editable class="li-tag">IMG</span></li>
+            <li><span data-editable class="li-ord">02</span><span data-editable>局部重绘</span><span data-editable class="li-tag">IMG</span></li>
+            <li><span data-editable class="li-ord">03</span><span data-editable>多图融合</span><span data-editable class="li-tag">IMG</span></li>
+            <li><span data-editable class="li-ord">04</span><span data-editable>多尺寸批量</span><span data-editable class="li-tag">BATCH</span></li>
+            <li><span data-editable class="li-ord">05</span><span data-editable>合规审核</span><span data-editable class="li-tag">GATE</span></li>
+            <li><span data-editable class="li-ord">06</span><span data-editable>全程留痕</span><span data-editable class="li-tag">LOG</span></li>
+            <li><span data-editable class="li-ord">07</span><span data-editable>提示词沉淀复用</span><span data-editable class="li-tag">REUSE</span></li>
+          </ul>
+          <div class="cell-head" style="margin-top:auto">
+            <p data-editable class="note-line">7 道工序</p>
+            <p data-editable class="anno anno-sm anno-cn">VIA · AI 工序链</p>
+          </div>
+        </div>
+        <div class="pipe-card" data-rotate-item>
+          <div class="cell-head">
+            <p data-editable class="eyebrow">STAGE 03 · OUTPUT</p>
+            <p data-editable class="anno">PHASE 3/3</p>
+          </div>
+          <p data-editable class="pipe-stage">成品输出</p>
+          <ul class="pipe-list">
+            <li><span data-editable class="li-ord">01</span><span data-editable>文字资讯</span><span data-editable class="li-tag">TEXT</span></li>
+            <li><span data-editable class="li-ord">02</span><span data-editable>小红书轮播图</span><span data-editable class="li-tag">IMG</span></li>
+            <li><span data-editable class="li-ord">03</span><span data-editable>产品海报</span><span data-editable class="li-tag">IMG</span></li>
+            <li><span data-editable class="li-ord">04</span><span data-editable>短视频物料</span><span data-editable class="li-tag">VIDEO</span></li>
+          </ul>
+          <div class="cell-head" style="margin-top:auto">
+            <p data-editable class="note-line">4 类物料</p>
+            <p data-editable class="anno anno-sm anno-cn">VIA · 一键导出</p>
+          </div>
+        </div>
+      </div>
+      <div class="cell-head" style="margin-top:26px">
+        <p data-editable class="eyebrow">SYS · 系统状态带</p>
+        <p data-editable class="anno">LIVE · 实时</p>
+      </div>
+      <div class="kv-band" style="margin-top:12px">
+        <div class="kv-cell"><span data-editable class="kv-label">STATUS</span><span data-editable class="kv-value" style="color:var(--accent)">RUNNING</span></div>
+        <div class="kv-cell"><span data-editable class="kv-label">COMPLETION</span><span data-editable class="kv-value">100%</span></div>
+        <div class="kv-cell"><span data-editable class="kv-label">MODALITY</span><span data-editable class="kv-value">4 类模态</span></div>
+        <div class="kv-cell"><span data-editable class="kv-label">COVERAGE</span><span data-editable class="kv-value">覆盖 6 岗位</span></div>
+        <div class="kv-cell"><span data-editable class="kv-label">COMPLIANCE</span><span data-editable class="kv-value">合规全链路</span></div>
+      </div>
+      <div class="note-block" style="margin-top:16px">
+        <span class="mt-sig-mark" data-editable-skip style="flex:none;margin-top:6px"></span>
+        <p data-editable class="note-line">注：序号为流水线内顺序；标签为工序 / 物料类型（IMG 图像 · BATCH 批量 · GATE 合规闸 · LOG 留痕 · REUSE 复用）。</p>
+      </div>
+      <footer class="mastfoot">
+        <span data-editable style="letter-spacing:0">全国高校 AI 创新大赛 · 2026</span>
+        <span data-editable>PIPELINE · INPUT → FORGE → OUTPUT</span>
+      </footer>
+      <div class="sig-noise amb-noise" data-editable-skip aria-hidden="true"></div>
+    </section>
+  </div>
+
+  <!-- p5 章节 03 创新×复用：versus-cols 对照列（DEEP accent 档单焦点 / WIDE 灰档） -->
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="deep-wide" data-chapter="创新×复用" id="deep-wide" data-content-hash="81c6fd5983bc">
+      <header class="masthead">
+        <span data-editable style="letter-spacing:0">03 · 创新×复用</span>
+        <span data-editable>05 / 08</span>
+      </header>
+      <span class="mt-sig-folio folio-breath" data-editable-skip>05</span>
+      <span class="mt-sig-bar" data-editable-skip></span>
+      <div class="head-row" style="margin-top:20px">
+        <h2 data-editable data-anim="chars" class="pg-title" style="font-size:96px">创新做深，能力做宽</h2>
+        <div class="anno-col" style="margin-bottom:12px">
+          <p data-editable class="anno">COMPARE · 3 × 3</p>
+          <p data-editable class="anno anno-cn">MAP · 对应三层架构</p>
+        </div>
+      </div>
+      <div class="lede-row" style="margin-top:14px">
+        <p data-editable class="lede">创新纵深与复用广度逐条对照——做深三条，做宽三条。</p>
+        <p data-editable class="anno">COLS · DEEP / WIDE</p>
+      </div>
+      <div class="vcols" style="margin-top:22px">
+        <div class="vcol" data-anim="left">
+          <div class="vcol-head vcol-head-accent" style="flex-wrap:wrap">
+            <span data-editable style="font-family:var(--font-mono);font-size:16px;font-weight:600">DEEP</span>
+            <span data-editable style="font-size:26px;font-weight:800">创新纵深 ×3</span>
+            <span data-editable class="anno" style="margin-left:auto;color:color-mix(in srgb,var(--accent-on) 72%,transparent)">3 ITEMS</span>
+            <span data-editable class="anno anno-sm anno-cn" style="flex-basis:100%;color:color-mix(in srgb,var(--accent-on) 60%,transparent)">金融业务 · 做深做透</span>
+          </div>
+          <div class="vrow">
+            <div class="cell-head">
+              <p data-editable class="anno">DEEP · 01</p>
+              <p data-editable class="anno anno-sm">KEY · VERTICAL</p>
+            </div>
+            <p data-editable class="vrow-title">业务场景层 · 垂类定制</p>
+            <p data-editable class="vrow-desc">面向基金业务场景逐一定制内容生产能力</p>
+            <p data-editable class="anno anno-sm anno-cn">MAP · → L03 业务技能</p>
+          </div>
+          <div class="vrow">
+            <div class="cell-head">
+              <p data-editable class="anno">DEEP · 02</p>
+              <p data-editable class="anno anno-sm">KEY · WORKFLOW</p>
+            </div>
+            <p data-editable class="vrow-title">业务编排层 · 链路闭环</p>
+            <p data-editable class="vrow-desc">从需求到物料的完整链路在编排层内闭环</p>
+            <p data-editable class="anno anno-sm anno-cn">MAP · → L02 中台能力</p>
+          </div>
+          <div class="vrow">
+            <div class="cell-head">
+              <p data-editable class="anno">DEEP · 03</p>
+              <p data-editable class="anno anno-sm">KEY · REPLICATE</p>
+            </div>
+            <p data-editable class="vrow-title">商用模型 · 快速复刻</p>
+            <p data-editable class="vrow-desc">成熟商用模型能力按场景快速复刻落地</p>
+            <p data-editable class="anno anno-sm anno-cn">MAP · → L01 技术基座</p>
+          </div>
+        </div>
+        <div class="vcol" data-anim="right">
+          <div class="vcol-head vcol-head-tint" style="flex-wrap:wrap">
+            <span data-editable style="font-family:var(--font-mono);font-size:16px;font-weight:600;color:color-mix(in srgb,var(--ink) 55%,transparent)">WIDE</span>
+            <span data-editable style="font-size:26px;font-weight:800">复用广度 ×3</span>
+            <span data-editable class="anno" style="margin-left:auto">3 ITEMS</span>
+            <span data-editable class="anno anno-sm anno-cn" style="flex-basis:100%">能力沉淀 · 横向可拓</span>
+          </div>
+          <div class="vrow">
+            <div class="cell-head">
+              <p data-editable class="anno">WIDE · 01</p>
+              <p data-editable class="anno anno-sm">KEY · ASSETS</p>
+            </div>
+            <p data-editable class="vrow-title">内容资产 · 全局复用</p>
+            <p data-editable class="vrow-desc">素材与提示词沉淀为组织级资产，全局调用</p>
+            <p data-editable class="anno anno-sm anno-cn">MAP · → L02 资产库</p>
+          </div>
+          <div class="vrow">
+            <div class="cell-head">
+              <p data-editable class="anno">WIDE · 02</p>
+              <p data-editable class="anno anno-sm">KEY · MIDDLEWARE</p>
+            </div>
+            <p data-editable class="vrow-title">业务能力 · 封装复用</p>
+            <p data-editable class="vrow-desc">识图改字、局部重绘等能力封装为标准组件</p>
+            <p data-editable class="anno anno-sm anno-cn">MAP · → L02 中台能力</p>
+          </div>
+          <div class="vrow">
+            <div class="cell-head">
+              <p data-editable class="anno">WIDE · 03</p>
+              <p data-editable class="anno anno-sm">KEY · FOUNDATION</p>
+            </div>
+            <p data-editable class="vrow-title">技术底座 · 统一共建</p>
+            <p data-editable class="vrow-desc">模型集群与算力底座统一建设，全团队共享</p>
+            <p data-editable class="anno anno-sm anno-cn">MAP · → L01 技术基座</p>
+          </div>
+        </div>
+      </div>
+      <div class="kv-band" style="margin-top:16px">
+        <div class="kv-cell"><span data-editable class="kv-label">COMPARE</span><span data-editable class="kv-value">3 × 3 对照</span></div>
+        <div class="kv-cell"><span data-editable class="kv-label">DEEP</span><span data-editable class="kv-value">纵深 ×3</span></div>
+        <div class="kv-cell"><span data-editable class="kv-label">WIDE</span><span data-editable class="kv-value">横向 ×3</span></div>
+        <div class="kv-cell"><span data-editable class="kv-label">MAP</span><span data-editable class="kv-value">→ L01–L03</span></div>
+        <div class="kv-cell"><span data-editable class="kv-label">SUM</span><span data-editable class="kv-value">做深 × 做宽</span></div>
+      </div>
+      <div class="note-block" style="margin-top:10px">
+        <span class="mt-sig-mark" data-editable-skip style="flex:none;margin-top:6px"></span>
+        <p data-editable class="note-line">注：KEY 为条目能力关键词；MAP 为该条目在三层架构（04 · 架构）中的落点。</p>
+      </div>
+      <footer class="mastfoot">
+        <span data-editable style="letter-spacing:0">全国高校 AI 创新大赛 · 2026</span>
+        <span data-editable>DEEP × WIDE</span>
+      </footer>
+      <div class="sig-noise amb-noise" data-editable-skip aria-hidden="true"></div>
+    </section>
+  </div>
+
+  <!-- p6 章节 04 架构：stack-rows 三层堆栈（wipe-clip 通栏揭示） -->
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="arch" data-chapter="架构" id="arch" data-content-hash="4b7c104ce12b">
+      <header class="masthead">
+        <span data-editable style="letter-spacing:0">04 · 架构</span>
+        <span data-editable>06 / 08</span>
+      </header>
+      <span class="mt-sig-folio folio-breath" data-editable-skip>06</span>
+      <span class="mt-sig-bar" data-editable-skip></span>
+      <div class="head-row" style="margin-top:20px">
+        <h2 data-editable data-anim="chars" class="pg-title" style="font-size:96px">三层架构，统一底座</h2>
+        <div class="anno-col" style="margin-bottom:12px">
+          <p data-editable class="anno">LAYERS · 03–01</p>
+          <p data-editable class="anno">ORDER · TOP → DOWN</p>
+        </div>
+      </div>
+      <div class="lede-row" style="margin-top:14px">
+        <p data-editable class="lede">业务技能在上、中台能力居中、技术基座托底——全团队统一共建。</p>
+        <p data-editable class="anno">STACK · 3 LAYERS</p>
+      </div>
+      <div class="kv-band" style="margin-top:24px">
+        <div class="kv-cell"><span data-editable class="kv-label">L03</span><span data-editable class="kv-value">业务面 · 技能层</span></div>
+        <div class="kv-cell"><span data-editable class="kv-label">L02</span><span data-editable class="kv-value">平台面 · 能力层</span></div>
+        <div class="kv-cell"><span data-editable class="kv-label">L01</span><span data-editable class="kv-value">基座面 · 底座层</span></div>
+      </div>
+      <div class="stack" style="margin-top:24px">
+        <div class="stack-row" data-anim="wipe-clip">
+          <div>
+            <p data-editable class="eyebrow">LAYER 03</p>
+            <p data-editable class="stack-name" style="margin-top:10px">业务技能</p>
+            <p data-editable class="anno" style="margin-top:8px">BUSINESS SKILLS</p>
+          </div>
+          <div class="stack-items">
+            <span data-editable>文本资讯</span><span class="mt-sig-mark" data-editable-skip></span>
+            <span data-editable>小红书轮播</span><span class="mt-sig-mark" data-editable-skip></span>
+            <span data-editable>产品海报</span><span class="mt-sig-mark" data-editable-skip></span>
+            <span data-editable>短视频</span><span class="mt-sig-mark" data-editable-skip></span>
+            <span data-editable>行情陪伴</span><span class="mt-sig-mark" data-editable-skip></span>
+            <span data-editable>投教</span>
+          </div>
+          <div class="stack-rail">
+            <div class="rail-row"><span data-editable class="anno">CNT</span><span data-editable class="kv-value">6 项</span></div>
+            <div class="rail-row"><span data-editable class="anno">FOR</span><span data-editable class="kv-value">业务一线</span></div>
+            <div class="rail-row"><span data-editable class="anno">REUSE</span><span data-editable class="kv-value">全局复用</span></div>
+          </div>
+        </div>
+        <div class="stack-row" data-anim="wipe-clip">
+          <div>
+            <p data-editable class="eyebrow">LAYER 02</p>
+            <p data-editable class="stack-name" style="margin-top:10px">中台能力</p>
+            <p data-editable class="anno" style="margin-top:8px">MIDDLE PLATFORM</p>
+          </div>
+          <div class="stack-items">
+            <span data-editable>文本编辑器</span><span class="mt-sig-mark" data-editable-skip></span>
+            <span data-editable>图片编辑器</span><span class="mt-sig-mark" data-editable-skip></span>
+            <span data-editable>视频编辑器</span><span class="mt-sig-mark" data-editable-skip></span>
+            <span data-editable>权限</span><span class="mt-sig-mark" data-editable-skip></span>
+            <span data-editable>合规</span><span class="mt-sig-mark" data-editable-skip></span>
+            <span data-editable>资产库</span>
+          </div>
+          <div class="stack-rail">
+            <div class="rail-row"><span data-editable class="anno">CNT</span><span data-editable class="kv-value">6 个</span></div>
+            <div class="rail-row"><span data-editable class="anno">FORM</span><span data-editable class="kv-value">平台化封装</span></div>
+            <div class="rail-row"><span data-editable class="anno">GATE</span><span data-editable class="kv-value">权限 · 合规</span></div>
+          </div>
+        </div>
+        <div class="stack-row" data-anim="wipe-clip">
+          <div>
+            <p data-editable class="eyebrow">LAYER 01</p>
+            <p data-editable class="stack-name" style="margin-top:10px">技术基座</p>
+            <p data-editable class="anno" style="margin-top:8px">FOUNDATION MODEL</p>
+          </div>
+          <div class="stack-items">
+            <span data-editable>大模型集群</span><span class="mt-sig-mark" data-editable-skip></span>
+            <span data-editable>算力调度</span><span class="mt-sig-mark" data-editable-skip></span>
+            <span data-editable>存储集成</span><span class="mt-sig-mark" data-editable-skip></span>
+            <span data-editable>模型路由</span>
+          </div>
+          <div class="stack-rail">
+            <div class="rail-row"><span data-editable class="anno">CNT</span><span data-editable class="kv-value">4 层</span></div>
+            <div class="rail-row"><span data-editable class="anno">BUILD</span><span data-editable class="kv-value">统一共建</span></div>
+            <div class="rail-row"><span data-editable class="anno">SHARE</span><span data-editable class="kv-value">全团队共享</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="note-block" style="margin-top:16px">
+        <span class="mt-sig-mark" data-editable-skip style="flex:none;margin-top:6px"></span>
+        <p data-editable class="note-line">注：层号自上而下 L03 → L01；右侧注记为各层规模与定位（示例口径）。</p>
+      </div>
+      <footer class="mastfoot">
+        <span data-editable style="letter-spacing:0">全国高校 AI 创新大赛 · 2026</span>
+        <span data-editable>STACK · L03 / L02 / L01</span>
+      </footer>
+      <div class="sig-noise amb-noise" data-editable-skip aria-hidden="true"></div>
+    </section>
+  </div>
+
+  <!-- p7 章节 05 实践案例：系统已上线宣言 + 元信息 kv-rows + ring 完成度 -->
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="online" data-chapter="实践案例" id="online" data-content-hash="f73ca7c6599e">
+      <header class="masthead">
+        <span data-editable style="letter-spacing:0">05 · 实践案例</span>
+        <span data-editable>07 / 08</span>
+      </header>
+      <span class="mt-sig-folio folio-breath" data-editable-skip>07</span>
+      <div style="height:100%;display:flex;flex-direction:column">
+        <div style="flex:1;display:flex;gap:56px;min-height:0">
+          <div style="flex:1.05;display:flex;flex-direction:column">
+            <span class="mt-sig-bar" data-editable-skip></span>
+            <p data-editable class="eyebrow" style="margin-top:20px">CASE · SYSTEM LIVE</p>
+            <h2 data-editable data-anim="chars" class="pg-title" style="margin-top:14px;font-size:128px">系统已上线</h2>
+            <p data-editable class="reveal lede" style="--d:.2s;margin-top:16px;font-size:22px;line-height:1.7">SmartForge 内容流水线已在全岗位运行——内容生产从外包手艺变成平台流水线。</p>
+            <div class="chip-row" style="margin-top:18px">
+              <span data-editable class="chip">STATUS · RUNNING</span>
+              <span data-editable class="chip">MODALITY · 4 类</span>
+              <span data-editable class="chip">ROLES · 6 岗位</span>
+              <span data-editable class="chip anno-cn">TRACE · 全程留痕</span>
+              <span data-editable class="chip anno-cn">ENV · 内部环境</span>
+            </div>
+            <div style="margin-top:auto;display:flex;align-items:center;gap:28px">
+              <svg width="132" height="132" viewBox="0 0 132 132" data-editable-skip aria-hidden="true">
+                <circle cx="66" cy="66" r="56" fill="none" stroke="var(--paper-tint)" stroke-width="10"/>
+                <circle data-anim="ring" pathLength="100" style="--val:100" cx="66" cy="66" r="56" fill="none" stroke="var(--accent)" stroke-width="10" transform="rotate(-90 66 66)"/>
+              </svg>
+              <div>
+                <p data-editable style="font-size:34px;font-weight:800">完成度 100%</p>
+                <p data-editable class="note-line" style="margin-top:8px">COMPLETION · 已上线运行</p>
+                <p data-editable class="anno anno-sm" style="margin-top:6px">TARGET · 100 / 100</p>
+              </div>
+            </div>
+            <div class="kv-block" style="margin-top:22px;padding:22px 28px">
+              <div class="cell-head">
+                <span data-editable class="anno">ACCESS · 访问</span>
+                <span data-editable class="anno anno-sm anno-cn">占位地址 · 交付替换</span>
+              </div>
+              <p data-editable style="margin-top:8px;font-size:21px;font-weight:600">smartforge.internal（占位）</p>
+            </div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:center">
+            <div class="kv-block">
+              <div class="cell-head" style="margin-bottom:20px">
+                <p data-editable class="eyebrow">SYSTEM META · 元信息</p>
+                <p data-editable class="anno">8 FIELDS</p>
+              </div>
+              <div class="kv-row"><span data-editable class="kv-label">ISSUE</span><span data-editable class="kv-value">全国高校 AI 创新大赛 · 2026</span></div>
+              <div class="kv-row"><span data-editable class="kv-label">LAUNCH</span><span data-editable class="kv-value">2026 · 已上线</span></div>
+              <div class="kv-row"><span data-editable class="kv-label">COMPLETION</span><span data-editable class="kv-value">100% · 已上线</span></div>
+              <div class="kv-row"><span data-editable class="kv-label">MODALITY</span><span data-editable class="kv-value">4 类模态</span></div>
+              <div class="kv-row"><span data-editable class="kv-label">ROLES</span><span data-editable class="kv-value">覆盖 6 岗位</span></div>
+              <div class="kv-row"><span data-editable class="kv-label">REUSE</span><span data-editable class="kv-value">提示词与素材全局沉淀</span></div>
+              <div class="kv-row"><span data-editable class="kv-label">COMPLIANCE</span><span data-editable class="kv-value">全链路留痕可追溯</span></div>
+              <div class="kv-row"><span data-editable class="kv-label">ACCESS</span><span data-editable class="kv-value">smartforge.internal（占位）</span></div>
+              <p data-editable class="anno anno-cn" style="margin-top:16px">META · 系统元信息 · 状态为上线时快照</p>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:26px;flex:none">
+          <div class="cell-head">
+            <p data-editable class="eyebrow">OUTPUT · 已上线产出</p>
+            <p data-editable class="anno">FMT · TEXT / IMG / VIDEO</p>
+          </div>
+          <div class="out-strip" style="margin-top:12px">
+            <div class="out-cell">
+              <div class="cell-head"><span data-editable class="anno anno-sm">OUT · 01</span><span data-editable class="anno anno-sm">TEXT</span></div>
+              <p data-editable class="out-name">文字资讯</p>
+              <p data-editable class="anno anno-cn" style="font-size:13px">快讯 · 解读 · 观点稿件</p>
+            </div>
+            <div class="out-cell">
+              <div class="cell-head"><span data-editable class="anno anno-sm">OUT · 02</span><span data-editable class="anno anno-sm">IMG</span></div>
+              <p data-editable class="out-name">小红书轮播图</p>
+              <p data-editable class="anno anno-cn" style="font-size:13px">多图轮播 · 种草笔记</p>
+            </div>
+            <div class="out-cell">
+              <div class="cell-head"><span data-editable class="anno anno-sm">OUT · 03</span><span data-editable class="anno anno-sm">IMG</span></div>
+              <p data-editable class="out-name">产品海报</p>
+              <p data-editable class="anno anno-cn" style="font-size:13px">产品主视觉 · 活动海报</p>
+            </div>
+            <div class="out-cell">
+              <div class="cell-head"><span data-editable class="anno anno-sm">OUT · 04</span><span data-editable class="anno anno-sm">VIDEO</span></div>
+              <p data-editable class="out-name">短视频物料</p>
+              <p data-editable class="anno anno-cn" style="font-size:13px">封面 · 字幕 · 贴片</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <footer class="mastfoot">
+        <span data-editable style="letter-spacing:0">全国高校 AI 创新大赛 · 2026</span>
+        <span data-editable>CASE · SYSTEM LIVE</span>
+      </footer>
+      <div class="sig-noise amb-noise" data-editable-skip aria-hidden="true"></div>
+    </section>
+  </div>
+
+  <!-- p8 收束：首尾闭环——封面信号橙色块 → 收束页同尺寸橙色块呼应 -->
+  <div class="slide-slot">
+    <section class="slide cover-page" data-slide-id="closing" data-animate="hero" data-content-hash="1e53f816676f">
+      <div style="height:100%;display:flex;flex-direction:column;justify-content:space-between">
+        <p data-editable class="pg-kicker">SMART FORGE · CONTENT PIPELINE</p>
+        <div>
+          <h2 data-editable data-anim="chars" class="pg-title" style="font-size:170px">SMART FORGE</h2>
+          <div data-anim="wipe-clip" style="margin-top:40px;display:inline-block;background:var(--accent);padding:16px 28px">
+            <span data-editable class="pg-title" style="font-size:44px;color:var(--accent-on)">内容流水线 · 已上线运行</span>
+          </div>
+          <p data-editable class="reveal" style="--d:.3s;margin-top:40px;font-size:32px;font-weight:700">让<span class="tt-uline">内容生产</span>从外包手艺，变成<span class="tt-uline">平台流水线</span>。</p>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline">
+          <p data-editable class="note-line" style="letter-spacing:0">全国高校 AI 创新大赛 · 2026</p>
+          <p data-editable class="anno">STACK · L03 / L02 / L01 · ONLINE</p>
+          <p data-editable class="note-line">FIN · 08 / 08</p>
+        </div>
+      </div>
+      <div class="sig-noise amb-noise" data-editable-skip aria-hidden="true"></div>
+    </section>
+  </div>
+
+</div>
+
+<!-- SLOT: 页码初始文本——生成时把 "1 / 1" 改为 "1 / N"（N=总页数） -->
+<div class="deck-chrome" id="chrome">1 / 8</div>
+
+<script>
+/* ============================================================
+   框架层 · 禁止修改
+   ============================================================ */
+(function(){
+  document.documentElement.classList.add('js');  /* 动效 .js 门槛：无 JS 时内容直接可见 */
+  var deck = document.getElementById('deck');
+  var chrome = document.getElementById('chrome');
+  var fxList = [];    /* canvas FX 实例（v5.1；reduced-motion 下恒为空；须在 fit() 首次调用前就位） */
+  var fxFrozen = false;
+
+  function slots(){ return Array.prototype.slice.call(deck.querySelectorAll('.slide-slot')); }
+
+  /* 缩放：整个 1920×1080 画布按容器比例缩放，绝不重排内容。
+     ResizeObserver 而非 window resize：iframe 尺寸变化、侧栏开合都算。 */
+  var lastScale = 0;
+  function fit(){
+    var s = Math.min(deck.clientWidth/1920, deck.clientHeight/1080);
+    if (Math.abs(s - lastScale) < 0.001) return;  /* 去抖：dvh 抖动 */
+    lastScale = s;
+    document.documentElement.style.setProperty('--slide-scale', s);
+    /* canvas FX 跟随缩放重配位图尺寸（v5.1；仅已初始化的实例） */
+    for (var fi = 0; fi < fxList.length; fi++){ if (fxList[fi].parts) fxSetup(fxList[fi]); }
+  }
+  if ('ResizeObserver' in window){ new ResizeObserver(fit).observe(deck); }
+  window.addEventListener('resize', fit);
+  fit();
+
+  /* 页码指示 */
+  function currentIndex(){
+    var list = slots();
+    var top = deck.scrollTop;
+    for (var i = 0; i < list.length; i++){
+      if (list[i].offsetTop + list[i].offsetHeight/2 > top + 8) return i;
+    }
+    return list.length - 1;
+  }
+  function updateChrome(){
+    chrome.textContent = (currentIndex()+1) + ' / ' + slots().length;
+  }
+  deck.addEventListener('scroll', function(){ requestAnimationFrame(updateChrome); }, {passive:true});
+  updateChrome();
+
+  /* 键盘翻页 */
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function go(i){
+    var list = slots();
+    i = Math.max(0, Math.min(list.length-1, i));
+    deck.scrollTo({top: list[i].offsetTop, behavior: reduceMotion ? 'auto' : 'smooth'});
+  }
+  window.addEventListener('keydown', function(e){
+    if (e.target && (e.target.isContentEditable || /^(INPUT|TEXTAREA)$/.test(e.target.tagName))) return;
+    if (e.key==='ArrowDown' || e.key==='PageDown' || e.key===' '){ e.preventDefault(); go(currentIndex()+1); }
+    else if (e.key==='ArrowUp' || e.key==='PageUp'){ e.preventDefault(); go(currentIndex()-1); }
+    else if (e.key==='Home'){ e.preventDefault(); go(0); }
+    else if (e.key==='End'){ e.preventDefault(); go(slots().length-1); }
+    else if (/^[0-9]$/.test(e.key)){
+      /* 章节直跳（v7）：数字键 1–9 跳第 N 个 data-chapter 章节页、0 回封面。
+         无 data-chapter 的老 deck 不动作、无副作用。 */
+      var ch = chapterSlots();
+      if (!ch.length) return;
+      if (e.key === '0'){ e.preventDefault(); go(0); }
+      else { var t = ch[parseInt(e.key, 10) - 1]; if (t){ e.preventDefault(); go(slots().indexOf(t)); } }
+    }
+  });
+
+  /* 章节跳转（skeleton v7）：data-chapter 声明章节页（.slide 上的属性，产物内容）；
+     .nav-link[href^="#"] 目录锚点平滑滚动到目标页——锚点目标是带 id 的
+     .slide 所在的 .slide-slot（滚动容器子项）。原生 <a> 天然 Tab 可达。 */
+  function chapterSlots(){
+    return slots().filter(function(s){ return s.querySelector('.slide[data-chapter]'); });
+  }
+  deck.addEventListener('click', function(e){
+    var a = e.target && e.target.closest ? e.target.closest('a.nav-link[href^="#"]') : null;
+    if (!a) return;
+    var target = document.getElementById(a.getAttribute('href').slice(1));
+    var slot = target && target.closest('.slide-slot');
+    if (!slot) return;
+    e.preventDefault();
+    go(slots().indexOf(slot));
+  });
+
+  /* data-rotate（v7，loop 型）：容器内 [data-rotate-item] 轮转 .active——
+     流水线活态隐喻。in-view 启动、离屏停帧；reduced-motion 不启动；
+     freeze 摘除并清空 active（编辑器编辑态与序列化口径见契约 v6.3）。 */
+  var rotateState = [];
+  function freezeRotate(){
+    rotateState.forEach(function(st){
+      if (st.timer) clearInterval(st.timer);
+      st.timer = null;
+      Array.prototype.forEach.call(st.items, function(it){ it.classList.remove('active'); });
+    });
+  }
+  if ('IntersectionObserver' in window && !reduceMotion){
+    var rotIO = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        var box = en.target, st = box.__rot;
+        if (en.isIntersecting){
+          if (!st){
+            var items = box.querySelectorAll('[data-rotate-item]');
+            if (!items.length) return;
+            st = box.__rot = { items: items, i: -1, timer: null };
+            rotateState.push(st);
+          }
+          if (!st.timer){
+            var step = function(){
+              Array.prototype.forEach.call(st.items, function(it){ it.classList.remove('active'); });
+              st.i = (st.i + 1) % st.items.length;
+              st.items[st.i].classList.add('active');
+            };
+            step();
+            st.timer = setInterval(step, 2400);
+          }
+        } else if (st && st.timer){
+          clearInterval(st.timer); st.timer = null;
+        }
+      });
+    }, {root: deck, threshold: 0.25});
+    Array.prototype.forEach.call(document.querySelectorAll('[data-rotate]'), function(box){ rotIO.observe(box); });
+  }
+
+  /* 背景配给（skeleton v4）：纯 CSS 按 class 配给（.cover-page /
+     .texture-on），无运行时状态——v3 的 texture-cover JS 机制已移除，
+     --texture-scope 降级为主题级许可声明（见框架 CSS 注释）。 */
+
+  /* ============================================================
+     运行时动效引擎（skeleton v3–v5）
+     chars/words/shatter：入场时把纯文本拆成 .sp-unit 序列执行动画，
+     完成后还原为纯文本节点；count-up：读终值滚动后精确还原原文本；
+     typewriter/scramble：逐字显影/乱码归位，完成还原原文本；
+     draw-line：量长藏线、入场描出。
+     滚动回滚默认不重复触发（与 .in-view 一次性语义一致）。
+     reduced-motion 下整组引擎不启动——文件里本来就是纯文本与完整图形。
+     ============================================================ */
+  var SPLIT_SEL = '[data-anim="chars"],[data-anim="words"],[data-anim="shatter"]';
+  var live = [];   /* 进行中的运行时动效元素（强制还原用） */
+
+  function track(el){ if (live.indexOf(el) < 0) live.push(el); }
+  function untrack(el){ var i = live.indexOf(el); if (i >= 0) live.splice(i, 1); }
+
+  /* 还原单个元素：终止进行中的动效，恢复纯文本 / 终值文本 */
+  function restoreEl(el){
+    if (el.__rt){
+      clearTimeout(el.__rt.timer);
+      if (el.__rt.raf) cancelAnimationFrame(el.__rt.raf);
+      if (el.__rt.finalText != null) el.textContent = el.__rt.finalText;
+      el.__rt = null;
+    }
+    /* 拆字残留兜底：塌缩为纯文本节点 */
+    if (el.querySelector && el.querySelector('.sp-unit')) el.textContent = el.textContent;
+    if (el.classList){ el.classList.remove('split-anim'); el.classList.remove('tw-live'); }
+    untrack(el);
+  }
+
+  /* 编辑器接口：进入编辑 / 序列化保存前调用（见 editing-contract.md）。
+     freeze（v5 新增）：冻结交互动效层——摘除 pointer tracker 与 scroll 族
+     JS 驱动、清空全部运行时 CSS 变量（--mx 系 / --rx 系 / --sp）；
+     read-progress 的纯 CSS scroll-timeline 由编辑器注入样式冻结。
+     v5.1 起 freeze 同时停掉全部 canvas FX、清屏并摘除运行时 width/height
+     属性（fxFrozen 后 in-view 回调不再重启，契约 v6.1）；v7 起 freeze
+     同时停掉 data-rotate 轮转并清空 .active（契约 v6.3）。 */
+  window.__pptxMotion = {
+    restore: restoreEl,
+    restoreAll: function(){ live.slice().forEach(restoreEl); },
+    freeze: function(){ freezePtr(); freezeFx(); freezeRotate(); }
+  };
+
+  function splitEl(el){
+    if (el.__rt) return;
+    var mode = el.getAttribute('data-anim');
+    var text = el.textContent;
+    var units = [];
+    if (mode === 'words'){
+      text.split(/(\s+)/).forEach(function(p){
+        if (p) units.push({ ws: /^\s+$/.test(p), t: p });
+      });
+    } else {
+      Array.from(text).forEach(function(ch){
+        units.push({ ws: /^\s$/.test(ch), t: ch });
+      });
+    }
+    el.__rt = { finalText: text, timer: null, raf: 0 };
+    track(el);
+    el.textContent = '';
+    var n = 0;
+    units.forEach(function(u){
+      if (u.ws){ el.appendChild(document.createTextNode(u.t)); return; }
+      var s = document.createElement('span');
+      s.className = 'sp-unit';
+      s.style.setProperty('--j', n++);
+      if (mode === 'shatter'){
+        /* 碎聚：确定性伪随机散布（同一文本每次入场形态一致，不逐帧随机） */
+        var seed = n * 137.5;
+        s.style.setProperty('--sx', (Math.sin(seed) * 1.6).toFixed(2) + 'em');
+        s.style.setProperty('--sy', (Math.cos(seed * 1.3) * 1.1).toFixed(2) + 'em');
+        s.style.setProperty('--sr', (Math.sin(seed * 2.1) * 40).toFixed(1) + 'deg');
+      }
+      s.appendChild(document.createTextNode(u.t));
+      el.appendChild(s);
+    });
+    el.classList.add('split-anim');
+    /* 动画完成后还原为纯文本：stagger 步长 × 个数 + 单项时长 + 余量 */
+    var step = mode === 'words' ? 90 : (mode === 'shatter' ? 40 : 45);
+    var dur  = mode === 'shatter' ? 800 : 600;
+    el.__rt.timer = setTimeout(function(){ restoreEl(el); }, n * step + dur + 250);
+  }
+
+  /* count-up：元素文本即终值（可含千分位/小数/前后缀），从 data-from 或 0 起滚 */
+  function countUp(el){
+    if (el.__rt) return;
+    var finalText = el.textContent;
+    var m = /-?[\d,]*\.?\d+/.exec(finalText);
+    if (!m) return;
+    var finalVal = parseFloat(m[0].replace(/,/g, ''));
+    if (isNaN(finalVal)) return;
+    var from = parseFloat(el.getAttribute('data-from'));
+    if (isNaN(from)) from = 0;
+    var decimals = (m[0].split('.')[1] || '').length;
+    var grouped = m[0].indexOf(',') >= 0;
+    function fmt(v){
+      var s = grouped
+        ? v.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
+        : v.toFixed(decimals);
+      return finalText.slice(0, m.index) + s + finalText.slice(m.index + m[0].length);
+    }
+    el.__rt = { finalText: finalText, timer: null, raf: 0 };
+    track(el);
+    var dur = 1400, t0 = null;
+    el.textContent = fmt(from);
+    function tick(t){
+      if (!el.__rt) return;   /* 被强制还原 */
+      if (t0 === null) t0 = t;
+      var k = Math.min(1, (t - t0) / dur);
+      var e = 1 - Math.pow(1 - k, 3);   /* easeOutCubic */
+      el.textContent = fmt(from + (finalVal - from) * e);
+      if (k < 1){ el.__rt.raf = requestAnimationFrame(tick); }
+      else { el.textContent = finalText; el.__rt = null; untrack(el); }   /* 终值精确还原原文本 */
+    }
+    el.__rt.raf = requestAnimationFrame(tick);
+  }
+
+  /* typewriter / scramble（skeleton v5，主题限定款——techy 系气质，见
+     references/motion.md v3）：纯文本节点在位，运行时逐字显影 / 乱码归位，
+     完成后精确还原原文本；还原语义与 count-up 相同（__rt.finalText）。 */
+  function typewriter(el){
+    if (el.__rt) return;
+    var text = el.textContent;
+    var chars = Array.from(text);
+    if (!chars.length) return;
+    el.__rt = { finalText: text, timer: null, raf: 0 };
+    track(el);
+    el.textContent = '';
+    el.classList.add('tw-live');
+    /* 速度随字数自适应：短句慢显韵味，长句不超 ~1.6s 总量 */
+    var step = Math.max(28, Math.min(70, Math.round(1600 / chars.length)));
+    var i = 0;
+    function tick(){
+      if (!el.__rt) return;   /* 被强制还原 */
+      i++;
+      el.textContent = chars.slice(0, i).join('');
+      if (i < chars.length){ el.__rt.timer = setTimeout(tick, step); }
+      else { el.textContent = text; el.classList.remove('tw-live'); el.__rt = null; untrack(el); }
+    }
+    el.__rt.timer = setTimeout(tick, 160);
+  }
+
+  function scramble(el){
+    if (el.__rt) return;
+    var text = el.textContent;
+    var chars = Array.from(text);
+    if (!chars.length) return;
+    var GLYPHS = '!<>-_\\/[]{}=+*^?#%01';
+    el.__rt = { finalText: text, timer: null, raf: 0 };
+    track(el);
+    var dur = 1100, t0 = null;
+    function tick(t){
+      if (!el.__rt) return;   /* 被强制还原 */
+      if (t0 === null) t0 = t;
+      var k = Math.min(1, (t - t0) / dur);
+      var settled = Math.floor(k * chars.length);
+      var frame = Math.floor(t / 50);
+      var out = '';
+      for (var i = 0; i < chars.length; i++){
+        var c = chars[i];
+        if (/\s/.test(c) || i < settled) out += c;
+        else out += GLYPHS[(i * 7 + frame) % GLYPHS.length];
+      }
+      el.textContent = out;
+      if (k < 1){ el.__rt.raf = requestAnimationFrame(tick); }
+      else { el.textContent = text; el.__rt = null; untrack(el); }   /* 终值精确还原原文本 */
+    }
+    el.__rt.raf = requestAnimationFrame(tick);
+  }
+
+  /* draw-line：加载时量长藏线（stroke-dashoffset=length），入场时归零描出。
+     量长失败（非几何元素）时退回整体淡入。 */
+  function prepDrawLine(el){
+    var len = 0;
+    try { len = el.getTotalLength(); } catch(e){}
+    if (!len) return;
+    el.__drawLen = len;
+    el.style.strokeDasharray = String(len);
+    el.style.strokeDashoffset = String(len);
+  }
+
+  /* 入场动效：页面进入视口时触发（一次性，回滚不重复） */
+  /* 加载时为每页的 [data-anim] 元素分配序号 --i（阶梯延迟的基数）；
+     mask-lines 的 .ml-inner 行内层单独编号（逐行遮罩阶梯，v5） */
+  slots().forEach(function(s){
+    var els = s.querySelectorAll('[data-anim]');
+    for (var i = 0; i < els.length; i++) els[i].style.setProperty('--i', i);
+    var inners = s.querySelectorAll('[data-anim="mask-lines"] .ml-inner');
+    for (var j = 0; j < inners.length; j++) inners[j].style.setProperty('--i', j);
+  });
+  if (!reduceMotion){
+    slots().forEach(function(s){
+      var lines = s.querySelectorAll('[data-anim="draw-line"]');
+      for (var i = 0; i < lines.length; i++) prepDrawLine(lines[i]);
+    });
+  }
+  function enterSlide(slide){
+    if (slide.classList.contains('in-view')) return;
+    if (!reduceMotion){
+      /* 运行时拆字：先拆再加 in-view（同一帧完成，避免先显后拆的闪烁） */
+      var splits = slide.querySelectorAll(SPLIT_SEL);
+      for (var i = 0; i < splits.length; i++) splitEl(splits[i]);
+    }
+    slide.classList.add('in-view');
+    if (!reduceMotion){
+      var cus = slide.querySelectorAll('[data-anim="count-up"]');
+      for (var j = 0; j < cus.length; j++) countUp(cus[j]);
+      var tws = slide.querySelectorAll('[data-anim="typewriter"]');
+      for (var t = 0; t < tws.length; t++) typewriter(tws[t]);
+      var scs = slide.querySelectorAll('[data-anim="scramble"]');
+      for (var c = 0; c < scs.length; c++) scramble(scs[c]);
+      var dls = slide.querySelectorAll('[data-anim="draw-line"]');
+      for (var k = 0; k < dls.length; k++){
+        if (dls[k].__drawLen) dls[k].style.strokeDashoffset = '0';
+      }
+    }
+  }
+  if ('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (en.isIntersecting) enterSlide(en.target);
+      });
+    }, {root: deck, threshold: .35});
+    slots().forEach(function(s){ io.observe(s.querySelector('.slide')); });
+  } else {
+    slots().forEach(function(s){ enterSlide(s.querySelector('.slide')); });
+  }
+
+  /* scroll 族驱动（skeleton v5）：read-progress 是纯 CSS scroll-timeline
+     （见框架 CSS）；parallax / scrub / scrub-draw 由这里驱动——rAF 节流
+     监听 deck 滚动，把页穿越视口的进度写为 .slide 上的 --sp ∈ [0,1]
+     （0=整页在视口下方、0.5=居中、1=整页在上方），CSS calc 消费。
+     --sp 缺省值是静态终态：reduced-motion 下不启动，内容完整可见。 */
+  var spSlides = [];
+  var spRaf = 0, spListener = null;
+  function updateSp(){
+    spRaf = 0;
+    var vh = deck.clientHeight, top = deck.scrollTop;
+    for (var i = 0; i < spSlides.length; i++){
+      var r = spSlides[i];
+      var st = r.slot.offsetTop - top, sh = r.slot.offsetHeight;
+      var p = 1 - (st + sh) / (vh + sh);
+      if (p < 0) p = 0; else if (p > 1) p = 1;
+      r.slide.style.setProperty('--sp', p.toFixed(4));
+    }
+  }
+  if (!reduceMotion){
+    slots().forEach(function(s){
+      var slide = s.querySelector('.slide');
+      if (slide && slide.querySelector('[data-scroll="parallax"],[data-scroll="scrub"],[data-scroll="scrub-draw"]'))
+        spSlides.push({ slide: slide, slot: s });
+    });
+    if (spSlides.length){
+      spListener = function(){ if (!spRaf && !ptr.frozen) spRaf = requestAnimationFrame(updateSp); };
+      deck.addEventListener('scroll', spListener, {passive:true});
+      updateSp();
+    }
+  }
+
+  /* ============================================================
+     canvas FX runtime（skeleton v5.1 · F5 · fx 仪式层）
+     data-fx 声明的页面级仪式效果：constellation / starfield /
+     particle-drift / ascii-field（字符呼吸场，致敬 guizang ascii-bg）。
+     生成侧只能选类——密度/数量/速度上限全部烧死在 FX_DEFS 常量，
+     无任何参数通道；纪律（只许 .cover-page 仪式页、每页至多 1 个、
+     主题 G5「fx 许可」白名单）见 references/motion.md §4 fx 小节。
+     - 位图按渲染尺寸配：getBoundingClientRect（已含 --slide-scale
+       缩放）× devicePixelRatio（≤2）；fit() 缩放变化时重配；
+     - rAF 生命周期绑 in-view：离屏停帧（画面保留，回屏续播）；
+       首次入视口才初始化——从未入视口的 canvas 连 width/height
+       属性都没有，序列化零残留；
+     - reduced-motion 整组不初始化（fxList 恒空，canvas 恒空白）；
+     - 零事件监听：不碰 pointer/scroll，不劫持宿主（iframe 安全）；
+     - __pptxMotion.freeze() → freezeFx()：停帧 + 清屏 + 摘除
+       width/height，fxFrozen 后 in-view 回调不再重启。
+     ============================================================ */
+  var FX_DEFS = {
+    'constellation':  { n: 44,  vel: .008, link: .078, dotA: .5, lineA: .16 },
+    'starfield':      { n: 150, dotA: .8 },
+    'particle-drift': { n: 26,  dotA: .9 },
+    'ascii-field':    { cell: 26, dotA: .4 }
+  };
+  var FX_ASCII_PAL = '   ...:::---+++***';
+
+  function fxRng(seed){   /* 确定性伪随机（同 shatter：同一页面每次形态一致） */
+    var s = seed >>> 0;
+    return function(){ s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
+  }
+
+  /* 位图尺寸 = 渲染尺寸 × DPR（≤2）；canvas 坐标系即渲染 CSS 像素 */
+  function fxSetup(fx){
+    var r = fx.cv.getBoundingClientRect();
+    if (r.width < 4 || r.height < 4) return false;
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    fx.cv.width = Math.round(r.width * dpr);
+    fx.cv.height = Math.round(r.height * dpr);
+    fx.w = r.width; fx.h = r.height;
+    fx.ctx.setTransform(fx.cv.width / r.width, 0, 0, fx.cv.height / r.height, 0, 0);
+    return true;
+  }
+
+  /* 首次启动时构建：粒子用归一化坐标（[0,1]），缩放重配无需重建 */
+  function fxBuild(fx){
+    var rnd = fxRng(1237 + fx.idx * 9973);
+    var def = FX_DEFS[fx.type];
+    var cs = getComputedStyle(fx.slide);
+    fx.colInk = cs.color;   /* 当前文字色（dark 页即 paper） */
+    fx.colAccent = (cs.getPropertyValue('--accent') || '').trim() || cs.color;
+    fx.mono = (cs.getPropertyValue('--font-mono') || '').trim() || 'monospace';
+    var parts = [], i;
+    if (fx.type === 'constellation'){
+      for (i = 0; i < def.n; i++) parts.push({ x: rnd(), y: rnd(),
+        vx: (rnd() * 2 - 1) * def.vel, vy: (rnd() * 2 - 1) * def.vel });
+    } else if (fx.type === 'starfield'){
+      for (i = 0; i < def.n; i++) parts.push({ x: rnd(), y: rnd(),
+        r: .6 + rnd() * 1.4, ph: rnd() * 6.283, sp: .4 + rnd() * .8 });
+    } else if (fx.type === 'particle-drift'){
+      for (i = 0; i < def.n; i++) parts.push({ x: rnd(), y: rnd(),
+        r: 1.5 + rnd() * 3.5, vx: (rnd() * 2 - 1) * .004,
+        vy: -(.002 + rnd() * .004), ph: rnd() * 6.283 });
+    }
+    fx.parts = parts;
+  }
+
+  function fxDraw(fx, t, dt){
+    var ctx = fx.ctx, w = fx.w, h = fx.h, def = FX_DEFS[fx.type];
+    var i, j, p;
+    ctx.clearRect(0, 0, w, h);
+    if (fx.type === 'constellation'){
+      var link = def.link * w;
+      for (i = 0; i < fx.parts.length; i++){
+        p = fx.parts[i];
+        p.x += p.vx * dt; p.y += p.vy * dt;
+        if (p.x < 0 || p.x > 1) p.vx = -p.vx;
+        if (p.y < 0 || p.y > 1) p.vy = -p.vy;
+        p.x = Math.max(0, Math.min(1, p.x));
+        p.y = Math.max(0, Math.min(1, p.y));
+      }
+      ctx.strokeStyle = fx.colAccent;
+      ctx.lineWidth = Math.max(1, w / 1920);
+      for (i = 0; i < fx.parts.length; i++){
+        for (j = i + 1; j < fx.parts.length; j++){
+          var dx = (fx.parts[i].x - fx.parts[j].x) * w;
+          var dy = (fx.parts[i].y - fx.parts[j].y) * h;
+          var d = Math.sqrt(dx * dx + dy * dy);
+          if (d < link){
+            ctx.globalAlpha = (1 - d / link) * def.lineA;
+            ctx.beginPath();
+            ctx.moveTo(fx.parts[i].x * w, fx.parts[i].y * h);
+            ctx.lineTo(fx.parts[j].x * w, fx.parts[j].y * h);
+            ctx.stroke();
+          }
+        }
+      }
+      ctx.fillStyle = fx.colAccent;
+      ctx.globalAlpha = def.dotA;
+      var rc = Math.max(1.2, w * .0014);
+      for (i = 0; i < fx.parts.length; i++){
+        ctx.beginPath();
+        ctx.arc(fx.parts[i].x * w, fx.parts[i].y * h, rc, 0, 6.283);
+        ctx.fill();
+      }
+    } else if (fx.type === 'starfield'){
+      ctx.fillStyle = fx.colInk;
+      var rs = Math.max(.7, w / 1920);
+      for (i = 0; i < fx.parts.length; i++){
+        p = fx.parts[i];
+        ctx.globalAlpha = (.18 + .62 * (.5 + .5 * Math.sin(t * p.sp + p.ph))) * def.dotA;
+        ctx.beginPath();
+        ctx.arc(p.x * w, p.y * h, p.r * rs, 0, 6.283);
+        ctx.fill();
+      }
+    } else if (fx.type === 'particle-drift'){
+      ctx.fillStyle = fx.colInk;
+      var rp = Math.max(.8, w / 1920);
+      for (i = 0; i < fx.parts.length; i++){
+        p = fx.parts[i];
+        p.x += p.vx * dt; p.y += p.vy * dt;
+        if (p.y < -.03){ p.y = 1.03; p.x = (p.x + .37) % 1; }
+        if (p.x < -.03) p.x = 1.03; else if (p.x > 1.03) p.x = -.03;
+        ctx.globalAlpha = (.10 + .22 * (.5 + .5 * Math.sin(t * .9 + p.ph))) * def.dotA;
+        ctx.beginPath();
+        ctx.arc(p.x * w, p.y * h, p.r * rp, 0, 6.283);
+        ctx.fill();
+      }
+    } else if (fx.type === 'ascii-field'){
+      /* 字符呼吸场：sin 二维噪声场驱动字符显隐（mono 字符集） */
+      var cell = Math.max(16, w * def.cell / 1920);
+      var cols = Math.ceil(w / cell), rows = Math.ceil(h / cell);
+      ctx.font = '500 ' + Math.round(cell * .72) + 'px ' + fx.mono;
+      ctx.textBaseline = 'top';
+      ctx.fillStyle = fx.colInk;
+      var cx, cy;
+      for (cy = 0; cy < rows; cy++){
+        for (cx = 0; cx < cols; cx++){
+          var n = (Math.sin(cx * .18 + t) + Math.sin(cy * .24 - t * .7) +
+                   Math.sin((cx + cy) * .12 + t * .45) +
+                   Math.sin(Math.sqrt((cx - cols * .5) * (cx - cols * .5) +
+                                      (cy - rows * .5) * (cy - rows * .5)) * .16 - t * .55)) / 4;
+          var v = (n + 1) / 2;
+          if (v < .28) continue;
+          var ch = FX_ASCII_PAL[Math.min(FX_ASCII_PAL.length - 1, Math.floor(v * FX_ASCII_PAL.length))];
+          if (ch === ' ') continue;
+          ctx.globalAlpha = Math.min(def.dotA, .05 + (v - .28) * .55);
+          ctx.fillText(ch, cx * cell, cy * cell);
+        }
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function fxTick(fx, now){
+    if (!fx.running) return;
+    if (fx.last == null) fx.last = now;
+    var dt = Math.min(.1, (now - fx.last) / 1000);
+    fx.last = now;
+    fx.t += dt * (fx.type === 'ascii-field' ? .55 : 1);
+    fxDraw(fx, fx.t, dt);
+    fx.raf = requestAnimationFrame(function(n){ fxTick(fx, n); });
+  }
+  function fxStart(fx){
+    if (fx.running || fxFrozen) return;
+    if (!fx.parts){
+      if (!fxSetup(fx)) return;
+      fxBuild(fx);
+    }
+    fx.running = true; fx.last = null;
+    fx.raf = requestAnimationFrame(function(n){ fxTick(fx, n); });
+  }
+  function fxStop(fx){
+    fx.running = false;
+    if (fx.raf){ cancelAnimationFrame(fx.raf); fx.raf = 0; }
+  }
+  function freezeFx(){
+    fxFrozen = true;
+    for (var i = 0; i < fxList.length; i++){
+      fxStop(fxList[i]);
+      if (fxList[i].parts) fxList[i].ctx.clearRect(0, 0, fxList[i].w, fxList[i].h);
+      fxList[i].cv.removeAttribute('width');
+      fxList[i].cv.removeAttribute('height');
+    }
+  }
+
+  /* fx 实例收集与 in-view 生命周期：reduced-motion 整组不初始化 */
+  if (!reduceMotion){
+    var fxCvs = deck.querySelectorAll('canvas[data-fx]');
+    for (var fc = 0; fc < fxCvs.length; fc++){
+      var fxType = fxCvs[fc].getAttribute('data-fx');
+      var fxSlide = fxCvs[fc].closest ? fxCvs[fc].closest('.slide') : null;
+      var fxCtx = fxCvs[fc].getContext && fxCvs[fc].getContext('2d');
+      if (!FX_DEFS[fxType] || !fxSlide || !fxCtx) continue;
+      fxList.push({ cv: fxCvs[fc], ctx: fxCtx, slide: fxSlide, type: fxType,
+                    idx: fc, parts: null, t: 0, last: null, raf: 0,
+                    running: false, w: 0, h: 0, colInk: '', colAccent: '', mono: '' });
+    }
+    if (fxList.length){
+      if ('IntersectionObserver' in window){
+        var fxIo = new IntersectionObserver(function(entries){
+          entries.forEach(function(en){
+            for (var i = 0; i < fxList.length; i++){
+              if (fxList[i].slide === en.target){
+                if (en.isIntersecting) fxStart(fxList[i]); else fxStop(fxList[i]);
+                break;
+              }
+            }
+          });
+        }, { root: deck, threshold: 0 });
+        fxList.forEach(function(f){ fxIo.observe(f.slide); });
+      } else {
+        fxList.forEach(fxStart);   /* 无 IO 降级：全部常开（同入场引擎语义） */
+      }
+    }
+  }
+
+  /* pointer tracker（skeleton v5 · ptr 族 / light 族 spotlight）：
+     rAF 节流 pointermove，只往指针所在 .slide 写 CSS 变量
+     （--mx/--my 百分比、--mxr/--myr ∈ [-1,1]），不碰 DOM 结构——编辑零冲突；
+     tilt / magnetic 是 per-element 监听 + pointerleave 回弹（CSS transition
+     承担回弹）。reduced-motion / 非 fine 指针（触屏）整组不启动；
+     全程 passive 监听，不劫持任何事件（iframe 嵌入安全）。 */
+  var ptr = { slide: null, raf: 0, onMove: null, onLeave: null, frozen: false };
+  function ptrResetSlide(s){
+    if (!s) return;
+    s.style.removeProperty('--mx'); s.style.removeProperty('--my');
+    s.style.removeProperty('--mxr'); s.style.removeProperty('--myr');
+  }
+  function freezePtr(){
+    ptr.frozen = true;
+    if (ptr.raf){ cancelAnimationFrame(ptr.raf); ptr.raf = 0; }
+    if (ptr.onMove){ deck.removeEventListener('pointermove', ptr.onMove); ptr.onMove = null; }
+    if (ptr.onLeave){ deck.removeEventListener('pointerleave', ptr.onLeave); ptr.onLeave = null; }
+    ptrResetSlide(ptr.slide); ptr.slide = null;
+    var els = deck.querySelectorAll('[data-ptr="tilt"],[data-ptr="magnetic"]');
+    for (var i = 0; i < els.length; i++){
+      els[i].style.removeProperty('--rx'); els[i].style.removeProperty('--ry');
+      els[i].style.removeProperty('--mgx'); els[i].style.removeProperty('--mgy');
+    }
+    /* scroll 族 JS 驱动一并冻结：摘除监听、清 --sp（CSS 缺省值回静态终态） */
+    if (spListener){ deck.removeEventListener('scroll', spListener); spListener = null; }
+    if (spRaf){ cancelAnimationFrame(spRaf); spRaf = 0; }
+    for (var j = 0; j < spSlides.length; j++) spSlides[j].slide.style.removeProperty('--sp');
+  }
+  (function initPointer(){
+    if (reduceMotion) return;
+    if (!(window.matchMedia && window.matchMedia('(pointer:fine)').matches)) return;
+    var needVars = !!deck.querySelector('.spotlight,[data-ptr="parallax"]');
+    var tilts = deck.querySelectorAll('[data-ptr="tilt"]');
+    var magnets = deck.querySelectorAll('[data-ptr="magnetic"]');
+    if (!needVars && !tilts.length && !magnets.length) return;
+    if (needVars){
+      ptr.onMove = function(e){
+        if (ptr.raf || ptr.frozen) return;
+        var ev = e;
+        ptr.raf = requestAnimationFrame(function(){
+          ptr.raf = 0;
+          var slide = ev.target && ev.target.closest ? ev.target.closest('.slide') : null;
+          if (slide !== ptr.slide){ ptrResetSlide(ptr.slide); ptr.slide = slide; }
+          if (!slide) return;
+          var r = slide.getBoundingClientRect();
+          if (!r.width || !r.height) return;
+          var px = (ev.clientX - r.left) / r.width, py = (ev.clientY - r.top) / r.height;
+          slide.style.setProperty('--mx', (px * 100).toFixed(1) + '%');
+          slide.style.setProperty('--my', (py * 100).toFixed(1) + '%');
+          slide.style.setProperty('--mxr', (px * 2 - 1).toFixed(3));
+          slide.style.setProperty('--myr', (py * 2 - 1).toFixed(3));
+        });
+      };
+      ptr.onLeave = function(){ ptrResetSlide(ptr.slide); ptr.slide = null; };
+      deck.addEventListener('pointermove', ptr.onMove, {passive:true});
+      deck.addEventListener('pointerleave', ptr.onLeave, {passive:true});
+    }
+    /* tilt：倾角上限 ±6deg 烧死；离开回弹 */
+    Array.prototype.forEach.call(tilts, function(el){
+      el.addEventListener('pointermove', function(e){
+        if (ptr.frozen) return;
+        var r = el.getBoundingClientRect();
+        if (!r.width || !r.height) return;
+        var px = (e.clientX - r.left) / r.width - .5, py = (e.clientY - r.top) / r.height - .5;
+        el.style.setProperty('--ry', (px * 6).toFixed(2) + 'deg');
+        el.style.setProperty('--rx', (-py * 6).toFixed(2) + 'deg');
+      }, {passive:true});
+      el.addEventListener('pointerleave', function(){
+        el.style.removeProperty('--rx'); el.style.removeProperty('--ry');
+      }, {passive:true});
+    });
+    /* magnetic：向指针吸附，拉力系数 .18、位移上限 ±16px 烧死；离开回弹 */
+    Array.prototype.forEach.call(magnets, function(el){
+      el.addEventListener('pointermove', function(e){
+        if (ptr.frozen) return;
+        var r = el.getBoundingClientRect();
+        var dx = (e.clientX - (r.left + r.width / 2)) * .18;
+        var dy = (e.clientY - (r.top + r.height / 2)) * .18;
+        el.style.setProperty('--mgx', Math.max(-16, Math.min(16, dx)).toFixed(1) + 'px');
+        el.style.setProperty('--mgy', Math.max(-16, Math.min(16, dy)).toFixed(1) + 'px');
+      }, {passive:true});
+      el.addEventListener('pointerleave', function(){
+        el.style.removeProperty('--mgx'); el.style.removeProperty('--mgy');
+      }, {passive:true});
+    });
+  })();
+})();
+</script>
+</body>
+</html>

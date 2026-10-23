@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000">
+  <rect width="800" height="1000" fill="#ece7da"/>
+  <g fill="#1a2e1f" opacity="0.10">
+    <circle cx="80" cy="80" r="4"/><circle cx="200" cy="80" r="4"/><circle cx="320" cy="80" r="4"/><circle cx="440" cy="80" r="4"/><circle cx="560" cy="80" r="4"/><circle cx="680" cy="80" r="4"/>
+    <circle cx="80" cy="200" r="4"/><circle cx="200" cy="200" r="4"/><circle cx="320" cy="200" r="4"/><circle cx="440" cy="200" r="4"/><circle cx="560" cy="200" r="4"/><circle cx="680" cy="200" r="4"/>
+    <circle cx="80" cy="320" r="4"/><circle cx="200" cy="320" r="4"/><circle cx="320" cy="320" r="4"/><circle cx="440" cy="320" r="4"/><circle cx="560" cy="320" r="4"/><circle cx="680" cy="320" r="4"/>
+    <circle cx="80" cy="440" r="4"/><circle cx="200" cy="440" r="4"/><circle cx="320" cy="440" r="4"/><circle cx="440" cy="440" r="4"/><circle cx="560" cy="440" r="4"/><circle cx="680" cy="440" r="4"/>
+    <circle cx="80" cy="560" r="4"/><circle cx="200" cy="560" r="4"/><circle cx="320" cy="560" r="4"/><circle cx="440" cy="560" r="4"/><circle cx="560" cy="560" r="4"/><circle cx="680" cy="560" r="4"/>
+    <circle cx="80" cy="680" r="4"/><circle cx="200" cy="680" r="4"/><circle cx="320" cy="680" r="4"/><circle cx="440" cy="680" r="4"/><circle cx="560" cy="680" r="4"/><circle cx="680" cy="680" r="4"/>
+    <circle cx="80" cy="800" r="4"/><circle cx="200" cy="800" r="4"/><circle cx="320" cy="800" r="4"/><circle cx="440" cy="800" r="4"/><circle cx="560" cy="800" r="4"/><circle cx="680" cy="800" r="4"/>
+    <circle cx="80" cy="920" r="4"/><circle cx="200" cy="920" r="4"/><circle cx="320" cy="920" r="4"/><circle cx="440" cy="920" r="4"/><circle cx="560" cy="920" r="4"/><circle cx="680" cy="920" r="4"/>
+  </g>
+  <circle cx="560" cy="300" r="200" fill="none" stroke="#1a2e1f" stroke-width="2" opacity="0.35"/>
+  <circle cx="560" cy="300" r="140" fill="none" stroke="#1a2e1f" stroke-width="2" opacity="0.2"/>
+  <polyline points="120,880 240,760 200,620 360,540 330,400 520,330 610,180" fill="none" stroke="#1a2e1f" stroke-width="12" stroke-linejoin="round" stroke-linecap="round"/>
+  <circle cx="120" cy="880" r="26" fill="#1a2e1f"/>
+  <circle cx="610" cy="180" r="26" fill="none" stroke="#1a2e1f" stroke-width="10"/>
+  <circle cx="360" cy="540" r="16" fill="#f5f1e8" stroke="#1a2e1f" stroke-width="8"/>
+  <rect x="96" y="120" width="72" height="10" fill="#1a2e1f"/>
+  <rect x="620" y="860" width="90" height="90" fill="#1a2e1f" opacity="0.9"/>
+</svg>

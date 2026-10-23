@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="640" viewBox="0 0 960 640">
+  <rect width="960" height="640" fill="#0a0a0b"/>
+  <!-- 窗口边框 -->
+  <rect x="40" y="40" width="880" height="560" fill="none" stroke="#f1efea" stroke-opacity="0.25" stroke-width="2"/>
+  <line x1="40" y1="96" x2="920" y2="96" stroke="#f1efea" stroke-opacity="0.25" stroke-width="2"/>
+  <!-- 窗口控制点 -->
+  <circle cx="72" cy="68" r="6" fill="#f1efea" fill-opacity="0.5"/>
+  <circle cx="96" cy="68" r="6" fill="#f1efea" fill-opacity="0.35"/>
+  <circle cx="120" cy="68" r="6" fill="#f1efea" fill-opacity="0.2"/>
+  <!-- 中央调光环 -->
+  <circle cx="380" cy="348" r="150" fill="none" stroke="#f1efea" stroke-opacity="0.15" stroke-width="18"/>
+  <circle cx="380" cy="348" r="150" fill="none" stroke="#f1efea" stroke-width="18"
+          stroke-dasharray="660 942" stroke-linecap="round" transform="rotate(-90 380 348)"/>
+  <circle cx="380" cy="198" r="12" fill="#f1efea"/>
+  <text x="380" y="372" text-anchor="middle" font-family="SF Mono, Menlo, monospace" font-size="72" fill="#f1efea">64%</text>
+  <!-- 右侧参数条 -->
+  <g stroke="#f1efea" stroke-width="3">
+    <line x1="620" y1="200" x2="860" y2="200" stroke-opacity="0.7"/>
+    <line x1="620" y1="280" x2="800" y2="280" stroke-opacity="0.45"/>
+    <line x1="620" y1="360" x2="830" y2="360" stroke-opacity="0.45"/>
+    <line x1="620" y1="440" x2="760" y2="440" stroke-opacity="0.45"/>
+  </g>
+  <g fill="#f1efea">
+    <rect x="620" y="500" width="110" height="44" fill-opacity="0.9"/>
+    <rect x="750" y="500" width="110" height="44" fill="none" stroke="#f1efea" stroke-opacity="0.4" stroke-width="2"/>
+  </g>
+  <!-- 底部亮度曲线 -->
+  <polyline points="80,560 200,540 320,548 440,520 560,528 680,500 800,510 880,496"
+            fill="none" stroke="#f1efea" stroke-opacity="0.3" stroke-width="2"/>
+</svg>

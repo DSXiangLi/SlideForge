@@ -1,0 +1,9 @@
+{
+  "generated_by": "tools/build_ext_apps_bundle.py",
+  "view_version": "3.9.2",
+  "source": "/home/lixiang/Desktop/ext-apps/dist/src/app-with-deps.js",
+  "source_sha256": "25b7c7caedf67954443cf8cb2b479d069930e60cf7c563a298c69c06a7351d76",
+  "bundle_sha256": "f4934f98bc8fde3fbe218b77b856c050b999f2101b143f003e5009d9abad7167",
+  "bundle_bytes": 258294,
+  "inject": "script-module"
+}

@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>从单体到微服务的三年 · 技术分享</title>
+<style>
+/* ============================================================
+   SLOT: theme tokens
+   从 references/themes.md 选定主题后，整套替换以下变量。
+   禁止混搭、禁止修改色值。
+   ============================================================ */
+:root{
+  /* 主题色（B1 克莱因蓝 · 瑞士国际主义） */
+  --paper:#fafaf8; --paper-tint:#f0f0ee;
+  --ink:#0a0a0a;   --ink-tint:#1a1a1a;
+  --accent:#002FA7; --accent-on:#ffffff;
+  /* 字体栈（系统栈，离线可用） */
+  --font-display:"Helvetica Neue","PingFang SC","Noto Sans SC",sans-serif;
+  --font-body:"Helvetica Neue","PingFang SC","Noto Sans SC",sans-serif;
+  --font-mono:"SF Mono","JetBrains Mono","Menlo",monospace;
+  /* 画布内边距（画布坐标系 px） */
+  --slide-pad:96px 120px;
+}
+
+/* ============================================================
+   框架层 · 禁止修改
+   处理：16:9 固定画布缩放、竖向滚动、键盘翻页、
+   入场动效、reduced-motion 降级、打印。
+   ============================================================ */
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  background:#111;
+  font-family:var(--font-body);
+  -webkit-font-smoothing:antialiased;
+  overscroll-behavior:none;
+}
+.deck{
+  height:100vh;
+  height:100dvh;
+  overflow-y:auto;
+  scroll-snap-type:y proximity;
+}
+.slide-slot{
+  width:100%;
+  height:calc(1080px * var(--slide-scale, .5));
+  margin:12px 0;
+  display:flex;
+  justify-content:center;
+  scroll-snap-align:start;
+  content-visibility:auto;
+}
+.slide{
+  width:1920px;
+  height:1080px;
+  flex:none;
+  position:relative;
+  overflow:hidden;
+  transform:scale(var(--slide-scale, .5));
+  transform-origin:top center;
+  background:var(--paper);
+  color:var(--ink);
+  padding:var(--slide-pad);
+}
+/* 暗色页变体 */
+.slide.dark{background:var(--ink);color:var(--paper)}
+
+/* 入场动效：给元素加 class="reveal"，可用 style="--d:.15s" 做阶梯延迟 */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease;transition-delay:var(--d,0s)}
+.slide.in-view .reveal{opacity:1;transform:none}
+@media (prefers-reduced-motion: reduce){
+  .reveal{opacity:1;transform:none;transition:none}
+}
+
+/* 界面 chrome：页码指示（在缩放画布之外） */
+.deck-chrome{
+  position:fixed;
+  right:20px;
+  bottom:16px;
+  font-family:var(--font-mono);
+  font-size:12px;
+  letter-spacing:.08em;
+  color:#888;
+  user-select:none;
+  pointer-events:none;
+  z-index:10;
+}
+
+/* 打印：每页一张 1920×1080（PDF 导出请用 Chrome/Edge） */
+@media print{
+  @page{size:1920px 1080px;margin:0}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{background:none}
+  .deck{height:auto;overflow:visible}
+  .slide-slot{height:1080px;margin:0;page-break-after:always}
+  .slide{transform:none !important}
+  .deck-chrome{display:none}
+  .reveal{opacity:1 !important;transform:none !important}
+}
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+
+  <!-- 1 · 封面：开场 -->
+  <div class="slide-slot">
+    <section class="slide dark" data-slide-id="cover" data-content-hash="bc923f596368">
+      <div data-editable-skip style="position:absolute;top:0;left:0;width:24px;height:100%;background:var(--accent)"></div>
+      <p data-editable-skip style="font-family:var(--font-mono);font-size:20px;letter-spacing:.12em;opacity:.55">TECH SHARE · 2026</p>
+      <h1 data-editable class="reveal" style="margin-top:200px;font-family:var(--font-display);font-size:128px;line-height:1.3;font-weight:300">从单体到微服务的三年</h1>
+      <p data-editable class="reveal" style="--d:.15s;margin-top:48px;font-size:28px;line-height:1.6;opacity:.72">一次架构演进的真实记录：决策、代价与收获</p>
+      <p data-editable-skip style="position:absolute;left:120px;bottom:96px;font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;opacity:.45">ARCHITECTURE EVOLUTION · 2023—2025</p>
+    </section>
+  </div>
+
+  <!-- 2 · 起点：单体不是错误 -->
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="monolith-origin" data-content-hash="5e597eaf9e15">
+      <p data-editable-skip style="font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;color:var(--accent)">01 · ORIGIN</p>
+      <div style="margin-top:40px;display:flex;gap:96px;align-items:flex-start">
+        <div style="flex:1 1 0;min-width:0">
+          <h2 data-editable class="reveal" style="font-size:64px;line-height:1.3;font-weight:300">单体不是错误，<br>是那个阶段最对的选择</h2>
+          <p data-editable class="reveal" style="--d:.15s;margin-top:44px;font-size:22px;line-height:1.8;max-width:760px">2023 年初，我们只有一个仓库、一个进程、一个数据库。十个人的团队，需求随时在变，单体让我们两周一次发版、当天回滚，几乎没有沟通成本。</p>
+          <p data-editable class="reveal" style="--d:.3s;margin-top:28px;font-size:22px;line-height:1.8;max-width:760px">回头看，问题从来不是"该不该用单体"，而是"什么时候该承认它已经装不下我们了"。</p>
+        </div>
+        <img data-editable-image src="assets/diagram-monolith.svg" alt="单体架构示意图：一个应用进程直连单一数据库" class="reveal" style="--d:.3s;width:640px;height:570px;flex:none">
+      </div>
+    </section>
+  </div>
+
+  <!-- 3 · 时间线：三年三个阶段 -->
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="timeline-three-years" data-content-hash="fc02b5df8978">
+      <p data-editable-skip style="font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;color:var(--accent)">02 · TIMELINE</p>
+      <h2 data-editable class="reveal" style="margin-top:24px;font-size:72px;line-height:1.3;font-weight:300">三年，三个阶段</h2>
+      <div class="reveal" style="--d:.15s;position:relative;margin-top:144px">
+        <div data-editable-skip style="position:absolute;top:9px;left:0;right:0;height:1px;background:var(--ink);opacity:.25"></div>
+        <div style="display:flex">
+          <div style="flex:1;padding-right:64px">
+            <div data-editable-skip style="width:19px;height:19px;background:var(--ink)"></div>
+            <p data-editable style="margin-top:40px;font-family:var(--font-mono);font-size:64px;line-height:1.2;font-weight:700">2023</p>
+            <h3 data-editable style="margin-top:24px;font-size:30px;line-height:1.4;font-weight:600">识别边界</h3>
+            <p data-editable style="margin-top:14px;font-size:20px;line-height:1.8;opacity:.72">按业务域梳理模块依赖，用半年画出第一张领域地图，谨慎地拆出 2 个服务。</p>
+          </div>
+          <div style="flex:1;padding-right:64px">
+            <div data-editable-skip style="width:19px;height:19px;background:var(--ink)"></div>
+            <p data-editable style="margin-top:40px;font-family:var(--font-mono);font-size:64px;line-height:1.2;font-weight:700">2024</p>
+            <h3 data-editable style="margin-top:24px;font-size:30px;line-height:1.4;font-weight:600">攻坚拆分</h3>
+            <p data-editable style="margin-top:14px;font-size:20px;line-height:1.8;opacity:.72">核心交易链路完成拆分，服务数从 3 涨到 11，也踩进了分布式事务的坑。</p>
+          </div>
+          <div style="flex:1">
+            <div data-editable-skip style="width:19px;height:19px;background:var(--accent)"></div>
+            <p data-editable style="margin-top:40px;font-family:var(--font-mono);font-size:64px;line-height:1.2;font-weight:700">2025</p>
+            <h3 data-editable style="margin-top:24px;font-size:30px;line-height:1.4;font-weight:600">治理与稳定</h3>
+            <p data-editable style="margin-top:14px;font-size:20px;line-height:1.8;opacity:.72">补齐可观测性与降级预案，拆分节奏放缓，重心从"拆"转向"养"。</p>
+          </div>
+        </div>
+      </div>
+      <p data-editable-skip style="position:absolute;left:120px;bottom:96px;font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;opacity:.45">THREE PHASES · ONE DIRECTION</p>
+    </section>
+  </div>
+
+  <!-- 4 · 数据大数字 -->
+  <div class="slide-slot">
+    <section class="slide dark" data-slide-id="metrics" data-content-hash="2cac4b519135">
+      <p data-editable-skip style="font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;color:var(--accent)">03 · RESULTS</p>
+      <h2 data-editable class="reveal" style="margin-top:24px;font-size:64px;line-height:1.3;font-weight:300">拆完之后，数字说话</h2>
+      <div style="margin-top:120px;display:flex;gap:120px;align-items:flex-start">
+        <div class="reveal" style="--d:.15s;flex:1 1 0;min-width:0">
+          <p data-editable style="font-size:22px;line-height:1.6;opacity:.6">发布周期</p>
+          <p data-editable style="margin-top:16px;font-family:var(--font-display);font-size:200px;line-height:1.1;font-weight:200">2 小时</p>
+          <p data-editable style="margin-top:24px;font-size:22px;line-height:1.6;opacity:.6">原为 14 天 · 全量回归自动化后，随提随发</p>
+        </div>
+        <div class="reveal" style="--d:.3s;width:560px;flex:none">
+          <div data-editable-skip style="height:1px;background:var(--paper);opacity:.25"></div>
+          <div style="padding:36px 0">
+            <p data-editable style="font-family:var(--font-display);font-size:72px;line-height:1.2;font-weight:200">14 个</p>
+            <p data-editable style="margin-top:8px;font-size:20px;line-height:1.6;opacity:.6">独立部署的服务 · 原为 1 个</p>
+          </div>
+          <div data-editable-skip style="height:1px;background:var(--paper);opacity:.25"></div>
+          <div style="padding:36px 0">
+            <p data-editable style="font-family:var(--font-display);font-size:72px;line-height:1.2;font-weight:200">15 分钟</p>
+            <p data-editable style="margin-top:8px;font-size:20px;line-height:1.6;opacity:.6">故障平均恢复时间 · 原为 4 小时</p>
+          </div>
+          <div data-editable-skip style="height:1px;background:var(--paper);opacity:.25"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- 5 · 等宽代码风格页：边界写在代码里 -->
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="boundary-in-code" data-content-hash="fc5f4d9cb25e">
+      <p data-editable-skip style="font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;color:var(--accent)">04 · BOUNDARY</p>
+      <h2 data-editable class="reveal" style="margin-top:24px;font-size:64px;line-height:1.3;font-weight:300">一个服务的边界，写在代码里</h2>
+      <div style="margin-top:88px;display:flex;gap:72px;align-items:stretch">
+        <div class="reveal" style="--d:.15s;flex:1 1 0;min-width:0;background:var(--ink);color:var(--paper);padding:64px 56px">
+          <p data-editable style="font-family:var(--font-mono);font-size:22px;line-height:2.1;color:var(--paper)">order-service/</p>
+          <p data-editable style="font-family:var(--font-mono);font-size:22px;line-height:2.1;color:var(--paper)">├── api/ &nbsp;&nbsp;&nbsp;&nbsp;对外契约：HTTP + 事件，版本化管理</p>
+          <p data-editable style="font-family:var(--font-mono);font-size:22px;line-height:2.1;color:var(--paper)">├── domain/ &nbsp;领域模型：不 import 任何框架</p>
+          <p data-editable style="font-family:var(--font-mono);font-size:22px;line-height:2.1;color:var(--paper)">├── infra/ &nbsp;&nbsp;适配层：数据库、消息队列、缓存</p>
+          <p data-editable style="font-family:var(--font-mono);font-size:22px;line-height:2.1;color:var(--paper)">└── main.go 唯一入口：独立部署、独立发版</p>
+        </div>
+        <div class="reveal" style="--d:.3s;width:520px;flex:none;display:flex;flex-direction:column;justify-content:center">
+          <p data-editable style="font-size:22px;line-height:1.8;font-weight:600">边界不是画在架构图上的线</p>
+          <p data-editable style="margin-top:20px;font-size:20px;line-height:1.8;opacity:.72">是它能不能独立编译、独立部署、独立失败。三条里少任何一条，都只是"换了目录结构的单体"。</p>
+          <p data-editable style="margin-top:20px;font-size:20px;line-height:1.8;opacity:.72">我们把这条标准写进代码评审清单，挡住了一半拍脑袋的拆分冲动。</p>
+        </div>
+      </div>
+      <p data-editable-skip style="position:absolute;left:120px;bottom:96px;font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;opacity:.45">BOUNDARY = INDEPENDENT BUILD · DEPLOY · FAILURE</p>
+    </section>
+  </div>
+
+  <!-- 6 · 转折：三个最贵的教训 -->
+  <div class="slide-slot">
+    <section class="slide dark" data-slide-id="hard-lessons" data-content-hash="e69b9326079a">
+      <p data-editable-skip style="font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;color:var(--accent)">05 · LESSONS</p>
+      <h2 data-editable class="reveal" style="margin-top:24px;font-size:64px;line-height:1.3;font-weight:300">三个最贵的教训</h2>
+      <div class="reveal" style="--d:.15s;margin-top:104px">
+        <div data-editable-skip style="height:1px;background:var(--paper);opacity:.25"></div>
+        <div style="display:flex;align-items:baseline;gap:48px;padding:52px 0">
+          <p data-editable-skip style="font-family:var(--font-mono);font-size:24px;opacity:.45;width:64px;flex:none">01</p>
+          <h3 data-editable style="font-size:32px;line-height:1.4;font-weight:600;width:560px;flex:none">先拆分数据库，而不是先拆代码</h3>
+          <p data-editable style="font-size:20px;line-height:1.8;opacity:.72;flex:1">共享库不拆，服务拆分只是换了部署方式的单体，故障照样一损俱损。</p>
+        </div>
+        <div data-editable-skip style="height:1px;background:var(--paper);opacity:.25"></div>
+        <div style="display:flex;align-items:baseline;gap:48px;padding:52px 0">
+          <p data-editable-skip style="font-family:var(--font-mono);font-size:24px;opacity:.45;width:64px;flex:none">02</p>
+          <h3 data-editable style="font-size:32px;line-height:1.4;font-weight:600;width:560px;flex:none">没有可观测性，就别上第二个服务</h3>
+          <p data-editable style="font-size:20px;line-height:1.8;opacity:.72;flex:1">链路追踪与告警的建设要跑在服务数量前面，否则每次故障都是全员猜谜。</p>
+        </div>
+        <div data-editable-skip style="height:1px;background:var(--paper);opacity:.25"></div>
+        <div style="display:flex;align-items:baseline;gap:48px;padding:52px 0">
+          <p data-editable-skip style="font-family:var(--font-mono);font-size:24px;opacity:.45;width:64px;flex:none">03</p>
+          <h3 data-editable style="font-size:32px;line-height:1.4;font-weight:600;width:560px;flex:none">康威定律是真的</h3>
+          <p data-editable style="font-size:20px;line-height:1.8;opacity:.72;flex:1">服务边界最终长成了组织架构的样子——调整团队，比调整代码更有效。</p>
+        </div>
+        <div data-editable-skip style="height:1px;background:var(--paper);opacity:.25"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- 7 · 现状：系统全景（大图页） -->
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="system-landscape" data-content-hash="df6ba49a6ec9">
+      <p data-editable-skip style="font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;color:var(--accent)">06 · LANDSCAPE</p>
+      <h2 data-editable class="reveal" style="margin-top:24px;font-size:64px;line-height:1.3;font-weight:300">今天的系统全景</h2>
+      <img data-editable-image src="assets/diagram-microservices.svg" alt="微服务系统全景图：十四个服务通过消息队列与网关互联" class="reveal" style="--d:.15s;margin-top:48px;width:1680px;height:600px;display:block">
+      <p data-editable class="reveal" style="--d:.3s;margin-top:32px;font-size:20px;line-height:1.7;opacity:.72">十四个服务，三条业务域，一套统一的可观测性底座。这张图每季度重画一次——画不出来的依赖，就是该治理的信号。</p>
+    </section>
+  </div>
+
+  <!-- 8 · 收束 -->
+  <div class="slide-slot">
+    <section class="slide dark" data-slide-id="closing" data-content-hash="d62c355da286">
+      <div data-editable-skip style="position:absolute;top:0;left:0;width:24px;height:100%;background:var(--accent)"></div>
+      <p data-editable-skip style="font-family:var(--font-mono);font-size:20px;letter-spacing:.12em;opacity:.55">07 · CLOSING</p>
+      <h2 data-editable class="reveal" style="margin-top:220px;font-size:88px;line-height:1.4;font-weight:300;max-width:1500px">架构演进没有终点，<br>只有与当下匹配的解。</h2>
+      <p data-editable class="reveal" style="--d:.15s;margin-top:56px;font-size:24px;line-height:1.8;opacity:.72">三年后我们依然在路上：下一步是单元化与多活。唯一确定的，是"现在"永远比"完美"重要。</p>
+      <p data-editable-skip style="position:absolute;left:120px;bottom:96px;font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;opacity:.45">THANKS · Q&amp;A</p>
+    </section>
+  </div>
+
+</div>
+
+<div class="deck-chrome" id="chrome">1 / 1</div>
+
+<script>
+/* ============================================================
+   框架层 · 禁止修改
+   ============================================================ */
+(function(){
+  var deck = document.getElementById('deck');
+  var chrome = document.getElementById('chrome');
+
+  function slots(){ return Array.prototype.slice.call(deck.querySelectorAll('.slide-slot')); }
+
+  /* 缩放：整个 1920×1080 画布按容器比例缩放，绝不重排内容。
+     ResizeObserver 而非 window resize：iframe 尺寸变化、侧栏开合都算。 */
+  var lastScale = 0;
+  function fit(){
+    var s = Math.min(deck.clientWidth/1920, deck.clientHeight/1080);
+    if (Math.abs(s - lastScale) < 0.001) return;  /* 去抖：dvh 抖动 */
+    lastScale = s;
+    document.documentElement.style.setProperty('--slide-scale', s);
+  }
+  if ('ResizeObserver' in window){ new ResizeObserver(fit).observe(deck); }
+  window.addEventListener('resize', fit);
+  fit();
+
+  /* 页码指示 */
+  function currentIndex(){
+    var list = slots();
+    var top = deck.scrollTop;
+    for (var i = 0; i < list.length; i++){
+      if (list[i].offsetTop + list[i].offsetHeight/2 > top + 8) return i;
+    }
+    return list.length - 1;
+  }
+  function updateChrome(){
+    chrome.textContent = (currentIndex()+1) + ' / ' + slots().length;
+  }
+  deck.addEventListener('scroll', function(){ requestAnimationFrame(updateChrome); }, {passive:true});
+  updateChrome();
+
+  /* 键盘翻页 */
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function go(i){
+    var list = slots();
+    i = Math.max(0, Math.min(list.length-1, i));
+    deck.scrollTo({top: list[i].offsetTop, behavior: reduceMotion ? 'auto' : 'smooth'});
+  }
+  window.addEventListener('keydown', function(e){
+    if (e.target && (e.target.isContentEditable || /^(INPUT|TEXTAREA)$/.test(e.target.tagName))) return;
+    if (e.key==='ArrowDown' || e.key==='PageDown' || e.key===' '){ e.preventDefault(); go(currentIndex()+1); }
+    else if (e.key==='ArrowUp' || e.key==='PageUp'){ e.preventDefault(); go(currentIndex()-1); }
+    else if (e.key==='Home'){ e.preventDefault(); go(0); }
+    else if (e.key==='End'){ e.preventDefault(); go(slots().length-1); }
+  });
+
+  /* 入场动效：页面进入视口时触发 */
+  if ('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (en.isIntersecting) en.target.classList.add('in-view');
+      });
+    }, {root: deck, threshold: .35});
+    slots().forEach(function(s){ io.observe(s.querySelector('.slide')); });
+  } else {
+    slots().forEach(function(s){ s.querySelector('.slide').classList.add('in-view'); });
+  }
+})();
+</script>
+</body>
+</html>

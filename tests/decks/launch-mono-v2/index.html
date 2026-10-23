@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="skeleton-version" content="3">
+<title>Lumen 2.0 发布会 · v2</title>
+<style>
+/* ============================================================
+   SLOT: theme tokens
+   从 references/themes.md 选定主题后，整套替换以下变量。
+   禁止混搭、禁止修改色值。
+   G3 质感主题（如 C2/D2/D3）会额外携带 --texture-type /
+   --texture-layer / --texture-scope 三个 token，复制时一并带入。
+   ============================================================ */
+:root{
+  /* 主题色（A1 墨水经典） */
+  --paper:#f1efea;
+  --paper-tint:#e8e5de;
+  --ink:#0a0a0b;
+  --ink-tint:#18181a;
+  --accent:#0a0a0b;
+  --accent-on:#f1efea;
+  /* 字体栈（系统栈，离线可用） */
+  --font-display:"Songti SC","Noto Serif SC","STSong",serif;
+  --font-body:"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif;
+  --font-mono:"SF Mono","JetBrains Mono","Menlo",monospace;
+  /* 画布内边距（画布坐标系 px） */
+  --slide-pad:96px 120px;
+  /* 图表 token（全主题统一推导，见 themes.md §图表 token） */
+  --chart-grid:   color-mix(in srgb, var(--ink) 12%, transparent);
+  --chart-label:  color-mix(in srgb, var(--ink) 60%, transparent);
+  --chart-series-1: var(--accent);
+  --chart-series-2: color-mix(in srgb, var(--accent) 55%, var(--paper));
+  --chart-series-3: color-mix(in srgb, var(--accent) 32%, var(--paper));
+  --chart-series-4: color-mix(in srgb, var(--ink) 18%, var(--paper));
+  --chart-bar-radius: 0;
+  --chart-stroke: 2.5px;
+}
+
+/* ============================================================
+   框架层 · 禁止修改
+   处理：16:9 固定画布缩放、竖向滚动、键盘翻页、
+   入场动效（含运行时拆字引擎）、质感槽位、
+   reduced-motion 降级、打印。
+   ============================================================ */
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  background:#111;
+  font-family:var(--font-body);
+  -webkit-font-smoothing:antialiased;
+  overscroll-behavior:none;
+}
+.deck{
+  height:100vh;
+  height:100dvh;
+  overflow-y:auto;
+  scroll-snap-type:y proximity;
+}
+.slide-slot{
+  width:100%;
+  height:calc(1080px * var(--slide-scale, .5));
+  margin:12px 0;
+  display:flex;
+  justify-content:center;
+  scroll-snap-align:start;
+  content-visibility:auto;
+}
+.slide{
+  width:1920px;
+  height:1080px;
+  flex:none;
+  position:relative;
+  overflow:hidden;
+  transform:scale(var(--slide-scale, .5));
+  transform-origin:top center;
+  background:var(--paper);
+  color:var(--ink);
+  padding:var(--slide-pad);
+}
+/* 暗色页变体 */
+.slide.dark{background:var(--ink);color:var(--paper)}
+
+/* 质感槽位（G3 texture，skeleton v3）：主题给 --texture-layer 时铺在页面
+   背景之上、内容之下；主题不给则为 none，零成本。
+   --texture-scope: cover 时骨架 JS 给 <html> 加 .texture-cover，
+   仅 .cover-page（封面/章节页，由生成侧标注）铺质感层。 */
+.slide::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:var(--texture-layer,none);
+}
+html.texture-cover .slide::before{background:none}
+html.texture-cover .slide.cover-page::before{background:var(--texture-layer)}
+
+/* 动效缓动 token（skeleton v3）：全 deck 只用这三种缓动，禁止逐页自定义。
+   出 = 入场显影；变 = 变换/移动；环 = 循环 ambience。规则见 references/motion.md */
+:root{
+  --ease-out:cubic-bezier(.22,1,.36,1);
+  --ease-shift:cubic-bezier(.7,0,.2,1);
+  --ease-loop:ease-in-out;
+}
+
+/* 入场动效：给元素加 class="reveal"，可用 style="--d:.15s" 做阶梯延迟。
+   .js 门槛：无 JS 环境（打印预览器/抓取器）下内容直接可见，动效只是增强。 */
+.js .reveal{opacity:0;transform:translateY(24px);transition:opacity .6s var(--ease-out),transform .6s var(--ease-out);transition-delay:var(--d,0s)}
+.js .slide.in-view .reveal{opacity:1;transform:none}
+
+/* 语义动效：section[data-animate] 选配方，元素 [data-anim] 标角色。
+   配方只调节奏与方向；框架 JS 在加载时为每个 [data-anim] 分配序号 --i。
+   规则与词汇表见 references/motion.md。 */
+.js [data-anim]{opacity:0;transform:translateY(24px);transition:opacity .6s var(--ease-out),transform .6s var(--ease-out);transition-delay:calc(var(--i,0)*75ms)}
+.js [data-anim="left"]{transform:translateX(-40px)}
+.js [data-anim="right"]{transform:translateX(40px)}
+.js [data-anim="line"]{transform:scaleX(0);transform-origin:left}
+.js [data-animate="hero"] [data-anim]{transition-duration:1s;transition-delay:calc(var(--i,0)*160ms)}
+.js [data-animate="quote"] [data-anim]{transition-duration:.55s;transition-delay:calc(var(--i,0)*220ms)}
+.js .slide.in-view [data-anim]{opacity:1;transform:none}
+
+/* ---- skeleton v3 recipe ---- */
+/* chars/words/shatter：文件中是纯文本，框架 JS 入场时拆成 .sp-unit 序列、
+   动画完成后还原为纯文本。容器只做快速整体淡入，逐字运动由 span 承担。 */
+.js [data-anim="chars"],.js [data-anim="words"],.js [data-anim="shatter"]{transform:none;transition:opacity .3s ease}
+.js .split-anim .sp-unit{display:inline-block;opacity:0;transform:translateY(.55em);transition:opacity .5s var(--ease-out),transform .55s var(--ease-out);transition-delay:calc(var(--j,0)*45ms)}
+.js [data-anim="words"].split-anim .sp-unit{transition-delay:calc(var(--j,0)*90ms)}
+.js [data-anim="shatter"].split-anim .sp-unit{transform:translate(var(--sx,0),var(--sy,1em)) rotate(var(--sr,0deg));transition-duration:.5s,.75s;transition-delay:calc(var(--j,0)*40ms)}
+.js .slide.in-view .split-anim .sp-unit{opacity:1;transform:none}
+/* count-up：数字滚动。保留整体淡入、去掉位移；数值滚动由框架 JS 驱动
+   （读元素文本终值，从 0 或 data-from 起滚），文本始终是纯文本。 */
+.js [data-anim="count-up"]{transform:none}
+/* draw-line：SVG 描边描绘。框架 JS 加载时量长藏线，入场时归零描出。 */
+.js [data-anim="draw-line"]{opacity:1;transform:none;transition:stroke-dashoffset 1.1s var(--ease-out);transition-delay:calc(var(--i,0)*75ms)}
+/* fill-bar：横向填充（进度/占比/横条图）。 */
+.js [data-anim="fill-bar"]{transform:scaleX(0);transform-origin:left center;transition:opacity .5s var(--ease-out),transform 1s var(--ease-out);transition-delay:calc(var(--i,0)*75ms)}
+
+/* 背景 ambience：只允许背景层/水印/呼吸点，强度上限烧死在参数里
+   （位移 ≤10px、不透明度摆幅 ≤.4、循环周期 ≥3s），不承载信息。 */
+@keyframes amb-pulse{0%,100%{opacity:.6}50%{opacity:1}}
+@keyframes amb-drift{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(10px,-8px,0)}}
+@keyframes amb-glow{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:.85;transform:scale(1.05)}}
+.js .amb-pulse{animation:amb-pulse 4s var(--ease-loop) infinite}
+.js .amb-drift{animation:amb-drift 9s var(--ease-loop) infinite}
+.js .amb-glow{animation:amb-glow 6s var(--ease-loop) infinite}
+
+@media (prefers-reduced-motion: reduce){
+  .js .reveal,.js [data-anim]{opacity:1;transform:none;transition:none}
+  .js .split-anim .sp-unit{opacity:1;transform:none;transition:none}
+  .js .amb-pulse,.js .amb-drift,.js .amb-glow{animation:none}
+}
+
+/* 界面 chrome：页码指示（在缩放画布之外） */
+.deck-chrome{
+  position:fixed;
+  right:20px;
+  bottom:16px;
+  font-family:var(--font-mono);
+  font-size:12px;
+  letter-spacing:.08em;
+  color:#888;
+  user-select:none;
+  pointer-events:none;
+  z-index:10;
+}
+
+/* 打印：每页一张 1920×1080（PDF 导出请用 Chrome/Edge） */
+@media print{
+  @page{size:1920px 1080px;margin:0}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{background:none}
+  .deck{height:auto;overflow:visible}
+  .slide-slot{height:1080px;margin:0;page-break-after:always}
+  .slide{transform:none !important}
+  .deck-chrome{display:none}
+  .reveal,[data-anim]{opacity:1 !important;transform:none !important}
+  .split-anim .sp-unit{opacity:1 !important;transform:none !important;transition:none !important}
+  [data-anim="draw-line"]{stroke-dashoffset:0 !important}
+}
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+  <!-- ==========================================================
+       SLOT: slides
+       每页结构（示例两页，生成时替换为真实内容）：
+       - data-slide-id：稳定语义 ID，禁止用页码
+       - data-editable：用户可见文字
+       - data-editable-image：可替换图片，src 指向 assets/ 相对路径
+       - data-editable-skip：纯装饰元素
+       - cover-page：封面/章节页标记（质感 --texture-scope:cover 时
+         只有这类页铺质感层；无质感主题可省略）
+       - data-anim：动效角色。chars/words/shatter 的元素里只写纯文本，
+         拆字由骨架 JS 运行时完成；count-up 直接写终值文本；
+         draw-line 标在 SVG 描边元素上；fill-bar 标在填充条上。
+       ========================================================== -->
+
+  <!-- 1 · 封面 hero（暗，chars 主标 + amb-glow 背景） -->
+  <div class="slide-slot">
+    <section class="slide dark" data-slide-id="cover" data-animate="hero" data-content-hash="e10b038b5bd9">
+      <div data-editable-skip style="position:absolute;right:-80px;bottom:-200px;font-family:var(--font-display);font-size:640px;font-weight:600;line-height:1;color:var(--paper);opacity:.05;pointer-events:none">光</div>
+      <div data-editable-skip class="amb-glow" style="position:absolute;right:120px;top:140px;width:820px;height:820px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb, var(--paper) 13%, transparent),transparent 65%);pointer-events:none"></div>
+      <div data-editable-skip style="position:absolute;left:120px;top:96px;width:56px;height:4px;background:var(--paper)"></div>
+      <p data-editable data-anim style="margin-top:64px;font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;opacity:.55">LUMEN KEYNOTE · 2026</p>
+      <p data-editable data-anim style="margin-top:128px;font-family:var(--font-mono);font-size:32px;letter-spacing:.32em;font-weight:500">Lumen 2.0</p>
+      <h1 data-editable data-anim="chars" style="margin-top:28px;font-family:var(--font-display);font-size:132px;line-height:1.3;font-weight:600">让光重新学会克制</h1>
+      <p data-editable data-anim style="margin-top:56px;font-size:28px;line-height:1.6;opacity:.72;max-width:1200px">新一代环境光引擎发布会：关于亮度、色温，以及光与人的边界。</p>
+      <div data-editable-skip style="position:absolute;left:120px;right:120px;bottom:96px;border-top:1px solid color-mix(in srgb, var(--paper) 25%, transparent);padding-top:28px;display:flex;justify-content:space-between;align-items:baseline">
+        <p data-editable style="font-family:var(--font-mono);font-size:18px;letter-spacing:.08em;opacity:.72">2026 年 9 月 16 日 · 线上直播</p>
+        <p data-editable style="font-family:var(--font-mono);font-size:16px;letter-spacing:.08em;opacity:.45">今晚 24:00 开启预售</p>
+      </div>
+    </section>
+  </div>
+
+  <!-- 2 · 问题（list-row × stat，三项并列） -->
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="problem" data-content-hash="5ea1a894bf75">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <p data-editable style="font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;opacity:.55">01 · 问题 PROBLEM</p>
+        <p data-editable-skip style="font-family:var(--font-mono);font-size:14px;letter-spacing:.2em;opacity:.4">LUMEN KEYNOTE 2026</p>
+      </div>
+      <h2 data-editable class="reveal" style="margin-top:36px;font-family:var(--font-display);font-size:72px;line-height:1.3;font-weight:600">屏幕越来越亮，眼睛越来越累</h2>
+      <p data-editable class="reveal" style="--d:.1s;margin-top:32px;font-size:22px;line-height:1.8;max-width:1360px;opacity:.78">亮度竞赛走了十年，参数表年年刷新，用户的眼睛却没有得到任何照顾。三个数字说明问题已经积了多深。</p>
+      <div data-ig="list-row" data-ig-skin="stat" class="reveal" style="--d:.2s;margin-top:96px;display:grid;grid-template-columns:repeat(3,1fr);gap:72px">
+        <div data-ig-item>
+          <p data-editable style="font-family:var(--font-display);font-size:96px;line-height:1.1;font-weight:600;font-feature-settings:'tnum'">78%</p>
+          <div data-editable-skip style="margin-top:32px;width:48px;height:2px;background:var(--ink)"></div>
+          <p data-editable style="margin-top:28px;font-size:22px;font-weight:500">夜间用眼不适</p>
+          <p data-editable style="margin-top:12px;font-size:19px;line-height:1.7;opacity:.66">的用户承认，夜间使用手机后感到明显的眼部干涩与疲劳</p>
+        </div>
+        <div data-ig-item>
+          <p data-editable style="font-family:var(--font-display);font-size:96px;line-height:1.1;font-weight:600;font-feature-settings:'tnum'">2.4×</p>
+          <div data-editable-skip style="margin-top:32px;width:48px;height:2px;background:var(--ink)"></div>
+          <p data-editable style="margin-top:28px;font-size:22px;font-weight:500">夜间屏幕时长</p>
+          <p data-editable style="margin-top:12px;font-size:19px;line-height:1.7;opacity:.66">过去五年，人均夜间屏幕时长增长了两倍有余</p>
+        </div>
+        <div data-ig-item>
+          <p data-editable style="font-family:var(--font-display);font-size:96px;line-height:1.1;font-weight:600;font-feature-settings:'tnum'">0</p>
+          <div data-editable-skip style="margin-top:32px;width:48px;height:2px;background:var(--ink)"></div>
+          <p data-editable style="margin-top:28px;font-size:22px;font-weight:500">无级调光设备</p>
+          <p data-editable style="margin-top:12px;font-size:19px;line-height:1.7;opacity:.66">主流设备中，真正做到随环境无级调光的数量</p>
+        </div>
+      </div>
+      <p data-editable class="reveal" style="--d:.3s;margin-top:72px;font-size:16px;line-height:1.7;opacity:.5">示例数据 · 数字口径沿用 Lumen 1.0 发布材料的演示口径。</p>
+    </section>
+  </div>
+
+  <!-- 3 · 数据论证（Line 折线，draw-line 描绘，示例数据） -->
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="night-trend" data-content-hash="676377fee8c7">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <p data-editable style="font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;opacity:.55">02 · 数据 DATA</p>
+        <p data-editable-skip style="font-family:var(--font-mono);font-size:14px;letter-spacing:.2em;opacity:.4">LUMEN KEYNOTE 2026</p>
+      </div>
+      <div style="margin-top:32px;display:flex;justify-content:space-between;align-items:baseline">
+        <h2 data-editable class="reveal" style="font-family:var(--font-display);font-size:64px;line-height:1.3;font-weight:600">五年，夜间屏幕时长翻倍有余</h2>
+        <p data-editable class="reveal" style="--d:.1s;font-size:20px;line-height:1.7;max-width:520px;opacity:.72">人均每日夜间屏幕使用时长指数（2021 = 100），全部增量来自 21 点之后。</p>
+      </div>
+      <div class="reveal" style="--d:.2s;margin-top:48px;display:grid;grid-template-columns:1080px 1fr;gap:88px">
+        <div style="padding-left:72px">
+          <div style="position:relative;height:440px">
+            <div data-editable-skip style="position:absolute;inset:0">
+              <svg viewBox="0 0 1000 420" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%">
+                <line x1="0" y1="71" x2="1000" y2="71" stroke="var(--chart-grid)" stroke-width="1"/>
+                <line x1="0" y1="148.2" x2="1000" y2="148.2" stroke="var(--chart-grid)" stroke-width="1"/>
+                <line x1="0" y1="225.5" x2="1000" y2="225.5" stroke="var(--chart-grid)" stroke-width="1"/>
+                <line x1="0" y1="302.7" x2="1000" y2="302.7" stroke="var(--chart-grid)" stroke-width="1"/>
+                <line x1="0" y1="380" x2="1000" y2="380" stroke="color-mix(in srgb, var(--ink) 35%, transparent)" stroke-width="2"/>
+                <polyline data-anim="draw-line" points="60,251.2 236,228 412,198.4 588,163.6 764,121.1 940,70.9" fill="none" stroke="var(--chart-series-1)" stroke-width="var(--chart-stroke)" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="60" cy="251.2" r="7" fill="var(--chart-series-1)"/>
+                <circle cx="236" cy="228" r="7" fill="var(--chart-series-1)"/>
+                <circle cx="412" cy="198.4" r="7" fill="var(--chart-series-1)"/>
+                <circle cx="588" cy="163.6" r="7" fill="var(--chart-series-1)"/>
+                <circle cx="764" cy="121.1" r="7" fill="var(--chart-series-1)"/>
+                <circle cx="940" cy="70.9" r="7" fill="var(--chart-series-1)"/>
+              </svg>
+            </div>
+            <p data-editable style="position:absolute;left:-72px;top:16.9%;transform:translateY(-50%);font-family:var(--font-mono);font-size:14px;font-feature-settings:'tnum';color:var(--chart-label)">240</p>
+            <p data-editable style="position:absolute;left:-72px;top:35.3%;transform:translateY(-50%);font-family:var(--font-mono);font-size:14px;font-feature-settings:'tnum';color:var(--chart-label)">180</p>
+            <p data-editable style="position:absolute;left:-72px;top:53.7%;transform:translateY(-50%);font-family:var(--font-mono);font-size:14px;font-feature-settings:'tnum';color:var(--chart-label)">120</p>
+            <p data-editable style="position:absolute;left:-72px;top:72.1%;transform:translateY(-50%);font-family:var(--font-mono);font-size:14px;font-feature-settings:'tnum';color:var(--chart-label)">60</p>
+            <p data-editable style="position:absolute;left:-72px;top:90.5%;transform:translateY(-50%);font-family:var(--font-mono);font-size:14px;font-feature-settings:'tnum';color:var(--chart-label)">0</p>
+            <p data-editable style="position:absolute;right:8px;top:2%;font-family:var(--font-display);font-size:44px;font-weight:600">2.4×</p>
+          </div>
+          <div style="margin-top:16px;display:grid;grid-template-columns:repeat(6,1fr);text-align:center">
+            <p data-editable style="font-family:var(--font-mono);font-size:16px;font-feature-settings:'tnum';color:var(--chart-label)">2021</p>
+            <p data-editable style="font-family:var(--font-mono);font-size:16px;font-feature-settings:'tnum';color:var(--chart-label)">2022</p>
+            <p data-editable style="font-family:var(--font-mono);font-size:16px;font-feature-settings:'tnum';color:var(--chart-label)">2023</p>
+            <p data-editable style="font-family:var(--font-mono);font-size:16px;font-feature-settings:'tnum';color:var(--chart-label)">2024</p>
+            <p data-editable style="font-family:var(--font-mono);font-size:16px;font-feature-settings:'tnum';color:var(--chart-label)">2025</p>
+            <p data-editable style="font-family:var(--font-mono);font-size:16px;font-feature-settings:'tnum';color:var(--chart-label)">2026E</p>
+          </div>
+        </div>
+        <div style="border-left:1px solid var(--chart-grid);padding-left:48px;display:flex;flex-direction:column;justify-content:center;gap:44px">
+          <div>
+            <p data-editable style="font-size:20px;font-weight:500;line-height:1.6">增长全部发生在夜里</p>
+            <p data-editable style="margin-top:10px;font-size:18px;line-height:1.7;opacity:.66">日间使用基本持平，21 点后的时段贡献了五年间几乎全部增量。</p>
+          </div>
+          <div>
+            <p data-editable style="font-size:20px;font-weight:500;line-height:1.6">亮度增长快过眼睛适应</p>
+            <p data-editable style="margin-top:10px;font-size:18px;line-height:1.7;opacity:.66">屏幕峰值亮度同期提升约三倍，人眼的调节机制没有任何升级。</p>
+          </div>
+          <div>
+            <p data-editable style="font-size:20px;font-weight:500;line-height:1.6">终点不必是 4.8×</p>
+            <p data-editable style="margin-top:10px;font-size:18px;line-height:1.7;opacity:.66">如果设备学会照顾人，曲线继续上扬也不必然意味着伤害加深。</p>
+          </div>
+        </div>
+      </div>
+      <p data-editable class="reveal" style="--d:.3s;margin-top:36px;font-size:16px;line-height:1.7;opacity:.5">示例数据 · 指数以 2021 年为基期 100，终值锚定原发布口径"五年增长 2.4 倍"；中间年份为演示插值。</p>
+    </section>
+  </div>
+
+  <!-- 4 · 洞察金句（暗，quote 配方） -->
+  <div class="slide-slot">
+    <section class="slide dark" data-slide-id="insight" data-animate="quote" data-content-hash="a13412d07d53">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <p data-editable style="font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;opacity:.55">03 · 洞察 INSIGHT</p>
+        <p data-editable-skip style="font-family:var(--font-mono);font-size:14px;letter-spacing:.2em;opacity:.4">LUMEN KEYNOTE 2026</p>
+      </div>
+      <blockquote data-editable data-anim style="margin-top:120px;font-family:var(--font-display);font-size:88px;line-height:1.4;font-weight:600;max-width:1560px">光不该争夺注意力，<br>它应该照顾人。</blockquote>
+      <p data-editable data-anim style="margin-top:56px;font-size:24px;line-height:1.8;max-width:1100px;opacity:.72">这是 Lumen 2.0 全部的设计原点——从"更亮"，转向"更懂你"。</p>
+      <div data-anim style="margin-top:96px;display:grid;grid-template-columns:repeat(3,1fr);gap:72px">
+        <div style="border-top:1px solid color-mix(in srgb, var(--paper) 30%, transparent);padding-top:24px">
+          <p data-editable style="font-size:20px;font-weight:500">亮度服从环境</p>
+          <p data-editable style="margin-top:10px;font-size:17px;line-height:1.7;opacity:.6">不再是固定的档位表，而是对房间的实时回应。</p>
+        </div>
+        <div style="border-top:1px solid color-mix(in srgb, var(--paper) 30%, transparent);padding-top:24px">
+          <p data-editable style="font-size:20px;font-weight:500">色温服从时间</p>
+          <p data-editable style="margin-top:10px;font-size:17px;line-height:1.7;opacity:.6">随日落偏移，像房间里多了一扇看不见的窗。</p>
+        </div>
+        <div style="border-top:1px solid color-mix(in srgb, var(--paper) 30%, transparent);padding-top:24px">
+          <p data-editable style="font-size:20px;font-weight:500">存在服从人</p>
+          <p data-editable style="margin-top:10px;font-size:17px;line-height:1.7;opacity:.6">最好的光，是你察觉不到它存在的那种。</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- 5 · 引擎原理（relation-circle-loop × bare，draw-line 主环线） -->
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="engine-loop" data-content-hash="10ff0afb7ded">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <p data-editable style="font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;opacity:.55">04 · 原理 ENGINE</p>
+        <p data-editable-skip style="font-family:var(--font-mono);font-size:14px;letter-spacing:.2em;opacity:.4">LUMEN KEYNOTE 2026</p>
+      </div>
+      <div style="margin-top:48px;display:grid;grid-template-columns:1fr 640px;gap:96px;align-items:center">
+        <div>
+          <h2 data-editable class="reveal" style="font-family:var(--font-display);font-size:64px;line-height:1.3;font-weight:600">四轮循环，让光自己学会判断</h2>
+          <p data-editable class="reveal" style="--d:.1s;margin-top:36px;font-size:22px;line-height:1.8;opacity:.78">Lumen 2.0 的环境光引擎不是一条规则，而是一个持续运转的闭环：感知房间、做出判断、完成调节，再把你的反馈学进去。</p>
+          <p data-editable class="reveal" style="--d:.2s;margin-top:32px;font-size:20px;line-height:1.8;opacity:.66">循环每分每秒都在发生，却从不需要你插手——这正是"克制"的工程含义。</p>
+        </div>
+        <div data-ig="relation-circle-loop" data-ig-skin="bare" class="reveal" style="--d:.25s;position:relative;width:600px;height:600px">
+          <svg data-editable-skip viewBox="0 0 600 600" style="position:absolute;inset:0;width:600px;height:600px">
+            <circle data-anim="draw-line" cx="300" cy="300" r="212" fill="none" stroke="var(--ink)" stroke-width="2"/>
+            <circle cx="512" cy="300" r="6" fill="var(--ink)"/>
+          </svg>
+          <div data-editable-skip style="position:absolute;left:474px;top:88px;transform:translate(-50%,-50%) rotate(45deg);font-size:26px;color:var(--ink)">→</div>
+          <div data-editable-skip style="position:absolute;left:474px;top:512px;transform:translate(-50%,-50%) rotate(135deg);font-size:26px;color:var(--ink)">→</div>
+          <div data-editable-skip style="position:absolute;left:126px;top:512px;transform:translate(-50%,-50%) rotate(225deg);font-size:26px;color:var(--ink)">→</div>
+          <div data-editable-skip style="position:absolute;left:126px;top:88px;transform:translate(-50%,-50%) rotate(315deg);font-size:26px;color:var(--ink)">→</div>
+          <div data-ig-item style="position:absolute;left:50%;top:0;transform:translate(-50%,-50%);width:240px;text-align:center">
+            <p data-editable style="font-family:var(--font-display);font-size:26px;font-weight:600">感知</p>
+            <p data-editable style="margin-top:8px;font-size:16px;line-height:1.6;opacity:.66">双光谱传感器持续采样环境光</p>
+          </div>
+          <div data-ig-item style="position:absolute;left:100%;top:50%;transform:translate(-50%,-50%);width:240px;text-align:center">
+            <p data-editable style="font-family:var(--font-display);font-size:26px;font-weight:600">决策</p>
+            <p data-editable style="margin-top:8px;font-size:16px;line-height:1.6;opacity:.66">引擎计算目标亮度与色温</p>
+          </div>
+          <div data-ig-item style="position:absolute;left:50%;top:100%;transform:translate(-50%,-50%);width:240px;text-align:center">
+            <p data-editable style="font-family:var(--font-display);font-size:26px;font-weight:600">执行</p>
+            <p data-editable style="margin-top:8px;font-size:16px;line-height:1.6;opacity:.66">4096 级无级调节，0.3ms 完成</p>
+          </div>
+          <div data-ig-item style="position:absolute;left:0;top:50%;transform:translate(-50%,-50%);width:240px;text-align:center">
+            <p data-editable style="font-family:var(--font-display);font-size:26px;font-weight:600">学习</p>
+            <p data-editable style="margin-top:8px;font-size:16px;line-height:1.6;opacity:.66">记忆作息与偏好，越用越懂你</p>
+          </div>
+          <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center">
+            <p data-editable style="font-family:var(--font-display);font-size:32px;font-weight:600">环境光引擎</p>
+            <p data-editable style="margin-top:8px;font-size:16px;opacity:.6">感知 · 决策 · 执行 · 学习</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- 6 · 性能 KPI（list-row × stat，count-up 大数字） -->
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="kpi" data-content-hash="e7ad65ec2b3e">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <p data-editable style="font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;opacity:.55">05 · 性能 PERFORMANCE</p>
+        <p data-editable-skip style="font-family:var(--font-mono);font-size:14px;letter-spacing:.2em;opacity:.4">LUMEN KEYNOTE 2026</p>
+      </div>
+      <h2 data-editable class="reveal" style="margin-top:32px;font-family:var(--font-display);font-size:72px;line-height:1.3;font-weight:600">三个数字，看懂 Lumen 2.0</h2>
+      <div data-ig="list-row" data-ig-skin="stat" class="reveal" style="--d:.15s;margin-top:120px;display:grid;grid-template-columns:repeat(3,1fr);gap:72px">
+        <div data-ig-item>
+          <p data-editable data-anim="count-up" style="font-family:var(--font-display);font-size:140px;line-height:1;font-weight:600;font-feature-settings:'tnum'">0.3ms</p>
+          <p data-editable style="margin-top:36px;font-size:24px;font-weight:500">光线响应延迟</p>
+          <p data-editable style="margin-top:14px;font-size:19px;line-height:1.7;opacity:.66">环境变化到亮度调整完成，快过一次眨眼</p>
+        </div>
+        <div data-ig-item>
+          <p data-editable data-anim="count-up" style="font-family:var(--font-display);font-size:140px;line-height:1;font-weight:600;font-feature-settings:'tnum'">4096</p>
+          <p data-editable style="margin-top:36px;font-size:24px;font-weight:500">级亮度调节</p>
+          <p data-editable style="margin-top:14px;font-size:19px;line-height:1.7;opacity:.66">无级过渡，眼睛永远察觉不到跳变</p>
+        </div>
+        <div data-ig-item>
+          <p data-editable data-anim="count-up" style="font-family:var(--font-display);font-size:140px;line-height:1;font-weight:600;font-feature-settings:'tnum'">-62%</p>
+          <p data-editable style="margin-top:36px;font-size:24px;font-weight:500">夜间蓝光输出</p>
+          <p data-editable style="margin-top:14px;font-size:19px;line-height:1.7;opacity:.66">日落后自动切换暖光谱，不打扰褪黑素分泌</p>
+        </div>
+      </div>
+      <p data-editable class="reveal" style="--d:.3s;margin-top:96px;font-size:16px;line-height:1.7;opacity:.5">示例数据 · 实验室口径：响应延迟为 25℃ 环境下的典型值；蓝光对比对象为同尺寸普通 LED 屏幕。</p>
+    </section>
+  </div>
+
+  <!-- 7 · 宣言（暗页呼吸，amb-pulse 呼吸点） -->
+  <div class="slide-slot">
+    <section class="slide dark" data-slide-id="manifesto" data-content-hash="9eebf6ec4b09">
+      <div style="position:absolute;top:50%;left:120px;right:120px;transform:translateY(-50%);text-align:center">
+        <div data-editable-skip class="amb-pulse" style="margin:0 auto;width:14px;height:14px;border-radius:50%;background:var(--paper)"></div>
+        <p data-editable class="reveal" style="margin-top:64px;font-family:var(--font-display);font-size:92px;line-height:1.4;font-weight:600">我们不制造更亮的屏幕，<br>我们制造更舒服的夜晚。</p>
+        <p data-editable class="reveal" style="--d:.15s;margin-top:56px;font-family:var(--font-mono);font-size:18px;letter-spacing:.2em;opacity:.5">LUMEN DESIGN MANIFESTO · NO.07</p>
+      </div>
+    </section>
+  </div>
+
+  <!-- 8 · 前后对比（compare-binary-cols × bare，left/right 镜像入场） -->
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="before-after" data-content-hash="1e9f7991df2d">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <p data-editable style="font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;opacity:.55">06 · 对比 BEFORE / AFTER</p>
+        <p data-editable-skip style="font-family:var(--font-mono);font-size:14px;letter-spacing:.2em;opacity:.4">LUMEN KEYNOTE 2026</p>
+      </div>
+      <h2 data-editable class="reveal" style="margin-top:32px;font-family:var(--font-display);font-size:72px;line-height:1.3;font-weight:600">同一个夜晚，两种体验</h2>
+      <div data-ig="compare-binary-cols" data-ig-skin="bare" style="margin-top:88px;position:relative;display:grid;grid-template-columns:1fr 1fr;gap:96px">
+        <div data-editable-skip style="position:absolute;left:50%;top:8px;bottom:8px;width:1px;background:var(--ink);opacity:.18"></div>
+        <div data-ig-item data-anim="left" style="opacity:.55">
+          <p data-editable style="font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;opacity:.7">BEFORE · LUMEN 1.0</p>
+          <div style="margin-top:28px">
+            <p data-editable style="padding:20px 0;font-size:22px;line-height:1.6;border-bottom:1px solid color-mix(in srgb, var(--ink) 18%, transparent)">手动调节，亮度永远慢半拍</p>
+            <p data-editable style="padding:20px 0;font-size:22px;line-height:1.6;border-bottom:1px solid color-mix(in srgb, var(--ink) 18%, transparent)">深夜解锁瞬间，冷白光直射双眼</p>
+            <p data-editable style="padding:20px 0;font-size:22px;line-height:1.6;border-bottom:1px solid color-mix(in srgb, var(--ink) 18%, transparent)">色温固定，与房间灯光格格不入</p>
+            <p data-editable style="padding:20px 0;font-size:22px;line-height:1.6">档位粗糙，每一次跳变都察觉得到</p>
+          </div>
+        </div>
+        <div data-ig-item data-anim="right">
+          <p data-editable style="font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;opacity:.55">AFTER · LUMEN 2.0</p>
+          <div style="margin-top:28px">
+            <p data-editable style="padding:20px 0;font-size:22px;line-height:1.6;border-bottom:1px solid color-mix(in srgb, var(--ink) 18%, transparent)">环境光引擎全自动，0.3ms 跟随变化</p>
+            <p data-editable style="padding:20px 0;font-size:22px;line-height:1.6;border-bottom:1px solid color-mix(in srgb, var(--ink) 18%, transparent)">夜间模式渐入渐出，亮度从 1nit 起步</p>
+            <p data-editable style="padding:20px 0;font-size:22px;line-height:1.6;border-bottom:1px solid color-mix(in srgb, var(--ink) 18%, transparent)">色温随日落同步偏移，像房间里的一扇窗</p>
+            <p data-editable style="padding:20px 0;font-size:22px;line-height:1.6">4096 级无级过渡，调节本身隐形</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- 9 · 产品设计（图① device-halo，左文右图） -->
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="feature-design" data-content-hash="1d7f031ef520">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <p data-editable style="font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;opacity:.55">07 · 设计 DESIGN</p>
+        <p data-editable-skip style="font-family:var(--font-mono);font-size:14px;letter-spacing:.2em;opacity:.4">LUMEN KEYNOTE 2026</p>
+      </div>
+      <div style="margin-top:40px;display:grid;grid-template-columns:1fr 880px;gap:88px;align-items:center">
+        <div>
+          <h2 data-editable class="reveal" style="font-family:var(--font-display);font-size:64px;line-height:1.3;font-weight:600">一盏灯的几何学</h2>
+          <div class="reveal" style="--d:.15s;margin-top:40px">
+            <div style="padding:18px 0;border-bottom:1px solid color-mix(in srgb, var(--ink) 18%, transparent)">
+              <p data-editable style="font-size:20px;font-weight:500">15° 倾角投射</p>
+              <p data-editable style="margin-top:8px;font-size:17px;line-height:1.7;opacity:.66">光线先碰到桌面，再温柔地漫回视野——没有任何角度直视灯珠。</p>
+            </div>
+            <div style="padding:18px 0;border-bottom:1px solid color-mix(in srgb, var(--ink) 18%, transparent)">
+              <p data-editable style="font-size:20px;font-weight:500">一体成型</p>
+              <p data-editable style="margin-top:8px;font-size:17px;line-height:1.7;opacity:.66">整灯无螺丝、无接缝，环形铝材一次弯成。</p>
+            </div>
+            <div style="padding:18px 0;border-bottom:1px solid color-mix(in srgb, var(--ink) 18%, transparent)">
+              <p data-editable style="font-size:20px;font-weight:500">隐藏式传感</p>
+              <p data-editable style="margin-top:8px;font-size:17px;line-height:1.7;opacity:.66">双光谱传感器藏在环体内壁，不开孔、不突兀。</p>
+            </div>
+            <div style="padding:18px 0">
+              <p data-editable style="font-size:20px;font-weight:500">静物气质</p>
+              <p data-editable style="margin-top:8px;font-size:17px;line-height:1.7;opacity:.66">不发光的时候，摆在哪里都像一件静物。</p>
+            </div>
+          </div>
+        </div>
+        <img data-editable-image data-image-slot="device-halo-11x8" data-image-intent="Lumen 2.0 环形灯具产品渲染：暖米白背景上一体成型的环形光源，以 15° 倾角向下投射柔和光锥，哑光铝材质，静物摄影感" data-image-state="generated" src="assets/device-halo.png" alt="Lumen 2.0 灯具外观占位图：暖米白底上的墨色环形光晕抽象渲染" style="width:880px;height:640px;object-fit:cover;display:block">
+      </div>
+    </section>
+  </div>
+
+  <!-- 10 · 界面（图② interface-panel，左图右文，暗） -->
+  <div class="slide-slot">
+    <section class="slide dark" data-slide-id="feature-interface" data-content-hash="59a0989347e5">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <p data-editable style="font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;opacity:.55">08 · 界面 INTERFACE</p>
+        <p data-editable-skip style="font-family:var(--font-mono);font-size:14px;letter-spacing:.2em;opacity:.4">LUMEN KEYNOTE 2026</p>
+      </div>
+      <div style="margin-top:40px;display:grid;grid-template-columns:960px 1fr;gap:88px;align-items:center">
+        <img data-editable-image data-image-slot="interface-panel-3x2" data-image-intent="Lumen 2.0 App 控制界面：深色背景中央一个发光的圆环亮度控制器，圆环上一段弧表示当前亮度，界面极简无按钮，墨色与暖白微光" data-image-state="generated" src="assets/interface-panel.png" alt="Lumen 2.0 控制界面占位图：墨黑底上的光线调节圆环线框" style="width:960px;height:640px;object-fit:cover;display:block">
+        <div>
+          <h2 data-editable class="reveal" style="font-family:var(--font-display);font-size:64px;line-height:1.3;font-weight:600">界面即环境</h2>
+          <div class="reveal" style="--d:.15s;margin-top:40px">
+            <div style="padding:18px 0;border-bottom:1px solid color-mix(in srgb, var(--paper) 18%, transparent)">
+              <p data-editable style="font-size:20px;font-weight:500">一个圆环</p>
+              <p data-editable style="margin-top:8px;font-size:17px;line-height:1.7;opacity:.66">打开 App 看到的不是按钮，而是此刻房间里的光。</p>
+            </div>
+            <div style="padding:18px 0;border-bottom:1px solid color-mix(in srgb, var(--paper) 18%, transparent)">
+              <p data-editable style="font-size:20px;font-weight:500">一次拖动</p>
+              <p data-editable style="margin-top:8px;font-size:17px;line-height:1.7;opacity:.66">亮度与色温在同一个手势里完成，所见即所得。</p>
+            </div>
+            <div style="padding:18px 0">
+              <p data-editable style="font-size:20px;font-weight:500">零打扰自动化</p>
+              <p data-editable style="margin-top:8px;font-size:17px;line-height:1.7;opacity:.66">所有调节在后台安静运行，不推送、不打扰。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- 11 · 体验量化（list-grid × card 嵌 chart-progress，fill-bar） -->
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="experience-index" data-content-hash="8220f6c3d197">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <p data-editable style="font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;opacity:.55">09 · 体验 EXPERIENCE</p>
+        <p data-editable-skip style="font-family:var(--font-mono);font-size:14px;letter-spacing:.2em;opacity:.4">LUMEN KEYNOTE 2026</p>
+      </div>
+      <div style="margin-top:32px;display:flex;justify-content:space-between;align-items:baseline">
+        <h2 data-editable class="reveal" style="font-family:var(--font-display);font-size:64px;line-height:1.3;font-weight:600">四项指标，各自的相对水位</h2>
+        <p data-editable class="reveal" style="--d:.1s;font-size:20px;line-height:1.7;max-width:520px;opacity:.72">把四个关键指标放到各自的参照系里看——条形越长，代表领先参照档位越多。</p>
+      </div>
+      <div data-ig="list-grid" data-ig-skin="card" class="reveal" style="--d:.2s;margin-top:56px;display:grid;grid-template-columns:1fr 1fr;gap:32px">
+        <div data-ig-item style="background:var(--paper-tint);padding:32px 40px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline">
+            <p data-editable style="font-size:20px;font-weight:500">光线响应延迟</p>
+            <p data-editable style="font-family:var(--font-mono);font-size:22px;font-weight:500;font-feature-settings:'tnum'">0.3ms</p>
+          </div>
+          <div data-ig="chart-progress" style="margin-top:20px">
+            <div data-editable-skip style="height:12px;background:var(--paper)"><div data-anim="fill-bar" style="height:100%;width:calc(99/var(--max,100)*100%);background:var(--chart-series-1)"></div></div>
+            <p data-editable style="margin-top:12px;font-size:16px;line-height:1.6;color:var(--chart-label)">领先 99% · 参照：人眼可感知阈值 100ms</p>
+          </div>
+        </div>
+        <div data-ig-item style="background:var(--paper-tint);padding:32px 40px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline">
+            <p data-editable style="font-size:20px;font-weight:500">亮度调节级数</p>
+            <p data-editable style="font-family:var(--font-mono);font-size:22px;font-weight:500;font-feature-settings:'tnum'">4096 级</p>
+          </div>
+          <div data-ig="chart-progress" style="margin-top:20px">
+            <div data-editable-skip style="height:12px;background:var(--paper)"><div data-anim="fill-bar" style="height:100%;width:calc(94/var(--max,100)*100%);background:var(--chart-series-1)"></div></div>
+            <p data-editable style="margin-top:12px;font-size:16px;line-height:1.6;color:var(--chart-label)">细腻度 +94% · 参照：主流 256 级档位</p>
+          </div>
+        </div>
+        <div data-ig-item style="background:var(--paper-tint);padding:32px 40px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline">
+            <p data-editable style="font-size:20px;font-weight:500">夜间蓝光输出</p>
+            <p data-editable style="font-family:var(--font-mono);font-size:22px;font-weight:500;font-feature-settings:'tnum'">-62%</p>
+          </div>
+          <div data-ig="chart-progress" style="margin-top:20px">
+            <div data-editable-skip style="height:12px;background:var(--paper)"><div data-anim="fill-bar" style="height:100%;width:calc(62/var(--max,100)*100%);background:var(--chart-series-1)"></div></div>
+            <p data-editable style="margin-top:12px;font-size:16px;line-height:1.6;color:var(--chart-label)">降低 62% · 参照：同尺寸普通 LED 屏幕</p>
+          </div>
+        </div>
+        <div data-ig-item style="background:var(--paper-tint);padding:32px 40px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline">
+            <p data-editable style="font-size:20px;font-weight:500">最低亮度</p>
+            <p data-editable style="font-family:var(--font-mono);font-size:22px;font-weight:500;font-feature-settings:'tnum'">1nit</p>
+          </div>
+          <div data-ig="chart-progress" style="margin-top:20px">
+            <div data-editable-skip style="height:12px;background:var(--paper)"><div data-anim="fill-bar" style="height:100%;width:calc(90/var(--max,100)*100%);background:var(--chart-series-1)"></div></div>
+            <p data-editable style="margin-top:12px;font-size:16px;line-height:1.6;color:var(--chart-label)">下探 90% · 参照：常见 10nit 最低档</p>
+          </div>
+        </div>
+      </div>
+      <p data-editable class="reveal" style="--d:.3s;margin-top:40px;font-size:16px;line-height:1.7;opacity:.5">示例数据 · 蓝光 −62% 与 4096 级为产品口径；"99% / 94% / 90%"按页内注明参照档位的演示换算，条宽按数值与 100 的比例计算。改数值请走批注流程，图形不随文字就地更新。</p>
+    </section>
+  </div>
+
+  <!-- 12 · 展望（sequence-timeline × ribbon） -->
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="roadmap" data-content-hash="5b5d891c33dd">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <p data-editable style="font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;opacity:.55">10 · 展望 ROADMAP</p>
+        <p data-editable-skip style="font-family:var(--font-mono);font-size:14px;letter-spacing:.2em;opacity:.4">LUMEN KEYNOTE 2026</p>
+      </div>
+      <h2 data-editable class="reveal" style="margin-top:32px;font-family:var(--font-display);font-size:72px;line-height:1.3;font-weight:600">接下来的十八个月</h2>
+      <div data-ig="sequence-timeline" data-ig-skin="ribbon" class="reveal" style="--d:.15s;margin-top:176px;position:relative">
+        <div data-editable-skip style="position:absolute;left:0;right:0;top:5px;height:1px;background:var(--ink);opacity:.25"></div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:72px">
+          <div data-ig-item>
+            <div data-editable-skip style="width:12px;height:12px;border-radius:50%;background:var(--ink)"></div>
+            <div data-editable-skip style="margin-top:36px;display:inline-block;background:var(--ink);padding:8px 18px"><p data-editable style="font-family:var(--font-mono);font-size:18px;letter-spacing:.08em;color:var(--paper)">2026 Q4</p></div>
+            <p data-editable style="margin-top:24px;font-family:var(--font-display);font-size:36px;line-height:1.4;font-weight:600">Lumen 2.0 发售</p>
+            <p data-editable style="margin-top:16px;font-size:19px;line-height:1.7;opacity:.66">桌面版首发，覆盖三大平台；今晚 24:00 开启预售。</p>
+          </div>
+          <div data-ig-item>
+            <div data-editable-skip style="width:12px;height:12px;border-radius:50%;background:var(--ink)"></div>
+            <div data-editable-skip style="margin-top:36px;display:inline-block;background:var(--ink);padding:8px 18px"><p data-editable style="font-family:var(--font-mono);font-size:18px;letter-spacing:.08em;color:var(--paper)">2027 Q2</p></div>
+            <p data-editable style="margin-top:24px;font-family:var(--font-display);font-size:36px;line-height:1.4;font-weight:600">Lumen Home</p>
+            <p data-editable style="margin-top:16px;font-size:19px;line-height:1.7;opacity:.66">从一张书桌，扩展到整个房间的光环境。</p>
+          </div>
+          <div data-ig-item>
+            <div data-editable-skip style="width:12px;height:12px;border-radius:50%;background:var(--ink)"></div>
+            <div data-editable-skip style="margin-top:36px;display:inline-block;background:var(--ink);padding:8px 18px"><p data-editable style="font-family:var(--font-mono);font-size:18px;letter-spacing:.08em;color:var(--paper)">2028 Q1</p></div>
+            <p data-editable style="margin-top:24px;font-family:var(--font-display);font-size:36px;line-height:1.4;font-weight:600">开放光谱协议</p>
+            <p data-editable style="margin-top:16px;font-size:19px;line-height:1.7;opacity:.66">让每一盏灯都学会克制，与生态伙伴共享调光能力。</p>
+          </div>
+        </div>
+      </div>
+      <p data-editable class="reveal" style="--d:.3s;margin-top:96px;font-size:16px;line-height:1.7;opacity:.5">时间节点为产品规划口径，可能随研发进度调整。</p>
+    </section>
+  </div>
+
+  <!-- 13 · 收束 hero（暗） -->
+  <div class="slide-slot">
+    <section class="slide dark" data-slide-id="closing" data-animate="hero" data-content-hash="422bec2297b8">
+      <div style="position:absolute;top:50%;left:120px;right:120px;transform:translateY(-50%)">
+        <p data-editable data-anim style="font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;opacity:.55">LUMEN KEYNOTE · END</p>
+        <h2 data-editable data-anim style="margin-top:48px;font-family:var(--font-display);font-size:120px;line-height:1.3;font-weight:600">Lumen 2.0</h2>
+        <p data-editable data-anim style="margin-top:40px;font-size:28px;line-height:1.6;opacity:.72">今晚 24:00 开启预售 · 让光重新学会克制</p>
+        <div data-editable-skip style="margin-top:88px;border-top:1px solid color-mix(in srgb, var(--paper) 25%, transparent);padding-top:28px;display:flex;justify-content:space-between;align-items:baseline">
+          <p data-editable style="font-family:var(--font-mono);font-size:16px;letter-spacing:.08em;opacity:.6">发布会全程回放将于直播结束后上线</p>
+          <p data-editable style="font-family:var(--font-mono);font-size:16px;letter-spacing:.08em;opacity:.6">2026.09.16 · LUMEN.CO</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+</div>
+
+<!-- SLOT: 页码初始文本——生成时把 "1 / 1" 改为 "1 / N"（N=总页数） -->
+<div class="deck-chrome" id="chrome">1 / 13</div>
+
+<script>
+/* ============================================================
+   框架层 · 禁止修改
+   ============================================================ */
+(function(){
+  document.documentElement.classList.add('js');  /* 动效 .js 门槛：无 JS 时内容直接可见 */
+  var deck = document.getElementById('deck');
+  var chrome = document.getElementById('chrome');
+
+  function slots(){ return Array.prototype.slice.call(deck.querySelectorAll('.slide-slot')); }
+
+  /* 缩放：整个 1920×1080 画布按容器比例缩放，绝不重排内容。
+     ResizeObserver 而非 window resize：iframe 尺寸变化、侧栏开合都算。 */
+  var lastScale = 0;
+  function fit(){
+    var s = Math.min(deck.clientWidth/1920, deck.clientHeight/1080);
+    if (Math.abs(s - lastScale) < 0.001) return;  /* 去抖：dvh 抖动 */
+    lastScale = s;
+    document.documentElement.style.setProperty('--slide-scale', s);
+  }
+  if ('ResizeObserver' in window){ new ResizeObserver(fit).observe(deck); }
+  window.addEventListener('resize', fit);
+  fit();
+
+  /* 页码指示 */
+  function currentIndex(){
+    var list = slots();
+    var top = deck.scrollTop;
+    for (var i = 0; i < list.length; i++){
+      if (list[i].offsetTop + list[i].offsetHeight/2 > top + 8) return i;
+    }
+    return list.length - 1;
+  }
+  function updateChrome(){
+    chrome.textContent = (currentIndex()+1) + ' / ' + slots().length;
+  }
+  deck.addEventListener('scroll', function(){ requestAnimationFrame(updateChrome); }, {passive:true});
+  updateChrome();
+
+  /* 键盘翻页 */
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function go(i){
+    var list = slots();
+    i = Math.max(0, Math.min(list.length-1, i));
+    deck.scrollTo({top: list[i].offsetTop, behavior: reduceMotion ? 'auto' : 'smooth'});
+  }
+  window.addEventListener('keydown', function(e){
+    if (e.target && (e.target.isContentEditable || /^(INPUT|TEXTAREA)$/.test(e.target.tagName))) return;
+    if (e.key==='ArrowDown' || e.key==='PageDown' || e.key===' '){ e.preventDefault(); go(currentIndex()+1); }
+    else if (e.key==='ArrowUp' || e.key==='PageUp'){ e.preventDefault(); go(currentIndex()-1); }
+    else if (e.key==='Home'){ e.preventDefault(); go(0); }
+    else if (e.key==='End'){ e.preventDefault(); go(slots().length-1); }
+  });
+
+  /* 质感槽位：--texture-scope: cover 时只有 .cover-page 铺质感层 */
+  var scope = '';
+  try { scope = getComputedStyle(document.documentElement).getPropertyValue('--texture-scope').trim(); } catch(e){}
+  if (scope === 'cover') document.documentElement.classList.add('texture-cover');
+
+  /* ============================================================
+     运行时动效引擎（skeleton v3）
+     chars/words/shatter：入场时把纯文本拆成 .sp-unit 序列执行动画，
+     完成后还原为纯文本节点；count-up：读终值滚动后精确还原原文本；
+     draw-line：量长藏线、入场描出。
+     滚动回滚默认不重复触发（与 .in-view 一次性语义一致）。
+     reduced-motion 下整组引擎不启动——文件里本来就是纯文本与完整图形。
+     ============================================================ */
+  var SPLIT_SEL = '[data-anim="chars"],[data-anim="words"],[data-anim="shatter"]';
+  var live = [];   /* 进行中的运行时动效元素（强制还原用） */
+
+  function track(el){ if (live.indexOf(el) < 0) live.push(el); }
+  function untrack(el){ var i = live.indexOf(el); if (i >= 0) live.splice(i, 1); }
+
+  /* 还原单个元素：终止进行中的动效，恢复纯文本 / 终值文本 */
+  function restoreEl(el){
+    if (el.__rt){
+      clearTimeout(el.__rt.timer);
+      if (el.__rt.raf) cancelAnimationFrame(el.__rt.raf);
+      if (el.__rt.finalText != null) el.textContent = el.__rt.finalText;
+      el.__rt = null;
+    }
+    /* 拆字残留兜底：塌缩为纯文本节点 */
+    if (el.querySelector && el.querySelector('.sp-unit')) el.textContent = el.textContent;
+    if (el.classList) el.classList.remove('split-anim');
+    untrack(el);
+  }
+
+  /* 编辑器接口：进入编辑 / 序列化保存前调用（见 editing-contract.md） */
+  window.__pptxMotion = {
+    restore: restoreEl,
+    restoreAll: function(){ live.slice().forEach(restoreEl); }
+  };
+
+  function splitEl(el){
+    if (el.__rt) return;
+    var mode = el.getAttribute('data-anim');
+    var text = el.textContent;
+    var units = [];
+    if (mode === 'words'){
+      text.split(/(\s+)/).forEach(function(p){
+        if (p) units.push({ ws: /^\s+$/.test(p), t: p });
+      });
+    } else {
+      Array.from(text).forEach(function(ch){
+        units.push({ ws: /^\s$/.test(ch), t: ch });
+      });
+    }
+    el.__rt = { finalText: text, timer: null, raf: 0 };
+    track(el);
+    el.textContent = '';
+    var n = 0;
+    units.forEach(function(u){
+      if (u.ws){ el.appendChild(document.createTextNode(u.t)); return; }
+      var s = document.createElement('span');
+      s.className = 'sp-unit';
+      s.style.setProperty('--j', n++);
+      if (mode === 'shatter'){
+        /* 碎聚：确定性伪随机散布（同一文本每次入场形态一致，不逐帧随机） */
+        var seed = n * 137.5;
+        s.style.setProperty('--sx', (Math.sin(seed) * 1.6).toFixed(2) + 'em');
+        s.style.setProperty('--sy', (Math.cos(seed * 1.3) * 1.1).toFixed(2) + 'em');
+        s.style.setProperty('--sr', (Math.sin(seed * 2.1) * 40).toFixed(1) + 'deg');
+      }
+      s.appendChild(document.createTextNode(u.t));
+      el.appendChild(s);
+    });
+    el.classList.add('split-anim');
+    /* 动画完成后还原为纯文本：stagger 步长 × 个数 + 单项时长 + 余量 */
+    var step = mode === 'words' ? 90 : (mode === 'shatter' ? 40 : 45);
+    var dur  = mode === 'shatter' ? 800 : 600;
+    el.__rt.timer = setTimeout(function(){ restoreEl(el); }, n * step + dur + 250);
+  }
+
+  /* count-up：元素文本即终值（可含千分位/小数/前后缀），从 data-from 或 0 起滚 */
+  function countUp(el){
+    if (el.__rt) return;
+    var finalText = el.textContent;
+    var m = /-?[\d,]*\.?\d+/.exec(finalText);
+    if (!m) return;
+    var finalVal = parseFloat(m[0].replace(/,/g, ''));
+    if (isNaN(finalVal)) return;
+    var from = parseFloat(el.getAttribute('data-from'));
+    if (isNaN(from)) from = 0;
+    var decimals = (m[0].split('.')[1] || '').length;
+    var grouped = m[0].indexOf(',') >= 0;
+    function fmt(v){
+      var s = grouped
+        ? v.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
+        : v.toFixed(decimals);
+      return finalText.slice(0, m.index) + s + finalText.slice(m.index + m[0].length);
+    }
+    el.__rt = { finalText: finalText, timer: null, raf: 0 };
+    track(el);
+    var dur = 1400, t0 = null;
+    el.textContent = fmt(from);
+    function tick(t){
+      if (!el.__rt) return;   /* 被强制还原 */
+      if (t0 === null) t0 = t;
+      var k = Math.min(1, (t - t0) / dur);
+      var e = 1 - Math.pow(1 - k, 3);   /* easeOutCubic */
+      el.textContent = fmt(from + (finalVal - from) * e);
+      if (k < 1){ el.__rt.raf = requestAnimationFrame(tick); }
+      else { el.textContent = finalText; el.__rt = null; untrack(el); }   /* 终值精确还原原文本 */
+    }
+    el.__rt.raf = requestAnimationFrame(tick);
+  }
+
+  /* draw-line：加载时量长藏线（stroke-dashoffset=length），入场时归零描出。
+     量长失败（非几何元素）时退回整体淡入。 */
+  function prepDrawLine(el){
+    var len = 0;
+    try { len = el.getTotalLength(); } catch(e){}
+    if (!len) return;
+    el.__drawLen = len;
+    el.style.strokeDasharray = String(len);
+    el.style.strokeDashoffset = String(len);
+  }
+
+  /* 入场动效：页面进入视口时触发（一次性，回滚不重复） */
+  /* 加载时为每页的 [data-anim] 元素分配序号 --i（阶梯延迟的基数） */
+  slots().forEach(function(s){
+    var els = s.querySelectorAll('[data-anim]');
+    for (var i = 0; i < els.length; i++) els[i].style.setProperty('--i', i);
+  });
+  if (!reduceMotion){
+    slots().forEach(function(s){
+      var lines = s.querySelectorAll('[data-anim="draw-line"]');
+      for (var i = 0; i < lines.length; i++) prepDrawLine(lines[i]);
+    });
+  }
+  function enterSlide(slide){
+    if (slide.classList.contains('in-view')) return;
+    if (!reduceMotion){
+      /* 运行时拆字：先拆再加 in-view（同一帧完成，避免先显后拆的闪烁） */
+      var splits = slide.querySelectorAll(SPLIT_SEL);
+      for (var i = 0; i < splits.length; i++) splitEl(splits[i]);
+    }
+    slide.classList.add('in-view');
+    if (!reduceMotion){
+      var cus = slide.querySelectorAll('[data-anim="count-up"]');
+      for (var j = 0; j < cus.length; j++) countUp(cus[j]);
+      var dls = slide.querySelectorAll('[data-anim="draw-line"]');
+      for (var k = 0; k < dls.length; k++){
+        if (dls[k].__drawLen) dls[k].style.strokeDashoffset = '0';
+      }
+    }
+  }
+  if ('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (en.isIntersecting) enterSlide(en.target);
+      });
+    }, {root: deck, threshold: .35});
+    slots().forEach(function(s){ io.observe(s.querySelector('.slide')); });
+  } else {
+    slots().forEach(function(s){ enterSlide(s.querySelector('.slide')); });
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1676 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="skeleton-version" content="5.1">
+<title>从单体到微服务的三年 · 技术分享 · v3</title>
+<style>
+/* ============================================================
+   SLOT: theme tokens
+   从 references/themes.md 选定主题后，整套替换以下变量。
+   禁止混搭、禁止修改色值。
+   G3 质感主题会额外携带 --texture-type / --texture-layer /
+   --texture-scope 三个 token，复制时一并带入（v4 起
+   --texture-scope 是许可声明，配给机制见框架层"背景配给制"）。
+   ============================================================ */
+:root{
+  /* 主题色（B1 克莱因蓝 · 瑞士国际主义） */
+  --paper:#fafaf8;
+  --paper-tint:#f0f0ee;
+  --ink:#0a0a0a;
+  --ink-tint:#1a1a1a;
+  --accent:#002FA7;
+  --accent-on:#ffffff;
+  /* 字体栈（系统栈，离线可用） */
+  --font-display:"Helvetica Neue","PingFang SC","Noto Sans SC",sans-serif;
+  --font-body:"Helvetica Neue","PingFang SC","Noto Sans SC",sans-serif;
+  --font-mono:"SF Mono","JetBrains Mono","Menlo",monospace;
+  /* 画布内边距（画布坐标系 px） */
+  --slide-pad:96px 120px;
+  /* G3 质感立场（B1：flat 即质感立场） */
+  --texture-type:flat;
+  --texture-layer:none;
+  --texture-scope:cover;
+  /* 图表 token（themes.md 全主题统一推导，含 5–8 档） */
+  --chart-grid:color-mix(in srgb, var(--ink) 12%, transparent);
+  --chart-label:color-mix(in srgb, var(--ink) 60%, transparent);
+  --chart-series-1:var(--accent);
+  --chart-series-2:color-mix(in srgb, var(--accent) 55%, var(--paper));
+  --chart-series-3:color-mix(in srgb, var(--accent) 32%, var(--paper));
+  --chart-series-4:color-mix(in srgb, var(--ink) 18%, var(--paper));
+  --chart-series-5:color-mix(in srgb, var(--ink) 62%, var(--paper));
+  --chart-series-6:color-mix(in srgb, var(--accent) 16%, var(--paper));
+  --chart-series-7:color-mix(in srgb, var(--ink) 40%, var(--paper));
+  --chart-series-8:color-mix(in srgb, var(--ink) 24%, var(--paper));
+  --chart-bar-radius:0;
+  --chart-stroke:2.5px;
+}
+
+/* ============================================================
+   框架层 · 禁止修改
+   处理：16:9 固定画布缩放、竖向滚动、键盘翻页、
+   入场动效（含运行时拆字/打字机/乱码引擎）、scroll 驱动动效
+   （scroll-timeline + sticky 页间效果）、pointer tracker
+   （--mx/--my 变量 + tilt/magnetic）、canvas FX 仪式层
+   （data-fx，密度/数量/速度烧死，in-view 生命周期，离屏停帧）、
+   质感槽位与背景配给制、
+   刊头家具样式（masthead/mastfoot）、reduced-motion 降级、打印。
+   ============================================================ */
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  background:#111;
+  font-family:var(--font-body);
+  -webkit-font-smoothing:antialiased;
+  overscroll-behavior:none;
+}
+.deck{
+  height:100vh;
+  height:100dvh;
+  overflow-y:auto;
+  scroll-snap-type:y proximity;
+}
+.slide-slot{
+  width:100%;
+  height:calc(1080px * var(--slide-scale, .5));
+  margin:12px 0;
+  display:flex;
+  justify-content:center;
+  scroll-snap-align:start;
+  content-visibility:auto;
+}
+.slide{
+  width:1920px;
+  height:1080px;
+  flex:none;
+  position:relative;
+  overflow:hidden;
+  transform:scale(var(--slide-scale, .5));
+  transform-origin:top center;
+  background:var(--paper);
+  color:var(--ink);
+  padding:var(--slide-pad);
+}
+/* 暗色页变体 */
+.slide.dark{background:var(--ink);color:var(--paper)}
+
+/* 质感槽位与背景配给制（skeleton v4 · 高级感要素 7）：
+   --texture-layer 默认不渲染——只铺两类页面：
+   仪式页（封面/章节/封底，生成侧标 .cover-page）与显式声明的正文页
+   （生成侧逐页加 .texture-on；纪律见 references/motion.md §4）。
+   主题的 --texture-scope 是许可声明而非开关：cover=只许仪式页（缺省
+   立场），all=允许正文页铺（仍需逐页 .texture-on 落码，骨架不自动
+   全铺）。无质感主题（flat）该层为 none，零成本。 */
+.slide::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:none;
+}
+.slide.cover-page::before,.slide.texture-on::before{background:var(--texture-layer,none)}
+
+/* 刊头家具（skeleton v4 · 高级感要素 6）：页眉（左 kicker 位 /
+   右页码或日期位）与页脚 hairline 元信息行。样式在框架层烧死
+   （mono、大写、加宽字距、低透明、hairline 分隔线）；结构与内容是
+   可选 SLOT——生成侧逐页决定放不放、放什么，整件可省略（仪式页
+   通常省略：仪式感来自留白，不来自家具）。家具定位在画布内边距带
+   （--slide-pad:96px 120px）内，不与正文争版面。
+   家具内容若是中文，生成侧须把 letter-spacing 归零（中文不加宽字距）。 */
+.masthead{
+  position:absolute;top:40px;left:120px;right:120px;
+  display:flex;justify-content:space-between;align-items:baseline;gap:2em;
+  font-family:var(--font-mono);font-size:15px;font-weight:500;
+  letter-spacing:.22em;text-transform:uppercase;opacity:.6;
+}
+.mastfoot{
+  position:absolute;left:120px;right:120px;bottom:34px;
+  display:flex;justify-content:space-between;align-items:baseline;gap:2em;
+  padding-top:16px;border-top:1px solid color-mix(in srgb, currentColor 22%, transparent);
+  font-family:var(--font-mono);font-size:14px;font-weight:500;
+  letter-spacing:.18em;text-transform:uppercase;opacity:.55;
+}
+
+/* 动效缓动 token（skeleton v3）：全 deck 只用这三种缓动，禁止逐页自定义。
+   出 = 入场显影；变 = 变换/移动；环 = 循环 ambience。规则见 references/motion.md */
+:root{
+  --ease-out:cubic-bezier(.22,1,.36,1);
+  --ease-shift:cubic-bezier(.7,0,.2,1);
+  --ease-loop:ease-in-out;
+}
+
+/* 入场动效：给元素加 class="reveal"，可用 style="--d:.15s" 做阶梯延迟。
+   .js 门槛：无 JS 环境（打印预览器/抓取器）下内容直接可见，动效只是增强。 */
+.js .reveal{opacity:0;transform:translateY(24px);transition:opacity .6s var(--ease-out),transform .6s var(--ease-out);transition-delay:var(--d,0s)}
+.js .slide.in-view .reveal{opacity:1;transform:none}
+
+/* 语义动效：section[data-animate] 选配方，元素 [data-anim] 标角色。
+   配方只调节奏与方向；框架 JS 在加载时为每个 [data-anim] 分配序号 --i。
+   规则与词汇表见 references/motion.md。 */
+.js [data-anim]{opacity:0;transform:translateY(24px);transition:opacity .6s var(--ease-out),transform .6s var(--ease-out);transition-delay:calc(var(--i,0)*75ms)}
+.js [data-anim="left"]{transform:translateX(-40px)}
+.js [data-anim="right"]{transform:translateX(40px)}
+.js [data-anim="line"]{transform:scaleX(0);transform-origin:left}
+.js [data-animate="hero"] [data-anim]{transition-duration:1s;transition-delay:calc(var(--i,0)*160ms)}
+.js [data-animate="quote"] [data-anim]{transition-duration:.55s;transition-delay:calc(var(--i,0)*220ms)}
+.js .slide.in-view [data-anim]{opacity:1;transform:none}
+
+/* ---- skeleton v3 recipe ---- */
+/* chars/words/shatter：文件中是纯文本，框架 JS 入场时拆成 .sp-unit 序列、
+   动画完成后还原为纯文本。容器只做快速整体淡入，逐字运动由 span 承担。 */
+.js [data-anim="chars"],.js [data-anim="words"],.js [data-anim="shatter"]{transform:none;transition:opacity .3s ease}
+.js .split-anim .sp-unit{display:inline-block;opacity:0;transform:translateY(.55em);transition:opacity .5s var(--ease-out),transform .55s var(--ease-out);transition-delay:calc(var(--j,0)*45ms)}
+.js [data-anim="words"].split-anim .sp-unit{transition-delay:calc(var(--j,0)*90ms)}
+.js [data-anim="shatter"].split-anim .sp-unit{transform:translate(var(--sx,0),var(--sy,1em)) rotate(var(--sr,0deg));transition-duration:.5s,.75s;transition-delay:calc(var(--j,0)*40ms)}
+.js .slide.in-view .split-anim .sp-unit{opacity:1;transform:none}
+/* count-up：数字滚动。保留整体淡入、去掉位移；数值滚动由框架 JS 驱动
+   （读元素文本终值，从 0 或 data-from 起滚），文本始终是纯文本。 */
+.js [data-anim="count-up"]{transform:none}
+/* draw-line：SVG 描边描绘。框架 JS 加载时量长藏线，入场时归零描出。 */
+.js [data-anim="draw-line"]{opacity:1;transform:none;transition:stroke-dashoffset 1.1s var(--ease-out);transition-delay:calc(var(--i,0)*75ms)}
+/* fill-bar：横向填充（进度/占比/横条图）。 */
+.js [data-anim="fill-bar"]{transform:scaleX(0);transform-origin:left center;transition:opacity .5s var(--ease-out),transform 1s var(--ease-out);transition-delay:calc(var(--i,0)*75ms)}
+
+/* ---- skeleton v5 recipe（动效词汇库 8 族，规则见 references/motion.md v3）---- */
+/* enter 族补全（触发器：inview 一次性，纯 CSS 过渡；终态由通用 .in-view 规则给出） */
+.js [data-anim="blur-in"]{transform:none;filter:blur(14px);transition:opacity .8s var(--ease-out),filter .8s var(--ease-out);transition-delay:calc(var(--i,0)*75ms)}
+.js .slide.in-view [data-anim="blur-in"]{filter:blur(0)}
+.js [data-anim="scale-pop"]{transform:scale(.86);transition:opacity .45s var(--ease-out),transform .55s var(--ease-out);transition-delay:calc(var(--i,0)*75ms)}
+.js [data-anim="wipe-clip"]{transform:none;clip-path:inset(0 100% 0 0);transition:opacity .3s ease,clip-path .9s var(--ease-shift);transition-delay:calc(var(--i,0)*75ms)}
+.js .slide.in-view [data-anim="wipe-clip"]{clip-path:inset(0 0 0 0)}
+.js [data-anim="rise-in"]{transform:translateY(64px);transition:opacity .7s var(--ease-out),transform .8s var(--ease-out);transition-delay:calc(var(--i,0)*75ms)}
+.js [data-anim="persp-in"]{transform:perspective(1200px) rotateX(12deg) translateY(48px);transform-origin:center bottom;transition:opacity .6s var(--ease-out),transform .9s var(--ease-out);transition-delay:calc(var(--i,0)*75ms)}
+
+/* text 族扩展：mask-lines 逐行遮罩——生成侧显式分行（.ml-line 外遮罩 +
+   .ml-inner 内层位移，内层是 data-editable 叶子），文本节点完整不拆，纯 CSS。 */
+.js [data-anim="mask-lines"]{opacity:1;transform:none;transition:none}
+.js [data-anim="mask-lines"] .ml-line{display:block;overflow:hidden}
+.js [data-anim="mask-lines"] .ml-inner{display:inline-block;transform:translateY(112%);transition:transform .85s var(--ease-out);transition-delay:calc(var(--i,0)*110ms)}
+.js .slide.in-view [data-anim="mask-lines"] .ml-inner{transform:none}
+/* gradient-flow 流光字：color 保留本色兜底，透明只走 -webkit-text-fill-color
+   （不支持 background-clip:text 的环境看到纯色文字）；编辑态由编辑器强制
+   还原本色（契约 v6「透明填充类效果」条款）。 */
+.js [data-anim="gradient-flow"]{background-image:linear-gradient(100deg,currentColor 42%,var(--accent) 50%,currentColor 58%);background-size:220% 100%;background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:gradient-flow 7s var(--ease-loop) infinite}
+@keyframes gradient-flow{0%{background-position:0% 0}100%{background-position:-220% 0}}
+/* typewriter 光标（主题限定款；打字/还原由框架 JS 引擎驱动，tw-live 是运行时 class） */
+.js [data-anim="typewriter"].tw-live::after{content:"";display:inline-block;width:.09em;height:.9em;margin-left:.06em;background:currentColor;vertical-align:-.08em;animation:tw-caret 1s steps(1) infinite}
+@keyframes tw-caret{50%{opacity:0}}
+
+/* data 族补全：fill-bar-y 竖柱生长（transform-origin 底部）；
+   ring 环形进度——生成侧给 SVG circle 写 pathLength="100" 与 style="--val:N"，
+   纯 CSS 无 JS，--val 是产物内容不是运行时状态。 */
+.js [data-anim="fill-bar-y"]{transform:scaleY(0);transform-origin:bottom center;transition:opacity .5s var(--ease-out),transform 1s var(--ease-out);transition-delay:calc(var(--i,0)*75ms)}
+.js [data-anim="ring"]{opacity:1;transform:none;stroke-dasharray:100;stroke-dashoffset:100;transition:stroke-dashoffset 1.2s var(--ease-out);transition-delay:calc(var(--i,0)*75ms)}
+.js .slide.in-view [data-anim="ring"]{stroke-dashoffset:calc(100 - var(--val,0))}
+
+/* link 族：dash-flow 流动虚线（dasharray 由生成侧定，默认 6 10）；
+   flow-dot 沿线粒子——HTML 圆点 + offset-path，--flow-path 由生成侧写与
+   可见线相同的路径数据；offset-path 不支持时藏点留线。 */
+.js .dash-flow{stroke-dasharray:6 10;animation:dash-flow 1.6s linear infinite}
+@keyframes dash-flow{to{stroke-dashoffset:-48}}
+.js .flow-dot{position:absolute;top:0;left:0;width:14px;height:14px;border-radius:50%;background:var(--accent);opacity:0;pointer-events:none;offset-path:var(--flow-path);offset-rotate:0deg;animation:flow-dot var(--flow-dur,4.5s) linear infinite;animation-delay:var(--d,0s)}
+@supports (offset-path:path("M0 0")){ .js .flow-dot{opacity:1} }
+@keyframes flow-dot{from{offset-distance:0%}to{offset-distance:100%}}
+
+/* amb 族补全（只许背景层；位移 ≤24px、缩放 ≤1.08、循环 ≥12s 上限烧死） */
+.js .amb-noise{animation:amb-noise 1.4s steps(2) infinite}
+@keyframes amb-noise{0%,100%{background-position:0 0}25%{background-position:-3% 2%}50%{background-position:2% -3%}75%{background-position:-2% -2%}}
+.js .amb-gradient-blob{animation:amb-gradient-blob 16s var(--ease-loop) infinite}
+@keyframes amb-gradient-blob{0%,100%{transform:translate3d(0,0,0) scale(1)}33%{transform:translate3d(24px,-18px,0) scale(1.06)}66%{transform:translate3d(-16px,12px,0) scale(.97)}}
+.js .amb-kenburns{animation:amb-kenburns 26s var(--ease-loop) infinite alternate}
+@keyframes amb-kenburns{from{transform:scale(1) translate(0,0)}to{transform:scale(1.08) translate(-1.2%,1%)}}
+.js .amb-marquee{animation:amb-marquee max(var(--marquee-dur,22s),12s) linear infinite}
+@keyframes amb-marquee{to{transform:translateX(-50%)}}
+
+/* light 族（光效装饰件，一律 data-editable-skip；spotlight 消费 pointer
+   tracker 写在 .slide 上的 --mx/--my 变量，tracker 不启动时停在默认位） */
+.js .light-sweep{position:relative;overflow:hidden}
+.js .light-sweep::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(105deg,transparent 42%,rgba(255,255,255,.22) 50%,transparent 58%);transform:translateX(-130%);animation:light-sweep 5.5s var(--ease-loop) infinite}
+@keyframes light-sweep{0%{transform:translateX(-130%)}60%,100%{transform:translateX(130%)}}
+@property --beam-angle{syntax:'<angle>';initial-value:0deg;inherits:false}
+.js .border-beam{position:relative}
+.js .border-beam::before{content:"";position:absolute;inset:0;padding:2px;border-radius:inherit;pointer-events:none;background:conic-gradient(from var(--beam-angle),transparent 68%,var(--accent) 84%,transparent 100%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude;animation:border-beam 4.5s linear infinite}
+@keyframes border-beam{to{--beam-angle:360deg}}
+.js .god-rays{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.js .god-rays::before{content:"";position:absolute;left:50%;top:-35%;width:170%;aspect-ratio:1;transform:translateX(-50%);background:repeating-conic-gradient(from 168deg at 50% 0%,color-mix(in srgb,var(--accent) 9%,transparent) 0 5deg,transparent 5deg 15deg);-webkit-mask:radial-gradient(75% 60% at 50% 0%,#000,transparent 72%);mask:radial-gradient(75% 60% at 50% 0%,#000,transparent 72%);animation:god-rays 15s var(--ease-loop) infinite}
+@keyframes god-rays{0%,100%{transform:translateX(-50%) rotate(-2deg)}50%{transform:translateX(-50%) rotate(2deg)}}
+.js .light-leak{position:absolute;inset:-15%;pointer-events:none;background:radial-gradient(42% 55% at 30% 40%,color-mix(in srgb,var(--accent) 15%,transparent),transparent 70%);animation:light-leak 12s var(--ease-loop) infinite}
+@keyframes light-leak{0%,100%{transform:translate(0,0);opacity:.75}50%{transform:translate(6%,-4%);opacity:1}}
+.js .spotlight{position:absolute;inset:0;pointer-events:none;background:radial-gradient(560px circle at var(--mx,50%) var(--my,30%),color-mix(in srgb,var(--accent) 14%,transparent),transparent 70%)}
+
+/* ptr 族（pointer tracker 驱动，只消费 CSS 变量；无 fine 指针或
+   reduced-motion 时变量不写入，元素停在设计位。位移/倾角上限烧死：
+   parallax ≤28px、tilt ±6deg、magnetic ±16px） */
+.js [data-ptr="parallax"]{transform:translate(clamp(-28px,calc(var(--mxr,0)*var(--pdepth,20px)),28px),clamp(-28px,calc(var(--myr,0)*var(--pdepth,20px)),28px));transition:transform .5s var(--ease-out)}
+.js [data-ptr="tilt"]{transform:perspective(1000px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .45s var(--ease-out)}
+.js [data-ptr="magnetic"]{transform:translate(var(--mgx,0px),var(--mgy,0px));transition:transform .4s var(--ease-out)}
+
+/* fx 仪式层（skeleton v5.1 · F5）：canvas 2D 页面级仪式效果
+   （constellation/starfield/particle-drift/ascii-field），只许 .cover-page
+   仪式页，每页至多 1 个，且只有主题 G5「fx 许可」白名单内的效果可用；
+   生成侧只写 <canvas data-fx="…"> 选类——密度/数量/速度全部烧死在
+   框架 JS 常量，无可调参数（纪律见 references/motion.md §4 fx 小节）。
+   z-index:-1：.slide 的 transform 建立了层叠上下文，canvas 垫在页背景
+   之上、全部内容之下（含非定位文字），内容侧无需补定位。
+   无 JS / reduced-motion / 打印：canvas 恒为空白透明层，零痕迹。 */
+[data-fx]{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:-1}
+
+/* scroll 族（skeleton v5 · L5）：
+   - read-progress：纯 CSS scroll-timeline（整 deck 进度语义天然匹配，
+     @supports 外 display:none）；
+   - parallax / scrub / scrub-draw：语义是"页/元素穿过视口的进度"。CSS
+     view() 时间线在 .slide{overflow:hidden} 画布下会错误绑定到不滚动的
+     画布（overflow:hidden 按规范也是滚动容器），实测进度冻结
+     （Chromium 145 headless 确认）——因此这三个 recipe 由框架 JS 驱动：
+     rAF 节流监听 deck 滚动，把页的穿越进度写为 .slide 上的 --sp ∈ [0,1]
+     （0=整页在视口下方、0.5=居中、1=整页在视口上方），CSS 用 calc 消费，
+     强度上限烧死在公式里。--sp 缺省值 = 静态终态：reduced-motion / 无 JS /
+     编辑器冻结（__pptxMotion.freeze() 会移除 --sp）下内容完整可见。 */
+@supports (animation-timeline: view()){
+  .deck{scroll-timeline-name:--deck-scroll}
+  .js .read-progress{display:block;animation:read-progress linear both;animation-timeline:--deck-scroll}
+}
+@keyframes read-progress{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+/* 阅读进度线：生成侧可选放 <div class="read-progress" data-editable-skip>
+   ——必须是 .deck 的最后一个子元素（具名 scroll-timeline 只对时间线声明
+   元素的后代可见，放 body 级拿不到 --deck-scroll）。缺省 display:none——
+   只有支持 scroll-timeline 的环境才显示。 */
+.read-progress{display:none;position:fixed;top:0;left:0;right:0;height:3px;background:var(--accent);transform-origin:left center;z-index:20;pointer-events:none}
+/* parallax：data-depth 分层位移（上限 ±64px 烧死） */
+.js [data-scroll="parallax"]{transform:translateY(clamp(-64px, calc((0.5 - var(--sp,.5)) * var(--depth,1) * 96px), 64px))}
+/* scrub：进度链接显影（页进入下半视口时完成显影，之后保持终态） */
+.js [data-scroll="scrub"]{opacity:clamp(0, calc((var(--sp,1) - .12) * 3), 1);transform:translateY(clamp(0px, calc((0.5 - var(--sp,.5)) * 160px), 40px))}
+/* scrub-draw：draw-line 的滚动变体（生成侧给 path 写 pathLength="100"） */
+.js [data-scroll="scrub-draw"]{stroke-dasharray:100;stroke-dashoffset:calc((1 - clamp(0, calc((var(--sp,1) - .15) / .7), 1)) * 100)}
+/* 页间 sticky 效果（纯 CSS）：cover=揭盖（本页钉住、下页滑过覆盖）；
+   stack=卡片叠放（同组 slot 由生成侧递推写 style="--pin-i:0,1,2…" 形成
+   错位叠顶）。两类 slot 退出 scroll-snap，避免吸附与钉住互搏。 */
+.slide-slot{position:relative;z-index:1}
+.slide-slot[data-scroll="cover"]{position:sticky;top:12px;z-index:0;scroll-snap-align:none}
+.slide-slot[data-scroll="stack"]{position:sticky;top:calc(12px + var(--pin-i,0)*44px);z-index:0;scroll-snap-align:none}
+
+/* 背景 ambience：只允许背景层/水印/呼吸点，强度上限烧死在参数里
+   （位移 ≤10px、不透明度摆幅 ≤.4、循环周期 ≥3s），不承载信息。 */
+@keyframes amb-pulse{0%,100%{opacity:.6}50%{opacity:1}}
+@keyframes amb-drift{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(10px,-8px,0)}}
+@keyframes amb-glow{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:.85;transform:scale(1.05)}}
+.js .amb-pulse{animation:amb-pulse 4s var(--ease-loop) infinite}
+.js .amb-drift{animation:amb-drift 9s var(--ease-loop) infinite}
+.js .amb-glow{animation:amb-glow 6s var(--ease-loop) infinite}
+
+@media (prefers-reduced-motion: reduce){
+  .js .reveal,.js [data-anim]{opacity:1;transform:none;transition:none}
+  .js [data-anim="blur-in"]{filter:none}
+  .js [data-anim="wipe-clip"]{clip-path:inset(0 0 0 0)}
+  .js [data-anim="mask-lines"] .ml-inner{transform:none;transition:none}
+  .js [data-anim="ring"]{stroke-dashoffset:calc(100 - var(--val,0));transition:none}
+  .js [data-anim="gradient-flow"]{animation:none}
+  .js [data-anim="typewriter"].tw-live::after{animation:none}
+  .js .split-anim .sp-unit{opacity:1;transform:none;transition:none}
+  .js .amb-pulse,.js .amb-drift,.js .amb-glow,.js .amb-noise,.js .amb-gradient-blob,.js .amb-kenburns,.js .amb-marquee{animation:none}
+  .js .light-sweep::after,.js .border-beam::before,.js .god-rays::before,.js .light-leak,.js .dash-flow,.js .flow-dot{animation:none}
+  .js .read-progress{animation:none;display:none}
+  /* ptr/scroll 族：tracker 与 --sp 驱动由 JS 侧整体不启动，变量不写入即停在终态 */
+}
+
+/* 界面 chrome：页码指示（在缩放画布之外） */
+.deck-chrome{
+  position:fixed;
+  right:20px;
+  bottom:16px;
+  font-family:var(--font-mono);
+  font-size:12px;
+  letter-spacing:.08em;
+  color:#888;
+  user-select:none;
+  pointer-events:none;
+  z-index:10;
+}
+
+/* 打印：每页一张 1920×1080（PDF 导出请用 Chrome/Edge） */
+@media print{
+  @page{size:1920px 1080px;margin:0}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{background:none}
+  .deck{height:auto;overflow:visible}
+  .slide-slot{height:1080px;margin:0;page-break-after:always}
+  .slide{transform:none !important}
+  .deck-chrome{display:none}
+  .reveal,[data-anim]{opacity:1 !important;transform:none !important;transition:none !important;filter:none !important;clip-path:none !important}
+  .split-anim .sp-unit{opacity:1 !important;transform:none !important;transition:none !important}
+  [data-anim="mask-lines"] .ml-inner{transform:none !important;transition:none !important}
+  [data-anim="ring"]{stroke-dashoffset:calc(100 - var(--val,0)) !important;transition:none !important}
+  [data-anim="draw-line"]{stroke-dashoffset:0 !important}
+  [data-anim="gradient-flow"]{animation:none !important}
+  [class*="amb-"],[class*="light-"],.dash-flow,.flow-dot,[data-scroll],.read-progress,
+  .light-sweep::after,.border-beam::before,.god-rays::before{animation:none !important}
+  [data-scroll="parallax"],[data-scroll="scrub"]{transform:none !important;opacity:1 !important}
+  [data-scroll="scrub-draw"]{stroke-dashoffset:0 !important}
+  .read-progress{display:none !important}
+  [data-fx]{display:none !important}
+}
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+  <!-- ==========================================================
+       SLOT: slides
+       每页结构（示例两页，生成时替换为真实内容）：
+       - data-slide-id：稳定语义 ID，禁止用页码
+       - data-editable：用户可见文字
+       - data-editable-image：可替换图片，src 指向 assets/ 相对路径
+       - data-editable-skip：纯装饰元素
+       - cover-page：封面/章节/封底标记（仪式页自动铺质感层）
+       - texture-on：正文页铺质感层的显式声明（背景配给制，仅
+         --texture-scope:all 的主题允许；逐页声明，不自动全铺）
+       - 刊头家具（可选，v4）：<header class="masthead">（左 kicker 位 /
+         右页码或日期位）与 <footer class="mastfoot">（hairline 元信息
+         行）——样式在框架层，内容逐页填，整件可省略；仪式页通常省略。
+         家具文字是用户可见内容，标 data-editable。
+       - data-anim：动效角色。chars/words/shatter 的元素里只写纯文本，
+         拆字由骨架 JS 运行时完成；typewriter/scramble 同理（主题限定款）；
+         count-up 直接写终值文本；draw-line 标在 SVG 描边元素上；
+         fill-bar/fill-bar-y 标在填充条上；ring 标在带 pathLength="100"
+         与 style="--val:N" 的 SVG circle 上；mask-lines 标在含
+         .ml-line>.ml-inner 分行结构的容器上（.ml-inner 是 data-editable 叶子）。
+         enter 族补全：blur-in / scale-pop / wipe-clip / rise-in / persp-in。
+       - data-ptr：pointer 族。spotlight（class，依赖 --mx/--my）/ tilt /
+         magnetic / parallax（--pdepth 力度）。tracker 只写 CSS 变量。
+       - data-scroll：scroll 族。parallax（--depth 分层）/ scrub / scrub-draw
+         （pathLength="100" 的 path）写在元素上；cover / stack（--pin-i 递推）
+         写在 .slide-slot 上做页间效果；read-progress 是放在 .deck 内最后的
+         进度线 div（具名 scroll-timeline 只对 .deck 后代可见）。
+       - amb-*/light-* class：循环氛围与光效装饰件，一律 data-editable-skip；
+         dash-flow / flow-dot（--flow-path 路径数据）也是 class 装饰件。
+       - data-fx（v5.1，fx 仪式层）：<canvas data-fx="constellation|starfield|
+         particle-drift|ascii-field" data-editable-skip aria-hidden="true">，
+         只许 .cover-page 仪式页、每页至多 1 个、主题 G5「fx 许可」白名单内
+         才可用；参数全部烧死在骨架，生成侧只能选类。
+       - 词汇表与纪律（五层启用矩阵/主题限定/注意力预算）见 references/motion.md。
+       ========================================================== -->
+
+  <!-- 01 · 封面（宣言谱系 · 满版 IKB · fx ascii-field + chars） -->
+  <div class="slide-slot">
+    <section class="slide cover-page" data-slide-id="cover" data-animate="hero" style="background:var(--accent);color:var(--accent-on)" data-content-hash="d46e5c58e709">
+      <canvas data-fx="ascii-field" data-editable-skip aria-hidden="true"></canvas>
+      <header class="masthead">
+        <span data-editable>TECH SHARE · 2026</span>
+        <span data-editable>MONOLITH → MICROSERVICES</span>
+      </header>
+      <div style="position:relative;margin-top:220px">
+        <p data-editable class="reveal" style="font-family:var(--font-mono);font-size:20px;letter-spacing:.12em;opacity:.72">ARCHITECTURE EVOLUTION · 2023—2025</p>
+        <h1 data-editable data-anim="chars" style="margin-top:44px;font-family:var(--font-display);font-size:144px;line-height:1.25;font-weight:200">从单体到微服务的三年</h1>
+        <p data-editable data-anim style="margin-top:52px;font-size:28px;line-height:1.6;opacity:.82;max-width:1200px">一次架构演进的真实记录：决策、代价与收获</p>
+      </div>
+      <footer class="mastfoot">
+        <span data-editable style="letter-spacing:0">十人团队 · 三年实践 · 十四页</span>
+        <span data-editable>01 / 14</span>
+      </footer>
+    </section>
+  </div>
+
+  <!-- 02 · 起点（图文证据谱系 · 右侧满幅出血图 + 叠印白块事实卡） -->
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="monolith-origin" data-content-hash="f1724047dcbb">
+      <header class="masthead">
+        <span data-editable style="letter-spacing:0">01 · ORIGIN — 起点</span>
+        <span data-editable>02 / 14</span>
+      </header>
+      <img data-editable-image data-image-slot="diagram-monolith-5x6" data-image-intent="单体架构示意：一个规整的深墨大方块内含 4×4 网格模块，核心模块以克莱因蓝实心填充突出，方块正下方以唯一一条竖线连接一个圆柱形数据库，克莱因蓝 × 灰白的瑞士国际主义扁平几何风格，直角、hairline 细线、大量留白" data-image-state="generated" src="assets/diagram-monolith.png" alt="单体架构示意图：一个应用进程直连单一数据库" data-anim="wipe-clip" style="position:absolute;right:0;top:0;bottom:0;width:910px;height:1080px;object-fit:cover">
+      <div style="position:relative;margin-top:96px;width:620px">
+        <p data-editable class="reveal" style="font-family:var(--font-mono);font-size:16px;font-weight:500;letter-spacing:0;opacity:.55">2023 年初的家底</p>
+        <h2 data-editable class="reveal" style="--d:.08s;margin-top:20px;font-size:64px;line-height:1.35;font-weight:300">单体不是错误，<br>是那个阶段最对的选择</h2>
+        <p data-editable class="reveal" style="--d:.16s;margin-top:36px;font-size:20px;line-height:1.8;opacity:.72">只有一个仓库、一个进程、一个数据库。十个人的团队，需求随时在变——单体让我们两周一次发版、当天回滚，几乎没有沟通成本。</p>
+        <div class="reveal" style="--d:.26s;margin-top:44px;border-left:4px solid var(--ink);padding:6px 0 6px 28px">
+          <p data-editable style="font-size:24px;line-height:1.7;font-weight:500">问题从来不是"该不该用单体"，而是"什么时候承认它已经装不下我们了"。</p>
+        </div>
+      </div>
+      <div class="reveal" style="--d:.34s;position:absolute;right:680px;top:600px;width:430px;background:var(--paper);border:1px solid color-mix(in srgb, var(--ink) 18%, transparent);padding:36px 40px">
+        <p data-editable style="font-family:var(--font-mono);font-size:14px;font-weight:500;letter-spacing:0;opacity:.55">MONOLITH · 事实清单</p>
+        <div style="margin-top:20px;border-top:1px solid color-mix(in srgb, var(--ink) 18%, transparent);padding:18px 0;display:flex;justify-content:space-between;align-items:baseline;gap:24px">
+          <p data-editable style="font-size:19px;opacity:.75">代码资产</p>
+          <p data-editable style="font-family:var(--font-mono);font-size:19px;font-weight:600">1 仓库 · 1 进程 · 1 库</p>
+        </div>
+        <div style="border-top:1px solid color-mix(in srgb, var(--ink) 18%, transparent);padding:18px 0;display:flex;justify-content:space-between;align-items:baseline;gap:24px">
+          <p data-editable style="font-size:19px;opacity:.75">团队规模</p>
+          <p data-editable style="font-family:var(--font-mono);font-size:19px;font-weight:600">10 人</p>
+        </div>
+        <div style="border-top:1px solid color-mix(in srgb, var(--ink) 18%, transparent);border-bottom:1px solid color-mix(in srgb, var(--ink) 18%, transparent);padding:18px 0;display:flex;justify-content:space-between;align-items:baseline;gap:24px">
+          <p data-editable style="font-size:19px;opacity:.75">发版节奏</p>
+          <p data-editable style="font-family:var(--font-mono);font-size:19px;font-weight:600">两周一次 · 当天回滚</p>
+        </div>
+      </div>
+      <footer class="mastfoot">
+        <span data-editable>MONOLITH → MICROSERVICES</span>
+        <span data-editable style="letter-spacing:0">单体的正当性，只在当时成立</span>
+      </footer>
+    </section>
+  </div>
+
+  <!-- 03 · 三年三阶段（轴与节点谱系 · sequence/timeline × ribbon · draw-line 主轴 + 旗标引线） -->
+  <div class="slide-slot">
+    <section class="slide dark" data-slide-id="timeline-three-years" data-content-hash="3fe1c37c2d29">
+      <header class="masthead">
+        <span data-editable style="letter-spacing:0">02 · TIMELINE — 三年三阶段</span>
+        <span data-editable>03 / 14</span>
+      </header>
+      <p data-editable class="reveal" style="font-family:var(--font-mono);font-size:16px;font-weight:500;letter-spacing:.12em;opacity:.55">THREE PHASES · ONE DIRECTION</p>
+      <h2 data-editable class="reveal" style="--d:.08s;margin-top:16px;font-size:64px;line-height:1.3;font-weight:300">三年，三个阶段</h2>
+      <div data-ig="sequence-timeline" data-ig-skin="ribbon" style="position:relative;margin-top:118px;height:560px">
+        <svg data-editable-skip style="position:absolute;inset:0;overflow:visible" width="1680" height="560" viewBox="0 0 1680 560" fill="none">
+          <path data-anim="draw-line" d="M 0 300 L 1150 300" stroke="var(--paper)" stroke-width="2.5"/>
+          <path d="M 1150 300 L 1620 300" stroke="color-mix(in srgb, var(--paper) 50%, transparent)" stroke-width="1.5" stroke-dasharray="7 6"/>
+          <polygon points="1616,292 1636,300 1616,308" fill="color-mix(in srgb, var(--paper) 50%, transparent)"/>
+          <rect x="84" y="293" width="14" height="14" fill="var(--paper)"/>
+          <rect x="514" y="293" width="14" height="14" fill="var(--paper)"/>
+          <rect x="943" y="292" width="16" height="16" fill="var(--accent)"/>
+          <rect x="1374" y="294" width="12" height="12" fill="none" stroke="color-mix(in srgb, var(--paper) 60%, transparent)" stroke-width="2" stroke-dasharray="4 3"/>
+          <line x1="521" y1="308" x2="521" y2="346" stroke="color-mix(in srgb, var(--paper) 60%, transparent)" stroke-width="1.5"/>
+        </svg>
+        <div style="position:absolute;left:430px;top:352px;width:250px;border:1px solid color-mix(in srgb, var(--paper) 45%, transparent);background:var(--ink);padding:10px 18px;text-align:center">
+          <p data-editable style="font-family:var(--font-mono);font-size:15px;font-weight:500;letter-spacing:0">攻坚峰值年 · 一年 +8 个服务</p>
+        </div>
+        <div data-ig-item data-anim style="position:absolute;left:90px;top:344px;width:300px">
+          <p data-editable style="display:inline-block;padding:8px 18px;border:1px solid color-mix(in srgb, var(--paper) 45%, transparent);font-family:var(--font-mono);font-size:22px;font-weight:600">2023</p>
+          <h3 data-editable style="margin-top:20px;font-size:28px;line-height:1.4;font-weight:500">识别边界</h3>
+          <p data-editable style="margin-top:10px;font-size:16px;line-height:1.7;opacity:.72">按业务域梳理模块依赖，用半年画出第一张领域地图，谨慎拆出 2 个服务。</p>
+          <p data-editable style="margin-top:12px;font-family:var(--font-mono);font-size:15px;opacity:.55">服务数 1 → 3</p>
+        </div>
+        <div data-ig-item data-anim style="position:absolute;left:520px;bottom:304px;width:300px">
+          <p data-editable style="display:inline-block;padding:8px 18px;border:1px solid color-mix(in srgb, var(--paper) 45%, transparent);font-family:var(--font-mono);font-size:22px;font-weight:600">2024</p>
+          <h3 data-editable style="margin-top:20px;font-size:28px;line-height:1.4;font-weight:500">攻坚拆分</h3>
+          <p data-editable style="margin-top:10px;font-size:16px;line-height:1.7;opacity:.72">核心交易链路完成拆分，也踩进了分布式事务的坑。</p>
+          <p data-editable style="margin-top:12px;font-family:var(--font-mono);font-size:15px;opacity:.55">服务数 3 → 11</p>
+        </div>
+        <div data-ig-item data-anim style="position:absolute;left:950px;top:344px;width:300px">
+          <p data-editable style="display:inline-block;padding:8px 18px;background:var(--accent);color:var(--accent-on);font-family:var(--font-mono);font-size:22px;font-weight:600">2025</p>
+          <h3 data-editable style="margin-top:20px;font-size:28px;line-height:1.4;font-weight:500">治理与稳定</h3>
+          <p data-editable style="margin-top:10px;font-size:16px;line-height:1.7;opacity:.72">补齐可观测性与降级预案，节奏放缓，重心从"拆"转向"养"。</p>
+          <p data-editable style="margin-top:12px;font-family:var(--font-mono);font-size:15px;opacity:.55">服务数 11 → 14</p>
+        </div>
+        <div data-ig-item data-anim style="position:absolute;left:1380px;bottom:304px;width:300px;opacity:.6">
+          <p data-editable style="display:inline-block;padding:8px 18px;border:1px dashed color-mix(in srgb, var(--paper) 60%, transparent);font-family:var(--font-mono);font-size:22px;font-weight:600">2026</p>
+          <h3 data-editable style="margin-top:20px;font-size:28px;line-height:1.4;font-weight:500">下一步 · 规划</h3>
+          <p data-editable style="margin-top:10px;font-size:16px;line-height:1.7;opacity:.72">单元化与多活，把"稳定"推进到"容错"。</p>
+          <p data-editable style="margin-top:12px;font-family:var(--font-mono);font-size:15px;opacity:.55">虚线 = 尚未发生</p>
+        </div>
+      </div>
+      <footer class="mastfoot">
+        <span data-editable>MONOLITH → MICROSERVICES</span>
+        <span data-editable style="letter-spacing:0">识别 → 攻坚 → 治理</span>
+      </footer>
+    </section>
+  </div>
+
+  <!-- 04 · 服务曲线（数据英雄谱系 · chart/line + 区间带 + 旗标 + 端点直标；锚点 count-up） -->
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="service-growth" data-content-hash="760c54dd9b06">
+      <header class="masthead">
+        <span data-editable style="letter-spacing:0">03 · GROWTH — 服务曲线</span>
+        <span data-editable>04 / 14</span>
+      </header>
+      <div style="margin-top:64px;display:flex;gap:96px;align-items:flex-start">
+        <div style="width:560px;flex:none">
+          <p data-editable class="reveal" style="font-family:var(--font-mono);font-size:16px;font-weight:500;letter-spacing:.12em;opacity:.55">SERVICE COUNT · 2023—2025</p>
+          <h2 data-editable class="reveal" style="--d:.08s;margin-top:20px;font-size:64px;line-height:1.3;font-weight:300">服务数量的<br>三年曲线</h2>
+          <div class="reveal" style="--d:.16s;margin-top:56px;border-top:1px solid color-mix(in srgb, var(--ink) 18%, transparent);padding-top:32px">
+            <p data-editable style="font-family:var(--font-mono);font-size:15px;font-weight:500;letter-spacing:0;opacity:.55">当前独立部署服务</p>
+            <p style="margin-top:12px"><span data-editable data-anim="count-up" style="font-family:var(--font-display);font-size:170px;line-height:1;font-weight:200">14</span><span data-editable style="font-size:36px;font-weight:300"> 个</span></p>
+            <p data-editable style="margin-top:16px;font-size:18px;line-height:1.7;opacity:.72">单体时代为 1 个 · 拆最猛的 2024 年净增 8 个</p>
+          </div>
+          <div class="reveal" style="--d:.24s;border-top:1px solid color-mix(in srgb, var(--ink) 18%, transparent);margin-top:32px;padding-top:28px;display:flex;gap:64px">
+            <div>
+              <p data-editable style="font-family:var(--font-display);font-size:44px;line-height:1;font-weight:300">3 条</p>
+              <p data-editable style="margin-top:8px;font-size:16px;opacity:.6">业务域，拆分按域推进</p>
+            </div>
+            <div>
+              <p data-editable style="font-family:var(--font-display);font-size:44px;line-height:1;font-weight:300">+8 个</p>
+              <p data-editable style="margin-top:8px;font-size:16px;opacity:.6">2024 一年净增（3 → 11）</p>
+            </div>
+          </div>
+        </div>
+        <div class="reveal" style="--d:.2s;position:relative;flex:1;height:560px">
+          <svg data-editable-skip style="position:absolute;left:56px;top:0" width="968" height="480" viewBox="0 0 968 480" preserveAspectRatio="none" fill="none">
+            <rect x="330" y="0" width="270" height="440" fill="color-mix(in srgb, var(--accent) 8%, transparent)"/>
+            <line x1="0" y1="306.7" x2="968" y2="306.7" style="stroke:var(--chart-grid)" stroke-width="1"/>
+            <line x1="0" y1="173.3" x2="968" y2="173.3" style="stroke:var(--chart-grid)" stroke-width="1"/>
+            <line x1="0" y1="40" x2="968" y2="40" style="stroke:var(--chart-grid)" stroke-width="1"/>
+            <line x1="0" y1="440" x2="968" y2="440" stroke="color-mix(in srgb, var(--ink) 45%, transparent)" stroke-width="1.5"/>
+            <polyline points="60,413.3 330,360 600,146.7 900,66.7" style="stroke:var(--chart-series-1);stroke-width:var(--chart-stroke)"/>
+            <circle cx="60" cy="413.3" r="7" style="fill:var(--chart-series-1)"/>
+            <circle cx="330" cy="360" r="7" style="fill:var(--chart-series-1)"/>
+            <circle cx="600" cy="146.7" r="7" style="fill:var(--chart-series-1)"/>
+            <circle cx="900" cy="66.7" r="7" style="fill:var(--chart-series-1)"/>
+            <line x1="300" y1="62" x2="596" y2="138" stroke="color-mix(in srgb, var(--chart-label) 70%, transparent)" stroke-width="1.5"/>
+          </svg>
+          <p data-editable style="position:absolute;left:0;top:430px;width:44px;text-align:right;font-family:var(--font-mono);font-size:15px;color:var(--chart-label)">0</p>
+          <p data-editable style="position:absolute;left:0;top:297px;width:44px;text-align:right;font-family:var(--font-mono);font-size:15px;color:var(--chart-label)">5</p>
+          <p data-editable style="position:absolute;left:0;top:163px;width:44px;text-align:right;font-family:var(--font-mono);font-size:15px;color:var(--chart-label)">10</p>
+          <p data-editable style="position:absolute;left:0;top:30px;width:44px;text-align:right;font-family:var(--font-mono);font-size:15px;color:var(--chart-label)">15</p>
+          <p data-editable style="position:absolute;left:76px;top:494px;width:80px;text-align:center;font-size:16px;color:var(--chart-label)">2023 初</p>
+          <p data-editable style="position:absolute;left:346px;top:494px;width:80px;text-align:center;font-size:16px;color:var(--chart-label)">2023 末</p>
+          <p data-editable style="position:absolute;left:616px;top:494px;width:80px;text-align:center;font-size:16px;color:var(--chart-label)">2024 末</p>
+          <p data-editable style="position:absolute;left:916px;top:494px;width:80px;text-align:center;font-size:16px;color:var(--chart-label)">2025 末</p>
+          <p data-editable style="position:absolute;left:76px;top:382px;width:80px;text-align:center;font-family:var(--font-mono);font-size:20px;font-weight:600">1</p>
+          <p data-editable style="position:absolute;left:916px;top:20px;width:80px;text-align:center;font-family:var(--font-mono);font-size:20px;font-weight:600;color:var(--accent)">14</p>
+          <p data-editable style="position:absolute;left:456px;top:66px;width:130px;text-align:center;font-family:var(--font-mono);font-size:14px;font-weight:500;letter-spacing:0;color:var(--chart-label)">2024 拆分攻坚期</p>
+          <div style="position:absolute;left:60px;top:24px;width:240px;border:1px solid color-mix(in srgb, var(--ink) 35%, transparent);background:var(--paper);padding:9px 16px">
+            <p data-editable style="font-family:var(--font-mono);font-size:14px;font-weight:500;letter-spacing:0">2024：一年 +8 个服务（旗标）</p>
+          </div>
+        </div>
+      </div>
+      <footer class="mastfoot">
+        <span data-editable>MONOLITH → MICROSERVICES</span>
+        <span data-editable style="letter-spacing:0">拆分不是目的，解耦才是</span>
+      </footer>
+    </section>
+  </div>
+
+  <!-- 05 · 两种工作方式（裂屏对开谱系 · compare/binary-cols × bare · 墨档半屏出血 + 中缝 VS + left/right 镜像入场） -->
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="mono-vs-micro" data-content-hash="7dee0e10d0a7">
+      <div data-editable-skip style="position:absolute;right:0;top:0;bottom:0;width:50%;background:var(--ink)"></div>
+      <header class="masthead">
+        <span data-editable style="letter-spacing:0">04 · COMPARE — 两种工作方式</span>
+        <span data-editable style="color:var(--paper)">05 / 14</span>
+      </header>
+      <div data-editable-skip style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:76px;height:76px;background:var(--accent);color:var(--accent-on);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:22px;font-weight:600;z-index:2">VS</div>
+      <div data-ig="compare-binary-cols" data-ig-skin="bare" style="position:relative;margin-top:120px;display:grid;grid-template-columns:1fr 1fr;height:700px">
+        <div data-ig-item data-anim="left" style="padding:8px 88px 0 0;opacity:.62">
+          <p data-editable style="font-family:var(--font-mono);font-size:15px;font-weight:500;letter-spacing:0;opacity:.6">BEFORE · 单体时代 · 2023 初</p>
+          <p data-editable style="margin-top:20px;font-size:44px;line-height:1.3;font-weight:300">共享一切，<br>包括故障</p>
+          <div style="margin-top:48px">
+            <div style="border-top:1px solid color-mix(in srgb, var(--ink) 18%, transparent);padding:22px 0;display:grid;grid-template-columns:1fr auto;align-items:baseline">
+              <p data-editable style="font-size:18px;opacity:.7">发布周期</p>
+              <p data-editable style="font-family:var(--font-mono);font-size:22px;font-weight:500">14 天 · 全量发版</p>
+            </div>
+            <div style="border-top:1px solid color-mix(in srgb, var(--ink) 18%, transparent);padding:22px 0;display:grid;grid-template-columns:1fr auto;align-items:baseline">
+              <p data-editable style="font-size:18px;opacity:.7">故障恢复</p>
+              <p data-editable style="font-family:var(--font-mono);font-size:22px;font-weight:500">4 小时 · 全员排查</p>
+            </div>
+            <div style="border-top:1px solid color-mix(in srgb, var(--ink) 18%, transparent);padding:22px 0;display:grid;grid-template-columns:1fr auto;align-items:baseline">
+              <p data-editable style="font-size:18px;opacity:.7">回滚方式</p>
+              <p data-editable style="font-family:var(--font-mono);font-size:22px;font-weight:500">整体回滚 · 当天完成</p>
+            </div>
+            <div style="border-top:1px solid color-mix(in srgb, var(--ink) 18%, transparent);border-bottom:1px solid color-mix(in srgb, var(--ink) 18%, transparent);padding:22px 0;display:grid;grid-template-columns:1fr auto;align-items:baseline">
+              <p data-editable style="font-size:18px;opacity:.7">团队界面</p>
+              <p data-editable style="font-family:var(--font-mono);font-size:22px;font-weight:500">十人共用一个仓库</p>
+            </div>
+          </div>
+        </div>
+        <div data-ig-item data-anim="right" style="padding:8px 0 0 88px;color:var(--paper)">
+          <p data-editable style="font-family:var(--font-mono);font-size:15px;font-weight:500;letter-spacing:0;color:color-mix(in srgb, var(--paper) 60%, transparent)">AFTER · 微服务时代 · 2025</p>
+          <p data-editable style="margin-top:20px;font-size:44px;line-height:1.3;font-weight:300">各自独立，<br>包括失败</p>
+          <div style="margin-top:48px">
+            <div style="border-top:1px solid color-mix(in srgb, var(--paper) 25%, transparent);padding:22px 0;display:grid;grid-template-columns:1fr auto;align-items:baseline">
+              <p data-editable style="font-size:18px;color:color-mix(in srgb, var(--paper) 75%, transparent)">发布周期</p>
+              <p data-editable style="font-family:var(--font-mono);font-size:22px;font-weight:500">2 小时 · 随提随发</p>
+            </div>
+            <div style="border-top:1px solid color-mix(in srgb, var(--paper) 25%, transparent);padding:22px 0;display:grid;grid-template-columns:1fr auto;align-items:baseline">
+              <p data-editable style="font-size:18px;color:color-mix(in srgb, var(--paper) 75%, transparent)">故障恢复</p>
+              <p data-editable style="font-family:var(--font-mono);font-size:22px;font-weight:500">15 分钟 · 定位到服务</p>
+            </div>
+            <div style="border-top:1px solid color-mix(in srgb, var(--paper) 25%, transparent);padding:22px 0;display:grid;grid-template-columns:1fr auto;align-items:baseline">
+              <p data-editable style="font-size:18px;color:color-mix(in srgb, var(--paper) 75%, transparent)">回滚方式</p>
+              <p data-editable style="font-family:var(--font-mono);font-size:22px;font-weight:500">单服务独立回滚</p>
+            </div>
+            <div style="border-top:1px solid color-mix(in srgb, var(--paper) 25%, transparent);border-bottom:1px solid color-mix(in srgb, var(--paper) 25%, transparent);padding:22px 0;display:grid;grid-template-columns:1fr auto;align-items:baseline">
+              <p data-editable style="font-size:18px;color:color-mix(in srgb, var(--paper) 75%, transparent)">团队界面</p>
+              <p data-editable style="font-family:var(--font-mono);font-size:22px;font-weight:500">按业务域分组 · 服务有归属</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <footer class="mastfoot">
+        <span data-editable>MONOLITH → MICROSERVICES</span>
+        <span data-editable style="color:var(--paper);letter-spacing:0">变化的不是人数，是界面</span>
+      </footer>
+    </section>
+  </div>
+
+  <!-- 06 · 数字说话（数据英雄谱系变体 · 暗页 · god-rays + count-up 巨数 + fill-bar 前后对比条） -->
+  <div class="slide-slot">
+    <section class="slide dark" data-slide-id="metrics" data-content-hash="0568ef3223c2">
+      <div data-editable-skip class="god-rays"></div>
+      <header class="masthead">
+        <span data-editable style="letter-spacing:0">05 · RESULTS — 数字说话</span>
+        <span data-editable>06 / 14</span>
+      </header>
+      <div style="margin-top:120px;display:flex;gap:120px;align-items:flex-start">
+        <div style="flex:1 1 0;min-width:0">
+          <p data-editable class="reveal" style="font-family:var(--font-mono);font-size:16px;font-weight:500;letter-spacing:0;opacity:.55">DEPLOY LEAD TIME · 发布周期</p>
+          <p class="reveal" style="--d:.08s;margin-top:24px"><span data-editable data-anim="count-up" style="font-family:var(--font-display);font-size:280px;line-height:1;font-weight:200">2</span><span data-editable style="font-size:56px;font-weight:300"> 小时</span></p>
+          <p data-editable class="reveal" style="--d:.16s;margin-top:28px;font-size:22px;line-height:1.7;opacity:.72">原为 14 天（336 小时）· 压缩 168 倍</p>
+          <div class="reveal" style="--d:.24s;margin-top:40px;border-left:4px solid var(--paper);padding:6px 0 6px 28px;max-width:760px">
+            <p data-editable style="font-size:24px;line-height:1.7;font-weight:500">全量回归自动化之后，发布从"事件"变成了"动作"。</p>
+          </div>
+        </div>
+        <div class="reveal" style="--d:.2s;width:640px;flex:none">
+          <div style="border-top:1px solid color-mix(in srgb, var(--paper) 25%, transparent);padding:30px 0">
+            <div style="display:flex;justify-content:space-between;align-items:baseline">
+              <p data-editable style="font-size:22px;font-weight:500">独立部署的服务</p>
+              <p data-editable style="font-family:var(--font-mono);font-size:24px;font-weight:600">1 → 14 个</p>
+            </div>
+            <div data-editable-skip style="margin-top:18px;height:10px;background:color-mix(in srgb, var(--paper) 22%, transparent);width:7%"></div>
+            <div data-editable-skip style="margin-top:8px;height:10px;width:100%"><div data-anim="fill-bar" style="width:100%;height:100%;background:var(--paper)"></div></div>
+            <p data-editable style="margin-top:10px;font-family:var(--font-mono);font-size:14px;letter-spacing:0;opacity:.5">2023 单体 → 2025 按域拆分</p>
+          </div>
+          <div style="border-top:1px solid color-mix(in srgb, var(--paper) 25%, transparent);padding:30px 0">
+            <div style="display:flex;justify-content:space-between;align-items:baseline">
+              <p data-editable style="font-size:22px;font-weight:500">故障平均恢复</p>
+              <p data-editable style="font-family:var(--font-mono);font-size:24px;font-weight:600">240 → 15 分钟</p>
+            </div>
+            <div data-editable-skip style="margin-top:18px;height:10px;background:color-mix(in srgb, var(--paper) 22%, transparent);width:100%"></div>
+            <div data-editable-skip style="margin-top:8px;height:10px;width:6.5%"><div data-anim="fill-bar" style="width:100%;height:100%;background:var(--paper)"></div></div>
+            <p data-editable style="margin-top:10px;font-family:var(--font-mono);font-size:14px;letter-spacing:0;opacity:.5">全员排查 → 链路追踪定位到服务</p>
+          </div>
+          <div style="border-top:1px solid color-mix(in srgb, var(--paper) 25%, transparent);border-bottom:1px solid color-mix(in srgb, var(--paper) 25%, transparent);padding:30px 0">
+            <div style="display:flex;justify-content:space-between;align-items:baseline">
+              <p data-editable style="font-size:22px;font-weight:500">业务域划分</p>
+              <p data-editable style="font-family:var(--font-mono);font-size:24px;font-weight:600">3 条</p>
+            </div>
+            <p data-editable style="margin-top:12px;font-size:18px;line-height:1.7;opacity:.72">交易 · 履约 · 用户——所有拆分按域推进，不按技术分层。</p>
+          </div>
+        </div>
+      </div>
+      <footer class="mastfoot">
+        <span data-editable>MONOLITH → MICROSERVICES</span>
+        <span data-editable style="letter-spacing:0">指标是结果，不是目标</span>
+      </footer>
+    </section>
+  </div>
+
+  <!-- 07 · 三个最贵的教训（网格矩阵谱系 · 暗页 · list/row × badge · rise-in 通栏行 + Ghost 漂移） -->
+  <div class="slide-slot">
+    <section class="slide dark" data-slide-id="hard-lessons" data-content-hash="d3007fde7382">
+      <div data-editable-skip class="amb-drift" style="position:absolute;right:-40px;bottom:-170px;font-size:460px;font-weight:200;line-height:1;color:var(--paper);opacity:.05;pointer-events:none">教训</div>
+      <header class="masthead">
+        <span data-editable style="letter-spacing:0">06 · LESSONS — 最贵的学费</span>
+        <span data-editable>07 / 14</span>
+      </header>
+      <p data-editable class="reveal" style="font-family:var(--font-mono);font-size:16px;font-weight:500;letter-spacing:.12em;opacity:.55">THREE EXPENSIVE LESSONS</p>
+      <h2 data-editable class="reveal" style="--d:.08s;margin-top:16px;font-size:64px;line-height:1.3;font-weight:300">三个最贵的教训</h2>
+      <div data-ig="list-row" data-ig-skin="badge" style="margin-top:72px">
+        <div data-ig-item data-anim="rise-in" style="border-top:1px solid color-mix(in srgb, var(--paper) 25%, transparent);padding:44px 0;display:flex;align-items:center;gap:48px">
+          <div data-editable-skip style="width:72px;height:72px;flex:none;border:1.5px solid color-mix(in srgb, var(--paper) 45%, transparent);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:22px">01</div>
+          <h3 data-editable style="font-size:32px;line-height:1.4;font-weight:500;width:600px;flex:none">先拆分数据库，而不是先拆代码</h3>
+          <p data-editable style="font-size:20px;line-height:1.8;opacity:.72;flex:1">共享库不拆，服务拆分只是换了部署方式的单体，故障照样一损俱损。</p>
+        </div>
+        <div data-ig-item data-anim="rise-in" style="border-top:1px solid color-mix(in srgb, var(--paper) 25%, transparent);padding:44px 0;display:flex;align-items:center;gap:48px">
+          <div data-editable-skip style="width:72px;height:72px;flex:none;background:var(--accent);color:var(--accent-on);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:22px;font-weight:600">02</div>
+          <h3 data-editable style="font-size:32px;line-height:1.4;font-weight:500;width:600px;flex:none">没有可观测性，就别上第二个服务</h3>
+          <p data-editable style="font-size:20px;line-height:1.8;opacity:.72;flex:1">链路追踪与告警的建设要跑在服务数量前面，否则每次故障都是全员猜谜。</p>
+        </div>
+        <div data-ig-item data-anim="rise-in" style="border-top:1px solid color-mix(in srgb, var(--paper) 25%, transparent);border-bottom:1px solid color-mix(in srgb, var(--paper) 25%, transparent);padding:44px 0;display:flex;align-items:center;gap:48px">
+          <div data-editable-skip style="width:72px;height:72px;flex:none;border:1.5px solid color-mix(in srgb, var(--paper) 45%, transparent);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:22px">03</div>
+          <h3 data-editable style="font-size:32px;line-height:1.4;font-weight:500;width:600px;flex:none">康威定律是真的</h3>
+          <p data-editable style="font-size:20px;line-height:1.8;opacity:.72;flex:1">服务边界最终长成了组织架构的样子——调整团队，比调整代码更有效。</p>
+        </div>
+      </div>
+      <footer class="mastfoot">
+        <span data-editable>MONOLITH → MICROSERVICES</span>
+        <span data-editable style="letter-spacing:0">学费已付，规则留下</span>
+      </footer>
+    </section>
+  </div>
+
+  <!-- 08 · 边界在代码里（图文证据谱系 · 墨档代码证据块 + mask-lines 论断 + tilt） -->
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="boundary-in-code" data-content-hash="b6841d234a9a">
+      <header class="masthead">
+        <span data-editable style="letter-spacing:0">07 · BOUNDARY — 边界在代码里</span>
+        <span data-editable>08 / 14</span>
+      </header>
+      <div style="margin-top:96px;display:flex;gap:80px;align-items:stretch">
+        <div data-ptr="tilt" data-anim="wipe-clip" style="width:900px;flex:none;background:var(--ink);color:var(--paper);padding:60px 56px">
+          <p data-editable style="font-family:var(--font-mono);font-size:15px;font-weight:500;letter-spacing:0;color:color-mix(in srgb, var(--paper) 50%, transparent)">order-service/ · 目录即边界</p>
+          <p data-editable style="margin-top:28px;font-family:var(--font-mono);font-size:22px;line-height:2;color:var(--paper)">├── api/ &nbsp;&nbsp;&nbsp;&nbsp;对外契约：HTTP + 事件，版本化管理</p>
+          <p data-editable style="font-family:var(--font-mono);font-size:22px;line-height:2;color:var(--paper)">├── domain/ &nbsp;领域模型：不 import 任何框架</p>
+          <p data-editable style="font-family:var(--font-mono);font-size:22px;line-height:2;color:var(--paper)">├── infra/ &nbsp;&nbsp;适配层：数据库、消息队列、缓存</p>
+          <p data-editable style="font-family:var(--font-mono);font-size:22px;line-height:2;color:var(--paper)">└── main.go 唯一入口：独立部署、独立发版</p>
+        </div>
+        <div style="flex:1 1 0;min-width:0">
+          <p data-editable class="reveal" style="font-family:var(--font-mono);font-size:16px;font-weight:500;letter-spacing:0;opacity:.55">BOUNDARY CHECKLIST · 三条判据</p>
+          <h3 data-anim="mask-lines" style="margin-top:24px;font-size:48px;line-height:1.4;font-weight:300"><span class="ml-line"><span class="ml-inner" data-editable>边界不是画在图上的线，</span></span><span class="ml-line"><span class="ml-inner" data-editable>是能不能独立编译、部署、失败。</span></span></h3>
+          <div class="reveal" style="--d:.24s;margin-top:40px">
+            <div style="border-top:1px solid color-mix(in srgb, var(--ink) 18%, transparent);padding:20px 0;display:flex;align-items:center;gap:20px">
+              <span data-editable-skip style="flex:none;width:12px;height:12px;background:var(--ink)"></span>
+              <p data-editable style="font-size:20px;font-weight:500;width:150px;flex:none">独立编译</p>
+              <p data-editable style="font-size:18px;opacity:.72;flex:1">domain 层不 import 任何框架</p>
+            </div>
+            <div style="border-top:1px solid color-mix(in srgb, var(--ink) 18%, transparent);padding:20px 0;display:flex;align-items:center;gap:20px">
+              <span data-editable-skip style="flex:none;width:12px;height:12px;background:var(--ink)"></span>
+              <p data-editable style="font-size:20px;font-weight:500;width:150px;flex:none">独立部署</p>
+              <p data-editable style="font-size:18px;opacity:.72;flex:1">唯一入口 main.go，独立发版</p>
+            </div>
+            <div style="border-top:1px solid color-mix(in srgb, var(--ink) 18%, transparent);border-bottom:1px solid color-mix(in srgb, var(--ink) 18%, transparent);padding:20px 0;display:flex;align-items:center;gap:20px">
+              <span data-editable-skip style="flex:none;width:12px;height:12px;background:var(--accent)"></span>
+              <p data-editable style="font-size:20px;font-weight:500;width:150px;flex:none">独立失败</p>
+              <p data-editable style="font-size:18px;opacity:.72;flex:1">故障不跨服务蔓延——少任何一条，都只是换了目录的单体</p>
+            </div>
+          </div>
+          <p data-editable class="reveal" style="--d:.32s;margin-top:28px;font-size:18px;line-height:1.7;opacity:.72">这三条写进了代码评审清单，挡住了一半拍脑袋的拆分冲动。</p>
+        </div>
+      </div>
+      <footer class="mastfoot">
+        <span data-editable>MONOLITH → MICROSERVICES</span>
+        <span data-editable>BOUNDARY = BUILD · DEPLOY · FAILURE</span>
+      </footer>
+    </section>
+  </div>
+
+  <!-- 09 · 治理闭环（轴与节点谱系 · 暗页 · relation/circle-loop × bare · draw-line 弧光 + 边标注） -->
+  <div class="slide-slot">
+    <section class="slide dark" data-slide-id="governance-loop" data-content-hash="c23e91c72b42">
+      <header class="masthead">
+        <span data-editable style="letter-spacing:0">08 · GOVERNANCE — 治理闭环</span>
+        <span data-editable>09 / 14</span>
+      </header>
+      <div style="margin-top:64px;display:grid;grid-template-columns:1fr 700px;gap:96px;align-items:center">
+        <div>
+          <p data-editable class="reveal" style="font-family:var(--font-mono);font-size:16px;font-weight:500;letter-spacing:0;opacity:.55">STABILITY LOOP · 一季度一圈</p>
+          <h2 data-editable class="reveal" style="--d:.08s;margin-top:16px;font-size:56px;line-height:1.3;font-weight:300">稳定性的治理闭环</h2>
+          <div class="reveal" style="--d:.16s;margin-top:36px">
+            <div style="border-top:1px solid color-mix(in srgb, var(--paper) 22%, transparent);padding:24px 0">
+              <p data-editable style="font-family:var(--font-mono);font-size:14px;font-weight:500;letter-spacing:0;opacity:.5">原则一</p>
+              <p data-editable style="margin-top:8px;font-size:20px;line-height:1.7;font-weight:500">可观测性先于服务数量</p>
+              <p data-editable style="margin-top:6px;font-size:17px;line-height:1.7;opacity:.72">链路追踪与告警的建设，要跑在服务数量前面。</p>
+            </div>
+            <div style="border-top:1px solid color-mix(in srgb, var(--paper) 22%, transparent);padding:24px 0">
+              <p data-editable style="font-family:var(--font-mono);font-size:14px;font-weight:500;letter-spacing:0;opacity:.5">原则二</p>
+              <p data-editable style="margin-top:8px;font-size:20px;line-height:1.7;font-weight:500">告警到人，不到群</p>
+              <p data-editable style="margin-top:6px;font-size:17px;line-height:1.7;opacity:.72">每条告警有唯一负责人——全员广播等于没有告警。</p>
+            </div>
+            <div style="border-top:1px solid color-mix(in srgb, var(--paper) 22%, transparent);border-bottom:1px solid color-mix(in srgb, var(--paper) 22%, transparent);padding:24px 0">
+              <p data-editable style="font-family:var(--font-mono);font-size:14px;font-weight:500;letter-spacing:0;opacity:.5">原则三</p>
+              <p data-editable style="margin-top:8px;font-size:20px;line-height:1.7;font-weight:500">复盘必须产出行动项</p>
+              <p data-editable style="margin-top:6px;font-size:17px;line-height:1.7;opacity:.72">行动项入库、下季度复查，闭环才算真正完成。</p>
+            </div>
+          </div>
+        </div>
+        <div data-ig="relation-circle-loop" data-ig-skin="bare" class="reveal" style="--d:.2s;position:relative;width:640px;height:640px">
+          <svg data-editable-skip style="position:absolute;inset:0;overflow:visible" width="640" height="640" viewBox="0 0 640 640" fill="none">
+            <circle cx="320" cy="320" r="210" stroke="color-mix(in srgb, var(--paper) 40%, transparent)" stroke-width="1" stroke-dasharray="4 7"/>
+            <path data-anim="draw-line" d="M 320 110 A 210 210 0 0 1 530 320" stroke="var(--accent)" stroke-width="3"/>
+          </svg>
+          <div data-editable-skip style="position:absolute;left:468px;top:172px;transform:translate(-50%,-50%) rotate(45deg);font-size:26px;color:color-mix(in srgb, var(--paper) 80%, transparent)">→</div>
+          <div data-editable-skip style="position:absolute;left:468px;top:468px;transform:translate(-50%,-50%) rotate(135deg);font-size:26px;color:color-mix(in srgb, var(--paper) 80%, transparent)">→</div>
+          <div data-editable-skip style="position:absolute;left:172px;top:468px;transform:translate(-50%,-50%) rotate(225deg);font-size:26px;color:color-mix(in srgb, var(--paper) 80%, transparent)">→</div>
+          <div data-editable-skip style="position:absolute;left:172px;top:172px;transform:translate(-50%,-50%) rotate(315deg);font-size:26px;color:color-mix(in srgb, var(--paper) 80%, transparent)">→</div>
+          <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center">
+            <p data-editable style="font-size:26px;font-weight:600">稳定性闭环</p>
+            <p data-editable style="margin-top:10px;font-family:var(--font-mono);font-size:14px;letter-spacing:.08em;opacity:.6">MTTR 4h → 15min</p>
+          </div>
+          <div data-ig-item data-anim style="position:absolute;left:320px;top:110px;transform:translate(-50%,-50%);background:var(--ink);border:1px solid color-mix(in srgb, var(--paper) 45%, transparent);padding:10px 22px;text-align:center">
+            <p data-editable style="font-family:var(--font-mono);font-size:14px;opacity:.55">01</p>
+            <p data-editable style="margin-top:2px;font-size:22px;font-weight:500">观测</p>
+          </div>
+          <div data-ig-item data-anim style="position:absolute;left:530px;top:320px;transform:translate(-50%,-50%);background:var(--ink);border:1px solid color-mix(in srgb, var(--paper) 45%, transparent);padding:10px 22px;text-align:center">
+            <p data-editable style="font-family:var(--font-mono);font-size:14px;opacity:.55">02</p>
+            <p data-editable style="margin-top:2px;font-size:22px;font-weight:500">告警</p>
+          </div>
+          <div data-ig-item data-anim style="position:absolute;left:320px;top:530px;transform:translate(-50%,-50%);background:var(--ink);border:1px solid color-mix(in srgb, var(--paper) 45%, transparent);padding:10px 22px;text-align:center">
+            <p data-editable style="font-family:var(--font-mono);font-size:14px;opacity:.55">03</p>
+            <p data-editable style="margin-top:2px;font-size:22px;font-weight:500">降级</p>
+          </div>
+          <div data-ig-item data-anim style="position:absolute;left:110px;top:320px;transform:translate(-50%,-50%);background:var(--ink);border:1px solid color-mix(in srgb, var(--paper) 45%, transparent);padding:10px 22px;text-align:center">
+            <p data-editable style="font-family:var(--font-mono);font-size:14px;opacity:.55">04</p>
+            <p data-editable style="margin-top:2px;font-size:22px;font-weight:500">复盘</p>
+          </div>
+          <p data-editable style="position:absolute;left:421px;top:104px;width:200px;text-align:center;font-family:var(--font-mono);font-size:14px;line-height:1.6;color:color-mix(in srgb, var(--paper) 55%, transparent)">指标异常即触发</p>
+          <p data-editable style="position:absolute;left:421px;top:508px;width:200px;text-align:center;font-family:var(--font-mono);font-size:14px;line-height:1.6;color:color-mix(in srgb, var(--paper) 55%, transparent)">按预案逐级降级</p>
+          <p data-editable style="position:absolute;left:19px;top:508px;width:200px;text-align:center;font-family:var(--font-mono);font-size:14px;line-height:1.6;color:color-mix(in srgb, var(--paper) 55%, transparent)">故障止后必复盘</p>
+          <p data-editable style="position:absolute;left:19px;top:104px;width:200px;text-align:center;font-family:var(--font-mono);font-size:14px;line-height:1.6;color:color-mix(in srgb, var(--paper) 55%, transparent)">行动项回流指标</p>
+        </div>
+      </div>
+      <footer class="mastfoot">
+        <span data-editable>MONOLITH → MICROSERVICES</span>
+        <span data-editable style="letter-spacing:0">观测 → 告警 → 降级 → 复盘</span>
+      </footer>
+    </section>
+  </div>
+
+  <!-- 10 · 时间桥（数据英雄谱系 · chart/waterfall + 水位连接线 + 全直标 + 旗标；锚点 fill-bar-y；示例数据） -->
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="deploy-waterfall" data-content-hash="fd15d95ce8a8">
+      <header class="masthead">
+        <span data-editable style="letter-spacing:0">09 · BRIDGE — 时间桥 · 示例数据</span>
+        <span data-editable>10 / 14</span>
+      </header>
+      <div style="margin-top:56px;display:flex;justify-content:space-between;align-items:baseline">
+        <h2 data-editable class="reveal" style="font-size:56px;line-height:1.3;font-weight:300">2 小时，是怎么省出来的</h2>
+        <p data-editable class="reveal" style="--d:.08s;font-family:var(--font-mono);font-size:14px;font-weight:500;letter-spacing:0;color:var(--chart-label)">DEPLOY BRIDGE · 发布耗时分解（小时）</p>
+      </div>
+      <div data-ig="chart-waterfall" class="reveal" style="--d:.16s;margin-top:32px;position:relative;height:640px">
+        <div data-editable-skip style="position:absolute;left:0;right:0;bottom:64px;height:1.5px;background:color-mix(in srgb, var(--ink) 45%, transparent)"></div>
+        <div data-anim="fill-bar-y" data-editable-skip style="position:absolute;left:40px;bottom:65px;width:160px;height:470px;background:var(--ink)"></div>
+        <div data-anim="fill-bar-y" data-editable-skip style="position:absolute;left:300px;bottom:300px;width:160px;height:235px;background:var(--chart-series-1)"></div>
+        <div data-anim="fill-bar-y" data-editable-skip style="position:absolute;left:560px;bottom:166px;width:160px;height:134px;background:var(--chart-series-4)"></div>
+        <div data-anim="fill-bar-y" data-editable-skip style="position:absolute;left:820px;bottom:99px;width:160px;height:67px;background:var(--chart-series-4)"></div>
+        <div data-anim="fill-bar-y" data-editable-skip style="position:absolute;left:1080px;bottom:68px;width:160px;height:31px;background:var(--chart-series-4)"></div>
+        <div data-anim="fill-bar-y" data-editable-skip style="position:absolute;left:1340px;bottom:65px;width:160px;height:6px;background:var(--ink)"></div>
+        <div data-editable-skip style="position:absolute;left:200px;bottom:534px;width:100px;border-top:1px dashed;color:color-mix(in srgb, var(--chart-label) 70%, transparent)"></div>
+        <div data-editable-skip style="position:absolute;left:460px;bottom:299px;width:100px;border-top:1px dashed;color:color-mix(in srgb, var(--chart-label) 70%, transparent)"></div>
+        <div data-editable-skip style="position:absolute;left:720px;bottom:165px;width:100px;border-top:1px dashed;color:color-mix(in srgb, var(--chart-label) 70%, transparent)"></div>
+        <div data-editable-skip style="position:absolute;left:980px;bottom:98px;width:100px;border-top:1px dashed;color:color-mix(in srgb, var(--chart-label) 70%, transparent)"></div>
+        <div data-editable-skip style="position:absolute;left:1240px;bottom:67px;width:100px;border-top:1px dashed;color:color-mix(in srgb, var(--chart-label) 70%, transparent)"></div>
+        <p data-editable style="position:absolute;bottom:546px;left:40px;width:160px;text-align:center;font-family:var(--font-mono);font-size:20px;font-weight:600;font-feature-settings:'tnum'">336</p>
+        <p data-editable style="position:absolute;bottom:546px;left:300px;width:160px;text-align:center;font-family:var(--font-mono);font-size:20px;font-weight:600;font-feature-settings:'tnum';color:var(--accent)">−168</p>
+        <p data-editable style="position:absolute;bottom:311px;left:560px;width:160px;text-align:center;font-family:var(--font-mono);font-size:20px;font-weight:600;font-feature-settings:'tnum'">−96</p>
+        <p data-editable style="position:absolute;bottom:177px;left:820px;width:160px;text-align:center;font-family:var(--font-mono);font-size:20px;font-weight:600;font-feature-settings:'tnum'">−48</p>
+        <p data-editable style="position:absolute;bottom:110px;left:1080px;width:160px;text-align:center;font-family:var(--font-mono);font-size:20px;font-weight:600;font-feature-settings:'tnum'">−22</p>
+        <p data-editable style="position:absolute;bottom:82px;left:1340px;width:160px;text-align:center;font-family:var(--font-mono);font-size:20px;font-weight:600;font-feature-settings:'tnum'">2</p>
+        <p data-editable style="position:absolute;bottom:16px;left:20px;width:200px;text-align:center;font-size:16px;color:var(--chart-label)">期初 · 14 天</p>
+        <p data-editable style="position:absolute;bottom:16px;left:280px;width:200px;text-align:center;font-size:16px;color:var(--chart-label)">全量回归自动化</p>
+        <p data-editable style="position:absolute;bottom:16px;left:540px;width:200px;text-align:center;font-size:16px;color:var(--chart-label)">审批与排队</p>
+        <p data-editable style="position:absolute;bottom:16px;left:800px;width:200px;text-align:center;font-size:16px;color:var(--chart-label)">单服务独立部署</p>
+        <p data-editable style="position:absolute;bottom:16px;left:1060px;width:200px;text-align:center;font-size:16px;color:var(--chart-label)">灰度与回滚预案</p>
+        <p data-editable style="position:absolute;bottom:16px;left:1320px;width:200px;text-align:center;font-size:16px;color:var(--chart-label)">现在</p>
+        <div style="position:absolute;left:200px;top:8px;width:320px;border:1px solid color-mix(in srgb, var(--ink) 35%, transparent);background:var(--paper);padding:9px 16px">
+          <p data-editable style="font-family:var(--font-mono);font-size:14px;font-weight:500;letter-spacing:0">回归自动化贡献一半降幅（示例分解）</p>
+        </div>
+        <div data-editable-skip style="position:absolute;left:379px;top:50px;width:1.5px;height:48px;background:var(--ink)"></div>
+        <p data-editable style="position:absolute;bottom:82px;left:1520px;width:160px;font-size:14px;line-height:1.6;color:var(--chart-label)">末柱按 6px 下限显示（实际比例 2/336）</p>
+      </div>
+      <footer class="mastfoot">
+        <span data-editable>MONOLITH → MICROSERVICES</span>
+        <span data-editable style="letter-spacing:0">省出来的 334 小时 · 分解为演示口径</span>
+      </footer>
+    </section>
+  </div>
+
+  <!-- 11 · 工程效能（网格矩阵谱系 · 暗页 · list/grid × card ⊃ chart-progress 嵌套；锚点 fill-bar；示例数据） -->
+  <div class="slide-slot">
+    <section class="slide dark" data-slide-id="engineering-efficiency" data-content-hash="b8059ab32932">
+      <header class="masthead">
+        <span data-editable style="letter-spacing:0">10 · EFFICIENCY — 工程效能 · 示例数据</span>
+        <span data-editable>11 / 14</span>
+      </header>
+      <p data-editable class="reveal" style="font-family:var(--font-mono);font-size:16px;font-weight:500;letter-spacing:0;opacity:.55">ENGINEERING METRICS · 治理半年后</p>
+      <h2 data-editable class="reveal" style="--d:.08s;margin-top:16px;font-size:56px;line-height:1.3;font-weight:300">治理之后，工程效能</h2>
+      <p data-editable class="reveal" style="--d:.14s;margin-top:16px;font-size:16px;line-height:1.7;opacity:.55">本页进度数值为示例数据，用于演示进度组件样式，非真实度量口径。</p>
+      <div data-ig="list-grid" data-ig-skin="card" style="margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:36px">
+        <div data-ig-item data-anim style="background:var(--ink-tint);padding:40px 44px">
+          <p data-editable style="font-size:26px;line-height:1.4;font-weight:500">全量回归自动化</p>
+          <p data-editable style="margin-top:10px;font-size:18px;line-height:1.7;opacity:.72">每次提交触发全量回归，是"随提随发"的前提。</p>
+          <div data-ig="chart-progress" style="margin-top:28px;display:flex;align-items:center;gap:20px">
+            <div data-editable-skip style="flex:1;height:10px;background:color-mix(in srgb, var(--paper) 12%, transparent)"><div data-anim="fill-bar" style="width:92%;height:100%;background:var(--accent)"></div></div>
+            <p data-editable style="font-family:var(--font-mono);font-size:20px;font-weight:600;font-feature-settings:'tnum'">92%</p>
+          </div>
+        </div>
+        <div data-ig-item data-anim style="background:var(--ink-tint);padding:40px 44px">
+          <p data-editable style="font-size:26px;line-height:1.4;font-weight:500">主干随时可发</p>
+          <p data-editable style="margin-top:10px;font-size:18px;line-height:1.7;opacity:.72">主干保持可发布状态，发布从"事件"变成"动作"。</p>
+          <div data-ig="chart-progress" style="margin-top:28px;display:flex;align-items:center;gap:20px">
+            <div data-editable-skip style="flex:1;height:10px;background:color-mix(in srgb, var(--paper) 12%, transparent)"><div data-anim="fill-bar" style="width:88%;height:100%;background:color-mix(in srgb, var(--paper) 70%, transparent)"></div></div>
+            <p data-editable style="font-family:var(--font-mono);font-size:20px;font-weight:600;font-feature-settings:'tnum'">88%</p>
+          </div>
+        </div>
+        <div data-ig-item data-anim style="background:var(--ink-tint);padding:40px 44px">
+          <p data-editable style="font-size:26px;line-height:1.4;font-weight:500">告警触达负责人</p>
+          <p data-editable style="margin-top:10px;font-size:18px;line-height:1.7;opacity:.72">告警按服务归属直达负责人，不再全员广播。</p>
+          <div data-ig="chart-progress" style="margin-top:28px;display:flex;align-items:center;gap:20px">
+            <div data-editable-skip style="flex:1;height:10px;background:color-mix(in srgb, var(--paper) 12%, transparent)"><div data-anim="fill-bar" style="width:76%;height:100%;background:color-mix(in srgb, var(--paper) 45%, transparent)"></div></div>
+            <p data-editable style="font-family:var(--font-mono);font-size:20px;font-weight:600;font-feature-settings:'tnum'">76%</p>
+          </div>
+        </div>
+        <div data-ig-item data-anim style="background:var(--ink-tint);padding:40px 44px">
+          <p data-editable style="font-size:26px;line-height:1.4;font-weight:500">文档与代码同步</p>
+          <p data-editable style="margin-top:10px;font-size:18px;line-height:1.7;opacity:.72">契约文档随代码评审一并更新，是最薄弱的一环。</p>
+          <div data-ig="chart-progress" style="margin-top:28px;display:flex;align-items:center;gap:20px">
+            <div data-editable-skip style="flex:1;height:10px;background:color-mix(in srgb, var(--paper) 12%, transparent)"><div data-anim="fill-bar" style="width:64%;height:100%;background:color-mix(in srgb, var(--paper) 30%, transparent)"></div></div>
+            <p data-editable style="font-family:var(--font-mono);font-size:20px;font-weight:600;font-feature-settings:'tnum'">64%</p>
+          </div>
+        </div>
+      </div>
+      <footer class="mastfoot">
+        <span data-editable>MONOLITH → MICROSERVICES</span>
+        <span data-editable style="letter-spacing:0">最薄弱的环节是文档</span>
+      </footer>
+    </section>
+  </div>
+
+  <!-- 12 · 流量分布（数据英雄谱系 · chart/donut + 焦点旗标 + 图例即直标；锚点 count-up；示例数据） -->
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="traffic-donut" data-content-hash="1bf032cebc42">
+      <header class="masthead">
+        <span data-editable style="letter-spacing:0">11 · TRAFFIC — 流量分布 · 示例数据</span>
+        <span data-editable>12 / 14</span>
+      </header>
+      <p data-editable class="reveal" style="font-family:var(--font-mono);font-size:16px;font-weight:500;letter-spacing:0;opacity:.55">TRAFFIC MIX · 按业务域</p>
+      <h2 data-editable class="reveal" style="--d:.08s;margin-top:16px;font-size:56px;line-height:1.3;font-weight:300">流量按业务域的分布</h2>
+      <div style="margin-top:56px;display:flex;gap:120px;align-items:center">
+        <div class="reveal" style="--d:.16s;position:relative;width:440px;height:440px;flex:none">
+          <svg data-editable-skip width="440" height="440" viewBox="0 0 420 420" style="display:block">
+            <g transform="rotate(-90 210 210)">
+              <circle cx="210" cy="210" r="150" fill="none" style="stroke:var(--chart-series-1)" stroke-width="60" stroke-dasharray="490.09 452.39"/>
+              <circle cx="210" cy="210" r="150" fill="none" style="stroke:var(--chart-series-2)" stroke-width="60" stroke-dasharray="292.17 650.31" stroke-dashoffset="-490.09"/>
+              <circle cx="210" cy="210" r="150" fill="none" style="stroke:var(--chart-series-3)" stroke-width="60" stroke-dasharray="160.22 782.26" stroke-dashoffset="-782.26"/>
+            </g>
+          </svg>
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <p data-editable data-anim="count-up" style="font-family:var(--font-display);font-size:52px;line-height:1;font-weight:300">52%</p>
+            <p data-editable style="margin-top:8px;font-family:var(--font-mono);font-size:14px;letter-spacing:0;opacity:.55">交易域占比</p>
+          </div>
+          <div style="position:absolute;left:150px;top:-28px;width:250px;background:var(--accent);color:var(--accent-on);padding:9px 16px">
+            <p data-editable style="font-family:var(--font-mono);font-size:14px;font-weight:500;letter-spacing:0">交易域承载过半流量（示例）</p>
+          </div>
+          <div data-editable-skip style="position:absolute;left:269px;top:8px;width:1.5px;height:38px;background:var(--accent)"></div>
+        </div>
+        <div style="flex:1 1 0;min-width:0">
+          <div class="reveal" style="--d:.24s;border-top:1px solid color-mix(in srgb, var(--ink) 18%, transparent);display:flex;align-items:center;gap:24px;padding:30px 0">
+            <div data-editable-skip style="width:20px;height:20px;flex:none;background:var(--chart-series-1)"></div>
+            <p data-editable style="width:200px;flex:none;font-size:24px;font-weight:500">交易域</p>
+            <p data-editable style="flex:1;font-size:18px;line-height:1.6;opacity:.72">订单、支付、库存核心链路</p>
+            <p data-editable style="font-family:var(--font-mono);font-size:28px;font-weight:600;font-feature-settings:'tnum'">52%</p>
+          </div>
+          <div class="reveal" style="--d:.32s;border-top:1px solid color-mix(in srgb, var(--ink) 18%, transparent);display:flex;align-items:center;gap:24px;padding:30px 0">
+            <div data-editable-skip style="width:20px;height:20px;flex:none;background:var(--chart-series-2)"></div>
+            <p data-editable style="width:200px;flex:none;font-size:24px;font-weight:500">履约域</p>
+            <p data-editable style="flex:1;font-size:18px;line-height:1.6;opacity:.72">仓储、配送与履约调度</p>
+            <p data-editable style="font-family:var(--font-mono);font-size:28px;font-weight:600;font-feature-settings:'tnum'">31%</p>
+          </div>
+          <div class="reveal" style="--d:.4s;border-top:1px solid color-mix(in srgb, var(--ink) 18%, transparent);border-bottom:1px solid color-mix(in srgb, var(--ink) 18%, transparent);display:flex;align-items:center;gap:24px;padding:30px 0">
+            <div data-editable-skip style="width:20px;height:20px;flex:none;background:var(--chart-series-3)"></div>
+            <p data-editable style="width:200px;flex:none;font-size:24px;font-weight:500">用户域</p>
+            <p data-editable style="flex:1;font-size:18px;line-height:1.6;opacity:.72">账户、会员与增长触达</p>
+            <p data-editable style="font-family:var(--font-mono);font-size:28px;font-weight:600;font-feature-settings:'tnum'">17%</p>
+          </div>
+          <p data-editable class="reveal" style="--d:.48s;margin-top:28px;font-size:16px;line-height:1.7;opacity:.55">示例数据：仅用于演示环图配方，真实口径以监控平台导出为准。图例即数值直标；焦点扇区由旗标引出。</p>
+        </div>
+      </div>
+      <footer class="mastfoot">
+        <span data-editable>MONOLITH → MICROSERVICES</span>
+        <span data-editable style="letter-spacing:0">流量分布决定治理优先级</span>
+      </footer>
+    </section>
+  </div>
+
+  <!-- 13 · 系统全景（图文证据谱系 · 满幅出血通栏图 + 叠印白块统计卡 + scroll parallax/scrub） -->
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="system-landscape" data-content-hash="acebf91b54d2">
+      <header class="masthead">
+        <span data-editable style="letter-spacing:0">12 · LANDSCAPE — 系统全景</span>
+        <span data-editable>13 / 14</span>
+      </header>
+      <div data-editable-skip data-scroll="parallax" style="--depth:.6;position:absolute;right:90px;top:52px;font-size:300px;font-weight:200;line-height:1;color:var(--ink);opacity:.06;pointer-events:none">14</div>
+      <img data-editable-image data-image-slot="landscape-panorama-11x4" data-image-intent="微服务系统全景：一条横向服务总线贯穿画面，总线上按三个业务域分组落位十四个方形服务节点（5+5+4），域间以虚线表示跨域依赖，最左端一个克莱因蓝实心方块为网关入口，底部一条深墨横带为统一可观测性底座，克莱因蓝 × 灰白的瑞士国际主义扁平几何风格，直角、hairline 细线" data-image-state="generated" src="assets/landscape-panorama.png" alt="微服务系统全景图：十四个服务通过消息队列与网关互联" data-anim="wipe-clip" style="position:absolute;left:0;right:0;bottom:0;width:1920px;height:700px;object-fit:cover">
+      <div style="position:relative;margin-top:56px;width:900px">
+        <p data-editable class="reveal" style="font-family:var(--font-mono);font-size:16px;font-weight:500;letter-spacing:.12em;opacity:.55">SYSTEM LANDSCAPE · 2025 Q3</p>
+        <h2 data-editable class="reveal" style="--d:.08s;margin-top:16px;font-size:64px;line-height:1.3;font-weight:300">今天的系统全景</h2>
+      </div>
+      <div data-scroll="scrub" style="position:absolute;left:120px;top:320px;width:640px;background:var(--paper);border:1px solid color-mix(in srgb, var(--ink) 18%, transparent);padding:36px 44px">
+        <div style="display:flex;gap:56px">
+          <div>
+            <p data-editable style="font-family:var(--font-display);font-size:40px;line-height:1;font-weight:300">14 个</p>
+            <p data-editable style="margin-top:8px;font-family:var(--font-mono);font-size:14px;letter-spacing:0;opacity:.55">服务</p>
+          </div>
+          <div>
+            <p data-editable style="font-family:var(--font-display);font-size:40px;line-height:1;font-weight:300">3 条</p>
+            <p data-editable style="margin-top:8px;font-family:var(--font-mono);font-size:14px;letter-spacing:0;opacity:.55">业务域</p>
+          </div>
+          <div>
+            <p data-editable style="font-family:var(--font-display);font-size:40px;line-height:1;font-weight:300">1 套</p>
+            <p data-editable style="margin-top:8px;font-family:var(--font-mono);font-size:14px;letter-spacing:0;opacity:.55">可观测性底座</p>
+          </div>
+        </div>
+        <p data-editable style="margin-top:24px;font-size:18px;line-height:1.7;opacity:.72">这张图每季度重画一次——画不出来的依赖，就是该治理的信号。</p>
+      </div>
+      <footer class="mastfoot" style="border-top:none">
+        <span data-editable style="background:var(--paper);padding:2px 8px">MONOLITH → MICROSERVICES</span>
+        <span data-editable style="background:var(--paper);padding:2px 8px;letter-spacing:0">画不出来的依赖，就是治理信号</span>
+      </footer>
+    </section>
+  </div>
+
+  <!-- 14 · 收束（宣言谱系 · 暗页 + IKB 通栏条带首尾闭环 · gradient-flow + magnetic + light-sweep） -->
+  <div class="slide-slot">
+    <section class="slide dark cover-page" data-slide-id="closing" data-animate="quote" data-content-hash="b36a572a727a">
+      <div data-editable-skip class="light-sweep" style="position:absolute;left:0;right:0;bottom:0;height:180px;background:var(--accent)"></div>
+      <header class="masthead">
+        <span data-editable style="letter-spacing:0">13 · CLOSING — 收束</span>
+        <span data-editable>14 / 14</span>
+      </header>
+      <h2 data-editable data-anim="gradient-flow" style="margin-top:190px;font-size:84px;line-height:1.4;font-weight:200;max-width:1560px;color:var(--paper)">架构演进没有终点，<br>只有与当下匹配的解。</h2>
+      <p data-editable data-anim style="margin-top:48px;font-size:24px;line-height:1.8;opacity:.72;max-width:1100px">三年后我们依然在路上：下一步是单元化与多活。唯一确定的，是"现在"永远比"完美"重要。</p>
+      <span data-ptr="magnetic" data-editable style="position:absolute;left:120px;bottom:240px;display:inline-flex;padding:14px 28px;background:var(--accent);color:var(--accent-on);font-family:var(--font-mono);font-size:18px;font-weight:600;letter-spacing:0">NEXT → 单元化 · 多活</span>
+      <div style="position:absolute;left:120px;right:120px;bottom:58px;display:flex;justify-content:space-between;align-items:baseline;color:var(--accent-on)">
+        <p data-editable style="font-family:var(--font-mono);font-size:16px;font-weight:500;letter-spacing:.18em">THANKS · Q&amp;A</p>
+        <p data-editable style="font-family:var(--font-mono);font-size:15px;font-weight:500;letter-spacing:0;opacity:.85">现在 &gt; 完美 — NOW OVER PERFECT</p>
+      </div>
+    </section>
+  </div>
+
+  <div class="read-progress" data-editable-skip></div>
+
+</div>
+
+<!-- SLOT: 页码初始文本——生成时把 "1 / 1" 改为 "1 / N"（N=总页数） -->
+<div class="deck-chrome" id="chrome">1 / 14</div>
+
+<script>
+/* ============================================================
+   框架层 · 禁止修改
+   ============================================================ */
+(function(){
+  document.documentElement.classList.add('js');  /* 动效 .js 门槛：无 JS 时内容直接可见 */
+  var deck = document.getElementById('deck');
+  var chrome = document.getElementById('chrome');
+  var fxList = [];    /* canvas FX 实例（v5.1；reduced-motion 下恒为空；须在 fit() 首次调用前就位） */
+  var fxFrozen = false;
+
+  function slots(){ return Array.prototype.slice.call(deck.querySelectorAll('.slide-slot')); }
+
+  /* 缩放：整个 1920×1080 画布按容器比例缩放，绝不重排内容。
+     ResizeObserver 而非 window resize：iframe 尺寸变化、侧栏开合都算。 */
+  var lastScale = 0;
+  function fit(){
+    var s = Math.min(deck.clientWidth/1920, deck.clientHeight/1080);
+    if (Math.abs(s - lastScale) < 0.001) return;  /* 去抖：dvh 抖动 */
+    lastScale = s;
+    document.documentElement.style.setProperty('--slide-scale', s);
+    /* canvas FX 跟随缩放重配位图尺寸（v5.1；仅已初始化的实例） */
+    for (var fi = 0; fi < fxList.length; fi++){ if (fxList[fi].parts) fxSetup(fxList[fi]); }
+  }
+  if ('ResizeObserver' in window){ new ResizeObserver(fit).observe(deck); }
+  window.addEventListener('resize', fit);
+  fit();
+
+  /* 页码指示 */
+  function currentIndex(){
+    var list = slots();
+    var top = deck.scrollTop;
+    for (var i = 0; i < list.length; i++){
+      if (list[i].offsetTop + list[i].offsetHeight/2 > top + 8) return i;
+    }
+    return list.length - 1;
+  }
+  function updateChrome(){
+    chrome.textContent = (currentIndex()+1) + ' / ' + slots().length;
+  }
+  deck.addEventListener('scroll', function(){ requestAnimationFrame(updateChrome); }, {passive:true});
+  updateChrome();
+
+  /* 键盘翻页 */
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function go(i){
+    var list = slots();
+    i = Math.max(0, Math.min(list.length-1, i));
+    deck.scrollTo({top: list[i].offsetTop, behavior: reduceMotion ? 'auto' : 'smooth'});
+  }
+  window.addEventListener('keydown', function(e){
+    if (e.target && (e.target.isContentEditable || /^(INPUT|TEXTAREA)$/.test(e.target.tagName))) return;
+    if (e.key==='ArrowDown' || e.key==='PageDown' || e.key===' '){ e.preventDefault(); go(currentIndex()+1); }
+    else if (e.key==='ArrowUp' || e.key==='PageUp'){ e.preventDefault(); go(currentIndex()-1); }
+    else if (e.key==='Home'){ e.preventDefault(); go(0); }
+    else if (e.key==='End'){ e.preventDefault(); go(slots().length-1); }
+  });
+
+  /* 背景配给（skeleton v4）：纯 CSS 按 class 配给（.cover-page /
+     .texture-on），无运行时状态——v3 的 texture-cover JS 机制已移除，
+     --texture-scope 降级为主题级许可声明（见框架 CSS 注释）。 */
+
+  /* ============================================================
+     运行时动效引擎（skeleton v3–v5）
+     chars/words/shatter：入场时把纯文本拆成 .sp-unit 序列执行动画，
+     完成后还原为纯文本节点；count-up：读终值滚动后精确还原原文本；
+     typewriter/scramble：逐字显影/乱码归位，完成还原原文本；
+     draw-line：量长藏线、入场描出。
+     滚动回滚默认不重复触发（与 .in-view 一次性语义一致）。
+     reduced-motion 下整组引擎不启动——文件里本来就是纯文本与完整图形。
+     ============================================================ */
+  var SPLIT_SEL = '[data-anim="chars"],[data-anim="words"],[data-anim="shatter"]';
+  var live = [];   /* 进行中的运行时动效元素（强制还原用） */
+
+  function track(el){ if (live.indexOf(el) < 0) live.push(el); }
+  function untrack(el){ var i = live.indexOf(el); if (i >= 0) live.splice(i, 1); }
+
+  /* 还原单个元素：终止进行中的动效，恢复纯文本 / 终值文本 */
+  function restoreEl(el){
+    if (el.__rt){
+      clearTimeout(el.__rt.timer);
+      if (el.__rt.raf) cancelAnimationFrame(el.__rt.raf);
+      if (el.__rt.finalText != null) el.textContent = el.__rt.finalText;
+      el.__rt = null;
+    }
+    /* 拆字残留兜底：塌缩为纯文本节点 */
+    if (el.querySelector && el.querySelector('.sp-unit')) el.textContent = el.textContent;
+    if (el.classList){ el.classList.remove('split-anim'); el.classList.remove('tw-live'); }
+    untrack(el);
+  }
+
+  /* 编辑器接口：进入编辑 / 序列化保存前调用（见 editing-contract.md）。
+     freeze（v5 新增）：冻结交互动效层——摘除 pointer tracker 与 scroll 族
+     JS 驱动、清空全部运行时 CSS 变量（--mx 系 / --rx 系 / --sp）；
+     read-progress 的纯 CSS scroll-timeline 由编辑器注入样式冻结。
+     v5.1 起 freeze 同时停掉全部 canvas FX、清屏并摘除运行时 width/height
+     属性（fxFrozen 后 in-view 回调不再重启，契约 v6.1）。 */
+  window.__pptxMotion = {
+    restore: restoreEl,
+    restoreAll: function(){ live.slice().forEach(restoreEl); },
+    freeze: function(){ freezePtr(); freezeFx(); }
+  };
+
+  function splitEl(el){
+    if (el.__rt) return;
+    var mode = el.getAttribute('data-anim');
+    var text = el.textContent;
+    var units = [];
+    if (mode === 'words'){
+      text.split(/(\s+)/).forEach(function(p){
+        if (p) units.push({ ws: /^\s+$/.test(p), t: p });
+      });
+    } else {
+      Array.from(text).forEach(function(ch){
+        units.push({ ws: /^\s$/.test(ch), t: ch });
+      });
+    }
+    el.__rt = { finalText: text, timer: null, raf: 0 };
+    track(el);
+    el.textContent = '';
+    var n = 0;
+    units.forEach(function(u){
+      if (u.ws){ el.appendChild(document.createTextNode(u.t)); return; }
+      var s = document.createElement('span');
+      s.className = 'sp-unit';
+      s.style.setProperty('--j', n++);
+      if (mode === 'shatter'){
+        /* 碎聚：确定性伪随机散布（同一文本每次入场形态一致，不逐帧随机） */
+        var seed = n * 137.5;
+        s.style.setProperty('--sx', (Math.sin(seed) * 1.6).toFixed(2) + 'em');
+        s.style.setProperty('--sy', (Math.cos(seed * 1.3) * 1.1).toFixed(2) + 'em');
+        s.style.setProperty('--sr', (Math.sin(seed * 2.1) * 40).toFixed(1) + 'deg');
+      }
+      s.appendChild(document.createTextNode(u.t));
+      el.appendChild(s);
+    });
+    el.classList.add('split-anim');
+    /* 动画完成后还原为纯文本：stagger 步长 × 个数 + 单项时长 + 余量 */
+    var step = mode === 'words' ? 90 : (mode === 'shatter' ? 40 : 45);
+    var dur  = mode === 'shatter' ? 800 : 600;
+    el.__rt.timer = setTimeout(function(){ restoreEl(el); }, n * step + dur + 250);
+  }
+
+  /* count-up：元素文本即终值（可含千分位/小数/前后缀），从 data-from 或 0 起滚 */
+  function countUp(el){
+    if (el.__rt) return;
+    var finalText = el.textContent;
+    var m = /-?[\d,]*\.?\d+/.exec(finalText);
+    if (!m) return;
+    var finalVal = parseFloat(m[0].replace(/,/g, ''));
+    if (isNaN(finalVal)) return;
+    var from = parseFloat(el.getAttribute('data-from'));
+    if (isNaN(from)) from = 0;
+    var decimals = (m[0].split('.')[1] || '').length;
+    var grouped = m[0].indexOf(',') >= 0;
+    function fmt(v){
+      var s = grouped
+        ? v.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
+        : v.toFixed(decimals);
+      return finalText.slice(0, m.index) + s + finalText.slice(m.index + m[0].length);
+    }
+    el.__rt = { finalText: finalText, timer: null, raf: 0 };
+    track(el);
+    var dur = 1400, t0 = null;
+    el.textContent = fmt(from);
+    function tick(t){
+      if (!el.__rt) return;   /* 被强制还原 */
+      if (t0 === null) t0 = t;
+      var k = Math.min(1, (t - t0) / dur);
+      var e = 1 - Math.pow(1 - k, 3);   /* easeOutCubic */
+      el.textContent = fmt(from + (finalVal - from) * e);
+      if (k < 1){ el.__rt.raf = requestAnimationFrame(tick); }
+      else { el.textContent = finalText; el.__rt = null; untrack(el); }   /* 终值精确还原原文本 */
+    }
+    el.__rt.raf = requestAnimationFrame(tick);
+  }
+
+  /* typewriter / scramble（skeleton v5，主题限定款——techy 系气质，见
+     references/motion.md v3）：纯文本节点在位，运行时逐字显影 / 乱码归位，
+     完成后精确还原原文本；还原语义与 count-up 相同（__rt.finalText）。 */
+  function typewriter(el){
+    if (el.__rt) return;
+    var text = el.textContent;
+    var chars = Array.from(text);
+    if (!chars.length) return;
+    el.__rt = { finalText: text, timer: null, raf: 0 };
+    track(el);
+    el.textContent = '';
+    el.classList.add('tw-live');
+    /* 速度随字数自适应：短句慢显韵味，长句不超 ~1.6s 总量 */
+    var step = Math.max(28, Math.min(70, Math.round(1600 / chars.length)));
+    var i = 0;
+    function tick(){
+      if (!el.__rt) return;   /* 被强制还原 */
+      i++;
+      el.textContent = chars.slice(0, i).join('');
+      if (i < chars.length){ el.__rt.timer = setTimeout(tick, step); }
+      else { el.textContent = text; el.classList.remove('tw-live'); el.__rt = null; untrack(el); }
+    }
+    el.__rt.timer = setTimeout(tick, 160);
+  }
+
+  function scramble(el){
+    if (el.__rt) return;
+    var text = el.textContent;
+    var chars = Array.from(text);
+    if (!chars.length) return;
+    var GLYPHS = '!<>-_\\/[]{}=+*^?#%01';
+    el.__rt = { finalText: text, timer: null, raf: 0 };
+    track(el);
+    var dur = 1100, t0 = null;
+    function tick(t){
+      if (!el.__rt) return;   /* 被强制还原 */
+      if (t0 === null) t0 = t;
+      var k = Math.min(1, (t - t0) / dur);
+      var settled = Math.floor(k * chars.length);
+      var frame = Math.floor(t / 50);
+      var out = '';
+      for (var i = 0; i < chars.length; i++){
+        var c = chars[i];
+        if (/\s/.test(c) || i < settled) out += c;
+        else out += GLYPHS[(i * 7 + frame) % GLYPHS.length];
+      }
+      el.textContent = out;
+      if (k < 1){ el.__rt.raf = requestAnimationFrame(tick); }
+      else { el.textContent = text; el.__rt = null; untrack(el); }   /* 终值精确还原原文本 */
+    }
+    el.__rt.raf = requestAnimationFrame(tick);
+  }
+
+  /* draw-line：加载时量长藏线（stroke-dashoffset=length），入场时归零描出。
+     量长失败（非几何元素）时退回整体淡入。 */
+  function prepDrawLine(el){
+    var len = 0;
+    try { len = el.getTotalLength(); } catch(e){}
+    if (!len) return;
+    el.__drawLen = len;
+    el.style.strokeDasharray = String(len);
+    el.style.strokeDashoffset = String(len);
+  }
+
+  /* 入场动效：页面进入视口时触发（一次性，回滚不重复） */
+  /* 加载时为每页的 [data-anim] 元素分配序号 --i（阶梯延迟的基数）；
+     mask-lines 的 .ml-inner 行内层单独编号（逐行遮罩阶梯，v5） */
+  slots().forEach(function(s){
+    var els = s.querySelectorAll('[data-anim]');
+    for (var i = 0; i < els.length; i++) els[i].style.setProperty('--i', i);
+    var inners = s.querySelectorAll('[data-anim="mask-lines"] .ml-inner');
+    for (var j = 0; j < inners.length; j++) inners[j].style.setProperty('--i', j);
+  });
+  if (!reduceMotion){
+    slots().forEach(function(s){
+      var lines = s.querySelectorAll('[data-anim="draw-line"]');
+      for (var i = 0; i < lines.length; i++) prepDrawLine(lines[i]);
+    });
+  }
+  function enterSlide(slide){
+    if (slide.classList.contains('in-view')) return;
+    if (!reduceMotion){
+      /* 运行时拆字：先拆再加 in-view（同一帧完成，避免先显后拆的闪烁） */
+      var splits = slide.querySelectorAll(SPLIT_SEL);
+      for (var i = 0; i < splits.length; i++) splitEl(splits[i]);
+    }
+    slide.classList.add('in-view');
+    if (!reduceMotion){
+      var cus = slide.querySelectorAll('[data-anim="count-up"]');
+      for (var j = 0; j < cus.length; j++) countUp(cus[j]);
+      var tws = slide.querySelectorAll('[data-anim="typewriter"]');
+      for (var t = 0; t < tws.length; t++) typewriter(tws[t]);
+      var scs = slide.querySelectorAll('[data-anim="scramble"]');
+      for (var c = 0; c < scs.length; c++) scramble(scs[c]);
+      var dls = slide.querySelectorAll('[data-anim="draw-line"]');
+      for (var k = 0; k < dls.length; k++){
+        if (dls[k].__drawLen) dls[k].style.strokeDashoffset = '0';
+      }
+    }
+  }
+  if ('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (en.isIntersecting) enterSlide(en.target);
+      });
+    }, {root: deck, threshold: .35});
+    slots().forEach(function(s){ io.observe(s.querySelector('.slide')); });
+  } else {
+    slots().forEach(function(s){ enterSlide(s.querySelector('.slide')); });
+  }
+
+  /* scroll 族驱动（skeleton v5）：read-progress 是纯 CSS scroll-timeline
+     （见框架 CSS）；parallax / scrub / scrub-draw 由这里驱动——rAF 节流
+     监听 deck 滚动，把页穿越视口的进度写为 .slide 上的 --sp ∈ [0,1]
+     （0=整页在视口下方、0.5=居中、1=整页在上方），CSS calc 消费。
+     --sp 缺省值是静态终态：reduced-motion 下不启动，内容完整可见。 */
+  var spSlides = [];
+  var spRaf = 0, spListener = null;
+  function updateSp(){
+    spRaf = 0;
+    var vh = deck.clientHeight, top = deck.scrollTop;
+    for (var i = 0; i < spSlides.length; i++){
+      var r = spSlides[i];
+      var st = r.slot.offsetTop - top, sh = r.slot.offsetHeight;
+      var p = 1 - (st + sh) / (vh + sh);
+      if (p < 0) p = 0; else if (p > 1) p = 1;
+      r.slide.style.setProperty('--sp', p.toFixed(4));
+    }
+  }
+  if (!reduceMotion){
+    slots().forEach(function(s){
+      var slide = s.querySelector('.slide');
+      if (slide && slide.querySelector('[data-scroll="parallax"],[data-scroll="scrub"],[data-scroll="scrub-draw"]'))
+        spSlides.push({ slide: slide, slot: s });
+    });
+    if (spSlides.length){
+      spListener = function(){ if (!spRaf && !ptr.frozen) spRaf = requestAnimationFrame(updateSp); };
+      deck.addEventListener('scroll', spListener, {passive:true});
+      updateSp();
+    }
+  }
+
+  /* ============================================================
+     canvas FX runtime（skeleton v5.1 · F5 · fx 仪式层）
+     data-fx 声明的页面级仪式效果：constellation / starfield /
+     particle-drift / ascii-field（字符呼吸场，致敬 guizang ascii-bg）。
+     生成侧只能选类——密度/数量/速度上限全部烧死在 FX_DEFS 常量，
+     无任何参数通道；纪律（只许 .cover-page 仪式页、每页至多 1 个、
+     主题 G5「fx 许可」白名单）见 references/motion.md §4 fx 小节。
+     - 位图按渲染尺寸配：getBoundingClientRect（已含 --slide-scale
+       缩放）× devicePixelRatio（≤2）；fit() 缩放变化时重配；
+     - rAF 生命周期绑 in-view：离屏停帧（画面保留，回屏续播）；
+       首次入视口才初始化——从未入视口的 canvas 连 width/height
+       属性都没有，序列化零残留；
+     - reduced-motion 整组不初始化（fxList 恒空，canvas 恒空白）；
+     - 零事件监听：不碰 pointer/scroll，不劫持宿主（iframe 安全）；
+     - __pptxMotion.freeze() → freezeFx()：停帧 + 清屏 + 摘除
+       width/height，fxFrozen 后 in-view 回调不再重启。
+     ============================================================ */
+  var FX_DEFS = {
+    'constellation':  { n: 44,  vel: .008, link: .078, dotA: .5, lineA: .16 },
+    'starfield':      { n: 150, dotA: .8 },
+    'particle-drift': { n: 26,  dotA: .9 },
+    'ascii-field':    { cell: 26, dotA: .4 }
+  };
+  var FX_ASCII_PAL = '   ...:::---+++***';
+
+  function fxRng(seed){   /* 确定性伪随机（同 shatter：同一页面每次形态一致） */
+    var s = seed >>> 0;
+    return function(){ s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
+  }
+
+  /* 位图尺寸 = 渲染尺寸 × DPR（≤2）；canvas 坐标系即渲染 CSS 像素 */
+  function fxSetup(fx){
+    var r = fx.cv.getBoundingClientRect();
+    if (r.width < 4 || r.height < 4) return false;
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    fx.cv.width = Math.round(r.width * dpr);
+    fx.cv.height = Math.round(r.height * dpr);
+    fx.w = r.width; fx.h = r.height;
+    fx.ctx.setTransform(fx.cv.width / r.width, 0, 0, fx.cv.height / r.height, 0, 0);
+    return true;
+  }
+
+  /* 首次启动时构建：粒子用归一化坐标（[0,1]），缩放重配无需重建 */
+  function fxBuild(fx){
+    var rnd = fxRng(1237 + fx.idx * 9973);
+    var def = FX_DEFS[fx.type];
+    var cs = getComputedStyle(fx.slide);
+    fx.colInk = cs.color;   /* 当前文字色（dark 页即 paper） */
+    fx.colAccent = (cs.getPropertyValue('--accent') || '').trim() || cs.color;
+    fx.mono = (cs.getPropertyValue('--font-mono') || '').trim() || 'monospace';
+    var parts = [], i;
+    if (fx.type === 'constellation'){
+      for (i = 0; i < def.n; i++) parts.push({ x: rnd(), y: rnd(),
+        vx: (rnd() * 2 - 1) * def.vel, vy: (rnd() * 2 - 1) * def.vel });
+    } else if (fx.type === 'starfield'){
+      for (i = 0; i < def.n; i++) parts.push({ x: rnd(), y: rnd(),
+        r: .6 + rnd() * 1.4, ph: rnd() * 6.283, sp: .4 + rnd() * .8 });
+    } else if (fx.type === 'particle-drift'){
+      for (i = 0; i < def.n; i++) parts.push({ x: rnd(), y: rnd(),
+        r: 1.5 + rnd() * 3.5, vx: (rnd() * 2 - 1) * .004,
+        vy: -(.002 + rnd() * .004), ph: rnd() * 6.283 });
+    }
+    fx.parts = parts;
+  }
+
+  function fxDraw(fx, t, dt){
+    var ctx = fx.ctx, w = fx.w, h = fx.h, def = FX_DEFS[fx.type];
+    var i, j, p;
+    ctx.clearRect(0, 0, w, h);
+    if (fx.type === 'constellation'){
+      var link = def.link * w;
+      for (i = 0; i < fx.parts.length; i++){
+        p = fx.parts[i];
+        p.x += p.vx * dt; p.y += p.vy * dt;
+        if (p.x < 0 || p.x > 1) p.vx = -p.vx;
+        if (p.y < 0 || p.y > 1) p.vy = -p.vy;
+        p.x = Math.max(0, Math.min(1, p.x));
+        p.y = Math.max(0, Math.min(1, p.y));
+      }
+      ctx.strokeStyle = fx.colAccent;
+      ctx.lineWidth = Math.max(1, w / 1920);
+      for (i = 0; i < fx.parts.length; i++){
+        for (j = i + 1; j < fx.parts.length; j++){
+          var dx = (fx.parts[i].x - fx.parts[j].x) * w;
+          var dy = (fx.parts[i].y - fx.parts[j].y) * h;
+          var d = Math.sqrt(dx * dx + dy * dy);
+          if (d < link){
+            ctx.globalAlpha = (1 - d / link) * def.lineA;
+            ctx.beginPath();
+            ctx.moveTo(fx.parts[i].x * w, fx.parts[i].y * h);
+            ctx.lineTo(fx.parts[j].x * w, fx.parts[j].y * h);
+            ctx.stroke();
+          }
+        }
+      }
+      ctx.fillStyle = fx.colAccent;
+      ctx.globalAlpha = def.dotA;
+      var rc = Math.max(1.2, w * .0014);
+      for (i = 0; i < fx.parts.length; i++){
+        ctx.beginPath();
+        ctx.arc(fx.parts[i].x * w, fx.parts[i].y * h, rc, 0, 6.283);
+        ctx.fill();
+      }
+    } else if (fx.type === 'starfield'){
+      ctx.fillStyle = fx.colInk;
+      var rs = Math.max(.7, w / 1920);
+      for (i = 0; i < fx.parts.length; i++){
+        p = fx.parts[i];
+        ctx.globalAlpha = (.18 + .62 * (.5 + .5 * Math.sin(t * p.sp + p.ph))) * def.dotA;
+        ctx.beginPath();
+        ctx.arc(p.x * w, p.y * h, p.r * rs, 0, 6.283);
+        ctx.fill();
+      }
+    } else if (fx.type === 'particle-drift'){
+      ctx.fillStyle = fx.colInk;
+      var rp = Math.max(.8, w / 1920);
+      for (i = 0; i < fx.parts.length; i++){
+        p = fx.parts[i];
+        p.x += p.vx * dt; p.y += p.vy * dt;
+        if (p.y < -.03){ p.y = 1.03; p.x = (p.x + .37) % 1; }
+        if (p.x < -.03) p.x = 1.03; else if (p.x > 1.03) p.x = -.03;
+        ctx.globalAlpha = (.10 + .22 * (.5 + .5 * Math.sin(t * .9 + p.ph))) * def.dotA;
+        ctx.beginPath();
+        ctx.arc(p.x * w, p.y * h, p.r * rp, 0, 6.283);
+        ctx.fill();
+      }
+    } else if (fx.type === 'ascii-field'){
+      /* 字符呼吸场：sin 二维噪声场驱动字符显隐（mono 字符集） */
+      var cell = Math.max(16, w * def.cell / 1920);
+      var cols = Math.ceil(w / cell), rows = Math.ceil(h / cell);
+      ctx.font = '500 ' + Math.round(cell * .72) + 'px ' + fx.mono;
+      ctx.textBaseline = 'top';
+      ctx.fillStyle = fx.colInk;
+      var cx, cy;
+      for (cy = 0; cy < rows; cy++){
+        for (cx = 0; cx < cols; cx++){
+          var n = (Math.sin(cx * .18 + t) + Math.sin(cy * .24 - t * .7) +
+                   Math.sin((cx + cy) * .12 + t * .45) +
+                   Math.sin(Math.sqrt((cx - cols * .5) * (cx - cols * .5) +
+                                      (cy - rows * .5) * (cy - rows * .5)) * .16 - t * .55)) / 4;
+          var v = (n + 1) / 2;
+          if (v < .28) continue;
+          var ch = FX_ASCII_PAL[Math.min(FX_ASCII_PAL.length - 1, Math.floor(v * FX_ASCII_PAL.length))];
+          if (ch === ' ') continue;
+          ctx.globalAlpha = Math.min(def.dotA, .05 + (v - .28) * .55);
+          ctx.fillText(ch, cx * cell, cy * cell);
+        }
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function fxTick(fx, now){
+    if (!fx.running) return;
+    if (fx.last == null) fx.last = now;
+    var dt = Math.min(.1, (now - fx.last) / 1000);
+    fx.last = now;
+    fx.t += dt * (fx.type === 'ascii-field' ? .55 : 1);
+    fxDraw(fx, fx.t, dt);
+    fx.raf = requestAnimationFrame(function(n){ fxTick(fx, n); });
+  }
+  function fxStart(fx){
+    if (fx.running || fxFrozen) return;
+    if (!fx.parts){
+      if (!fxSetup(fx)) return;
+      fxBuild(fx);
+    }
+    fx.running = true; fx.last = null;
+    fx.raf = requestAnimationFrame(function(n){ fxTick(fx, n); });
+  }
+  function fxStop(fx){
+    fx.running = false;
+    if (fx.raf){ cancelAnimationFrame(fx.raf); fx.raf = 0; }
+  }
+  function freezeFx(){
+    fxFrozen = true;
+    for (var i = 0; i < fxList.length; i++){
+      fxStop(fxList[i]);
+      if (fxList[i].parts) fxList[i].ctx.clearRect(0, 0, fxList[i].w, fxList[i].h);
+      fxList[i].cv.removeAttribute('width');
+      fxList[i].cv.removeAttribute('height');
+    }
+  }
+
+  /* fx 实例收集与 in-view 生命周期：reduced-motion 整组不初始化 */
+  if (!reduceMotion){
+    var fxCvs = deck.querySelectorAll('canvas[data-fx]');
+    for (var fc = 0; fc < fxCvs.length; fc++){
+      var fxType = fxCvs[fc].getAttribute('data-fx');
+      var fxSlide = fxCvs[fc].closest ? fxCvs[fc].closest('.slide') : null;
+      var fxCtx = fxCvs[fc].getContext && fxCvs[fc].getContext('2d');
+      if (!FX_DEFS[fxType] || !fxSlide || !fxCtx) continue;
+      fxList.push({ cv: fxCvs[fc], ctx: fxCtx, slide: fxSlide, type: fxType,
+                    idx: fc, parts: null, t: 0, last: null, raf: 0,
+                    running: false, w: 0, h: 0, colInk: '', colAccent: '', mono: '' });
+    }
+    if (fxList.length){
+      if ('IntersectionObserver' in window){
+        var fxIo = new IntersectionObserver(function(entries){
+          entries.forEach(function(en){
+            for (var i = 0; i < fxList.length; i++){
+              if (fxList[i].slide === en.target){
+                if (en.isIntersecting) fxStart(fxList[i]); else fxStop(fxList[i]);
+                break;
+              }
+            }
+          });
+        }, { root: deck, threshold: 0 });
+        fxList.forEach(function(f){ fxIo.observe(f.slide); });
+      } else {
+        fxList.forEach(fxStart);   /* 无 IO 降级：全部常开（同入场引擎语义） */
+      }
+    }
+  }
+
+  /* pointer tracker（skeleton v5 · ptr 族 / light 族 spotlight）：
+     rAF 节流 pointermove，只往指针所在 .slide 写 CSS 变量
+     （--mx/--my 百分比、--mxr/--myr ∈ [-1,1]），不碰 DOM 结构——编辑零冲突；
+     tilt / magnetic 是 per-element 监听 + pointerleave 回弹（CSS transition
+     承担回弹）。reduced-motion / 非 fine 指针（触屏）整组不启动；
+     全程 passive 监听，不劫持任何事件（iframe 嵌入安全）。 */
+  var ptr = { slide: null, raf: 0, onMove: null, onLeave: null, frozen: false };
+  function ptrResetSlide(s){
+    if (!s) return;
+    s.style.removeProperty('--mx'); s.style.removeProperty('--my');
+    s.style.removeProperty('--mxr'); s.style.removeProperty('--myr');
+  }
+  function freezePtr(){
+    ptr.frozen = true;
+    if (ptr.raf){ cancelAnimationFrame(ptr.raf); ptr.raf = 0; }
+    if (ptr.onMove){ deck.removeEventListener('pointermove', ptr.onMove); ptr.onMove = null; }
+    if (ptr.onLeave){ deck.removeEventListener('pointerleave', ptr.onLeave); ptr.onLeave = null; }
+    ptrResetSlide(ptr.slide); ptr.slide = null;
+    var els = deck.querySelectorAll('[data-ptr="tilt"],[data-ptr="magnetic"]');
+    for (var i = 0; i < els.length; i++){
+      els[i].style.removeProperty('--rx'); els[i].style.removeProperty('--ry');
+      els[i].style.removeProperty('--mgx'); els[i].style.removeProperty('--mgy');
+    }
+    /* scroll 族 JS 驱动一并冻结：摘除监听、清 --sp（CSS 缺省值回静态终态） */
+    if (spListener){ deck.removeEventListener('scroll', spListener); spListener = null; }
+    if (spRaf){ cancelAnimationFrame(spRaf); spRaf = 0; }
+    for (var j = 0; j < spSlides.length; j++) spSlides[j].slide.style.removeProperty('--sp');
+  }
+  (function initPointer(){
+    if (reduceMotion) return;
+    if (!(window.matchMedia && window.matchMedia('(pointer:fine)').matches)) return;
+    var needVars = !!deck.querySelector('.spotlight,[data-ptr="parallax"]');
+    var tilts = deck.querySelectorAll('[data-ptr="tilt"]');
+    var magnets = deck.querySelectorAll('[data-ptr="magnetic"]');
+    if (!needVars && !tilts.length && !magnets.length) return;
+    if (needVars){
+      ptr.onMove = function(e){
+        if (ptr.raf || ptr.frozen) return;
+        var ev = e;
+        ptr.raf = requestAnimationFrame(function(){
+          ptr.raf = 0;
+          var slide = ev.target && ev.target.closest ? ev.target.closest('.slide') : null;
+          if (slide !== ptr.slide){ ptrResetSlide(ptr.slide); ptr.slide = slide; }
+          if (!slide) return;
+          var r = slide.getBoundingClientRect();
+          if (!r.width || !r.height) return;
+          var px = (ev.clientX - r.left) / r.width, py = (ev.clientY - r.top) / r.height;
+          slide.style.setProperty('--mx', (px * 100).toFixed(1) + '%');
+          slide.style.setProperty('--my', (py * 100).toFixed(1) + '%');
+          slide.style.setProperty('--mxr', (px * 2 - 1).toFixed(3));
+          slide.style.setProperty('--myr', (py * 2 - 1).toFixed(3));
+        });
+      };
+      ptr.onLeave = function(){ ptrResetSlide(ptr.slide); ptr.slide = null; };
+      deck.addEventListener('pointermove', ptr.onMove, {passive:true});
+      deck.addEventListener('pointerleave', ptr.onLeave, {passive:true});
+    }
+    /* tilt：倾角上限 ±6deg 烧死；离开回弹 */
+    Array.prototype.forEach.call(tilts, function(el){
+      el.addEventListener('pointermove', function(e){
+        if (ptr.frozen) return;
+        var r = el.getBoundingClientRect();
+        if (!r.width || !r.height) return;
+        var px = (e.clientX - r.left) / r.width - .5, py = (e.clientY - r.top) / r.height - .5;
+        el.style.setProperty('--ry', (px * 6).toFixed(2) + 'deg');
+        el.style.setProperty('--rx', (-py * 6).toFixed(2) + 'deg');
+      }, {passive:true});
+      el.addEventListener('pointerleave', function(){
+        el.style.removeProperty('--rx'); el.style.removeProperty('--ry');
+      }, {passive:true});
+    });
+    /* magnetic：向指针吸附，拉力系数 .18、位移上限 ±16px 烧死；离开回弹 */
+    Array.prototype.forEach.call(magnets, function(el){
+      el.addEventListener('pointermove', function(e){
+        if (ptr.frozen) return;
+        var r = el.getBoundingClientRect();
+        var dx = (e.clientX - (r.left + r.width / 2)) * .18;
+        var dy = (e.clientY - (r.top + r.height / 2)) * .18;
+        el.style.setProperty('--mgx', Math.max(-16, Math.min(16, dx)).toFixed(1) + 'px');
+        el.style.setProperty('--mgy', Math.max(-16, Math.min(16, dy)).toFixed(1) + 'px');
+      }, {passive:true});
+      el.addEventListener('pointerleave', function(){
+        el.style.removeProperty('--mgx'); el.style.removeProperty('--mgy');
+      }, {passive:true});
+    });
+  })();
+})();
+</script>
+</body>
+</html>

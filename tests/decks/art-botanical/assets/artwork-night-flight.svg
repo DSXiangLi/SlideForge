@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="888" viewBox="0 0 760 888">
+  <rect width="760" height="888" fill="#1a1816"/>
+  <circle cx="380" cy="400" r="210" fill="none" stroke="#d4a574" stroke-width="2" opacity="0.85"/>
+  <circle cx="380" cy="400" r="130" fill="none" stroke="#e8e4df" stroke-width="1.5" opacity="0.35"/>
+  <path d="M380 888 C 370 700 375 560 380 470" stroke="#d4a574" stroke-width="2.5" fill="none"/>
+  <path d="M380 640 C 300 600 260 540 250 470 C 330 500 370 560 380 640 Z" fill="#2a2724" stroke="#e8e4df" stroke-width="1" opacity="0.9"/>
+  <path d="M380 560 C 460 520 500 460 510 390 C 430 420 390 480 380 560 Z" fill="#2a2724" stroke="#d4a574" stroke-width="1" opacity="0.9"/>
+  <circle cx="380" cy="400" r="6" fill="#d4a574"/>
+  <circle cx="150" cy="160" r="2.5" fill="#e8e4df" opacity="0.6"/>
+  <circle cx="610" cy="220" r="2" fill="#e8e4df" opacity="0.45"/>
+  <circle cx="560" cy="120" r="2.5" fill="#d4a574" opacity="0.7"/>
+  <circle cx="210" cy="300" r="2" fill="#e8e4df" opacity="0.4"/>
+  <text x="48" y="836" font-family="monospace" font-size="20" fill="#e8e4df" opacity="0.55" letter-spacing="4">NIGHT FLIGHT / NO.1</text>
+</svg>
