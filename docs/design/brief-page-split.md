@@ -318,3 +318,13 @@ tools/build_views.py  视图源文件 → editor.html 标记区间 + brief.html 
 4. **入口统一（子 agent 复核时发现的设计—实现缺口）**：顶栏「需求脑暴」按钮原先直接 `openBrief()`、不设 `data-launch`，仍是浮层形态，与 §14 决议 1 冲突。已改走 `launchEnterBrief`（与 agent 入口同一套）。
 
 **仍未解决的（待用户决定）**：静态问卷形态（未注入 `brief_options`）内容 3400–5700px，在宿主 ≤1200px 的上限里必然内部滚动。进一步压缩需改产品形态（如维度组默认折叠的手风琴，与"脑暴是对齐不是问卷"的定位其实相符），本轮不动。
+
+## 18. 第三轮实施记录（2026-10-26，用户实测反馈，`editor.html` v3.9.5）
+
+**症状**：宿主沙箱放开（`allow-scripts allow-same-origin`，编辑器终于能进编辑态）之后，用户报告「打开文件」在宿主内不可用；同批排查发现 **§7.2 的"deck 到达自动退出脑暴"这条链在实际链路上从未发生**——agent 生成完 deck、`open_editor(view="edit")` 回来之后，页面停在脑暴页。
+
+1. **§7.2 的"deck 到达"条件对 briefing 会话恒假（设计缺口，本轮修）**：`launchOnDeckReady()` 是挂在 `mcpAppLoadDeck()` / `bridgeLoadDeck()` 成功路径上的（设计如此），而**触发 `mcpAppLoadDeck` 的轮询条件**写成了 `st.revision && mcpApp.revision && st.revision !== mcpApp.revision`；`open_editor(view="brief")` 建的会话 `deck_path=NULL / revision=NULL`，`mcpApp.revision` 因此为 `null` → 条件恒假 → 首份 deck 永远不会被 `read_deck`。改为 `st.deck_path && st.revision && …`（`st.deck_path` 是"这轮终于有 deck 可读"的判据），`bridgeAutoReloadRisk()` 守卫不变。**验收补齐**：`aa_mcp_apps_check.py` 新增臂 ⑨（briefing 会话 → 提交简报 → agent 经真 daemon 发布 → 断言 `read_deck` + 渲染 + `data-launch` 摘除 + 落编辑页签），并把"改回旧条件必超时"作为变异探针记录在 §10 的口径里（探针结论见 `docs/progress/1026_open_file_track_and_first_deck.md` §3）。
+2. **§7.2 的 `reportedHeight` 重置之外，轮询退避也有了"回程"**：`idlePolls` 原先只增不减，一次 30 秒空闲就把轮询永久钉在 10 秒——首份 deck 与 intent 回执会晚一整个档位才发现。现在检测到变化或**在途工作**（`pending_count`/`processing`）即复位并回到 2 秒。
+3. **脑暴视图下的"打开本地文件"引入了一个真陷阱（配套守卫）**：文件选择类 API 在宿主 iframe 里被拒（探测为真、调用必拒），「打开文件」改为走 `<input type=file>`；但本地文件进 `openHtml` 时 `deckPath=null`，而轨 A 的保存会经 `mcpAppPath(null)` 回落到 `mcpApp.resourcePath`——**用本地打开的文件覆盖 agent 管理的 deck**。轨 A 现在要求"画布就是本会话的受管 deck"，否则保存/换图一律拒绝并给出路（下载副本 / 独立窗口，见 v3.9.5 变更记录 ②）。
+
+**仍未解决**：静态问卷形态在宿主 ≤1200px 上限里的内部滚动（§17 末）不变；真宿主内的人工目检仍是 **NOT_RUN**。

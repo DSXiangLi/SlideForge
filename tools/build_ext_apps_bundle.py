@@ -27,8 +27,18 @@ DEFAULT_SOURCE = Path.home() / "Desktop" / "ext-apps" / "dist" / "src" / "app-wi
 FACADE = ROOT / "tools" / "ext_apps_facade.js"
 OUTPUT = ROOT / "tools" / "ext_apps_bundle.js"
 MANIFEST = ROOT / "tools" / "ext_apps_bundle.json"
-# editor.html 与门面共用的 View 版本号（改门面协议时同步）
-VIEW_VERSION = "3.9.2"
+# editor.html 头部注释是 View 版本的**单源**（`  版本：v3.9.3（2026-10-23）`）。
+# 历史上这里与 tools/bridge_mcp.py 各写一份字面量，于是出现"编辑器 v3.9.3 / 上报 3.9.2"
+# 的漂移（审计 F8）。现在由本脚本解析后写进 manifest，server 只读 manifest。
+VERSION_RE = re.compile(r"^\s*版本：v(\d+\.\d+\.\d+)", re.M)
+
+
+def view_version() -> str:
+    """从 editor.html 头解析 View 版本号。解析不到**直接失败**：宁可响，也不要静默漂移。"""
+    match = VERSION_RE.search((ROOT / "editor.html").read_text(encoding="utf-8"))
+    if not match:
+        raise SystemExit("editor.html 头部缺少 `版本：vX.Y.Z`，无法确定 View 版本")
+    return match.group(1)
 
 
 def strip_export(text: str) -> str:
@@ -47,15 +57,15 @@ def strip_export(text: str) -> str:
     return body + f"const __ext = {{{mapping}}};\n"
 
 
-def build(source: Path) -> str:
+def build(source: Path, version: str) -> str:
     raw = source.read_text(encoding="utf-8")
     if "import " in raw.split("const __ext")[0][:2000]:
         raise SystemExit("源 bundle 含 import 语句，无法作为单文件 module 注入")
-    facade = FACADE.read_text(encoding="utf-8").replace("VIEW_VERSION", json.dumps(VIEW_VERSION))
+    facade = FACADE.read_text(encoding="utf-8").replace("VIEW_VERSION", json.dumps(version))
     banner = (
         "/* 自动生成，请勿手改：python3 tools/build_ext_apps_bundle.py\n"
         f"   源：@modelcontextprotocol/ext-apps {source.name} sha256:{hashlib.sha256(raw.encode()).hexdigest()}\n"
-        f"   门面：tools/ext_apps_facade.js  版本：{VIEW_VERSION}\n"
+        f"   门面：tools/ext_apps_facade.js  版本：{version}\n"
         "   MCP Apps View 侧 bundle，仅经 server 资源 ui://pptx-html-bridge/editor.html 注入 */\n"
     )
     return banner + strip_export(raw) + "\n" + facade
@@ -68,11 +78,12 @@ def main() -> int:
     args = ap.parse_args()
     if not args.source.exists():
         raise SystemExit(f"找不到官方 bundle：{args.source}（用 --source 指定）")
-    bundle = build(args.source)
+    version = view_version()
+    bundle = build(args.source, version)
     digest = hashlib.sha256(bundle.encode()).hexdigest()
     manifest = {
         "generated_by": "tools/build_ext_apps_bundle.py",
-        "view_version": VIEW_VERSION,
+        "view_version": version,
         "source": str(args.source),
         "source_sha256": hashlib.sha256(args.source.read_bytes()).hexdigest(),
         "bundle_sha256": digest,

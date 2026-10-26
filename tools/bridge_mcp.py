@@ -25,6 +25,7 @@ import json
 import os
 import re
 import sys
+import threading
 from pathlib import Path
 from typing import Annotated, Any, Literal
 
@@ -72,7 +73,7 @@ class ValidationEvidence(BaseModel):
 try:
     from mcp.server.fastmcp import FastMCP
     from mcp.server.fastmcp.exceptions import ToolError
-    from mcp.types import ToolAnnotations, Tool
+    from mcp.types import CallToolResult, TextContent, ToolAnnotations, Tool
 except ImportError as exc:
     print("缺少官方 MCP SDK；请安装 mcp>=1.28,<2（手动编辑器不需要此依赖）", file=sys.stderr)
     raise SystemExit(3) from exc
@@ -97,14 +98,54 @@ VIEW_ARBITRATION_MARGIN_SEC = 4
 
 VIEW_URI = "ui://pptx-html-bridge/editor.html"
 VIEW_MIME = "text/html;profile=mcp-app"
-VIEW_VERSION = "3.9.2"
 APPS_EXTENSION = "io.modelcontextprotocol/ui"
 VIEW_BUNDLE_PATH = PROJECT_ROOT / "tools" / "ext_apps_bundle.js"
+VIEW_MANIFEST_PATH = PROJECT_ROOT / "tools" / "ext_apps_bundle.json"
 VIEW_SIZE_LIMIT = 2 * 1024 * 1024          # 宿主硬限制：超限静默回退纯文本（设计 §5.7）
 VIEW_SIZE_WARN = int(1.5 * 1024 * 1024)    # 构建期告警线
+VIEW_HANDSHAKE_TIMEOUT_MS = 15000          # View 等 ui/initialize 应答的上限（引导期承诺）
 EXTERNAL_REF_RE = re.compile(
     r"<script[^>]+\bsrc=|<link[^>]+\bhref\s*=\s*[\"']?https?:|<iframe[^>]+\bsrc=|<object\b|<embed\b", re.I
 )
+
+
+def _view_version() -> str:
+    """View 版本号：**单源**取自 bundle manifest（由构建脚本从 editor.html 头解析）。
+
+    历史上 `bridge_mcp.py` 与 `build_ext_apps_bundle.py` 各写一份字面量，于是出现
+    "编辑器 v3.9.3 / 上报 3.9.2"的漂移（F8）。读不到就报 `unknown`，不猜一个版本。
+    """
+    try:
+        manifest = json.loads(VIEW_MANIFEST_PATH.read_text(encoding="utf-8"))
+        return str(manifest["view_version"])
+    except Exception:
+        return "unknown"
+
+
+VIEW_VERSION = _view_version()
+
+# 工具 `title`：规范不强制，但官方示例都给 app 工具标题，且宿主列表里这是唯一的人类可读名
+# （实测 18 个工具的 title 全是 None，审计 F11）。集中一张表，避免散在 18 个装饰器里。
+TOOL_TITLES = {
+    "open_editor": "打开编辑器",
+    "await_intent": "等待用户意图",
+    "push_update": "回写发布",
+    "get_status": "读取任务状态",
+    "close_session": "结束会话",
+    "attach_view": "附着内嵌视图",
+    "read_deck": "读取目标 HTML",
+    "read_asset": "读取图片资产",
+    "read_export": "读取导出产物",
+    "save_deck": "保存目标 HTML",
+    "write_asset": "写入图片资产",
+    "submit_intent": "提交用户意图",
+    "cancel_intent": "取消意图",
+    "retry_intent": "恢复中断意图",
+    "query_intents": "查询意图",
+    "save_draft": "保存服务端草稿",
+    "list_versions": "列出历史版本",
+    "rollback": "回滚到历史版本",
+}
 
 # View 引导：必须在 editor.html 自身脚本之前**同步**定义 window.pptxMcp，
 # 否则 hostKindDetect 看不到门面而回落到既有三态。真正的实现在随后注入的 bundle
@@ -139,16 +180,19 @@ VIEW_BOOTSTRAP = """<script>
   api.onToolResult = function(cb){ api.__toolResult = cb;
     if (api.__lastToolResult){ try { cb(api.__lastToolResult); } catch(e){} } };
   window.pptxMcp = api;
-  /* 优雅失联：宿主导入资源却没完成握手（或 bundle 未注入）时，ready 不能永远悬着 */
+  /* 优雅失联：宿主导入资源却没完成握手（或 bundle 未注入）时，ready 不能永远悬着。
+     文案与计时**同源**（VIEW_HANDSHAKE_TIMEOUT_MS）——历史上写死"8s"而实际 15000ms（F13）。 */
   setTimeout(function(){
-    if (api.__pending && api.__rejectReady) api.__rejectReady(new Error("MCP Apps 握手超时：" + 8 + "s 内未收到 ui/initialize 应答"));
-  }, 15000);
+    if (api.__pending && api.__rejectReady) api.__rejectReady(new Error("MCP Apps 握手超时：%ds 内未收到 ui/initialize 应答"));
+  }, %d);
 })();
-</script>""" % json.dumps(VIEW_VERSION)
+</script>""" % (json.dumps(VIEW_VERSION), VIEW_HANDSHAKE_TIMEOUT_MS // 1000, VIEW_HANDSHAKE_TIMEOUT_MS)
 
-# app-only 工具：根级 + ui 内**双写** visibility（宿主 mcp/client.py:161-186 两条分支不一致，
-# 只在 ui 内写会泄露给模型 —— 设计 §3.1 第 3 条 / §8.8 第 1 条）。
-APP_ONLY_META = {"ui": {"visibility": ["app"]}, "visibility": ["app"]}
+# app-only 工具：`visibility` 只写在 `_meta.ui` —— 这是规范里的**唯一**位置（S:324-333，
+# SDK 读取路径见 `src/app-bridge.ts:151-171`）。历史上这里还双写了根级 `_meta.visibility`，
+# 那是**非规范字段**（规范明确否决扁平键，S:1668），1022 复读已确认原宿主（N15）改为标准路径
+# 优先，故不再需要（F4）。
+APP_ONLY_META = {"ui": {"visibility": ["app"]}}
 
 # app-only 工具的共用参数注记。必须放在模块级：`from __future__ import annotations`
 # 会把注解变成字符串，FastMCP 用函数的 __globals__ 求值，闭包内定义的名字解析不到。
@@ -188,6 +232,31 @@ def build_view_html() -> str:
     return view
 
 
+def error_envelope(exc: BaseException) -> dict[str, Any]:
+    """把工具调用失败归一成与 daemon 同形的 JSON 信封（F9）。
+
+    捕获到的异常通常是 SDK 的包装（`ToolError("Error executing tool <name>: …")`），
+    `exc.__cause__` 才是原始异常：我们自己的 `ToolError`（字符串就是 JSON 载荷）
+    或 pydantic 的 `ValidationError`。
+    """
+    inner = exc.__cause__ or exc
+    if isinstance(inner, ToolError):
+        try:
+            parsed = json.loads(str(inner))
+        except Exception:
+            parsed = None
+        if isinstance(parsed, dict) and parsed.get("ok") is False and isinstance(parsed.get("error"), dict):
+            return parsed
+    text = " ".join(str(inner).split())
+    invalid = "validation error" in text
+    return {"ok": False, "error": {
+        "code": "INVALID_ARGUMENT" if invalid else "STORAGE_UNAVAILABLE",
+        "message": text[:500] or "工具调用失败",
+        "retryable": not invalid,
+        "details": {},
+    }}
+
+
 class BridgeFastMCP(FastMCP):
     """工具面双模：宿主未声明 MCP Apps UI 扩展时只列出面向模型的五个工具。
 
@@ -205,14 +274,46 @@ class BridgeFastMCP(FastMCP):
         super().__init__(*args, **kwargs)
         self._view_html: str | None = None
 
+    async def call_tool(self, name, arguments):
+        """统一错误信封（F9）：任何失败都以 `isError=true` + **纯 JSON 文本** 返回。
+
+        mcp 1.28 的 `Tool.run`（`server/fastmcp/tools/base.py:117`）把**任何**异常重包成
+        `ToolError("Error executing tool <name>: …")`，参数校验失败更是连 JSON 都不是，
+        于是模型与 View 拿到的是带散文前缀的文本，与 AGENTS/SKILL 声称的"错误是 JSON"不符。
+        这里兜住失败并直接构造 `CallToolResult`——低层会**原样透传**（`lowlevel/server.py:546`），
+        因此不会拿错误载荷去撞成功路径的 `outputSchema` 校验。
+        """
+        try:
+            return await super().call_tool(name, arguments)
+        except Exception as exc:
+            payload = error_envelope(exc)
+            return CallToolResult(
+                content=[TextContent(type="text",
+                                     text=json.dumps(payload, ensure_ascii=False, separators=(",", ":")))],
+                isError=True,
+            )
+
     def apps_declared(self) -> bool:
+        """客户端是否声明 MCP Apps 扩展**且**支持 html profile（F5）。
+
+        只认扩展键是不够的：规范把 `mimeTypes` 标为 REQUIRED（S:1522），官方助手也以
+        `mimeTypes.includes("text/html;profile=mcp-app")` 为门（`src/server/index.ts:478`）。
+        缺省时按**宽松**处理——生成式 schema 把它标成可选（`src/generated/schema.ts:767-769`），
+        把"没写 mimeTypes"判成"不支持"会误伤真实宿主；声明了却给别的类型才必须挡住。
+        """
         try:
             params = self._mcp_server.request_context.session.client_params
         except Exception:
             return False
         caps = getattr(params, "capabilities", None)
         extra = getattr(caps, "model_extra", None) or {}
-        return APPS_EXTENSION in (extra.get("extensions") or {})
+        declared = (extra.get("extensions") or {}).get(APPS_EXTENSION)
+        if not isinstance(declared, dict):
+            return False
+        mimes = declared.get("mimeTypes")
+        if mimes is None:
+            return True
+        return isinstance(mimes, list) and VIEW_MIME in mimes
 
     def apps_tools_listed(self) -> bool:
         mode = (os.environ.get("PPTX_HTML_APPS_TOOLS") or "auto").strip().lower()
@@ -224,19 +325,39 @@ class BridgeFastMCP(FastMCP):
 
     async def list_tools(self) -> list[Tool]:
         tools = await super().list_tools()
+        # 工具标题在这里统一补齐（F11）：`title` 在规范里不是必填，但官方示例都给 app 工具
+        # 标题，且宿主列表里这是唯一的人类可读名。集中一张表，不散进 18 个装饰器。
+        for tool in tools:
+            if not tool.title:
+                tool.title = TOOL_TITLES.get(tool.name)
         if self.apps_tools_listed():
             return tools
         return [tool for tool in tools if tool.name not in self._app_only_names]
 
 
+def consumer_id_for(workdir: str) -> str:
+    """轨 A 的 consumer 身份：由 workdir 派生，**跨进程稳定**。
+
+    宿主（如 langchain_mcp_adapters）可能每次工具调用都新起一个 stdio 进程，随机 UUID
+    会让 `open_editor` 与后续调用落在不同 consumer 上。派生值让同一工作目录的所有进程
+    共享一个身份——daemon 因此能在 MCP 重启后继续正确判定会话归属（见
+    `BridgeCore.assert_consumer`）。测试 harness 复用本函数，避免两处各写一份。
+    """
+    return "mcp-" + hashlib.sha256(str(Path(workdir).resolve()).encode()).hexdigest()[:16]
+
+
 class BridgeMCP:
     def __init__(self, workdir: str, *, allow_convert=False, allow_imagegen=False):
         self.workdir = str(Path(workdir).resolve())
-        # langchain_mcp_adapters creates a new stdio subprocess per tool call,
-        # so a random UUID would differ between open_editor and await_intent.
-        # Derive a stable consumer_id from the workdir so all calls share one.
-        self.consumer_id = "mcp-" + hashlib.sha256(self.workdir.encode()).hexdigest()[:16]
-        self.discovery = ensure_daemon(self.workdir, allow_convert=allow_convert, allow_imagegen=allow_imagegen)
+        self.consumer_id = consumer_id_for(self.workdir)
+        # daemon 懒解析（F1）：注册期早于 `initialize`，这里**不得**依赖 daemon 可用性——
+        # 若在构造函数里就 `ensure_daemon`，任何失败（工作目录不可写、启动超时……）都会让
+        # 整个 MCP server 崩溃，宿主看到的是"一个工具都没有"。改为首次调用时解析，
+        # 失败以干净的工具错误（STORAGE_UNAVAILABLE）返回给模型与 View。
+        self._allow_convert = allow_convert
+        self._allow_imagegen = allow_imagegen
+        self.discovery: dict[str, object] | None = None
+        self._discovery_lock = threading.Lock()
         self.owned_sessions: set[str] = set()
         self.view_wait_sec = self._env_view_wait_sec()
         self._stop = asyncio.Event()
@@ -259,6 +380,11 @@ class BridgeMCP:
             lifespan=lifespan,
             app_only_names=APP_ONLY_TOOL_NAMES,
         )
+        # serverInfo.version（F7）：mcp 1.28 的 `FastMCP` 不接受 version 形参，低层 Server 于是
+        # 回落成 SDK 自己的版本（实测报 1.28.0）。直接写低层实例属性，让 initialize 报**本应用**
+        # 的版本——与 editor.html 同源，避免宿主日志里认不出服务身份。
+        with contextlib.suppress(Exception):
+            self.mcp._mcp_server.version = VIEW_VERSION
         self._register()
 
     @staticmethod
@@ -271,22 +397,49 @@ class BridgeMCP:
         except ValueError:
             return float(VIEW_WAIT_SEC_DEFAULT)
 
+    def _discovery(self) -> dict[str, object]:
+        """解析（并缓存）daemon discovery；失败一律转成带 JSON 载荷的 ToolError。
+
+        `ensure_daemon` 在 daemon 不可达时会同步尝试拉起（最长 10 秒），所以调用方
+        必须经 `asyncio.to_thread` 走线程，别堵住事件循环。
+        """
+        if self.discovery is not None:
+            return self.discovery
+        with self._discovery_lock:
+            if self.discovery is not None:
+                return self.discovery
+            try:
+                self.discovery = ensure_daemon(self.workdir, allow_convert=self._allow_convert,
+                                               allow_imagegen=self._allow_imagegen)
+            except BridgeError as exc:
+                raise ToolError(json.dumps(exc.payload(), ensure_ascii=False, separators=(",", ":"))) from exc
+            except Exception as exc:
+                raise ToolError(json.dumps(
+                    {"ok": False, "error": {"code": "STORAGE_UNAVAILABLE",
+                                            "message": f"bridge daemon 不可用：{exc}",
+                                            "retryable": True, "details": {}}},
+                    ensure_ascii=False, separators=(",", ":"))) from exc
+            return self.discovery
+
     async def _request(self, path: str, body: dict, timeout=130):
         try:
-            return await asyncio.to_thread(admin_request, self.discovery, path, body, timeout)
+            discovery = await asyncio.to_thread(self._discovery)
+            return await asyncio.to_thread(admin_request, discovery, path, body, timeout)
+        except ToolError:
+            raise
         except BridgeError as exc:
             raise ToolError(json.dumps(exc.payload(), ensure_ascii=False, separators=(",", ":"))) from exc
         except Exception as exc:
             raise ToolError(json.dumps({"ok":False,"error":{"code":"STORAGE_UNAVAILABLE","message":"bridge daemon unavailable","retryable":True,"details":{}}},separators=(",", ":"))) from exc
 
     async def _app_request(self, name: str, arguments: dict[str, Any], timeout: int = 60) -> str:
-        """app-only 工具的统一出口：工具层自校验 → daemon → **JSON 文本**。
+        """app-only 工具的统一出口：附 consumer 身份 → daemon 校验归属 → **JSON 文本**。
 
         必须返回字符串：宿主 `mcp_result_to_ui_text` 把 CallToolResult 剥成纯文本，
         `structuredContent` 不会到达 View（设计 §3.1 第 4 条）。
         """
         try:
-            _method, path, body = build_request(name, arguments, owned_sessions=self.owned_sessions)
+            _method, path, body = build_request(name, arguments, consumer_id=self.consumer_id)
         except DispatchError as exc:
             raise ToolError(json.dumps(exc.payload(), ensure_ascii=False, separators=(",", ":"))) from exc
         result = await self._request(path, body, timeout=timeout)
@@ -431,7 +584,9 @@ class BridgeMCP:
             title="PPTX-HTML 编辑器",
             description="Editor workbench view (edit / annotate / compare) rendered by an MCP Apps host.",
             mime_type=VIEW_MIME,
-            meta={"ui": {"permissions": {"clipboardWrite": {}}}},
+            # `prefersBorder` 显式声明（F11）：规范建议显式给，因为宿主默认值不一致。
+            # 取 False —— 工作台自带完整 chrome（顶栏 / 侧栏 / 背景），再叠宿主边框会双重框住。
+            meta={"ui": {"permissions": {"clipboardWrite": {}}, "prefersBorder": False}},
         )
         def editor_view() -> str:
             if self.mcp._view_html is None:

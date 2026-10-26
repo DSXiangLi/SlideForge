@@ -39,7 +39,14 @@
   var sandboxArg = params.get('sandbox') || 'trusted';
   var sandboxMode = sandboxArg === 'host' ? 'host' : 'trusted';
   var SANDBOX_ATTR = sandboxMode === 'trusted' ? 'allow-scripts allow-same-origin' : 'allow-scripts';
-  var CSP = "default-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data:; " +
+  /* 两套 CSP：
+     - 默认 = **参考宿主**（`examples/basic-host/serve.ts`）：`font-src 'self' data:` ⇒ data: 字体可用；
+     - `csp=spec` = **规范默认**（S:275-284）：**没有 `font-src`** ⇒ 落到 `default-src 'none'`，
+       data: 字体必被挡。这是 F10 的复现条件（`_meta.ui.csp` 表达不了 `data:`）。 */
+  var CSP = params.get('csp') === 'spec'
+    ? "default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; " +
+      "img-src 'self' data:; media-src 'self' data:; connect-src 'none'"
+    : "default-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data:; " +
             "img-src 'self' data: blob:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; " +
             "connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'none'";
 
@@ -134,9 +141,16 @@
       respondError(msg.id, -32000, '宿主代理未注入（window.mcpCall 缺失）');
       return;
     }
-    Promise.resolve(window.mcpCall(String(call.name), JSON.stringify(args))).then(function(text){
-      text = String(text == null ? '' : text);
-      var isError = /^Error executing tool /.test(text);
+    Promise.resolve(window.mcpCall(String(call.name), JSON.stringify(args))).then(function(raw){
+      /* 代理可以返回 {text, isError}（推荐，与真实 CallToolResult 同形）或纯文本。
+         此前靠 `/^Error executing tool /` 猜 isError —— server 端已改为纯 JSON 信封
+         （审计 F9），前缀不再存在，猜法会永远判成"成功"。 */
+      var text, isError;
+      if (raw && typeof raw === 'object' && typeof raw.text === 'string'){
+        text = raw.text; isError = !!raw.isError;
+      } else {
+        text = String(raw == null ? '' : raw); isError = false;
+      }
       respond(msg.id, {content:[{type:'text', text:text}], isError:isError});
     }).catch(function(err){
       respond(msg.id, {content:[{type:'text', text:String((err && err.message) || err)}], isError:true});

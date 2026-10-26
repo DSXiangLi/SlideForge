@@ -57,10 +57,9 @@
                  .map(function(b){ return b.text; }).join("");
   }
 
-  /* MCP Python SDK 会把**任何**工具异常重新包成
-     `Error executing tool <name>: <原消息>`（mcp/server/fastmcp/tools/base.py），
-     所以我们抛出的 `{"ok":false,...}` JSON 会带上这段散文前缀，且 isError 分支
-     按约定不带 structuredContent。必须先剥前缀再解析，否则 error.code / details 全丢。 */
+  /* 自 server 起**不再**有散文前缀：`BridgeFastMCP.call_tool` 兜住失败并返回
+     `isError=true` + 纯 JSON 文本（见审计 F9 / `tools/bridge_mcp.py:error_envelope`）。
+     剥前缀保留为**防御**：宿主或其它 SDK 版本仍可能包一层 `Error executing tool …`。 */
   function stripToolPrefix(text){
     return String(text == null ? "" : text).replace(/^Error executing tool [^:\n]*:\s*/, "");
   }
@@ -186,7 +185,11 @@
 
   (async function(){
     try {
-      await app.connect(new PostMessageTransport());
+      /* 传输层必须显式给 eventSource：官方 `App.connect` 的默认就传两次 `window.parent`。
+         不给第二个参数会命中 SDK 的 `if (eventSource && …)` 短路，**任何窗口**都能往
+         View 注入 JSON-RPC 消息——而 View 自己还会创建嵌套 deck iframe（见 editor.html）。
+         见审计 F6 / 1022 的 A3。 */
+      await app.connect(new PostMessageTransport(window.parent, window.parent));
       install(real());
       if (api.__resolveReady) api.__resolveReady(api.__hostContext);
     } catch(e){

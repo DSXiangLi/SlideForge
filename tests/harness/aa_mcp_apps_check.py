@@ -27,6 +27,14 @@ bundle + window.pptxMcp 门面）与真实 daemon（BridgeCore 全套状态机�
      Esc/✕ 关闭解除标记、`get_status` 轮询不翻回视图、高度上报自愈、注入 brief_options 动态渲染；
      **症状类断言两臂都跑**（受信 + 受限沙箱），另用裸静态态与嵌入态断言"无 session 的两态不参与分流"
      （#11，静态/嵌入 DOM 断言即可，不新建宿主臂）。
+  ⑨ 首份 deck 到达（v3.9.5）：无 deck 的脑暴会话里**用户提交简报**（真按钮路径 → submit_intent 工具）
+     → agent 侧认领 intent、写工作副本、push_update 发布 → View 的 2s 轮询必须 `read_deck`、
+     渲染 deck、摘掉 `data-launch` 并落到编辑页签。这条覆盖"`mcpApp.revision` 为 null 时
+     旧条件恒假 → read_deck 永不发生"的缺陷（症状：agent 生成完 deck 后页面既不关脑暴也不进编辑视图）。
+  ⑩ 本地画布守卫 + 轨 A 换图（v3.9.5）：`<input type=file>` 回路加载的**本地画布**不属于受管
+     工作区，保存必须被拒（`mcpAppPath(null)` 会回落到 `resourcePath`，等于用本地文件覆盖 agent 的
+     deck）；受管画布的换图必须走 host 通道 `write_asset` 且产物保持 `assets/` 引用（旧代码是空
+     catch 的静默 no-op）。
 """
 
 from __future__ import annotations
@@ -47,7 +55,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "tools"))
 
-from tools.bridge_core import admin_request  # noqa: E402
+from tools.bridge_core import admin_request, revision_cli  # noqa: E402
 from tools.bridge_dispatch import build_request  # noqa: E402
 from tests.harness.s_bridge_scale_check import (  # noqa: E402
     Daemon, bind_browser_token, check, managed_post, one_request,
@@ -64,6 +72,12 @@ DECK = ('<!doctype html><html><head><meta charset="utf-8"><title>轨 A 验收</t
         'data-image-state="placeholder"></section>'
         '<section class="slide" data-slide-id="s2"><h2 data-editable>第二节</h2></section>'
         '</body></html>')
+
+# ⑨ 首份 deck 到达用的最小 deck：**不外引** assets/fonts（briefing 会话的发布按 candidate
+# manifest 校验目录，任何未随发布落盘的外引文件都会让 post-flight 清单校验失败）。
+FIRST_DECK = ('<!doctype html><html><head><meta charset="utf-8"><title>首份 deck</title></head>'
+              '<body><section class="slide" data-slide-id="s1">'
+              '<h1 data-editable>首份 deck 已生成</h1></section></body></html>')
 
 # 字体夹具：@font-face 的 url() 在轨 A 也必须水合成 data:（A4），内容不参与渲染断言
 FONT_BYTES = b"wOF2" + b"\x00" * 60
@@ -129,29 +143,38 @@ MODEL_TOOL_ROUTES = {
 }
 
 
-def make_tool_proxy(discovery):
+def _tool_error_payload(exc):
+    if hasattr(exc, "payload"):
+        return exc.payload()
+    return {"ok": False, "error": {"code": "STORAGE_UNAVAILABLE", "message": str(exc),
+                                   "retryable": True, "details": {}}}
+
+
+def make_tool_proxy(discovery, consumer):
+    """模拟真实宿主的 `tools/call` 代理。
+
+    返回 `{text, isError}`，与 server 端 `BridgeFastMCP.call_tool` 的 `CallToolResult`
+    **同形**：失败一律 `isError=True` + **纯 JSON 文本**（审计 F9 之后不再有
+    `Error executing tool <name>: ` 散文前缀）。
+    """
     def proxy(name, args_json):
         args = json.loads(args_json or "{}")
         if name in MODEL_TOOL_ROUTES:
             method, path = MODEL_TOOL_ROUTES[name].split(" ", 1)
             try:
-                return json.dumps(admin_request(discovery, path, args if method == "POST" else None, 120),
-                                  ensure_ascii=False)
+                payload = admin_request(discovery, path, args if method == "POST" else None, 120)
             except Exception as exc:  # BridgeError
-                payload = exc.payload() if hasattr(exc, "payload") else {
-                    "ok": False, "error": {"code": "STORAGE_UNAVAILABLE", "message": str(exc)}}
-                return "Error executing tool %s: %s" % (name, json.dumps(payload, ensure_ascii=False))
+                return {"isError": True, "text": json.dumps(_tool_error_payload(exc), ensure_ascii=False)}
+            return {"isError": False, "text": json.dumps(payload, ensure_ascii=False)}
         try:
-            _method, path, body = build_request(name, args, owned_sessions=None)
+            _method, path, body = build_request(name, args, consumer_id=consumer)
         except Exception as exc:  # DispatchError
-            return "Error executing tool %s: %s" % (name, json.dumps(
-                {"ok": False, "error": {"code": "INVALID_ARGUMENT", "message": str(exc)}}, ensure_ascii=False))
+            return {"isError": True, "text": json.dumps(_tool_error_payload(exc), ensure_ascii=False)}
         try:
-            return json.dumps(admin_request(discovery, path, body, 120), ensure_ascii=False)
+            payload = admin_request(discovery, path, body, 120)
         except Exception as exc:  # BridgeError
-            payload = exc.payload() if hasattr(exc, "payload") else {
-                "ok": False, "error": {"code": "STORAGE_UNAVAILABLE", "message": str(exc)}}
-            return "Error executing tool %s: %s" % (name, json.dumps(payload, ensure_ascii=False))
+            return {"isError": True, "text": json.dumps(_tool_error_payload(exc), ensure_ascii=False)}
+        return {"isError": False, "text": json.dumps(payload, ensure_ascii=False)}
     return proxy
 
 
@@ -186,12 +209,25 @@ def run_trusted_arm(base, page, daemon, opened, work, discovery, browser_token, 
     sizes = page.evaluate("() => window.hostSim.sizes")
     check(any(s.get("height") == 1200 for s in sizes), f"未按宿主 maxHeight 上报高度: {sizes}")
 
-    # A1 · 工具错误码：FastMCP 给错误加的是散文前缀，门面剥前缀后必须仍还原 error.code
+    # A1/F9 · 工具错误：server 端已是**纯 JSON 信封**（无 SDK 散文前缀），
+    # 宿主原样下发的 CallToolResult 必须 isError 且文本可直接 JSON.parse 出 error.code。
+    raw = frame.evaluate("""async () => {
+      var r = await window.pptxMcp.app.callServerTool({name:'read_asset', arguments:{session_id: mcpApp.sessionId, path: 'etc/passwd'}});
+      var blocks = (r && r.content) || [];
+      return {isError: !!(r && r.isError), text: ((blocks[0] || {}).text) || '',
+              structured: (r && r.structuredContent) == null ? null : r.structuredContent};
+    }""")
+    check(raw.get("isError") is True, f"宿主导游下发的错误结果没有 isError: {raw}")
+    check("Error executing tool" not in (raw.get("text") or ""),
+          f"错误文本仍带 SDK 散文前缀（F9）: {raw.get('text')[:160]}")
+    body = json.loads(raw.get("text") or "{}")
+    check(body.get("ok") is False and (body.get("error") or {}).get("code") == "INVALID_ARGUMENT",
+          f"错误文本不是可解析的 JSON 信封（F9）: {raw.get('text')[:160]}")
     err = frame.evaluate("""async () => {
       try { await window.pptxMcp.callTool('read_asset', {session_id: mcpApp.sessionId, path: 'etc/passwd'}); return {code:'NO_ERROR'}; }
       catch(e){ return {code: e.code || null, message: e.message}; }
     }""")
-    check(err.get("code") == "INVALID_ARGUMENT", f"带前缀的 ToolError 未还原出 error.code: {err}")
+    check(err.get("code") == "INVALID_ARGUMENT", f"未还原出 error.code: {err}")
     check("Error executing tool" not in (err.get("message") or ""), f"错误消息仍带 SDK 前缀: {err}")
 
     # A4 · CSS 资产水合：@font-face 的 url() 在轨 A 必须变成 data: URI
@@ -330,12 +366,12 @@ def open_split(daemon, work, *, view="__absent__", with_deck=True, brief_options
 class ViewPage:
     """宿主模拟器里装载 View 的一页：驱动 tool-input / tool-result 并读取帧内状态。"""
 
-    def __init__(self, browser, base, discovery, sandbox="trusted", view_rel="view.html"):
+    def __init__(self, browser, base, discovery, sandbox="trusted", view_rel="view.html", consumer="split-harness"):
         self.page = browser.new_page()
         self.errors = []
         self.page.on("pageerror", lambda e: self.errors.append(str(e)))
         self.page.add_init_script(FRAME_ERROR_COLLECTOR)
-        self.page.expose_function("mcpCall", make_tool_proxy(discovery))
+        self.page.expose_function("mcpCall", make_tool_proxy(discovery, consumer))
         self.page.goto(base + f"/mcp_apps_host_sim.html?view={view_rel}&sandbox={sandbox}")
         wait_for(lambda: self.page.evaluate("() => window.hostSim.state") == "initialized", what="View 完成 ui/initialize 握手")
         check(self.page.evaluate("() => window.hostSim.errors") == [], "宿主模拟器自身报错")
@@ -568,6 +604,155 @@ def run_launch_split_trusted_arm(browser, base, root):
         managed_post(daemon, "/api/bridge/stop", {"reason": "cli-stop"})
 
 
+# ============================================================
+# 首份 deck 到达（v3.9.5，⑨）：脑暴会话从「没有 deck」到「有 deck」——
+# `open_editor(view="brief")` 建的是 briefing 会话（deck_path=NULL / revision=NULL），agent 生成完
+# deck 后再发布。旧轮询条件 `st.revision && mcpApp.revision && …` 里 `mcpApp.revision` 恒为 null
+# → 条件恒假 → `read_deck` 永不发生：脑暴不关、编辑视图不出现（用户报告的症状）。
+# 这条用例驱动**真按钮路径**（#btnBriefSend → submit_intent 工具）+ 真 daemon 发布，只断言
+# View 侧的行为；断言非恒真由"旧条件必超时"保证（可复现：把 editor.html 的条件改回旧式即红）。
+# ============================================================
+
+def publish_first_deck(discovery, daemon, session_id, consumer, deck_text, timeout=30):
+    """扮演 agent 侧：认领 pending intent → 在工作副本写 deck → push_update complete 发布。"""
+    claimed = admin_request(discovery, "/api/bridge/await",
+                            {"session_id": session_id, "consumer_id": consumer, "timeout_sec": timeout},
+                            timeout + 10)
+    check(claimed.get("kind") == "intent" and claimed.get("work_path"),
+          f"agent 未认领到简报 intent（View 没提交成功？）: {claimed}")
+    work_path = Path(claimed["work_path"])
+    work_path.parent.mkdir(parents=True, exist_ok=True)
+    work_path.write_text(deck_text, encoding="utf-8")
+    validation = {"candidate_revision": revision_cli(work_path), "checks": [
+        {"name": name, "argv": ["test", name], "exit_code": 0, "report_path": None}
+        for name in ("render", "capacity", "images", "manifest")]}
+    return managed_post(daemon, "/api/bridge/update", {
+        "session_id": session_id, "intent_id": claimed["intent_id"], "attempt": claimed["attempt"],
+        "consumer_id": consumer, "action": "complete", "message": "T36 首份 deck", "validation": validation})
+
+
+def run_brief_first_deck_trusted_arm(browser, base, root):
+    """⑨ 受信沙箱臂：无 deck 的脑暴会话 → 提交简报 → agent 发布 deck → View 切编辑视图。
+
+    workdir 手工建（不用 `split_workdir`）：briefing 会话的目录必须**干净**——发布按 candidate
+    manifest 做 post-flight 校验（`_publish` 的 `obs_rev != new_rev` → RECOVERY_FAILED），
+    `split_workdir` 预置的 assets/pixel.png 是未登记文件，会让首次发布直接失败。
+    """
+    work = root / "split" / "first-deck"
+    work.mkdir(parents=True)
+    with Daemon(work) as daemon:
+        discovery = discover(work)
+        opened = open_split(daemon, work, view="brief", with_deck=False)
+        check(opened["deck_path"] is None and not opened["revision"],
+              f"无 deck 会话的前提不成立: deck_path={opened['deck_path']!r} revision={opened['revision']!r}")
+        view = ViewPage(browser, base, discovery)
+        try:
+            view.result(opened)
+            st = view.wait_launch("brief", "首份 deck 用例的脑暴视图")
+            check(st["overlayShown"] and st["centerInOverlay"] and st["headerH"] == 0,
+                  f"无 deck + view=brief 未落整屏脑暴视图: {st}")
+            # 用户在脑暴页点「确认并发送简报」——真按钮路径（buildBriefExport → bridgeSend → submit_intent）。
+            # 用 DOM click 而不是 Playwright 的鼠标点击：静态问卷表单很长，按钮落在 iframe 可见区之外
+            # （overlay 是固定定位 + 内部滚动，Playwright 的"滚进视口"对内部滚动容器无能为力）。
+            view.frame.evaluate("() => document.getElementById('btnBriefSend').click()")
+            wait_for(lambda: "submit_intent" in view.chain(), what="脑暴页提交简报（submit_intent 工具）")
+            check("read_deck" not in view.chain(), "提交简报阶段不该读 deck（那时还没有 deck）")
+
+            published = publish_first_deck(discovery, daemon, opened["session_id"], "split-harness", FIRST_DECK)
+            check(published.get("revision"), f"发布未返回 revision: {published}")
+            # 轮询是 2s 一档：给足窗口（首份 deck 的到达本身算一次"变化"）
+            wait_for(lambda: "read_deck" in view.chain(), timeout=25,
+                     what="首份 deck 到达后 View 调 read_deck（旧条件恒假时这里必定超时）")
+            st = view.wait_launch(None, "首份 deck 到达后摘除脑暴视图", timeout=25)
+            check(view.frame.evaluate(
+                "() => { var d = doc(); return !!(d && d.body && d.body.textContent.indexOf('首份 deck 已生成') >= 0); }"),
+                f"首份 deck 未在 View 内渲染: {st}")
+            check(not st["overlayShown"] and not st["centerInOverlay"], f"脑暴层仍盖住工作台: {st}")
+            check(st["headerH"] > 0 and st["footerH"] > 0, f"切回工作台后 chrome 未恢复可见: {st}")
+            check(st["view"] == "edit", f"deck 到达后未落到编辑页签: {st}")
+            check(st["applied"] == "brief", f"落点记录被改写（应为最初判定的 brief）: {st}")
+            view.assert_clean("⑨ 首份 deck 到达")
+        finally:
+            view.close()
+        managed_post(daemon, "/api/bridge/stop", {"reason": "cli-stop"})
+
+
+# ============================================================
+# ⑩ 本地画布守卫 + 轨 A 换图（v3.9.5）：嵌入态与轨 A 里 `showOpenFilePicker` 探测为真但**调用**
+# 被宿主权限策略拒绝，「打开文件」改用 `<input type=file>` 之后会引入"本地画布"——它不属于本会话
+# 的受管 deck，保存/换图必须被拒（否则 `mcpAppPath(null)` 回落到 `mcpApp.resourcePath`，用本地
+# 文件覆盖 agent 的受管 deck）。同一条用例顺带验证受管画布的换图走通 host 通道 `write_asset`
+# ——旧代码在这里是空的 catch（静默 no-op），这条路从未跑到。
+# ============================================================
+
+LOCAL_DECK = ('<!doctype html><html><head><meta charset="utf-8"></head><body>'
+              '<section class="slide" data-slide-id="s9"><h1 data-editable>本地文件</h1></section>'
+              '</body></html>')
+
+
+def run_local_canvas_and_asset_arm(browser, base, root):
+    """⑩ 受信沙箱臂：本地画布必须写不进受管工作区；受管画布的换图必须走 host 通道。"""
+    work = root / "managed"
+    work.mkdir(parents=True)
+    (work / "assets").mkdir()
+    (work / "assets" / "pixel.png").write_bytes(PNG_1PX)
+    (work / "fonts").mkdir()
+    (work / "fonts" / "harness.woff2").write_bytes(FONT_BYTES)
+    (work / "index.html").write_text(DECK, encoding="utf-8")
+    with Daemon(work) as daemon:
+        discovery = discover(work)
+        opened = managed_post(daemon, "/api/bridge/open", {
+            "consumer_id": "split-harness", "deck_path": str(work / "index.html"),
+            "output_path": "index.html", "view": "edit", "open_browser": False})
+        view = ViewPage(browser, base, discovery)
+        try:
+            view.result(opened)
+            wait_for(lambda: view.state()["deckText"], what="⑩ 受管 deck 载入")
+            managed_before = (work / "index.html").read_bytes()
+
+            # (a) 本地画布（与 <input type=file> 回路完全同形：handle=null / deckPath=null）→ 保存必须被拒
+            view.frame.evaluate("text => openHtml(text, 'local.html', null, undefined, null)", LOCAL_DECK)
+            wait_for(lambda: view.frame.evaluate("() => state.deckPath === null"), what="⑩ 本地画布就位")
+            view.page.evaluate("() => window.hostSim.toolCalls = []")
+            view.frame.evaluate("() => saveDeck()")
+            wait_for(lambda: view.frame.evaluate(
+                "() => document.getElementById('warnBanner').classList.contains('show')"),
+                what="⑩ 本地画布保存被拒并给出路")
+            check("save_deck" not in view.chain(), f"本地画布竟然写了受管 deck: {view.chain()}")
+            check("受管 deck" in view.frame.evaluate(
+                "() => document.getElementById('warnText').textContent"),
+                "本地画布被拒时没有说明原因（守卫必须有声音）")
+            check((work / "index.html").read_bytes() == managed_before, "受管 deck 被本地画布改写了")
+
+            # (b) 回到受管画布：换图走 host 通道 write_asset，并把**引用**（assets/）保存回 deck
+            view.frame.evaluate("() => mcpAppLoadDeck(mcpApp.resourcePath, mcpApp.revision, false)")
+            wait_for(lambda: view.frame.evaluate("() => state.deckPath === 'index.html'"), what="⑩ 受管画布重载")
+            view.page.evaluate("() => window.hostSim.toolCalls = []")
+            # 轨 A 没有系统文件选择器（调了也是被拒）——按轨走 `<input type=file>`。喂文件用
+            # Playwright 的 filechooser 事件（拦截 input.click() 打开的选择器）而不是事后再
+            # set_input_files：后者与"选择器正在打开"竞争，实测偶发十几秒的延迟。
+            view.page.on("filechooser", lambda chooser: chooser.set_files({
+                "name": "pixel.png", "mimeType": "image/png", "buffer": PNG_1PX}))
+            view.frame.evaluate("""() => {
+              var img = doc().querySelector('img'); window.__assetImg = img; replaceImage(img);
+            }""")
+            wait_for(lambda: "write_asset" in view.chain(),
+                     what="⑩ 轨 A 换图走 write_asset（旧代码为静默 no-op）")
+            wait_for(lambda: view.frame.evaluate(
+                "() => window.__assetImg.getAttribute('data-image-state') === 'uploaded'"), what="⑩ 换图置 uploaded")
+            # 轮询谓词必须落在**浏览器侧**：纯 Python 的 sleep/读文件不会驱动 Playwright 同步 API 的
+            # 回调分发，宿主代理（mcpCall 绑定）的在途调用会一直挂着（实测表现为保存卡 ~15s 后
+            # 才落地）。dirty 复位 = save_deck 成功（daemon 回执之后磁盘文件已提交）。
+            wait_for(lambda: view.frame.evaluate("() => state.dirty === false"), what="⑩ 换图后的引用保存成功")
+            saved = (work / "index.html").read_text(encoding="utf-8")
+            check("assets/pixel.png" in saved and "data:image" not in saved and 'data-image-state="uploaded"' in saved,
+                  "换图后的产物没有保持 assets/ 引用（数据 URI 不得进磁盘 deck）")
+            view.assert_clean("⑩ 本地画布守卫 + 轨 A 换图")
+        finally:
+            view.close()
+        managed_post(daemon, "/api/bridge/stop", {"reason": "cli-stop"})
+
+
 def run_launch_split_host_arm(browser, base, root):
     """受限沙箱臂（仓库默认 `allow_same_origin: false` → 只有 allow-scripts）。
 
@@ -645,6 +830,42 @@ def run_launch_split_static_state(browser, base, serve):
         page.close()
 
 
+def run_font_csp_arm(browser, base, discovery, opened, rel="view.html"):
+    """F10 正例：**规范默认 CSP**（没有 `font-src` ⇒ 落到 `default-src 'none'`）下 data: 字体必被挡，
+    编辑器必须检测到并**一次性告警**说明原因与出路。
+
+    默认臂用的是参考宿主 CSP（`font-src 'self' data:`），字体能显示、也就没什么可告警——
+    所以这条只能在 `csp=spec` 下复现（`_meta.ui.csp` 的 `resourceDomains` 表达不了 `data:`）。
+    """
+    page = browser.new_page()
+    errors = []
+    console = []
+    page.on("pageerror", lambda e: errors.append(str(e)))
+    page.on("console", lambda m: console.append(m.text))
+    page.expose_function("mcpCall", make_tool_proxy(discovery, "apps-harness"))
+    page.goto(base + f"/mcp_apps_host_sim.html?view={rel}&sandbox=trusted&csp=spec")
+    wait_for(lambda: page.evaluate("() => window.hostSim.state") == "initialized", what="spec-CSP 臂的握手")
+    frame = find_view_frame(page)
+    page.evaluate("payload => window.hostSim.sendToolResult(payload)", opened)
+    wait_for(lambda: "read_deck" in [c["name"] for c in page.evaluate("() => window.hostSim.toolCalls")],
+             what="spec-CSP 臂的 read_deck")
+    deadline = time.time() + 15
+    while time.time() < deadline and not frame.evaluate("() => !!(window.mcpApp && window.mcpApp.fontCspWarned)"):
+        time.sleep(0.2)
+    diag = frame.evaluate("""() => ({
+      warned: !!(window.mcpApp && window.mcpApp.fontCspWarned),
+      hasDeckDoc: !!doc(),
+      bridgeState: document.getElementById('bridgeState').textContent,
+      warnText: (document.getElementById('warnText') || {}).textContent || ''
+    })""")
+    csp_console = [c for c in console if "Content Security Policy" in c or "Refused" in c]
+    check(diag["warned"], f"F10：规范默认 CSP 挡下字体后应触发一次性告警；诊断={diag}；CSP 控制台={csp_console[:2]}")
+    text = diag["warnText"]
+    check("font-src" in text and "data:" in text, f"F10 告警未说明原因与出路: {text[:220]}")
+    check(errors == [], f"spec-CSP 臂出现 JS 报错: {errors}")
+    page.close()
+
+
 def run_noncompliant_host_arm(base, page, opened, rel="view.html"):
     """负例臂：宿主保持默认（`allow_same_origin: false` → 只有 allow-scripts）时**必须明确报错并给处置指引**。
 
@@ -707,16 +928,21 @@ def main() -> int:
             with static_server(serve) as base, sync_playwright() as pw:
                 browser = pw.chromium.launch()
                 page = browser.new_page()
-                page.expose_function("mcpCall", make_tool_proxy(discovery))
+                page.expose_function("mcpCall", make_tool_proxy(discovery, "apps-harness"))
                 browser_token = bind_browser_token(daemon, opened)
                 run_trusted_arm(base, page, daemon, opened, work, discovery, browser_token)
+                run_font_csp_arm(browser, base, discovery, opened)
                 page2 = browser.new_page()
-                page2.expose_function("mcpCall", make_tool_proxy(discovery))
+                page2.expose_function("mcpCall", make_tool_proxy(discovery, "apps-harness"))
                 run_noncompliant_host_arm(base, page2, opened)
                 # 首屏分流（P1 / brief-page-split §10 #1–#13）：两臂 + 无 session 两态
                 run_launch_split_trusted_arm(browser, base, root)
                 run_launch_split_host_arm(browser, base, root)
                 run_launch_split_static_state(browser, base, serve)
+                # ⑨ 首份 deck 到达（v3.9.5）：briefing 会话 → 提交简报 → 发布 deck → 切编辑视图
+                run_brief_first_deck_trusted_arm(browser, base, root)
+                # ⑩ 本地画布守卫 + 轨 A 换图（v3.9.5）
+                run_local_canvas_and_asset_arm(browser, base, root)
                 browser.close()
             managed_post(daemon, "/api/bridge/stop", {"reason": "cli-stop"})
 

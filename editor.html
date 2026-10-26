@@ -4,11 +4,52 @@
 <!--
   ============================================================================
   HTML PPTX 编辑器 · editor.html
-  版本：v3.9.3（2026-10-23）
+  版本：v3.9.5（2026-10-26）
   实现依据：docs/design-editor.md v0.3（评审修订稿）+ docs/design/editor-v2.md
   标记契约：skills/html-pptx/references/editing-contract.md v8（本页是消费侧实现）
 
   变更记录：
+  - v3.9.5（宿主内「打开文件」「换图」回正 + 首份 deck 到达切编辑页）：
+    ① **轨优先、能力其次（第二次修同一个坑）**：`openViaPicker()` 原先只按 `state.fsaa`
+    判定，而 `showOpenFilePicker` 在宿主 iframe（嵌入态 / 轨 A）里**存在但调用必被拒**——
+    抛错被 catch 成一句 toast，内置 `<input type=file>` 回路永远走不到，宿主内「打开文件」
+    等于不可用（v1.1 的保存路径踩过同一个坑：原条件 `embedded && !fsaa` 在 FSAA 存在的宿主
+    里失效，保存被静默吞掉）。改为按轨判定：嵌入/轨 A 直接走文件选择框；静态/轨 B 继续用
+    FSAA（能拿句柄、保存可直写）。FSAA 调用真失败时也不再只弹提示，而是说明原因后回落
+    文件选择框——用户仍然能把文件打开。
+    ② **配套守卫（不守会覆盖真货）**：本地打开的文件进 `openHtml` 时 handle/deckPath 都是
+    null，而轨 A 的下一次保存走 `mcpAppPath(state.deckPath)` → 回落到 `mcpApp.resourcePath`，
+    等于把用户本地打开的文件写进 **agent 管理的 deck**。轨 A 的保存与换图现在要求"画布就是
+    本会话的受管 deck"（`state.deckPath` 非空），否则**拒绝执行**并给两条出路（下载副本 /
+    独立窗口），绝不调 `save_deck`。
+    ③ **首份 deck 到达不再失效**：轮询条件原为 `st.revision && mcpApp.revision && …`，而脑暴
+    会话（`deck_path=NULL, revision=NULL`）的 `mcpApp.revision` 是 null → 条件恒假 →
+    `read_deck` 永不发生：agent 生成完 deck 后页面既不关脑暴也不进编辑视图。改为
+    `st.deck_path && st.revision && …`（首份 deck 就是一次"变化"），`bridgeAutoReloadRisk()`
+    守卫不变。
+    ④ **空闲退避不再单向**：`mcpApp.idlePolls` 原先只增不减，一次 30 秒空闲就把轮询永久钉在
+    10 秒；现在检测到变化或有**在途工作**（pending/processing）即重新计时并回到 2 秒——
+    否则首份 deck 与 intent 回执会晚一整个档位才被发现。
+    ⑤ **换图的同一类缺陷**：`replaceImage()` 同样只按 `state.fsaa` 判定，且 catch 为空
+    （`:5571 return;` 静默 no-op，违背"静默降级必须有声音"）——轨 A 里 host 通道
+    `write_asset` 从来跑不到。改为按轨选选择器（轨 A/无 FSAA 用文件选择框，其余沿用 FSAA），
+    取消静默返回、取消只弹提示，`btnReplaceImg.disabled` 同步改为按轨判定
+    （轨 A 走 host 通道，不再因"没有 FSAA"而禁用）。**T17（嵌入态 stub FSAA 驱动
+    `replaceImage` 的既有回归）行为不变**：嵌入态仍先用 FSAA，探测为真即照旧。
+  - v3.9.4（MCP server 合规审计的 View 侧收口，docs/progress/1024_mcp_server_audit.md）：
+    ① **传输层源校验**：View 的 `PostMessageTransport` 必须带 `eventSource`（官方
+    `App.connect` 的默认即 `(window.parent, window.parent)`）；缺了第二个参数会让**任何
+    窗口**都能向 View 注入 JSON-RPC，而 View 自己会创建嵌套 deck iframe。
+    ② **错误信封**：server 端（`BridgeFastMCP.call_tool`）不再把 SDK 的
+    `Error executing tool <name>: ` 散文前缀漏下来，失败一律 `isError=true` + 纯 JSON 文本；
+    门面里剥前缀保留为针对其它宿主/SDK 版本的**防御**，不再是主路径。
+    ③ **字体 CSP 检测（F10）**：规范默认 CSP 没有 `font-src`（落到 `default-src 'none'`），
+    轨 A 下 deck 的 `@font-face`（含我们水合成的 data:）一律被挡，而 `_meta.ui.csp` 的
+    `resourceDomains` 只接受 origin、表达不了 `data:`。新增 `mcpAppProbeFonts()`：水合后把
+    deck 里 src 含 `data:` 的 `@font-face` 家族逐个 `document.fonts.load()`，落到
+    `status='error'` 的判为被挡并**一次性**告警（原因 + 出路）。⚠️ 不用
+    `securitypolicyviolation`——实测该场景下 Chromium **不派发**该事件（字体确实被挡、
+    控制台有记录，但两个文档上探针 0 条）。
   - v3.9.3（脑暴页尺寸自适应 + 一处整屏层透明 bug，用户实测反馈）：
     ① **修 bug**：整屏视图层的底色写成了 `var(--paper)`——那是 **deck/主题侧** 的 token，
     本页没有定义它。`var()` 未定义会让该声明在计算值阶段失效、`background` 回落到初始值
@@ -1123,14 +1164,14 @@
     </div>
     <div id="briefBody"></div>
     <div class="brief-foot">
-      <button class="primary" id="btnBriefGen">预览需求简报</button>
-      <span class="hint">预览不会提交；输出 = 简报文本（briefing.md 模板）+ 结构化 JSON。</span>
+      <button class="primary bridge-send" id="btnBriefSend">确认并发送简报</button>
+      <span class="hint">点击后自动生成预览并提交给 AI。</span>
     </div>
     <div class="brief-result" id="briefResult" hidden>
       <pre id="briefPreview"></pre>
       <div class="brief-result-bar">
-        <button id="btnBriefCopy">复制简报</button><button class="primary bridge-send" id="btnBriefSend">发送给 AI</button>
-        <span class="hint">发送时会重新固化当前表单，不复用旧预览。</span>
+        <button id="btnBriefCopy">复制简报</button>
+        <span class="hint">简报已提交；可复制文本另行粘贴。</span>
         <div id="briefSubmitStatus" class="brief-submit-status" data-state="loading" role="status" aria-live="polite" aria-atomic="true">
           <span><b>准备提交</b> · 将根据当前环境选择 Bridge、嵌入宿主或复制通道。</span>
         </div>
@@ -1144,6 +1185,8 @@
 </div>
 
 <input type="file" id="fileInput" accept=".html,.htm,text/html" hidden>
+<!-- 换图的文件选择回路（宿主 iframe 里没有系统文件选择器，见 localPickerUsable / pickFileOnce） -->
+<input type="file" id="imageInput" accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml,image/avif" hidden>
 
 <script>
 'use strict';
@@ -4018,7 +4061,7 @@ var mcpApp = {
   phase:null, view:null, booted:false, ready:false, handshakeFailed:false,
   pollTimer:null, pollDelay:2000, idlePolls:0, pollFailures:0,
   draftTimer:null, noteTimer:null, hydrateObserver:null, epoch:0,
-  reportedHeight:null, sizeObserver:null, sizeTimer:null, cssHydrated:null,
+  reportedHeight:null, sizeObserver:null, sizeTimer:null, cssHydrated:null, fontCspWarned:false,
   capabilities:{local_convert:false,local_imagegen:false,git_ready:false},
   /* 首屏分流（brief-page-split §6）：view 分别来自 tool-input / tool-result；
      briefOptions 是轨 A 的 brief_options 落点（原缺失，导致 AGENTS.md 承诺的动态脑暴在宿主内失效）；
@@ -4039,6 +4082,19 @@ function mcpAppCall(name, args){
 function mcpAppPath(hint){
   if (hint && typeof hint === 'string' && hint.indexOf('/') !== 0 && hint.indexOf('..') < 0) return hint;
   return mcpApp.resourcePath || (state.deckPath ? state.deckPath.split('/').pop() : 'index.html');
+}
+/* 轨 A 的受管写只对"画布就是本会话的受管 deck"成立（v3.9.5 守卫）。
+   「打开文件」加载的本地文件进 openHtml 时 deckPath 是 null，而 `mcpAppPath(null)` 会回落到
+   `mcpApp.resourcePath`——即把用户本地打开的文件写进 agent 管理的 deck（真会覆盖真货）。
+   本地画布在轨 A 没有可用的写入通道，一律拒绝并给出路，不调用 save_deck / write_asset。 */
+function mcpAppCanvasManaged(){ return !!state.deckPath; }
+function mcpAppRefuseLocalCanvas(what, text){
+  toast(what + '已中止：当前画布来自本地文件，不属于本会话的受管 deck');
+  showWarn(what + '已中止：当前画布是「打开文件」加载的本地文件，不属于本会话的受管 deck——'
+           + '写入受管工作区会覆盖 agent 正在维护的 deck，所以不执行。两条出路：'
+           + '① 用「下载副本」把当前画布另存为本地文件；② 在独立浏览器窗口（轨 B）里打开本地文件编辑。',
+           text != null ? '下载副本（未发布）' : null,
+           text != null ? function(){ bridgeDownloadHtml(text); } : null);
 }
 function mcpAppRenderState(kind, label, notice){
   /* 轨 A 复用桥栏外观，但状态源是宿主工具调用，不是 SSE/Bridge 传输 */
@@ -4172,7 +4228,9 @@ async function mcpAppLoadDeck(path, revision, preserve){
     mcpApp.revision = payload.revision; mcpApp.latestServerRevision = payload.revision;
     state.deckPath = rel;
     mcpAppHydrateImages();
-    mcpAppHydrateCss();
+    /* 水合完再探字体（F10）：只有水合之后 @font-face 的 src 才是 data:。`mcpAppHydrateCss()`
+       在本调用点**没有被 await**，所以要显式接在它的 promise 后面，否则探针会跑在水合之前。 */
+    mcpAppHydrateCss().then(function(){ mcpAppProbeFonts(); }).catch(function(){});
     if (!doc()){
       /* 宿主沙箱不符合 MCP Apps 规范（官方要求 allow-scripts + allow-same-origin）。只有
          allow-scripts 时是不透明源，嵌套渲染文档不可访问 → 编辑器无法工作。这里**报错并给
@@ -4257,6 +4315,46 @@ function mcpAppCssUrlEntries(d){
   });
   return entries;
 }
+/* F10：规范默认 CSP **没有 `font-src`**（落到 `default-src 'none'`），轨 A 下 deck 的
+   `@font-face` 一律被挡——包括我们水合成 data: 的那种。`_meta.ui.csp` 的 `resourceDomains`
+   只接受 origin，**表达不了 `data:`**，所以这不是靠声明能修的：能做的是**检测并如实告知**。
+   ⚠️ 检测手段不是 `securitypolicyviolation`：实测（Chromium 145 + srcdoc 嵌套文档）字体确实被挡、
+   控制台有 CSP 记录，但**两个文档上都不触发该事件**（探针 0 条）——继承来的 CSP 在 srcdoc 文档里
+   就是这样。因此改为**直接探字体是否真的可用**：把 deck 里已水合（src 含 data:）的 `@font-face`
+   家族逐个喂给 `document.fonts.load()`，**加载尝试后仍 `document.fonts.check()` 为 false** 的判为
+   被挡（被挡家族的 status 停在 `unloaded`，不是 `error`）。 */
+async function mcpAppProbeFonts(){
+  if (mcpApp.fontCspWarned) return;
+  var d = doc(); if (!d || !d.fonts || !d.fonts.load) return;
+  var families = [], sheets = [];
+  try { sheets = d.styleSheets || []; } catch(e){ return; }
+  Array.prototype.forEach.call(sheets, function(sheet){
+    var rules = []; try { rules = sheet.cssRules || []; } catch(e){ return; }
+    Array.prototype.forEach.call(rules, function(rule){
+      var style = rule.style; if (!style) return;
+      var src = style.getPropertyValue('src') || '';
+      var fam = (style.getPropertyValue('font-family') || '').replace(/["']/g, '').trim();
+      if (fam && src.indexOf('data:') >= 0) families.push(fam);
+    });
+  });
+  if (!families.length) return;
+  var blocked = [];
+  for (var i = 0; i < families.length; i++){
+    var name = families[i];
+    try { await d.fonts.load('12px "' + name + '"'); } catch(e){}
+    /* 判据是"尝试加载后仍不可用"，不是 status==='error'：实测被 CSP 挡下的家族停在
+       `status='unloaded'`（控制台有 CSP 记录），只有 decode 失败才是 'error'。 */
+    if (!d.fonts.check('12px "' + name + '"')) blocked.push(name);
+  }
+  if (!blocked.length) return;
+  mcpApp.fontCspWarned = true;
+  var why = '宿主 CSP 未放行 `data:` 字体（规范默认不含 `font-src`）';
+  showWarn('轨 A：' + why + '，deck 的外挂字体（@font-face）显示不出来，已回落系统字体：'
+           + blocked.slice(0, 3).join('、') + '。要显示字体需宿主把 `font-src` 放开到 `data:`。');
+  if (window.pptxMcp && window.pptxMcp.log){
+    window.pptxMcp.log('warn', 'pptx-html 编辑器：' + why + '；受影响家族 ' + blocked.join(','));
+  }
+}
 async function mcpAppHydrateCss(){
   var d = doc(); if (!d) return;
   var entries = mcpAppCssUrlEntries(d);
@@ -4296,7 +4394,13 @@ async function mcpAppPollOnce(){
     var st = await mcpAppCall('get_status', {session_id:mcpApp.sessionId});
     mcpApp.pollFailures = 0;
     mcpAppApplyStatus(st);
-    if (st.revision && mcpApp.revision && st.revision !== mcpApp.revision){
+    /* 首份 deck 到达也算"变化"：脑暴会话（deck_path=NULL, revision=NULL）的
+       `mcpApp.revision` 是 null，旧条件 `st.revision && mcpApp.revision && …` 恒假 →
+       read_deck 永不发生，agent 生成完 deck 后页面既不关脑暴也不进编辑视图。
+       `st.deck_path` 是"这轮终于有 deck 可读"的判据（守卫不变）。 */
+    var changed = false;
+    if (st.deck_path && st.revision && st.revision !== mcpApp.revision){
+      changed = true;
       if (bridgeAutoReloadRisk()){
         await mcpAppPersistDraft(true).catch(function(){});
         showWarn('工作区已有新版本，当前输入已保护，未自动覆盖。','载入远端',function(){ mcpAppLoadDeck(st.resource_path, st.revision, true).then(hideWarn); });
@@ -4305,8 +4409,17 @@ async function mcpAppPollOnce(){
         await mcpAppLoadDeck(st.resource_path, st.revision, true);
       }
     }
-    mcpApp.idlePolls++;
-    if (mcpApp.idlePolls > 15 && mcpApp.pollDelay < 10000){ mcpApp.pollDelay = 10000; mcpAppStartPoll(); }
+    /* 空闲退避只在**真空闲**时累积：idlePolls 原先只增不减，一次 30 秒空闲就把轮询永久钉在
+       10 秒，首份 deck 与 intent 回执要晚一整个档位才发现。有在途工作（pending/processing，
+       即用户正在等结果）或刚发生了变化 → 重新计时并回到 2 秒。 */
+    var busy = !!(st.pending_count || st.processing);
+    if (changed || busy){
+      mcpApp.idlePolls = 0;
+      if (mcpApp.pollDelay !== 2000){ mcpApp.pollDelay = 2000; mcpAppStartPoll(); }
+    } else {
+      mcpApp.idlePolls++;
+      if (mcpApp.idlePolls > 15 && mcpApp.pollDelay < 10000){ mcpApp.pollDelay = 10000; mcpAppStartPoll(); }
+    }
   } catch(e){
     mcpApp.pollFailures++;
     if (mcpApp.pollFailures === 3) mcpAppRenderState('error','与宿主失联', e.message + '（widget 可能已被宿主回收，需要重新打开编辑器）');
@@ -4384,6 +4497,9 @@ var mcpAppHost = {
   save: async function(ctx){
     var text = ctx.text;
     if (!mcpApp.ready) return false;
+    /* v3.9.5 守卫：本地画布（见 mcpAppCanvasManaged）在轨 A 一律拒绝写入——
+       mcpAppPath(null) 会回落到 resourcePath，等于用本地文件覆盖 agent 的受管 deck。 */
+    if (!mcpAppCanvasManaged()){ mcpAppRefuseLocalCanvas('保存', text); return false; }
     mcpAppRenderState('working','正在保存到工作区','');
     try {
       var body = {session_id:mcpApp.sessionId, path:mcpAppPath(state.deckPath), html:text,
@@ -4410,6 +4526,9 @@ var mcpAppHost = {
   },
   asset: async function(ctx){
     var img = ctx.img, file = ctx.file, curName = ctx.curName, base = ctx.base, curExt = ctx.curExt, newExt = ctx.newExt;
+    /* v3.9.5 同一条守卫：本地画布的图片也不许写进受管 bundle——换图本身要随后保存 HTML 引用
+       才生效，而保存已被拒；写进去只会给 agent 的 deck 留一个孤儿资产。 */
+    if (!mcpAppCanvasManaged()){ mcpAppRefuseLocalCanvas('换图'); return true; }
     if (['png','jpg','jpeg','gif','webp'].indexOf(newExt) < 0){ toast('受管工作区只允许 PNG/JPEG/GIF/WebP；SVG/AVIF 不会旁路写入。'); return true; }
     if (file.size > 32*1024*1024){ toast('图片超过 32MiB，未上传；请选择更小文件。'); return true; }
     var nextName = newExt === curExt ? curName : (base + '.' + newExt), rel = 'assets/' + nextName;
@@ -4424,7 +4543,14 @@ var mcpAppHost = {
       var receipt = await mcpAppCall('write_asset', {session_id:mcpApp.sessionId, path:rel,
                                                      data_base64:data64, base_revision:mcpApp.revision});
       mcpApp.latestServerRevision = receipt.revision;
-      img.removeAttribute('data-pptx-hydrated'); img.removeAttribute('data-pptx-src');
+      /* 资产已发布 → 画布的 CAS 基线必须同步前进：紧接着的 saveDeck 用 `mcpApp.revision` 作
+         base_revision，基线不动必然撞 REVISION_CONFLICT（资产写入 + HTML 引用保存是两步发布）。
+         轨 B 的 bridgeHost.asset 同一处理（`bridge.loadedRevision=receipt.revision`）。 */
+      mcpApp.revision = receipt.revision;
+      /* 渲染态用 data:（轨 A 无同源 fetch），但**引用**留在 data-pptx-src 里：serializeClean 会把它
+         还原成 assets/ 相对路径——磁盘 deck 保持纯净是设计红线（§5.2 方案 a），与 read_asset 水合同一机制。 */
+      img.removeAttribute('data-pptx-hydrated');
+      img.setAttribute('data-pptx-src', rel);
       img.setAttribute('src', dataUrl); img.setAttribute('data-image-state','uploaded');
       setDirty(true); invalidateThumbOf(img);
       var htmlSaved = await saveDeck();
@@ -4622,8 +4748,41 @@ window.addEventListener('beforeunload', function(e){
 /* ============================================================
    打开文件（§3.1）
    ============================================================ */
+/* 系统文件选择器（FSAA）是否**真的**能用——轨优先、能力其次（v1.1 保存路径同一条教训：
+   `embedded && !fsaa` 在 FSAA 存在的宿主里失效，保存被静默吞掉）。宿主 iframe（嵌入态 /
+   轨 A）里 `window.showOpenFilePicker` 存在、探测为真，但**调用**会被宿主权限策略拒绝；
+   只按探测判定就等于把 `<input type=file>` 回路判成死代码（用户点「打开文件」永远失败）。
+   静态态 / 轨 B 在自己的窗口里，FSAA 可用且能拿到句柄（保存可直写），继续走它。 */
+function localPickerUsable(){
+  var kind = hostKindDetect();
+  return state.fsaa && kind !== 'embedded' && kind !== 'mcp-app';
+}
+/* 一次性的文件选择（`<input type=file>`）——宿主 iframe 里唯一可用的选文件方式。
+   宿主轨没有 showOpenFilePicker 可用，用窗口重新获得焦点兜底"用户取消"，
+   避免 Promise 永久挂起（返回 null = 未选到文件）。 */
+function pickFileOnce(inputId){
+  return new Promise(function(resolve){
+    var input = $(inputId);
+    if (!input) { resolve(null); return; }
+    input.value = '';
+    var settled = false;
+    function finish(v){
+      if (settled) return;
+      settled = true;
+      input.removeEventListener('change', onChange);
+      window.removeEventListener('focus', onFocus);
+      resolve(v || null);
+    }
+    function current(){ return (input.files && input.files[0]) || null; }
+    function onChange(){ finish(current()); }
+    function onFocus(){ setTimeout(function(){ finish(current()); }, 500); }
+    input.addEventListener('change', onChange);
+    window.addEventListener('focus', onFocus);
+    input.click();
+  });
+}
 async function openViaPicker(){
-  if (state.fsaa){
+  if (localPickerUsable()){
     try {
       var handles = await window.showOpenFilePicker({
         types: [{ description:'HTML 幻灯片', accept:{ 'text/html': ['.html', '.htm'] } }],
@@ -4632,7 +4791,13 @@ async function openViaPicker(){
       var handle = handles[0];
       var file = await handle.getFile();
       await ensureSwitchOkAndOpen(await file.text(), file.name, handle);
-    } catch(e){ if (e && e.name !== 'AbortError') toast('打开失败：' + e.message); }
+    } catch(e){
+      /* 不再"只弹一句提示就完事"：探测为真但调用被拒时，明确告知并回落到文件选择框，
+         用户仍然能把文件打开（否则这一路等于死掉）。 */
+      if (e && e.name === 'AbortError') return;
+      toast('系统文件选择器不可用（' + e.message + '），改用文件选择框');
+      $('fileInput').click();
+    }
   } else {
     $('fileInput').click();
   }
@@ -5032,7 +5197,7 @@ function wireGestures(d){
       else enterEdit(t);
     } else {
       selectEl(t);
-      $('btnReplaceImg').disabled = !t.hasAttribute('data-editable-image') || !state.fsaa;
+      $('btnReplaceImg').disabled = !t.hasAttribute('data-editable-image') || !replaceImageUsable();
     }
   }, true);
 
@@ -5137,7 +5302,7 @@ function updateStatusBar(){
     var kind = selEl.hasAttribute('data-editable-image') ? '图片' : '文本';
     $('sbSel').textContent = '选中：' + (r2 ? r2.path : selEl.tagName.toLowerCase()) + ' · ' + kind +
       (kind === '图片' ? '（再次点击替换图片）' : '（再次点击进入编辑）');
-    $('btnReplaceImg').disabled = !(kind === '图片' && state.fsaa);
+    $('btnReplaceImg').disabled = !(kind === '图片' && replaceImageUsable());
   } else {
     $('sbSel').textContent = '未选中元素';
     $('btnReplaceImg').disabled = true;
@@ -5500,21 +5665,39 @@ async function writeFileToHandle(handle, content){
   await w.close();
 }
 
-async function replaceImage(img){
-  if (!state.fsaa){
-    toast('当前浏览器不支持文件选择能力，无法替换图片。');
-    return;
+/* 换图可用性（按钮禁用态用；轨优先、能力其次）：轨 A 没有 FSAA，但有 host 通道
+   write_asset——只要画布是受管 deck 就能换图；其余轨（静态 / 轨 B / 嵌入）沿用 FSAA 直写。
+   原先这里只问 `state.fsaa`，于是轨 A 的「替换图片」永远是灰的（host 通道从未跑到）。 */
+function replaceImageUsable(){
+  if (hostKindDetect() === 'mcp-app') return mcpAppCanvasManaged();
+  return state.fsaa;
+}
+/* 选一张图片：先按轨决定用哪种选择器（轨 A 里 FSAA 探测为真、调用必被拒，直接用文件选择框），
+   FSAA 真失败时也不再静默——说明原因后回落文件选择框。返回 null = 未选到文件。 */
+async function pickImageFile(){
+  if (state.fsaa && hostKindDetect() !== 'mcp-app'){
+    try {
+      var handles = await window.showOpenFilePicker({
+        types: [{ description:'图片文件', accept:{ 'image/*': ['.png','.jpg','.jpeg','.gif','.webp','.svg','.avif'] } }],
+        multiple: false
+      });
+      return await handles[0].getFile();
+    } catch(e){
+      if (e && e.name === 'AbortError') return null;
+      toast('系统文件选择器不可用（' + e.message + '），改用文件选择框');
+    }
   }
-  var picked,file;
-  try {
-    var handles = await window.showOpenFilePicker({
-      types: [{ description:'图片文件', accept:{ 'image/*': ['.png','.jpg','.jpeg','.gif','.webp','.svg','.avif'] } }],
-      multiple: false
-    });
-    picked = handles[0]; file = await picked.getFile();
-  } catch(e){ return; }
+  return pickFileOnce('imageInput');
+}
+async function replaceImage(img){
+  var file = await pickImageFile();
+  if (!file) return;   /* 用户取消 / 未选到文件 */
 
-  var curSrc = (img.getAttribute('data-editor-cache-orig') || img.getAttribute('src') || '').split('?')[0];
+  /* 当前文件名/目录的真相源是**引用**，不是渲染用的 src：轨 A 的图片经 read_asset 水合成
+     data: URI（相对路径留在 data-pptx-src 里），照 src 取名字会算出 `iVBORw0…==.png`
+     这种垃圾名（会照此写进受管 assets/ 并把引用指向不存在的文件）。 */
+  var curSrc = (img.getAttribute('data-editor-cache-orig') || img.getAttribute('data-pptx-src')
+                || img.getAttribute('src') || '').split('?')[0];
   var dir = curSrc.indexOf('/') >= 0 ? curSrc.slice(0, curSrc.lastIndexOf('/') + 1) : 'assets/';
   var curName = curSrc.split('/').pop() || 'image.png';
   var dot = curName.lastIndexOf('.');
@@ -6920,14 +7103,6 @@ function bridgeRefreshBriefSummary(){
   bridge.briefSubmission.intentId=briefs[0].id;briefObserveIntent(briefs[0]);
 }
 
-$('btnBriefGen').addEventListener('click', function(){
-  briefLast = buildBriefExport();
-  $('briefPreview').textContent = briefLast.text;
-  $('briefResult').hidden = false;
-  if(!bridge.briefSubmission.route)briefRenderSubmission('loading','预览已生成，尚未提交。',{route:null,intentId:null,seq:null});
-  toast('简报预览已生成（尚未提交）');
-  $('briefResult').scrollIntoView({ behavior:'smooth', block:'nearest' });
-});
 $('btnBriefCopy').addEventListener('click', async function(){
   if (!briefLast) return;
   var ok = await copyText(briefLast.text);
@@ -6937,6 +7112,7 @@ $('btnBriefSend').addEventListener('click', async function(){
   if(briefSubmissionBusy())return;
   var current=buildBriefExport();
   briefLast=current;$('briefPreview').textContent=current.text;$('briefResult').hidden=false;
+  $('briefResult').scrollIntoView({ behavior:'smooth', block:'nearest' });
   briefRenderSubmission('loading',bridge.enabled?'正在可靠提交至 Bridge…':(state.embedded?'正在发送给嵌入宿主…':'正在复制简报…'),{route:bridge.enabled?'bridge':(state.embedded?'embedded':'copy'),intentId:null,seq:null});
   try{
     var sent=await bridgeSend('brief.submitted',{text:current.text,json:current.json},{type:'pptx-html:brief',text:current.text,json:current.json},current.text);

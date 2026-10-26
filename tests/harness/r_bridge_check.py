@@ -732,15 +732,65 @@ class AppsMCPClient(MCPClient):
         return self
 
 
+def raw_handshake(workdir, capabilities, env_extra=None, timeout=40):
+    """不经官方客户端、直接打原始 stdio JSON-RPC，返回 `(serverInfo, tools 名列表)`。
+
+    官方 Python `ClientSession` 既没有声明 `capabilities.extensions` 的入口，也不暴露
+    `serverInfo`，所以"客户端声明 MCP Apps 扩展"与"initialize 报的版本"两条都只能手写握手。
+    """
+    env = dict(os.environ)
+    env.update(env_extra or {})
+    proc = subprocess.Popen([sys.executable, str(EDIT), str(workdir), "--mcp"],
+                            stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                            stderr=subprocess.DEVNULL, cwd=str(ROOT), env=env, text=False, bufsize=0)
+
+    def send(obj):
+        proc.stdin.write((json.dumps(obj) + "\n").encode())
+        proc.stdin.flush()
+
+    def recv(mid):
+        deadline = time.time() + timeout
+        while time.time() < deadline:
+            line = proc.stdout.readline()
+            if not line:
+                raise AssertionError("MCP server 提前关闭 stdout")
+            text = line.decode("utf-8", "replace").strip()
+            if not text.startswith("{"):
+                continue
+            msg = json.loads(text)
+            if msg.get("id") == mid:
+                return msg
+        raise AssertionError(f"等待 {mid} 响应超时")
+
+    try:
+        send({"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {
+            "protocolVersion": "2025-06-18", "capabilities": capabilities,
+            "clientInfo": {"name": "raw-harness", "version": "1"}}})
+        server_info = recv(1)["result"]["serverInfo"]
+        send({"jsonrpc": "2.0", "method": "notifications/initialized"})
+        send({"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {}})
+        return server_info, sorted(tool["name"] for tool in recv(2)["result"]["tools"])
+    finally:
+        with contextlib.suppress(Exception):
+            proc.stdin.close()
+        time.sleep(0.3)
+        proc.terminate()
+        with contextlib.suppress(Exception):
+            proc.wait(timeout=5)
+        if proc.poll() is None:
+            proc.kill()
+
+
 async def apps_group():
     """MCP Apps 双模（设计 §4.3 / §6.2 / §6.2 第 9 条）。
 
-    覆盖：工具面双写 visibility 断言、资源 mime/meta、View HTML 自包含、
+    覆盖：工具面 visibility 与能力门（F4/F5）、资源 mime/meta、View HTML 自包含、
     未声明扩展时仍恰好五个工具、track A 的 attach→仲裁→read_deck/save_deck/
-    submit_intent/draft 全链路、以及工具层的自校验（session 归属、路径逃逸）。
+    submit_intent/draft 全链路、**跨进程**的会话归属自校验（F3）、daemon 不可用时的
+    降级（F1）、目标未落盘时的干净错误（F2）。
     """
     from tools.bridge_dispatch import APP_ONLY_TOOL_NAMES
-    from tools.bridge_mcp import VIEW_MIME, VIEW_URI
+    from tools.bridge_mcp import APPS_EXTENSION, VIEW_MIME, VIEW_URI
     with tempfile.TemporaryDirectory(prefix="bridge-apps-") as tmp:
         root = Path(tmp)
         (root / "assets").mkdir()
@@ -758,7 +808,7 @@ async def apps_group():
             check(names == ["await_intent", "close_session", "get_status", "open_editor", "push_update"],
                   f"non-apps tool list leaked app-only tools: {names}")
 
-        # ② 声明/开启扩展：18 个工具 + 双写 visibility + 资源契约
+        # ② 声明/开启扩展：18 个工具 + `_meta.ui.visibility` + 资源契约
         async with AppsMCPClient(tmp) as client:
             listed = await client.session.list_tools()
             by_name = {x.name: x for x in listed.tools}
@@ -767,8 +817,9 @@ async def apps_group():
             for name in APP_ONLY_TOOL_NAMES:
                 tool = by_name[name]
                 meta = tool.meta or {}
-                check(meta.get("visibility") == ["app"], f"{name} 缺根级 visibility:【app】(宿主 N15 会泄露给模型)")
-                check((meta.get("ui") or {}).get("visibility") == ["app"], f"{name} 缺 ui.visibility 双写")
+                check((meta.get("ui") or {}).get("visibility") == ["app"], f"{name} 缺 ui.visibility")
+                check("visibility" not in meta,
+                      f"{name} 带了非规范的根级 _meta.visibility（F4：规范只在 ui.visibility）: {meta}")
             for name in ("open_editor", "await_intent", "push_update", "get_status", "close_session"):
                 meta = by_name[name].meta or {}
                 check("model" in (meta.get("visibility") or ["model"]) or "visibility" not in meta,
@@ -782,12 +833,31 @@ async def apps_group():
             check(view[0].mimeType == VIEW_MIME and "text/html" in view[0].mimeType, f"view mime mismatch: {view[0].mimeType}")
             check((view[0].meta or {}).get("ui", {}).get("permissions") == {"clipboardWrite": {}},
                   f"view permissions meta mismatch: {view[0].meta}")
+            check((view[0].meta or {}).get("ui", {}).get("prefersBorder") is False,
+                  f"view 未显式声明 prefersBorder（F11：宿主默认值不一致）: {view[0].meta}")
+            untitled = sorted(t.name for t in listed.tools if not t.title)
+            check(not untitled, f"工具缺少 title（F11）: {untitled}")
             html = (await client.session.read_resource(VIEW_URI)).contents[0].text
             check(len(html.encode("utf-8")) <= 2 * 1024 * 1024, "view HTML exceeds the host 2MB silent-fallback limit")
             check("window.pptxMcp = api" in html, "view bootstrap 门面缺失（hostKindDetect 会回落）")
             check("const __ext =" in html, "view SDK bundle 未注入")
             check(not re.search(r"<script[^>]+\bsrc=", html, re.I), "view HTML 含外链 script")
             check("pptx-html-editor" in html, "view facade 未安装")
+            # F6：传输层必须显式带 eventSource（否则任何窗口都能向 View 注入 JSON-RPC）。
+            # 用**计数比对**而非子串存在性：注释里也可能出现同一串字面量。
+            check(html.count("new PostMessageTransport(") == html.count("new PostMessageTransport(window.parent, window.parent)"),
+                  "View 传输层缺少 eventSource 源校验（F6）")
+            # F8：View 版本号单源取自 editor.html 头。这里直接比对**下发到 View 的引导脚本**
+            # 与 editor.html 头部，防止再次出现"编辑器 v3.9.3 / 上报 3.9.2"的漂移。
+            editor_head = re.search(r"^\s*版本：v(\d+\.\d+\.\d+)",
+                                    (ROOT / "editor.html").read_text(encoding="utf-8"), re.M)
+            check(editor_head is not None, "editor.html 头部缺少 `版本：vX.Y.Z`（F8 的单源锚点）")
+            check(f'api.version = "{editor_head.group(1)}"' in html,
+                  f"View 引导期版本与 editor.html 头不一致（F8）：期望 {editor_head.group(1)}")
+            # F13：引导期握手超时文案必须与计时同源（曾写死 8s 而实际 15s）。
+            from tools.bridge_mcp import VIEW_HANDSHAKE_TIMEOUT_MS
+            check(f"{VIEW_HANDSHAKE_TIMEOUT_MS // 1000}s 内未收到 ui/initialize 应答" in html,
+                  f"引导期握手超时文案与常量不同源（F13）: {VIEW_HANDSHAKE_TIMEOUT_MS}")
 
             # ③ track A 全链路
             opened = await client.session.call_tool("open_editor", {
@@ -861,10 +931,107 @@ async def apps_group():
             unknown = await client.session.call_tool("read_asset", {"session_id": sid, "path": "assets/nope.png"})
             check(unknown.isError and "NOT_FOUND" in unknown.content[0].text, f"未登记路径未被拒: {unknown.content[0].text[:160]}")
 
+            # ⑤ 错误信封（F9）：失败一律 `isError=true` + **纯 JSON 文本**，参数校验错也不例外；
+            #    SDK 的 `Error executing tool <name>: …` 散文前缀不得漏给模型与 View。
+            envelope = await client.session.call_tool("get_status", {})
+            check(envelope.isError, f"缺参数应报错: {envelope.content}")
+            text = envelope.content[0].text
+            check("Error executing tool" not in text, f"错误文本仍带 SDK 散文前缀（F9）: {text[:160]}")
+            try:
+                invalid = json.loads(text)
+            except Exception as exc:
+                raise AssertionError(f"参数校验错不是 JSON 信封（F9）: {text[:200]}") from exc
+            check(invalid.get("ok") is False and (invalid.get("error") or {}).get("code") == "INVALID_ARGUMENT"
+                  and (invalid.get("error") or {}).get("retryable") is False,
+                  f"参数校验错未归一成 JSON 信封（F9）: {text[:220]}")
+            business = json.loads(foreign.content[0].text)
+            check(business.get("ok") is False and (business.get("error") or {}).get("code") == "SESSION_NOT_OWNED",
+                  f"业务错未归一成 JSON 信封（F9）: {foreign.content[0].text[:220]}")
+            check(foreign.structuredContent is None,
+                  f"错误结果不应携带 structuredContent（避免撞 outputSchema）: {foreign.structuredContent}")
+
+            # ⑤ 归属真相在 daemon（F3）：换一个 stdio 进程（模拟"宿主每次调用新起进程"），
+            #    不再调用 open_editor 也必须能继续用同一 session（consumer_id 跨进程稳定）；
+            #    而陌生 session 在**新进程**里同样必须被拒——旧实现的内存集合此时恒为空，
+            #    于是"没见过"被当成放行。
+            async with AppsMCPClient(tmp) as second:
+                resumed = await second.session.call_tool("read_deck", {"session_id": sid})
+                check(not resumed.isError, f"新进程未能复用已登记会话: {resumed.content[:200]}")
+                resumed_doc = json.loads(resumed.content[0].text)
+                check(resumed_doc["ok"] and resumed_doc["path"] == "index.html",
+                      f"新进程 read_deck 内容不符: {str(resumed_doc)[:200]}")
+                foreign2 = await second.session.call_tool("read_deck", {"session_id": str(uuid.uuid4())})
+                check(foreign2.isError and "SESSION_NOT_OWNED" in foreign2.content[0].text,
+                      f"陌生会话在新进程里未被拒（归属校验形同虚设）: {foreign2.content[0].text[:160]}")
+
+        # ⑤ daemon 不可用时工具面必须仍然可用（F1）：注册期不得依赖 daemon。
+        #    用普通文件占住 `.pptx-html`，`ensure_daemon` 的 logdir.mkdir 必然失败
+        #    （对 root 也成立，不依赖 chmod 权限位）。
+        with tempfile.TemporaryDirectory(prefix="bridge-apps-nodaemon-") as broken:
+            bro = Path(broken)
+            (bro / "index.html").write_text(deck, encoding="utf-8")
+            (bro / ".pptx-html").write_text("not a directory", encoding="utf-8")
+            async with AppsMCPClient(broken, apps_tools="never") as client:
+                listed = await client.session.list_tools()
+                names = sorted(x.name for x in listed.tools)
+                check(names == ["await_intent", "close_session", "get_status", "open_editor", "push_update"],
+                      f"daemon 不可用时工具面丢失（应恰好五个）: {names}")
+                unavailable = await client.session.call_tool("open_editor", {"open_browser": False})
+                check(unavailable.isError, f"daemon 不可用时 open_editor 未返回错误: {unavailable.content}")
+                text = unavailable.content[0].text
+                check("STORAGE_UNAVAILABLE" in text and '"ok":false' in text,
+                      f"daemon 不可用的错误载荷不规范（应为 JSON 的 STORAGE_UNAVAILABLE）: {text[:200]}")
+
+        # ⑥ 目标 HTML 尚未落盘（phase=briefing）时 read_deck 必须给干净的 NOT_FOUND，
+        #    而不是被通配处理器掩盖成 500「服务内部错误」（F2）。
+        with tempfile.TemporaryDirectory(prefix="bridge-apps-briefing-") as briefing:
+            async with AppsMCPClient(briefing) as client:
+                opened_call = await client.session.call_tool("open_editor", {"open_browser": False})
+                check(not opened_call.isError, opened_call.content)
+                opened = opened_call.structuredContent
+                check(opened["phase"] == "briefing" and not (Path(briefing) / "index.html").exists(),
+                      "无 deck 打开居然创建了目标文件")
+                early = await client.session.call_tool("read_deck", {"session_id": opened["session_id"]})
+                check(early.isError, f"目标未落盘时 read_deck 未返回错误: {early.content[:160]}")
+                text = early.content[0].text
+                check("NOT_FOUND" in text and "尚未创建" in text, f"目标未落盘的错误不干净: {text[:200]}")
+                check("服务内部错误" not in text, f"目标未落盘被掩盖成内部错误: {text[:200]}")
+            early_discovery = json.loads((Path(briefing) / ".pptx-html" / "serve.json").read_text())
+            one_request(early_discovery["origin"], "/api/bridge/stop", {"reason": "cli-stop"}, early_discovery["management_token"])
+
+        # ⑦ 能力门（F5）：`mimeTypes` 必须含 html profile——扩展键本身不足以判定轨 A。
+        #    官方 Python 客户端声明不了 extensions，故用原始 stdio 握手。
+        with tempfile.TemporaryDirectory(prefix="bridge-apps-capability-") as cap:
+            cap_root = Path(cap)
+            (cap_root / "index.html").write_text(deck, encoding="utf-8")
+            five = ["await_intent", "close_session", "get_status", "open_editor", "push_update"]
+            auto = {"PPTX_HTML_APPS_TOOLS": "auto"}
+            info, right = raw_handshake(cap, {"extensions": {APPS_EXTENSION: {"mimeTypes": [VIEW_MIME]}}}, auto)
+            check(len(right) == 5 + len(APP_ONLY_TOOL_NAMES),
+                  f"声明了正确的 mimeTypes 却没开放 app-only 工具: {len(right)}")
+            _, wrong = raw_handshake(cap, {"extensions": {APPS_EXTENSION: {"mimeTypes": ["text/uri-list"]}}}, auto)
+            check(wrong == five, f"mimeTypes 不含 html profile 时不应开放 app-only 工具: {wrong}")
+            _, absent = raw_handshake(cap, {"extensions": {APPS_EXTENSION: {}}}, auto)
+            check(absent == right, f"mimeTypes 缺省按宽松处理（对齐官方 ?.includes 的防御性读取）: {absent}")
+            _, undeclared = raw_handshake(cap, {}, auto)
+            check(undeclared == five, f"未声明扩展时必须恰好五个: {undeclared}")
+            # F7：initialize 必须报**本应用**的版本，而不是 SDK 自己的（实测曾报 1.28.0）；
+            # 版本号本身单源来自 editor.html 头（F8），由构建脚本写进 bundle manifest。
+            from tools.bridge_mcp import VIEW_VERSION
+            check(VIEW_VERSION != "unknown" and info.get("name") == "pptx-html-bridge" and info.get("version") == VIEW_VERSION,
+                  f"serverInfo 未报本应用版本（F7）: {info} vs VIEW_VERSION={VIEW_VERSION}")
+            # F1 之后 daemon 是懒初始化：只握手 tools/list（无工具调用）不会拉起 daemon，
+            # 因此这里通常无 daemon 可停。
+            cap_serve = cap_root / ".pptx-html" / "serve.json"
+            if cap_serve.exists():
+                cap_discovery = json.loads(cap_serve.read_text())
+                one_request(cap_discovery["origin"], "/api/bridge/stop", {"reason": "cli-stop"}, cap_discovery["management_token"])
+
         discovery = json.loads((root / ".pptx-html" / "serve.json").read_text())
         one_request(discovery["origin"], "/api/bridge/stop", {"reason": "cli-stop"}, discovery["management_token"])
-    print("PASS apps: dual-mode tool face (5/18) with double-written visibility, self-contained view resource, "
-          "track-A attach/arbitration/read/save/intent/draft chain and tool-layer self-validation")
+    print("PASS apps: dual-mode tool face (5/18) with spec-only ui.visibility and a mimeTypes capability gate, "
+          "self-contained view resource, track-A attach/arbitration/read/save/intent/draft chain, "
+          "cross-process session ownership and tool-layer self-validation")
 
 
 async def integration_group():

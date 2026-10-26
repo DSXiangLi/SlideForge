@@ -770,3 +770,13 @@ A9 的并排/滑动/差异视图需要 export 产物（`deck-vector` 的逐页 S
 2. **`size-changed`（A2）**：View 的 `ui/notifications/size-changed` **一直存在**——官方 `App({autoResize:true})`（默认）在 `connect()` 里自动上报文档尺寸。本文档 §5.6 的 `hostViewport` 抽象此前只剩 `hostViewportMaxHeight()` 返回 null 的钩子；**现已落地**：读 `hostContext.containerDimensions.maxHeight`（无则退化为文档自身高度），握手后与容器变化时去重上报一次。宿主仍只跟随高度、宽度不动、钳制 `maxHeight`。
 3. **轨 A 的 CSS 资产（A4）**：§5.2 方案 a 的"资产经 `read_asset` → data: URI"此前只覆盖 `<img src>`；现扩到 deck 文档的 `@font-face` 与任意声明里的 `url(assets/…|fonts/…)`（`mcpAppHydrateCss`）。**不需要反向还原**：CSSOM 的改动不回写 `<style>` 文本（文本是源码），序列化出来的 deck 天然是相对路径原文——与 `<img>` 的属性改动会进 DOM 的情形不同（那条仍需 `data-pptx-src` 还原）。§5.2 若按"CSS 也要还原"理解，以此为准。
 4. **残留（记录在案，未修）**：规范默认 CSP（spec §275-285）未列 `font-src`，落到 `default-src 'none'` 会挡掉含 `data:` 在内的全部字体；参考宿主 `examples/basic-host/serve.ts:84` 则允许 `font-src 'self' data: blob:`。`_meta.ui.csp` 无法表达 `data:`，故水合后的字体能否显示取决于宿主实现。
+
+### 10.12 MCP server 全面审计后的修复（2026-10-23）
+
+审计全文（方法、逐条证据、变异测试）见 `docs/progress/1024_mcp_server_audit.md`。它对本文档的影响有三处，**以本节为准**：
+
+1. **错误信封（F9）——推翻 §10.11 第 1 条的后半句**。原文说"视图侧与模型侧看到的错误文本仍带 SDK 前缀，属 SDK 既定行为"；现在**服务端不再让前缀出现**：`BridgeFastMCP.call_tool` 兜住失败（含 pydantic 参数校验错），直接构造 `isError=true` + **纯 JSON 文本**的 `CallToolResult`（低层 `lowlevel/server.py:546` 对 `CallToolResult` 原样透传，故不会拿错误载荷去撞成功路径的 `outputSchema`）。§233-234 的承诺因此**无条件成立**，门面里的 `stripToolPrefix()` 降级为针对其它宿主/SDK 版本的防御。副作用：错误结果**不带 `structuredContent`**（有意为之）。
+2. **传输层源校验（F6，即 §10.11 里"留待讨论"的 A3）**：View 的 `app.connect()` 必须显式传 `eventSource`（`new PostMessageTransport(window.parent, window.parent)`，与官方 `App.connect` 默认一致）。此前少了第二个参数，任何窗口都能向 View 注入 JSON-RPC；View 自身会创建嵌套 deck iframe，风险不是纯理论。
+3. **`_meta` 的规范面收敛（F4 / F5 / F11）**：`visibility` **只**写 `_meta.ui.visibility`（去掉根级双写——规范明确否决扁平键）；客户端能力门在扩展键之外**必须**校验 `mimeTypes` 含 `text/html;profile=mcp-app`（缺省按宽松处理）；资源补显式 `prefersBorder: false`；18 个工具统一补 `title`（集中在 `tools/bridge_mcp.py:TOOL_TITLES`）。
+
+另有两处**属于服务可用性与归属语义**的修复，也请以审计文档为准：daemon 启动失败不再拖垮 MCP server（注册期与 daemon 解耦）、会话归属判定从 MCP 进程内存**下沉到 daemon**（`consumers` 表），因此 §4.2 里"内存 `owned_sessions`"的描述与 §3.1 的"工具层自校验"实现均已改口径。版本号亦改为**单源**：`editor.html` 头部 → 构建脚本 → bundle manifest → server 上报（§3.1 曾有两处字面量，会产生"编辑器 v3.9.3 / 上报 3.9.2"的漂移）。

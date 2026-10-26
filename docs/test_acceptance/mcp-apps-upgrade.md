@@ -81,7 +81,20 @@ RESULT: ALL PASS (aa_mcp_apps_check)          # 连跑两次结果一致
 - 状态栏置错误态"宿主沙箱不符合规范"，提示与横幅都写明需要 `sandbox="allow-scripts allow-same-origin"`，并给出"暂用轨 B 独立窗口"的处置；
 - 断言文案里**不得出现"只能查看"这类降级措辞**；`doc() === null` 是预期的拒绝理由，不是可编辑态。
 
-### 2.4 构建产物一致性
+### 2.3.1 v3.9.5 新增断言（⑨ 首份 deck 到达 / ⑩ 本地画布守卫 + 轨 A 换图）
+
+```
+$ python3 tests/harness/aa_mcp_apps_check.py
+RESULT: ALL PASS (aa_mcp_apps_check)
+```
+
+- **⑨ 首份 deck 到达**（复现并封住"agent 生成完 deck 后页面既不关脑暴也不进编辑视图"）：无 deck 的 briefing 会话 → 页面点真按钮 `#btnBriefSend`（经 `submit_intent` 工具）→ agent 侧只走真 daemon 路径（`/api/bridge/await` 认领 → 工作副本写 deck → `/api/bridge/update complete` 发布）→ 断言 View 调 `read_deck`、渲染新 deck、`data-launch` 被摘除、header/footer 恢复可见、落 `view=edit`。
+- **⑩ 本地画布守卫 + 轨 A 换图**：(a) 用 `openHtml(text, 'local.html', null, undefined, null)` 造出与 `<input type=file>` 回路完全同形的**本地画布** → `saveDeck()` 断言**没有** `save_deck` 调用、横幅说明原因、受管 deck 字节未变（否则 `mcpAppPath(null)` 会用本地文件覆盖 agent 的 deck）；(b) 回受管画布后驱动真 `replaceImage()`（Playwright `filechooser` 事件喂文件）→ 断言走宿主通道 `write_asset`、`data-image-state=uploaded`、保存成功后产物是 `assets/pixel.png` 且**无** `data:` URI。
+- **⑩ 连跑 5 次 5/5 PASS**（该臂曾因 harness 侧技术问题（轮询谓词不驱动 Playwright 回调分发）表现为"保存卡 15s"，已改为浏览器侧谓词，见 `docs/progress/1026_open_file_track_and_first_deck.md` §3.1）。
+- **变异探针**：把轮询条件改回旧式（`st.revision && mcpApp.revision && …`）后 ⑨ **必红**（`等待超时（25s）：首份 deck 到达后 View 调 read_deck`）——断言非恒真。
+- **NOT_RUN**：真宿主内的实际点击（「打开文件」弹框、brief→edit 的视觉切换）；`<input type=file>` 在 sandbox 子框架里能否真正打开 = **UNKNOWN**。
+
+
 
 ```
 $ python3 tools/build_ext_apps_bundle.py --check
@@ -118,6 +131,22 @@ FAIL  T34-theme-proving ...（既有失败，见下）
 - **T34-theme-proving 是既有失败**：`1014_brief_dynamic_brainstorming.md` 与 `1015_theme_material_compositing_progress.md` 都记有同一签名（theme-proving deck 缺组 + 存量重叠，与编辑器/bridge 零交集），本轮之前（P1 前）实跑同样是它。**签字口径**：它是主题轨道待办，不是本次回归。
 - 基线对照：本轮开始前实跑 **61 项 59 PASS / 2 FAIL**（T34 + 当时正在编辑 SKILL.md 造成的契约断言失败，随后修好复验 PASS）。本轮的 62 项 = 61 + 新增 T36。
 - **`s_/u_/v_/z_` 四个检查本轮未跑 = NOT_RUN**，不要当已验。
+
+#### 2.5.1 2026-10-26 v3.9.5 复跑（`docs/progress/_logs/1026_run_e2e_v395.log`）
+
+```
+==== 汇总：62 项，58 PASS，4 FAIL ====
+PASS  T36-mcp-apps …（RESULT: ALL PASS，含新增 ⑨⑩ 两臂）
+PASS  T17-upload-state / T24-bake / T26-tri-view …（与本条改动相邻的三条回归无回退）
+FAIL  T29-bridge / T31-brief   ← waiting for locator("#btnBriefGen") 超时（下条解释）
+FAIL  T35-dynamic-brief        ← 既有失败：等待 #btnBrief 可点超时（2023 起每次都在这一片）
+FAIL  T34-theme-proving        ← 既有失败（主题轨道待办）
+```
+
+- **T29/T31 的成因不在本次改动（是前一轮未提交改名的迟发代价）**：`editor.html` 工作树里「预览需求简报」按钮已被改名/合并为 `#btnBriefSend`（`git show HEAD:editor.html` 仍是 `#btnBriefGen`），而 `k_brief_check.py:97/135/145/154`、`r_bridge_check.py:383`、`y_dynamic_brief_check.py:258/388` 仍在点旧 id →「locator 找不到」。本次改动只新增 `#imageInput` 与文件选择/轮询逻辑，**未触碰该按钮的 id 或标记**（`grep -c btnBriefGen editor.html` = 0 是直接证据；基线 `1024_run_e2e_baseline.log` 里 T31/T29 仍 PASS）。修复需一并复核语义——新按钮把"预览"与"发送"合并成一步，在轨 B 点击会**真的提交 intent**，不能只做字符串替换。
+- **T35 是既有失败且成因不同**：`1023_run_e2e.log` 与 `1024_run_e2e_*.log` 的失败签名同族（`waiting for locator("#btnBrief")` 超时，只是行号随 SSE 时序落在 238 或 249）。机制：`bridgeApplyEvent` 的 `view-hint` 分支**无条件** `applyLaunch(data.view)`，于是一次 `open_editor(view="brief")` 会把用户刚关掉的脑暴视图重新盖上来，检查里随后的 Escape→点 `#btnBrief` 就被遮住。**是否算缺陷是设计判断**（§6 的意图是"每次 open_editor 的 view 都生效"，加 `launch.applied` 守卫会改变该语义），本次不动，仅记录。
+- 上一份基线（改动前工作树）：`_logs/1024_run_e2e_baseline.log` = **62 项 60 PASS / 2 FAIL**（T34 + T35）。
+
 
 ---
 

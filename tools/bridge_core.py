@@ -26,6 +26,7 @@ import sys
 import tempfile
 import threading
 import time
+import traceback
 import uuid
 import webbrowser
 import xml.etree.ElementTree as ET
@@ -567,14 +568,23 @@ class BridgeCore:
     def _invalidate_previous_instance(self):
         now=utcnow()
         interrupted=self.db.execute(
-            "SELECT session_id,id,attempt FROM intents WHERE status='processing'").fetchall()
+            "SELECT session_id,id,attempt,type FROM intents WHERE status='processing'").fetchall()
         error=canonical_json({"code":"RECOVERY_REQUIRED","message":"daemon-restarted","retryable":True}).decode()
+        cancelled_error=canonical_json({"code":"DAEMON_RESTART","message":"brief.submitted cancelled on daemon restart (no work to recover)","retryable":True}).decode()
+        # Pure-instruction intents (daemon does no actual work, produces no work_path)
+        # are cancelled on restart instead of interrupted — they have nothing to recover.
+        _CANCEL_ON_RESTART = {"brief.submitted"}
         with self.db:
             self.db.execute("UPDATE browser_tokens SET revoked_at=? WHERE revoked_at IS NULL",(now,))
             for row in interrupted:
-                self.db.execute("UPDATE intents SET status='interrupted',error_json=?,consumer_id=NULL,lease_until=NULL,updated_at=? WHERE id=?",(error,now,row["id"]))
-                self.db.execute("UPDATE attempts SET status='interrupted' WHERE intent_id=? AND attempt=?",(row["id"],row["attempt"]))
-                self._event(row["session_id"],"intent-status",{"session_id":row["session_id"],"intent_id":row["id"],"status":"interrupted","attempt":row["attempt"]})
+                if row["type"] in _CANCEL_ON_RESTART:
+                    self.db.execute("UPDATE intents SET status='cancelled',error_json=?,consumer_id=NULL,lease_until=NULL,updated_at=? WHERE id=?",(cancelled_error,now,row["id"]))
+                    self.db.execute("UPDATE attempts SET status='cancelled' WHERE intent_id=? AND attempt=?",(row["id"],row["attempt"]))
+                    self._event(row["session_id"],"intent-status",{"session_id":row["session_id"],"intent_id":row["id"],"status":"cancelled","attempt":row["attempt"]})
+                else:
+                    self.db.execute("UPDATE intents SET status='interrupted',error_json=?,consumer_id=NULL,lease_until=NULL,updated_at=? WHERE id=?",(error,now,row["id"]))
+                    self.db.execute("UPDATE attempts SET status='interrupted' WHERE intent_id=? AND attempt=?",(row["id"],row["attempt"]))
+                    self._event(row["session_id"],"intent-status",{"session_id":row["session_id"],"intent_id":row["id"],"status":"interrupted","attempt":row["attempt"]})
             self.db.execute("UPDATE consumers SET state=CASE WHEN state='paused' THEN 'paused' ELSE 'expired' END,lease_until=NULL")
             self.db.execute("UPDATE sessions SET owner_consumer_id=NULL,agent_state=CASE WHEN EXISTS(SELECT 1 FROM intents WHERE intents.session_id=sessions.id AND intents.status='interrupted') THEN 'recovering' ELSE 'offline' END")
         for session_id in {row["session_id"] for row in interrupted}:
@@ -593,6 +603,26 @@ class BridgeCore:
         if not row:
             raise BridgeError(404, "SESSION_NOT_FOUND", "任务不存在")
         return row
+
+    def assert_consumer(self, session_id, consumer_id):
+        """会话归属判定的**唯一真相**（F3）。
+
+        历史上这条判定放在 MCP 进程的内存集合里（`tools/bridge_mcp.py` 的
+        `owned_sessions`），而宿主可能每次工具调用都新起一个 stdio 进程——集合恒为空，
+        于是"没见过这个会话"被当成放行，判定形同虚设。
+
+        改查 `consumers` 表：`open_editor` 落行、`close_session` 置 `requires_open=1`；
+        `consumer_id` 由 workdir 派生因而跨进程稳定 → MCP 重启后仍能正确判定，
+        既不放行陌生会话，也不会因为重开进程而误伤已登记的会话。
+        """
+        if not isinstance(consumer_id, str) or not consumer_id:
+            raise BridgeError(400, "INVALID_ARGUMENT", "consumer_id 必须是非空字符串")
+        with self._db_lock:
+            row = self.db.execute("SELECT requires_open FROM consumers WHERE session_id=? AND consumer_id=?",
+                                  (session_id, consumer_id)).fetchone()
+        if not row or row["requires_open"]:
+            raise BridgeError(403, "SESSION_NOT_OWNED", "该会话不属于此 consumer；请先 open_editor 登记",
+                              False, {"session_id": session_id})
 
     def _event(self, session_id, typ, data):
         cur = self.db.execute("INSERT INTO events(session_id,type,data_json,created_at) VALUES(?,?,?,?)",
@@ -979,13 +1009,28 @@ class BridgeCore:
         except ValueError:
             raise BridgeError(403,"PATH_DENIED","路径不属于本任务")
 
+    def _read_managed(self, rel, *, message="受管文件不存在", details=None):
+        """读受管文件，并把"文件不在盘上"这类**正常**情形映射成干净错误（F2）。
+
+        `SecureRoot.open_read` 会让 `FileNotFoundError` 逃逸，历史上被 HTTP 层的通配
+        处理器包成 500 `STORAGE_UNAVAILABLE`「服务内部错误」——新建 deck 尚未落盘
+        （phase=briefing）时必然踩到，于是 View 与模型都拿不到可读原因。
+        """
+        try:
+            return self.secure.read(rel)
+        except (FileNotFoundError,NotADirectoryError) as exc:
+            raise BridgeError(404,"NOT_FOUND",message,False,dict(details or {},path=rel)) from exc
+        except IsADirectoryError as exc:
+            raise BridgeError(404,"NOT_FOUND",message+"（不是普通文件）",False,dict(details or {},path=rel)) from exc
+
     def read_document(self, session_id, path=None):
         """读取本任务受管的目标 HTML（轨 A 的 read_deck）。"""
         session=self._session(session_id)
         rel=session["target_path"] if path is None else normalize_rel(path)
         if rel!=session["target_path"]:
             raise BridgeError(403,"PATH_DENIED","只能读取本任务登记的目标 HTML")
-        data=self.secure.read(rel)
+        data=self._read_managed(rel, message="目标 HTML 尚未创建",
+                                details={"phase":session["phase"]})
         if len(data)>DOCUMENT_READ_MAX:
             raise BridgeError(413,"PAYLOAD_TOO_LARGE","目标 HTML 超出单次读取上限")
         return {"ok":True,"session_id":session_id,"path":rel,"revision":session["revision"],"phase":session["phase"],
@@ -1010,7 +1055,7 @@ class BridgeCore:
         row=self.db.execute("SELECT class,size FROM bundle_files WHERE session_id=? AND path=? AND present=1",(session_id,bundle_rel)).fetchone()
         if not row or row["class"] not in classes:
             raise BridgeError(404,"NOT_FOUND","文件未在本任务登记")
-        data=self.secure.read(rel)
+        data=self._read_managed(rel, message="受管文件已不在盘上", details={"path":bundle_rel})
         if len(data)>ARTIFACT_READ_MAX:
             raise BridgeError(413,"PAYLOAD_TOO_LARGE","产物超出单次读取上限，请在宿主工作目录取件")
         return {"ok":True,"session_id":session_id,"path":bundle_rel,"bytes":len(data),
@@ -2050,11 +2095,35 @@ class BridgeHandler(BaseHTTPRequestHandler):
             return self._static(path)
         except BridgeError as e:self._error(e)
         except (BrokenPipeError,ConnectionResetError,ConnectionAbortedError):pass
-        except Exception:self._error(BridgeError(500,"STORAGE_UNAVAILABLE","服务内部错误",True))
+        except Exception:
+            # 把真实原因留在 daemon.log：这个通配处理器历史上把回溯整个吞掉，
+            # 使"服务内部错误"这类被掩盖的缺陷只能靠临时探针定位（见 F2/F1 的审计）。
+            traceback.print_exc()
+            self._error(BridgeError(500,"STORAGE_UNAVAILABLE","服务内部错误",True))
+    def _verify_consumer(self,path,target):
+        """把轨 A 的会话归属校验下沉到 daemon（F3）。
+
+        `target` 是 POST 的 body 或 GET 的 query dict。命中时**校验并摘除** `consumer_id`：
+        摘除是刻意的——多条路由（`/api/intent`、`/api/versions` 等）对字段集合做**精确**
+        比对，摘掉后它们的契约一字未改。轨 B（浏览器凭证）不带该字段，走各自的 `_browser`。
+        """
+        # 这几条路由自己声明 consumer_id（open 时 consumer 尚未登记，更不能校验）
+        if path in {"/api/bridge/open","/api/bridge/await","/api/bridge/update","/api/bridge/close","/api/bridge/heartbeat"}:
+            return
+        raw=target.get("consumer_id")
+        if raw is None:return
+        if isinstance(raw,list):
+            if len(raw)!=1:raise BridgeError(400,"INVALID_ARGUMENT","consumer_id 只能出现一次")
+            raw=raw[0]
+        target.pop("consumer_id",None)
+        sid=target.get("session_id")
+        if isinstance(sid,list):sid=sid[0] if len(sid)==1 else None
+        self.core.assert_consumer(sid,raw)
     def _api(self,path,u):
         if self.command=="POST":
             limits={"/api/save":DOCUMENT_BODY_MAX,"/api/bridge/draft":DOCUMENT_BODY_MAX,"/api/bridge/asset":ASSET_BODY_MAX}
             body=self._read_json(limits.get(path,CONTROL_BODY_MAX))
+            self._verify_consumer(path,body)
             if path=="/api/bridge/open":
                 self._management();self._fields(body,{"consumer_id"},{"deck_path","output_path","view","open_browser","brief_options"})
                 if "open_browser" in body and type(body["open_browser"]) is not bool and body["open_browser"] != "auto":raise BridgeError(400,"INVALID_ARGUMENT","open_browser 必须为 boolean 或 \"auto\"")
@@ -2158,6 +2227,7 @@ class BridgeHandler(BaseHTTPRequestHandler):
             raise BridgeError(404,"INVALID_ARGUMENT","未知 API")
         if self.command=="GET":
             q=parse_qs(u.query,keep_blank_values=True)
+            self._verify_consumer(path,q)
             if path=="/api/events":
                 if not set(q)<={"session_id","after"} or len(q.get("session_id",[]))!=1 or any(len(v)!=1 for v in q.values()):raise BridgeError(400,"INVALID_ARGUMENT","events query 非法")
                 return self._sse(q)

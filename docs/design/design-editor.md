@@ -59,7 +59,9 @@
 
 - 主路径：`showOpenFilePicker()`（accept `.html`），拿到 `FileSystemFileHandle` 读全文；
 - 辅助路径：拖拽文件到页面 / `<input type="file">`（无句柄，只能降级保存）；
-- 关于 `assets/` 目录句柄：FSAA **无法**从文件句柄推导父目录句柄。首次执行图片替换且尚无目录句柄时，弹 `showDirectoryPicker({mode:'readwrite'})` 请用户选一次 assets 目录，句柄在会话内缓存（见 §6）。
+- **选择器按轨判定，不按能力探测**（v3.9.5）：`showOpenFilePicker` 在宿主 iframe（嵌入态 / MCP Apps 轨 A）里**存在但调用会被权限策略拒绝**，只按 `typeof window.showOpenFilePicker === 'function'` 分支会让内置 `<input type="file">` 回路永远走不到（宿主内"打开文件"必失败）。四态里 `localPickerUsable()` 只在静态态 / 轨 B 为真，嵌入态与轨 A 直接走文件选择框；FSAA 调用真失败时说明原因后**回落**文件选择框（不再只弹提示）。
+- **本地画布不可写受管工作区**（v3.9.5）：无句柄的文件（文件选择框 / 拖拽 / 嵌入加载）进 `openHtml` 时 `deckPath` 为 `null`；轨 A 的保存路径 `mcpAppPath(null)` 会回落到本会话的 `resourcePath`，即**用本地文件覆盖 agent 管理的 deck**。轨 A 的保存与换图要求"画布就是本会话的受管 deck"，否则拒绝执行并给出路（下载副本 / 独立窗口）。
+- 关于 `assets/` 目录句柄：FSAA **无法**从文件句柄推导父目录句柄。首次执行图片替换且尚无目录句柄时，弹 `showDirectoryPicker({mode:'readwrite'})` 请用户选一次 assets 目录，句柄在会话内缓存（见 §6）。轨 A 无 FSAA，换图改走宿主通道 `write_asset`（见 §6）。
 - 解析校验：用 `DOMParser` 预检文件是否符合契约（至少有 `.slide` 和 `data-slide-id`）；不符合时提示"该文件不是 html-pptx 技能产物"，仍允许打开（就地编辑退化为仅对带标记元素生效）。
 
 ### 3.2 保存
@@ -203,6 +205,8 @@ iframe 嵌入宿主时的协议草案，写在这里防止架构堵死：
 |---|---|
 | 文件不符合契约 | 警告条提示，仍可打开（仅标记元素可编辑） |
 | FSAA 不可用 | 保存按钮变为"导出下载"，tooltip 说明 |
+| 宿主 iframe 里 FSAA 探测为真但调用被拒（嵌入态 / 轨 A） | 「打开文件」与「替换图片」按轨改用内置文件选择框；调用真失败时说明原因后回落，不静默 |
+| 轨 A 画布来自本地文件（`deckPath` 为空） | 保存与换图**拒绝执行**（toast + 横幅说明 + 「下载副本」出路），不写受管工作区 |
 | 用户拒绝 assets 目录授权 | 图片替换中止并提示，文字编辑不受影响 |
 | 幻灯片 JS 抛错 | 编辑层不依赖幻灯片 JS，编辑功能仍可用；控制台透出 |
 | 超大文件（>5MB） | 正常打开；保存前不特殊处理（单文件文本量级可控） |

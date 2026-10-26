@@ -112,12 +112,14 @@ def _is_int(value) -> bool:
     return isinstance(value, int) and not isinstance(value, bool)
 
 
-def build_request(name: str, arguments, *, owned_sessions):
+def build_request(name: str, arguments, *, consumer_id: str):
     """校验并构造 daemon 请求。
 
     返回 (method, path, body)；GET 操作的筛选条件拼进 path 的 query。
-    `owned_sessions` 是本 consumer 通过 open_editor 登记过的 session 集合——
-    工具层自校验，不依赖宿主鉴权（宿主 isolation 缺口仍在）。
+
+    `consumer_id` 是**本 MCP 进程的身份**（由 workdir 派生、跨进程稳定）。它随每个
+    请求附上，由 daemon 的 `assert_consumer` 做会话归属判定——归属真相在 daemon，
+    不在本进程内存（F3：宿主每次调用新起进程时，内存集合恒为空、判定形同虚设）。
     """
     spec = operation(name)
     if arguments is None:
@@ -138,11 +140,13 @@ def build_request(name: str, arguments, *, owned_sessions):
     session_id = args.get("session_id")
     if not isinstance(session_id, str) or not session_id:
         raise DispatchError("INVALID_ARGUMENT", f"{name} 的 session_id 必须是非空字符串")
-    if owned_sessions is not None and session_id not in owned_sessions:
-        raise DispatchError("SESSION_NOT_OWNED",
-                            f"{name} 的 session 不属于本 consumer；请先 open_editor 登记（MCP 重启后需重新打开）")
+    if not isinstance(consumer_id, str) or not consumer_id:
+        raise DispatchError("INVALID_ARGUMENT", "consumer_id 必须是非空字符串")
     body = {k: v for k, v in args.items() if v is not None or k == "base_revision"}
     body.update(spec.get("defaults") or {})
+    # 归属判定下沉 daemon：附上 consumer_id，由 HTTP 层的 `_verify_consumer` 校验后**摘除**，
+    # 因此下面各路由的字段契约（多处是精确集合比对）一字未改。
+    body["consumer_id"] = consumer_id
 
     if name == "submit_intent":
         if not isinstance(body.get("payload"), dict):
