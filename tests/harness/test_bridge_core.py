@@ -672,6 +672,49 @@ class CoreCase(unittest.TestCase):
         st2 = self.core.get_status(sid)
         self.assertEqual([x["status"] for x in st2["intents"] if x["id"] == iid], ["interrupted"])
 
+    def test_new_view_client_discards_previous_unfinished_requests(self):
+        """**新 View client attach**（= 用户重开页面）才丢弃先前排队的请求；
+        同一 client 的重复上报（轮询期）不丢弃；processing 不动。
+        `interrupted` 的保留由既有 resume 测试保护。"""
+        opened = self.open()
+        sid = opened["session_id"]
+        self.core.attach_view(sid, "page-1")                     # 首次挂载：prev 为空 → 不丢弃
+        running_id = str(uuid.uuid4())
+        self.submit(opened, running_id, {"formats": ["pdf"], "scope": "all"})
+        self.core.await_intent(sid, "consumer-a", 1)             # → processing
+        queued_id = str(uuid.uuid4())
+        self.submit(opened, queued_id)                           # → pending
+        # 同一页面轮询期重复上报：**不该**丢弃
+        same = self.core.attach_view(sid, "page-1")
+        self.assertEqual(same["discarded"], [])
+        self.assertEqual(self.core.db.execute(
+            "SELECT status FROM intents WHERE id=?", (queued_id,)).fetchone()[0], "pending")
+        # 新 client = 用户重新打开了编辑器 → 丢弃排队中的，保留 processing
+        reopened = self.core.attach_view(sid, "page-2")
+        after = {r["id"]: r["status"] for r in self.core.db.execute(
+            "SELECT id,status FROM intents WHERE session_id=?", (sid,))}
+        self.assertEqual(after[queued_id], "cancelled", "重开页面应丢弃还在排队的旧请求")
+        self.assertEqual(after[running_id], "processing", "重开页面不得动正在处理中的请求")
+        self.assertEqual([d["seq"] for d in reopened["discarded"]], [2])
+        event = self.core.db.execute(
+            "SELECT data_json FROM events WHERE session_id=? AND type='notice' ORDER BY id DESC LIMIT 1",
+            (sid,)).fetchone()
+        self.assertEqual(json.loads(event[0])["kind"], "reopen-discard")
+
+    def test_duplicate_request_is_deduplicated(self):
+        """同一 (type, payload, base) 的未终结请求不重复入队；换基线或换载荷算新请求。"""
+        opened = self.open()
+        sid = opened["session_id"]
+        first = self.submit(opened, str(uuid.uuid4()))
+        second = self.submit(opened, str(uuid.uuid4()))
+        self.assertTrue(second.get("deduplicated"), "同载荷同基线应被去重")
+        self.assertEqual(second["seq"], first["seq"])
+        third = self.submit(opened, str(uuid.uuid4()), {"formats": ["pdf"], "scope": "all"})
+        self.assertFalse(third.get("deduplicated"), "不同载荷必须是新请求")
+        self.assertNotEqual(third["seq"], first["seq"])
+        self.assertEqual(self.core.db.execute(
+            "SELECT COUNT(*) FROM intents WHERE session_id=?", (sid,)).fetchone()[0], 2)
+
     def test_intent_state_transitions_persist_events_and_notify_waiters(self):
         opened = self.open()
         sid = opened["session_id"]

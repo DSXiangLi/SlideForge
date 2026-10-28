@@ -98,7 +98,8 @@ interrupted                 → 用户明确 resume  → pending（attempt 增�
 ```
 
 1. 页面先将提交快照写入本地待确认队列，再 POST。服务事务插入 intent 后才返回 accepted。
-2. 相同 session/intent_id/payload_digest 重试返回原 seq/status；同 ID 不同内容返回 `IDEMPOTENCY_CONFLICT`，不覆盖旧请求。不同intent_id始终是独立持久请求；服务不根据payload_digest或其他启发式自动判断语义重复、合并或取消。
+2. 相同 session/intent_id/payload_digest 重试返回原 seq/status；同 ID 不同内容返回 `IDEMPOTENCY_CONFLICT`，不覆盖旧请求。**语义去重（2026-10-28 用户签字，口径变更，见 [1028 队列语义](../../progress/1028_queue_discard_and_dedupe.md)）**：同 session 内 `(type, payload 内容, 归一化 base_revision)` 完全相同且**尚未终结**（`pending`/`processing`）的请求**不重复入队**——返回既有那条，响应带 `deduplicated:true` 与既有 `intent_id`/`seq`/`status`。`base_revision` 参与判据 ⇒ **"改版后重发"仍是新请求**（必须保留的语义）。原口径"不同 intent_id 始终是独立持久请求"**不再成立**。
+   **重开页面丢弃排队请求**：`attach_view` 收到**新的 `client`**（同页面轮询期会用同一个 client 重复上报，不触发）时，把该会话的 `pending`/`failed`/`conflict` 置 `cancelled`，**保留 `interrupted`**（唯一能 resume）与 `processing`；每条写 `intent-status`、写一条 `notice{kind:'reopen-discard'}`，返回里给出 `discarded` 列表。**不得**用 `open_editor` 当"重开"信号（它在换 consumer/恢复会话时也会被调用）。
 3. await 在事务内认领最早可执行 pending，请求和 consumer 绑定。一个 session 最多一个 processing 请求、一个 owner；浏览器恢复视图优先展示recoverable，但队列本身不因页面排序擅自跳过或取消pending。
 4. 同一processing owner重试await时重放同一认领结果并带`redelivered:true`；不要求lease仍在未来，也不重新复制/清空work_path。其他consumer一律`SESSION_BUSY`。
 5. push_update动作绑定intent_id、attempt、consumer_id；同一持久processing owner持当前attempt可迟到progress/complete/fail。resume先递增attempt，因此旧producer携旧attempt的API写入被拒绝，即使前后consumer_id相同。结果落盘后返回receipt，重复complete只返回原receipt，不重复发布。

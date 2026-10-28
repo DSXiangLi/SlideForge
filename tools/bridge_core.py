@@ -943,6 +943,48 @@ class BridgeCore:
             self.db.execute("INSERT INTO browser_tokens(token_digest,session_id,created_at) VALUES(?,?,?)", (token_digest(raw),session_id,utcnow()))
         return raw
 
+    def discard_prior_requests(self, session_id):
+        """丢弃该会话**先前未终结**的排队请求（用户 2026-10-28 决策）。
+
+        触发点：**View 用一个新 client attach**（= 用户重新打开了编辑器页面），见 attach_view()。
+        不用 `open_editor` 当信号——它在换 consumer / 驱动脚本接管时也会被调用，会把刚提交的
+        请求一起吃掉（harness integration 组实测踩到）。
+
+        范围（**刻意排除 `interrupted`**）：`pending`、`failed`、`conflict`。
+        - `pending`：还没轮到，丢掉零损失；
+        - `failed`/`conflict`：唯一出路是 `rebuild`（从**当前**版本重跑），而"按当前版本重新提交"
+          与它等价 → 丢弃不减少可选项；
+        - **`interrupted` 保留**：它是唯一能 `resume`（复用原工作副本）的状态，协议里
+          "close → 再次 open_editor → resume" 是既有且被测试保护的路径，不能在这里被吃掉；
+        - `processing` 不动（agent 正在处理，取消会半途丢工作）。
+
+        每条都发 `intent-status`（"事事有回响"）+ 一条汇总 `notice`，并在 `open_editor` 的返回里
+        给出 `discarded` 列表，便于 agent 如实告知用户（"本次重开作废了 N 条旧请求，请重新提交"），
+        而不是让用户对着一队永远不会完成的请求干等。
+        """
+        rows = self.db.execute(
+            "SELECT id,seq,type,attempt FROM intents WHERE session_id=?"
+            " AND status IN ('pending','failed','conflict') ORDER BY seq", (session_id,)).fetchall()
+        if not rows: return []
+        now = utcnow()
+        err = canonical_json({"code":"DISCARDED_ON_REOPEN",
+                              "message":"discarded because the editor was reopened",
+                              "retryable":True}).decode()
+        with self.db:
+            for r in rows:
+                self.db.execute("UPDATE intents SET status='cancelled',consumer_id=NULL,lease_until=NULL,error_json=?,updated_at=? WHERE id=?",
+                                (err, now, r["id"]))
+                self.db.execute("UPDATE attempts SET status='cancelled' WHERE intent_id=? AND attempt=?", (r["id"], r["attempt"]))
+                self._event(session_id,"intent-status",{"session_id":session_id,"intent_id":r["id"],
+                                                        "status":"cancelled","attempt":r["attempt"]})
+            self._event(session_id,"notice",{"session_id":session_id,"kind":"reopen-discard","discarded":len(rows)})
+            self.db.execute(
+                "UPDATE sessions SET agent_state=CASE"
+                " WHEN EXISTS(SELECT 1 FROM intents WHERE intents.session_id=sessions.id AND intents.status IN ('failed','conflict','interrupted')) THEN 'recovering'"
+                " WHEN owner_consumer_id IS NOT NULL THEN agent_state ELSE 'offline' END WHERE id=?", (session_id,))
+        self._notify(session_id)
+        return [{"seq":r["seq"],"type":r["type"]} for r in rows]
+
     def open_editor(self, consumer_id, deck_path=None, output_path="index.html", view="edit", open_browser=True, brief_options=None):
         if view not in {"edit","brief","annotate","export"}:
             raise BridgeError(400,"INVALID_ARGUMENT","非法 view")
@@ -978,6 +1020,10 @@ class BridgeCore:
         elif open_browser == "auto" and not page_online and not view_online:
             # 轨道未定：先给 MCP Apps 的 View 一个存在性窗口，窗口内无任何 UI 信号才开浏览器。
             self._schedule_view_window(session["id"], url)
+        # 注：**不在这里丢弃队列**——`open_editor` 在正常流程里会被多次调用（换 consumer、
+        # 恢复会话、驱动脚本接管），拿它当"用户重新打开页面"的信号会吃掉**刚提交**的请求
+        # （harness integration 组实测踩到）。正确的信号是 **View 用一个新 client attach**，
+        # 见 attach_view() → discard_prior_requests()。
         return self._open_result(self._session(session["id"]), state, url, page_online, view_online, view)
 
     @staticmethod
@@ -985,7 +1031,7 @@ class BridgeCore:
         raw = s["brief_options_json"]
         return json.loads(raw) if raw else None
 
-    def _open_result(self, s, consumer_state, url, page_online, view_online=False, view="edit"):
+    def _open_result(self, s, consumer_state, url, page_online, view_online=False, view="edit", discarded=None):
         return {"ok":True,"protocol_version":2,"session_id":s["id"],
                 "view":view,
                 "deck_path":str(self.workdir/s["deck_path"]) if s["deck_path"] else None,
@@ -993,6 +1039,7 @@ class BridgeCore:
                 "url":url,"page_online":page_online,"view_attached":view_online,"track":self.track_of(s["id"]),
                 "agent_state":self.agent_state(s["id"]),
                 "consumer_state":consumer_state,"git_initialized":bool(s["git_ready"]),
+                "discarded":discarded or [],
                 "brief_options":self._brief_options_of(s),
                 "capabilities":{"local_convert":self.allow_convert,"local_imagegen":self.allow_imagegen,"git_ready":bool(s["git_ready"])}}
 
@@ -1033,15 +1080,26 @@ class BridgeCore:
         return "pending"
 
     def attach_view(self, session_id, client=None):
-        """View 连接后立即上报（app-only 工具 attach_view）。"""
+        """View 连接后立即上报（app-only 工具 attach_view）。
+
+        **新页面接管 = 用户重新打开了编辑器** → 丢弃该会话先前**未终结**的排队请求
+        （用户 2026-10-28 决策，见 discard_prior_requests）。判据是 `client` **变了**：
+        View 在轮询期会用**同一个** client 反复上报，只有真正的新页面才会换 client。
+        这也解释了为什么不能用 `open_editor` 当信号——它在换 consumer / 驱动脚本接管时
+        同样会被调用，会把刚提交的请求一起吃掉（harness integration 组实测）。
+        """
         if client is not None and (not isinstance(client, str) or len(client) > 200):
             raise BridgeError(400,"INVALID_ARGUMENT","client 字段非法")
-        self._session(session_id)
+        prev = self._session(session_id)["view_client"]
         now = utcnow()
         with self.db:
             self.db.execute("UPDATE sessions SET view_attached_at=?,view_client=?,updated_at=? WHERE id=?",(now,client,now,session_id))
+        discarded = []
+        if client and prev and prev != client:
+            discarded = self.discard_prior_requests(session_id)
         self._notify(session_id)
-        return {"ok":True,"session_id":session_id,"track":"mcp-app","view_attached":True,"server_time":now}
+        return {"ok":True,"session_id":session_id,"track":"mcp-app","view_attached":True,"server_time":now,
+                "discarded":discarded}
 
     def _schedule_view_window(self, session_id, url):
         """存在性窗口：窗口内没有 View 信号也没有浏览器心跳，才打开独立浏览器（轨 B）。"""
@@ -1290,6 +1348,16 @@ class BridgeCore:
         base=body["base_revision"]
         if typ in INSTRUCTION_INTENT_TYPES: base=session["revision"]
         elif base != session["revision"]: raise BridgeError(409,"REVISION_CONFLICT","base_revision 与当前版本不一致",True,{"revision":session["revision"]})
+        # 语义去重（2026-10-28 用户决策）：同一 session 内 **(type, payload, 归一化 base) 完全相同**
+        # 且**尚未终结**（pending/processing）的请求不重复入队——直接返回既有那条（带 deduplicated 标记）。
+        # 这是对"不同 intent_id 始终是独立请求"原口径的**刻意变更**（见协议 §4 与
+        # docs/progress/1028_queue_discard_and_dedupe.md）。`base` 参与 key ⇒ "改版后重发"仍是新请求。
+        dup=self.db.execute(
+            "SELECT * FROM intents WHERE session_id=? AND type=? AND payload_json=? AND base_revision=?"
+            " AND status IN ('pending','processing') ORDER BY seq LIMIT 1",
+            (session_id,typ,raw.decode(),base)).fetchone()
+        if dup:
+            return {"ok":True,"accepted":True,"deduplicated":True,"intent_id":dup["id"],"seq":dup["seq"],"status":dup["status"]}
         now=utcnow()
         with self.db:
             seq=self.db.execute("SELECT COALESCE(MAX(seq),0)+1 FROM intents").fetchone()[0]

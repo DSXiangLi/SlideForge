@@ -4,11 +4,23 @@
 <!--
   ============================================================================
   HTML PPTX 编辑器 · editor.html
-  版本：v3.9.7（2026-10-28）
+  版本：v3.9.8（2026-10-28）
   实现依据：docs/design-editor.md v0.3（评审修订稿）+ docs/design/editor-v2.md
   标记契约：skills/html-pptx/references/editing-contract.md v8（本页是消费侧实现）
 
   变更记录：
+  - v3.9.8（轨 A 的恢复入口补齐 + 出错态也渲染状态栏）：
+    ① **轨 A 简报区给出真能用的恢复动作**：1027 曾把 `btnBriefStop/Resume/Retry` 三个按轨
+    全藏，而简报视图下 `#bridgeBar`/`#bridgeTasks` 又被 CSS 关闭 → 轨 A 在简报页里
+    **零恢复入口**，可模型仍在让用户"去编辑器页面重试"。现在轨 A 显示**「按当前版本重新提交」**
+    （`hostBridge.recover('retry')` → `submit_intent`，结果等价 rebuild、不扩工具面）；
+    停止/续用沙箱无权做，保持隐藏（不给死按钮）。
+    ② **本地乐观条目带上 payload**：`mcpAppSubmitIntent` 的本地条目此前不含 `payload`，
+    导致"重新提交"没内容可重放；现在把发送载荷一并存下。
+    ③ **"不透明源"早退也渲染状态栏**：`mcpAppLoadDeck` 那条 `return false` 原来不渲染状态栏，
+    出错时连「请求记录」入口都没有（"点了没反应"的典型）；现在如实渲染 error 态。
+    ④ **配合服务端语义去重**：`submit_intent` 返回 `deduplicated:true` 时，撤掉本地乐观条目、
+    合并到既有那条并明说"队列中已有相同的请求（seq N），未重复提交"。
   - v3.9.7（状态流修复：轨 A 队列可见、批注提交即发送、通道统一，见 docs/progress/1028_editor_state_flow_fixes.md）：
     ① **轨 A 队列可见**：`mcpAppApplyStatus()` 合并 `get_status.intents` 轻量摘要（daemon 本轮新增）
     进 `bridge.intents`——「请求记录」在轨 A 不再恒空（此前轨 A 无 query 通道，面板结构性为空）。
@@ -4343,6 +4355,9 @@ async function mcpAppLoadDeck(path, revision, preserve){
       if (window.pptxMcp && window.pptxMcp.log){
         window.pptxMcp.log('error','pptx-html 编辑器：View 处于不透明源，嵌套渲染文档不可访问；宿主需让 View 运行在有真实源的容器（独立 sandbox origin 或 allow-same-origin）');
       }
+      /* 这条早退原来不渲染状态栏 → 出错时连「请求记录」入口都没有（"点了没反应"的典型）。
+         现在如实渲染 error 态：状态栏可见、队列可见、可处置。 */
+      mcpAppRenderState('error','无法编辑（沙箱）','宿主需提供真实源：独立 sandbox origin 或 allow-same-origin');
       return false;
     }
     mcpAppRenderState('online','MCP Apps 已同步','');
@@ -4571,13 +4586,22 @@ async function mcpAppSubmitIntent(type, payload){
       ? {revision:mcpApp.revision, dirty:!!state.dirty} : null;
   var sentPayload = anchor ? Object.assign({}, payload, {anchor:anchor}) : payload;
   var id = bridgeUuid();
-  var local = {id:id, type:type, status:'submitting', attempt:1, base_revision:mcpApp.revision, request:null};
+  var local = {id:id, type:type, status:'submitting', attempt:1, base_revision:mcpApp.revision, request:null, payload:sentPayload};
   bridge.intents[id] = local;
   if (type === 'brief.submitted') bridgeRefreshBriefSummary();
   bridgeRenderTasks();
   try {
     var result = await mcpAppCall('submit_intent', {session_id:mcpApp.sessionId, intent_id:id, type:type,
                                                     payload:sentPayload, base_revision:mcpApp.revision});
+    if (result && result.deduplicated){
+      /* v3.9.8：服务端**语义去重**——队列里已有"同基线 + 同载荷"的未终结请求，未新建。
+         撤掉本地乐观条目、合并到既有那条，并明说（否则用户会以为"点了没反应"）。 */
+      delete bridge.intents[id];
+      bridgeMergeIntent({id:(result.intent_id||id), seq:result.seq, type:type, status:result.status, attempt:1, base_revision:mcpApp.revision});
+      bridge.formDirty = false;
+      toast('队列中已有相同的请求（seq ' + result.seq + '），未重复提交');
+      return {route:'mcp-app', result:result, deduplicated:true};
+    }
     bridgeMergeIntent({id:id, seq:result.seq, type:type, status:result.status, attempt:1, base_revision:mcpApp.revision});
     bridge.formDirty = false;
     /* 敲门只发短句；载荷早已在状态机里，便条不在提交路径上（§5.5） */
@@ -7205,9 +7229,20 @@ function briefRenderSubmission(stateName,message,meta){
      点必失败（提交失败后 status='failed' 会让「重新构建」真的露出来）；app-only 的意图恢复工具已在
      1027 移除（见 docs/progress/1027_tool_surface_slimming.md）。轨 B 行为不变。 */
   var trackA=(typeof hostBridge!=='undefined'&&hostBridge.kind==='mcp-app');
-  $('btnBriefStop').hidden=trackA||!(item&&item.status==='processing');
-  $('btnBriefResume').hidden=trackA||!(item&&item.status==='interrupted');
-  $('btnBriefRetry').hidden=trackA||!(item&&(item.status==='unconfirmed'||['failed','conflict','interrupted'].indexOf(item.status)>=0));
+  /* v3.9.8：轨 A **不再三个按钮全藏** —— 那等于"零恢复入口"，而模型还在让用户"去页面重试"。
+     `retry` 在轨 A 等价于**按当前版本重新提交**（`hostBridge.recover('retry')` → `submit_intent`），
+     是轨 A 唯一真的能做的恢复动作；停止/续用沙箱无权做（拿不到 bridge 凭证），保持隐藏、不给死按钮。 */
+  if (trackA){
+    var canResend=!!(item&&['failed','conflict','interrupted'].indexOf(item.status)>=0);
+    $('btnBriefStop').hidden=true;
+    $('btnBriefResume').hidden=true;
+    $('btnBriefRetry').hidden=!canResend;
+    if (canResend) $('btnBriefRetry').textContent='按当前版本重新提交';
+    return;
+  }
+  $('btnBriefStop').hidden=!(item&&item.status==='processing');
+  $('btnBriefResume').hidden=!(item&&item.status==='interrupted');
+  $('btnBriefRetry').hidden=!(item&&(item.status==='unconfirmed'||['failed','conflict','interrupted'].indexOf(item.status)>=0));
   $('btnBriefRetry').textContent=item&&item.status==='unconfirmed'?'重发确认':'重新构建';
 }
 function briefObserveIntent(item){
