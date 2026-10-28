@@ -565,19 +565,112 @@ class CoreCase(unittest.TestCase):
         self.submit(opened, iid)
         self.core.await_intent(sid, "consumer-a", 1)
         stopped = self.core.cancel_intent(sid, iid)
-        repeated = self.core.cancel_intent(sid, iid)
         self.assertEqual(stopped["status"], "interrupted")
         self.assertTrue(stopped["external_work_may_continue"])
-        self.assertEqual(repeated["status"], "interrupted")
-        self.assertTrue(repeated["external_work_may_continue"])
         self.assertIsNone(self.core._session(sid)["owner_consumer_id"])
         attempt = self.core.db.execute(
             "SELECT status FROM attempts WHERE intent_id=? AND attempt=1", (iid,)).fetchone()[0]
         self.assertEqual(attempt, "interrupted")
+        # P4.1（2026-10-27）：对 interrupted 再取消 = 放弃（此前是 no-op，被中断的请求
+        # 既不能取消、也无法让状态机前进）。
+        repeated = self.core.cancel_intent(sid, iid)
+        self.assertEqual(repeated["status"], "cancelled")
+        self.assertTrue(repeated["external_work_may_continue"])
+        self.assertEqual(self.core.db.execute(
+            "SELECT status FROM attempts WHERE intent_id=? AND attempt=1", (iid,)).fetchone()[0],
+            "cancelled")
         events = self.core.db.execute(
             "SELECT data_json FROM events WHERE session_id=? AND type='intent-status' ORDER BY id",
             (sid,)).fetchall()
-        self.assertEqual([json.loads(event[0])["status"] for event in events], ["pending", "processing", "interrupted"])
+        self.assertEqual([json.loads(event[0])["status"] for event in events],
+                         ["pending", "processing", "interrupted", "cancelled"])
+
+    def test_per_intent_gate_lets_an_interrupted_intent_stop_blocking_the_queue(self):
+        """P4.3：一条卡住的 interrupted 请求不再锁死同会话的其它请求。"""
+        opened = self.open()
+        sid = opened["session_id"]
+        blocked = str(uuid.uuid4())
+        self.submit(opened, blocked)
+        self.core.await_intent(sid, "consumer-a", 1)
+        self.core.cancel_intent(sid, blocked)          # processing → interrupted
+        self.assertEqual(self.core.db.execute(
+            "SELECT status FROM intents WHERE id=?", (blocked,)).fetchone()[0], "interrupted")
+        self.assertEqual(self.core.agent_state(sid), "recovering")
+        # 旧实现会在 _acquire_owner 对**整个会话**抛 RECOVERY_REQUIRED；现在新请求可被认领。
+        fresh = str(uuid.uuid4())
+        self.submit(opened, fresh)
+        claimed = self.core.await_intent(sid, "consumer-a", 1)
+        self.assertEqual(claimed["intent_id"], fresh)
+        self.assertEqual(self.core.agent_state(sid), "working")
+
+    def test_stale_interrupted_intent_is_auto_cancelled_before_claim(self):
+        """P4.2：无 lease 且超过宽限期的 interrupted 请求由 daemon 自动作废（并发事件）。"""
+        opened = self.open()
+        sid = opened["session_id"]
+        stale = str(uuid.uuid4())
+        self.submit(opened, stale)
+        self.core.await_intent(sid, "consumer-a", 1)
+        self.core.cancel_intent(sid, stale)            # → interrupted
+        self.core.db.execute("UPDATE intents SET updated_at=? WHERE id=?",
+                             ("2000-01-01T00:00:00.000Z", stale))
+        self.core.db.commit()
+        healed = self.core._heal_stale_recoverables(sid)
+        self.assertEqual(healed, 1)
+        self.assertEqual(self.core.db.execute(
+            "SELECT status FROM intents WHERE id=?", (stale,)).fetchone()[0], "cancelled")
+        self.assertEqual(self.core.agent_state(sid), "offline")
+        # 持久投影 sessions.agent_state 也必须同步刷新（不能停在 recovering）
+        self.assertEqual(self.core.db.execute(
+            "SELECT agent_state FROM sessions WHERE id=?", (sid,)).fetchone()[0], "offline")
+        events = [json.loads(row[0]) for row in self.core.db.execute(
+            "SELECT data_json FROM events WHERE session_id=? AND type='intent-status' ORDER BY id", (sid,))]
+        self.assertEqual(events[-1]["intent_id"], stale)
+        self.assertEqual(events[-1]["status"], "cancelled")
+        # 对照组：宽限期内的 interrupted 不会被误伤。
+        fresh = str(uuid.uuid4())
+        self.submit(opened, fresh)
+        self.core.await_intent(sid, "consumer-a", 1)
+        self.core.cancel_intent(sid, fresh)
+        self.assertEqual(self.core._heal_stale_recoverables(sid), 0)
+        self.assertEqual(self.core.db.execute(
+            "SELECT status FROM intents WHERE id=?", (fresh,)).fetchone()[0], "interrupted")
+
+    def test_stale_conflict_intent_is_not_self_healed(self):
+        """P4.2 边界：conflict 必须由用户在页面上决定，不在自愈范围。"""
+        opened = self.open()
+        sid = opened["session_id"]
+        iid = str(uuid.uuid4())
+        self.submit(opened, iid)
+        self.bump_revision(opened)                     # 让 base_revision 过期
+        with self.assertRaises(BridgeError) as caught:
+            self.core.await_intent(sid, "consumer-a", 1)
+        self.assertEqual(caught.exception.code, "RECOVERY_REQUIRED")
+        self.assertEqual(self.core.db.execute(
+            "SELECT status FROM intents WHERE id=?", (iid,)).fetchone()[0], "conflict")
+        self.core.db.execute("UPDATE intents SET updated_at=? WHERE id=?",
+                             ("2000-01-01T00:00:00.000Z", iid))
+        self.core.db.commit()
+        self.assertEqual(self.core._heal_stale_recoverables(sid), 0)
+        self.assertEqual(self.core.db.execute(
+            "SELECT status FROM intents WHERE id=?", (iid,)).fetchone()[0], "conflict")
+
+    def test_get_status_exposes_intent_summary_for_track_a(self):
+        """R3-a：轨 A 没有 query 通道，状态必须带轻量意图摘要（含小载荷）供页面展示。"""
+        opened = self.open()
+        sid = opened["session_id"]
+        iid = str(uuid.uuid4())
+        self.submit(opened, iid)
+        st = self.core.get_status(sid)
+        self.assertIn("intents", st)
+        row = [x for x in st["intents"] if x["id"] == iid][0]
+        self.assertEqual((row["status"], row["seq"], row["type"]),
+                         ("pending", 1, "convert.requested"))
+        self.assertEqual(row["payload"], {"formats": ["pptx"], "scope": "all"})
+        # recoverable 也出现在摘要里（页面据此给"重新提交"入口）
+        self.core.await_intent(sid, "consumer-a", 1)
+        self.core.cancel_intent(sid, iid)
+        st2 = self.core.get_status(sid)
+        self.assertEqual([x["status"] for x in st2["intents"] if x["id"] == iid], ["interrupted"])
 
     def test_intent_state_transitions_persist_events_and_notify_waiters(self):
         opened = self.open()

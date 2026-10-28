@@ -6,7 +6,7 @@
 - **轨 B（现状）**：五个面向模型的工具经 `admin_request` 走 loopback HTTP 到 daemon；
   独立浏览器标签页用 browser 凭证直连同一 daemon。
 - **轨 A（MCP Apps）**：宿主把资源 `ui://pptx-html-bridge/editor.html` 渲染进 iframe，
-  View 经宿主代理调用 13 个 `visibility:["app"]` 工具；这些工具同样落到同一个 daemon，
+  View 经宿主代理调用 9 个 `visibility:["app"]` 工具；这些工具同样落到同一个 daemon，
   **状态机与轨 B 完全同一份**（BridgeCore 原样复用）。
 
 ⚠️ 与设计的一处偏离（已记入设计文档）：轨 A 的传输层**并没有"整层不启动"**——
@@ -125,7 +125,7 @@ def _view_version() -> str:
 VIEW_VERSION = _view_version()
 
 # 工具 `title`：规范不强制，但官方示例都给 app 工具标题，且宿主列表里这是唯一的人类可读名
-# （实测 18 个工具的 title 全是 None，审计 F11）。集中一张表，避免散在 18 个装饰器里。
+# （审计 F11 实测各工具的 title 全是 None）。集中一张表，不散进各工具装饰器里。
 TOOL_TITLES = {
     "open_editor": "打开编辑器",
     "await_intent": "等待用户意图",
@@ -134,14 +134,10 @@ TOOL_TITLES = {
     "close_session": "结束会话",
     "attach_view": "附着内嵌视图",
     "read_deck": "读取目标 HTML",
-    "read_asset": "读取图片资产",
-    "read_export": "读取导出产物",
+    "read_bundle_file": "读取受管文件",
     "save_deck": "保存目标 HTML",
     "write_asset": "写入图片资产",
     "submit_intent": "提交用户意图",
-    "cancel_intent": "取消意图",
-    "retry_intent": "恢复中断意图",
-    "query_intents": "查询意图",
     "save_draft": "保存服务端草稿",
     "list_versions": "列出历史版本",
     "rollback": "回滚到历史版本",
@@ -179,6 +175,8 @@ VIEW_BOOTSTRAP = """<script>
     if (api.__lastToolInput){ try { cb(api.__lastToolInput); } catch(e){} } };
   api.onToolResult = function(cb){ api.__toolResult = cb;
     if (api.__lastToolResult){ try { cb(api.__lastToolResult); } catch(e){} } };
+  /* 引导期注册同样必须存下来（安装后由 facade 的 app.onhostcontextchanged 转发） */
+  api.onHostContextChanged = function(cb){ api.__hostCtx = cb; };
   window.pptxMcp = api;
   /* 优雅失联：宿主导入资源却没完成握手（或 bundle 未注入）时，ready 不能永远悬着。
      文案与计时**同源**（VIEW_HANDSHAKE_TIMEOUT_MS）——历史上写死"8s"而实际 15000ms（F13）。 */
@@ -205,6 +203,14 @@ def _tool_meta(resource_uri: str | None = None) -> dict[str, Any]:
     if resource_uri:
         ui["resourceUri"] = resource_uri
         meta["ui/resourceUri"] = resource_uri
+        # 呈现形态声明（**宿主扩展**，spec 的 McpUiToolMeta 无此字段；见宿主设计 §15.2 D3）。
+        # 编辑器是"需要长期占位的常驻工作台" → pip（停靠宽侧栏）；
+        # **但同一个 `open_editor` 也承载脑暴视图**（brief/edit/annotate/export 四视图一工具），
+        # 而形态是工具级静态声明、表达不了"按视图区分"——故用 `mode_inline_when` 条件化：
+        # 宿主在发射 mcp_app 事件时用**本次 tool_args** 求值，命中则用 inline，否则用 `mode`。
+        # 脑暴是一次性 widget（宿主设计 §一），其余三视图才需要常驻宽面板。
+        ui["mode"] = "pip"
+        ui["mode_inline_when"] = {"arg": "view", "in": ["brief"]}
     meta["ui"] = ui
     return meta
 
@@ -428,8 +434,16 @@ class BridgeMCP:
         except ToolError:
             raise
         except BridgeError as exc:
+            # 韧性：STORAGE_UNAVAILABLE（daemon 死/存储故障）时失效 discovery 缓存，让下次
+            # _discovery 重新 ensure_daemon（其 verify_discovery 会探测旧地址，不通则重启
+            # daemon）。业务错误（400/409 等）不清——daemon 仍健康，清了只多一次无谓重启。
+            if exc.code == "STORAGE_UNAVAILABLE":
+                self.discovery = None
             raise ToolError(json.dumps(exc.payload(), ensure_ascii=False, separators=(",", ":"))) from exc
         except Exception as exc:
+            # 网络层异常（ConnectionRefused 等）穿透 admin_request 到这里 = daemon 不可达；
+            # 失效缓存同上。下次 _discovery 拿不到缓存会重新 ensure_daemon。
+            self.discovery = None
             raise ToolError(json.dumps({"ok":False,"error":{"code":"STORAGE_UNAVAILABLE","message":"bridge daemon unavailable","retryable":True,"details":{}}},separators=(",", ":"))) from exc
 
     async def _app_request(self, name: str, arguments: dict[str, Any], timeout: int = 60) -> str:
@@ -525,7 +539,7 @@ class BridgeMCP:
         self._register_app_only_tools()
 
     def _register_app_only_tools(self):
-        """13 个 app-only 工具（设计 §4.3）。全部双写 `visibility:["app"]`，返回 JSON 文本。"""
+        """9 个 app-only 工具（设计 §4.3；1027 精简前为 13 个，见 `docs/progress/1027_tool_surface_slimming.md`）。全部双写 `visibility:["app"]`，返回 JSON 文本。"""
         @self.mcp.tool(description="Attach this embedded view to a bridge session. Call immediately after the view is ready, and again while polling, so the daemon can tell an embedded MCP Apps view apart from a standalone browser tab.", annotations=ToolAnnotations(readOnlyHint=False, destructiveHint=False, idempotentHint=True, openWorldHint=False), meta=dict(APP_ONLY_META))
         async def attach_view(session_id: SessionId, client: Annotated[str | None, Field(description="Optional opaque client identifier for diagnostics.")] = None) -> str:
             return await self._app_request("attach_view", {"session_id": session_id, "client": client})
@@ -534,13 +548,9 @@ class BridgeMCP:
         async def read_deck(session_id: SessionId, path: Annotated[str | None, Field(description="Optional workspace-relative path; only the session's registered target HTML is accepted.")] = None) -> str:
             return await self._app_request("read_deck", {"session_id": session_id, "path": path}, timeout=120)
 
-        @self.mcp.tool(description="Read one registered asset (assets/ or fonts/ inside the managed bundle) as base64 with its mime type and sha256, so the sandboxed view can render images without a same-origin fetch.", annotations=ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotentHint=True, openWorldHint=False), meta=dict(APP_ONLY_META))
-        async def read_asset(session_id: SessionId, path: Annotated[str, Field(min_length=1, description="Workspace-relative path inside the managed assets/ or fonts/ directory.")]) -> str:
-            return await self._app_request("read_asset", {"session_id": session_id, "path": path}, timeout=120)
-
-        @self.mcp.tool(description="Read one registered export artifact (export/ inside the managed bundle, e.g. manifest.json or native/page-01.png) as base64. Sizes above the daemon limit are refused so the caller can fall back to collecting the file from the workspace.", annotations=ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotentHint=True, openWorldHint=False), meta=dict(APP_ONLY_META))
-        async def read_export(session_id: SessionId, file: Annotated[str, Field(min_length=1, description="Path relative to the managed export/ directory.")]) -> str:
-            return await self._app_request("read_export", {"session_id": session_id, "file": file}, timeout=120)
+        @self.mcp.tool(description="Read one registered file inside the managed bundle as base64 with its mime type and sha256, so the sandboxed view can render images and deliver artifacts without a same-origin fetch. assets/ and fonts/ read image and font assets; export/ reads export artifacts such as manifest.json or native/page-01.png. Sizes above the daemon limit are refused so the caller can fall back to collecting the file from the workspace.", annotations=ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotentHint=True, openWorldHint=False), meta=dict(APP_ONLY_META))
+        async def read_bundle_file(session_id: SessionId, path: Annotated[str, Field(min_length=1, description="Bundle-relative path: assets/... or fonts/... for image and font assets, export/... for export artifacts.")]) -> str:
+            return await self._app_request("read_bundle_file", {"session_id": session_id, "path": path}, timeout=120)
 
         @self.mcp.tool(description="Save the target HTML through the same CAS and receipt path the standalone editor uses. A stale base_revision is refused; never retry with a fabricated revision.", annotations=ToolAnnotations(readOnlyHint=False, destructiveHint=True, idempotentHint=False, openWorldHint=False), meta=dict(APP_ONLY_META))
         async def save_deck(session_id: SessionId, path: Annotated[str, Field(min_length=1, description="Workspace-relative target HTML path; must be the session's registered target.")], html: Annotated[str, Field(description="Full serialized HTML document.")], base_revision: Annotated[str | None, Field(description="Revision the document was derived from, or null for a first write.")] = None, init: Annotated[bool, Field(description="Set true only to confirm initializing Git protection when the workspace has no baseline yet.")] = False) -> str:
@@ -553,18 +563,6 @@ class BridgeMCP:
         @self.mcp.tool(description="Submit a user intent through the same validation and queue as the standalone editor. Reuse the same intent_id when retrying so the request stays idempotent.", annotations=ToolAnnotations(readOnlyHint=False, destructiveHint=False, idempotentHint=True, openWorldHint=False), meta=dict(APP_ONLY_META))
         async def submit_intent(session_id: SessionId, intent_id: Annotated[str, Field(min_length=1, description="UUID generated by the view; reuse it verbatim when retrying the same request.")], type: Annotated[Literal["brief.submitted", "design.submitted", "anno.submitted", "convert.requested", "bake.requested", "illustrate.requested"], Field(description="Intent type.")], payload: Annotated[dict[str, Any], Field(description="Intent payload matching the type's schema.")], base_revision: Annotated[str | None, Field(description="Revision the view is showing; instruction intents are rebased by the daemon, artifact intents are refused when stale.")] = None) -> str:
             return await self._app_request("submit_intent", {"session_id": session_id, "intent_id": intent_id, "type": type, "payload": payload, "base_revision": base_revision})
-
-        @self.mcp.tool(description="Cancel a pending intent, or mark one as merged into another batch. Leaves an audit trail; it never deletes history and cannot stop work that already runs outside the bridge.", annotations=ToolAnnotations(readOnlyHint=False, destructiveHint=True, idempotentHint=True, openWorldHint=False), meta=dict(APP_ONLY_META))
-        async def cancel_intent(session_id: SessionId, intent_id: Annotated[str, Field(min_length=1, description="Intent identifier to cancel.")]) -> str:
-            return await self._app_request("cancel_intent", {"session_id": session_id, "intent_id": intent_id})
-
-        @self.mcp.tool(description="Recover an interrupted or failed intent in rebuild or resume mode. Requires explicit confirmation because resume may reuse a work copy a still-running process could write to, and rebuild may repeat external work and cost.", annotations=ToolAnnotations(readOnlyHint=False, destructiveHint=True, idempotentHint=False, openWorldHint=False), meta=dict(APP_ONLY_META))
-        async def retry_intent(session_id: SessionId, intent_id: Annotated[str, Field(min_length=1, description="Intent identifier to recover.")], retry_id: Annotated[str, Field(min_length=1, description="UUID; reuse it to make the retry request idempotent.")], expected_attempt: Annotated[int, Field(ge=1, description="Attempt number the caller believes is current.")], mode: Annotated[Literal["rebuild", "resume"], Field(description="rebuild creates an isolated fresh copy; resume reuses the registered prior work copy.")], base_revision: Annotated[str | None, Field(description="Current server revision, or null.")] = None, confirmed: Annotated[bool, Field(description="Must be true; the caller acknowledges the costs above.")] = False) -> str:
-            return await self._app_request("retry_intent", {"session_id": session_id, "intent_id": intent_id, "retry_id": retry_id, "expected_attempt": expected_attempt, "mode": mode, "base_revision": base_revision, "confirmed": confirmed})
-
-        @self.mcp.tool(description="Page through intents, or fetch one by id. Polled by the embedded view because MCP Apps has no server-sent events.", annotations=ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotentHint=True, openWorldHint=False), meta=dict(APP_ONLY_META))
-        async def query_intents(session_id: SessionId, statuses: Annotated[list[str] | None, Field(description="Optional status filter.")] = None, cursor: Annotated[int | None, Field(ge=0, description="Last seen seq; omit for the first page.")] = None, limit: Annotated[int | None, Field(ge=1, le=100, description="Page size.")] = None, intent_id: Annotated[str | None, Field(description="Fetch a single intent by id instead of paging.")] = None) -> str:
-            return await self._app_request("query_intents", {"session_id": session_id, "statuses": statuses, "cursor": cursor, "limit": limit, "intent_id": intent_id})
 
         @self.mcp.tool(description="Write a server-side draft. The sandboxed view has no localStorage, IndexedDB or cookie storage, so this is its only draft channel and its last line of defence when the host tears the view down.", annotations=ToolAnnotations(readOnlyHint=False, destructiveHint=False, idempotentHint=False, openWorldHint=False), meta=dict(APP_ONLY_META))
         async def save_draft(session_id: SessionId, client_id: Annotated[str, Field(min_length=1, description="Stable id for this view instance.")], html: Annotated[str, Field(description="Serialized HTML snapshot; empty string when nothing is loaded yet.")], annotations: Annotated[list[Any], Field(description="Annotation list belonging to the snapshot.")], base_revision: Annotated[str | None, Field(description="Revision the snapshot was taken from, or null.")] = None) -> str:

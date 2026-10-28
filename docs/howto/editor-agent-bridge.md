@@ -234,7 +234,8 @@ python3 tools/bridge_core.py revision /absolute/attempt/work/index.html
 - 用 `get_status(session_id)` 读取 revision、导出 freshness、页面在线、队列和恢复状态；它只读，不认领任务。
 - `REVISION_CONFLICT`：正式文件已前进。停止发布，保留副本，让用户决定是否从当前版本重建。
 - processing 行提供“停止处理”：成功后该 attempt 转 `interrupted` 并释放 owner，但页面会明确提示 `external_work_may_continue`——Bridge 不能保证终止 Agent shell、供应商任务或撤销费用。若停止响应丢失，可对同一 intent 重试；interrupted 的幂等响应仍保持该风险提示为 true。
-- `failed/conflict/interrupted` 只在页面确认后恢复。`rebuild` 从当前正式版本创建递增 attempt 的独立副本，隔离更强但可能重复外部动作；`resume` 仅用于 interrupted，要求正式 base 未变、原 work_path 安全完整且用户确认没有活跃 writer，新 attempt 复用旧路径并必须重跑全部门禁。无法确认旧进程已停时选择 rebuild。retry API 失败时页面保留此前真实 status/error，并立即 query 服务端状态，不把 failed/conflict 伪装成 interrupted。
+- **恢复出口（P4，2026-10-27）**：`interrupted` 可再次 `cancel` 即**放弃**（→`cancelled`，仍提示 `external_work_may_continue:true`）；无 lease 且超过 `STALE_RECOVERY_GRACE_SEC`（600s）的 `interrupted`/`failed` 会被 daemon **自愈**为 `cancelled` 并发 `intent-status` 事件；恢复门已改为 **per-intent**——一条卡住的请求**不再**阻断同会话的其它请求，`agent_state`/`recoverable_count` 仍如实呈现。`conflict` 仍必须由用户在页面上决定。
+- `failed/conflict/interrupted` 在页面确认后可恢复。`rebuild` 从当前正式版本创建递增 attempt 的独立副本，隔离更强但可能重复外部动作；`resume` 仅用于 interrupted，要求正式 base 未变、原 work_path 安全完整且用户确认没有活跃 writer，新 attempt 复用旧路径并必须重跑全部门禁。无法确认旧进程已停时选择 rebuild。retry API 失败时页面保留此前真实 status/error，并立即 query 服务端状态，不把 failed/conflict 伪装成 interrupted。
 - 用户明确结束协作时调用 `close_session`。它只暂停当前 consumer、显式中断其未完成 attempt 并释放 owner；不关闭页面/daemon，不删除 pending、草稿、历史或文件。
 - close 后继续同一任务，必须先再次 `open_editor`，再 `await_intent`。
 

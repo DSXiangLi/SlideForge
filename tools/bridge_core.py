@@ -47,6 +47,9 @@ ASSET_RAW_MAX = 32 * 1024 * 1024
 BOOTSTRAP_TTL_SEC = 300
 CONSUMER_LEASE_SEC = 90
 CLIENT_ONLINE_SEC = 45
+# P4.2（2026-10-27 用户确认）：无 lease 且超过该时长的 interrupted/failed 请求，
+# 由 daemon 自动作废（cancelled）——否则一条陈旧的待恢复请求会永久占据会话的 recovering 状态。
+STALE_RECOVERY_GRACE_SEC = 600
 # MCP Apps 轨：View 的 attach_view 存续判定与"存在性窗口"（设计 §4.2）。
 # 仲裁相位本身在 MCP 层（tools/bridge_mcp.py）——那里才知道客户端能力，
 # 且改 core 的 await_intent 会牵动双轨共用的阻塞语义。
@@ -589,6 +592,56 @@ class BridgeCore:
             self.db.execute("UPDATE sessions SET owner_consumer_id=NULL,agent_state=CASE WHEN EXISTS(SELECT 1 FROM intents WHERE intents.session_id=sessions.id AND intents.status='interrupted') THEN 'recovering' ELSE 'offline' END")
         for session_id in {row["session_id"] for row in interrupted}:
             self._notify(session_id)
+        # P4.2：顺带作废**早已**陈旧的 interrupted/failed 请求——本次刚标记 interrupted 的
+        # （updated_at=now）不受影响，只有真正过期的才会被清理。
+        self._heal_stale_recoverables()
+
+    def _heal_stale_recoverables(self, session_id=None):
+        """P4.2：把陈旧的中断/失败请求自动作废，避免其永久占据会话的 recovering 状态。
+
+        判据（用户 2026-10-27 确认）：**无 lease 且 updated_at 早于 STALE_RECOVERY_GRACE_SEC**。
+        `conflict` 不在自愈范围——基线冲突必须由用户在页面上决定 rebuild/resume。
+        作废会发一条 `intent-status` 事件（"事事有回响"），页面据此更新。
+        `session_id=None` 时扫描全部会话（daemon 启动路径）。
+        """
+        cutoff = future(-STALE_RECOVERY_GRACE_SEC)
+        if session_id is None:
+            rows = self.db.execute(
+                "SELECT session_id,id,attempt FROM intents WHERE status IN ('interrupted','failed')"
+                " AND lease_until IS NULL AND updated_at<?", (cutoff,)).fetchall()
+        else:
+            rows = self.db.execute(
+                "SELECT session_id,id,attempt FROM intents WHERE session_id=?"
+                " AND status IN ('interrupted','failed') AND lease_until IS NULL AND updated_at<?",
+                (session_id, cutoff)).fetchall()
+        if not rows:
+            return 0
+        now = utcnow()
+        error = canonical_json({"code": "STALE_RECOVERY",
+                                "message": "stale interrupted/failed request auto-cancelled after grace period",
+                                "retryable": True}).decode()
+        with self.db:
+            for row in rows:
+                self.db.execute(
+                    "UPDATE intents SET status='cancelled',consumer_id=NULL,lease_until=NULL,error_json=?,updated_at=? WHERE id=?",
+                    (error, now, row["id"]))
+                self.db.execute("UPDATE attempts SET status='cancelled' WHERE intent_id=? AND attempt=?",
+                                (row["id"], row["attempt"]))
+                self._event(row["session_id"], "intent-status",
+                            {"session_id": row["session_id"], "intent_id": row["id"],
+                             "status": "cancelled", "attempt": row["attempt"]})
+            # 同步刷新 sessions.agent_state 这一持久投影：作废后若已无 recoverable，
+            # 会话不应再停在 'recovering'（有 owner 时保持其真实状态）。
+            for sid in {row["session_id"] for row in rows}:
+                self.db.execute(
+                    "UPDATE sessions SET agent_state=CASE"
+                    " WHEN EXISTS(SELECT 1 FROM intents WHERE intents.session_id=sessions.id"
+                    "             AND intents.status IN ('failed','conflict','interrupted')) THEN 'recovering'"
+                    " WHEN owner_consumer_id IS NOT NULL THEN agent_state"
+                    " ELSE 'offline' END WHERE id=?", (sid,))
+        for sid in {row["session_id"] for row in rows}:
+            self._notify(sid)
+        return len(rows)
 
     def _condition(self, session_id):
         with self._db_lock:
@@ -1092,6 +1145,8 @@ class BridgeCore:
 
     def _acquire_owner(self, session_id, consumer_id):
         self._expire(session_id)
+        # P4.2：认领前先作废陈旧的 interrupted/failed，避免它们把会话钉在 recovering 状态。
+        self._heal_stale_recoverables(session_id)
         with self.db:
             c=self.db.execute("SELECT * FROM consumers WHERE session_id=? AND consumer_id=?",(session_id,consumer_id)).fetchone()
             if not c or c["requires_open"]:
@@ -1101,8 +1156,11 @@ class BridgeCore:
                 raise BridgeError(409,"SESSION_BUSY","任务由另一 consumer 占有",True)
             self.db.execute("UPDATE sessions SET owner_consumer_id=?,agent_state='waiting',updated_at=? WHERE id=?",(consumer_id,utcnow(),session_id))
             self.db.execute("UPDATE consumers SET state='waiting',lease_until=? WHERE session_id=? AND consumer_id=?",(future(CONSUMER_LEASE_SEC),session_id,consumer_id))
-            if self.db.execute("SELECT 1 FROM intents WHERE session_id=? AND status IN ('failed','conflict','interrupted') LIMIT 1",(session_id,)).fetchone():
-                raise BridgeError(409,"RECOVERY_REQUIRED","存在待用户处理的恢复请求",True)
+            # P4.3（2026-10-27 用户确认）：门从"整个会话"改为 per-intent。
+            # 认领循环只挑 status='pending' 的行（见 await_intent）——一条 interrupted/conflict
+            # 本身就不是 pending，天然不可被认领；原先在这里对**整个会话**抛 RECOVERY_REQUIRED
+            # 是全局门，会让一条卡住的请求锁死同会话的其它所有请求（审计 S2 根因）。
+            # conflict 仍必须由用户在页面上决定 rebuild/resume，只是不再阻塞他人。
 
     def _copy_attempt(self, intent, consumer_id):
         session=self._session(intent["session_id"])
@@ -1314,6 +1372,17 @@ class BridgeCore:
                     self._release_owner(session_id,row["consumer_id"])
                 self._notify(session_id)
                 return {"ok":True,"session_id":session_id,"intent_id":intent_id,"status":"interrupted","external_work_may_continue":True}
+            if row["status"]=="interrupted":
+                # P4.1（2026-10-27 用户确认）：interrupted 也要有"放弃"出口。
+                # 此前对 interrupted 直接 return（no-op），于是被中断的请求既不能取消、
+                # 也无法让状态机前进（审计 S2 的另一半根因）。
+                with self.db:
+                    self.db.execute("UPDATE intents SET status='cancelled',consumer_id=NULL,lease_until=NULL,updated_at=? WHERE id=?",(utcnow(),intent_id))
+                    self.db.execute("UPDATE attempts SET status='cancelled' WHERE intent_id=? AND attempt=?",(intent_id,row["attempt"]))
+                    self._event(session_id,"intent-status",{"session_id":session_id,"intent_id":intent_id,"status":"cancelled","attempt":row["attempt"]})
+                self._notify(session_id)
+                # 作废不终止可能仍在跑的外部进程，风险提示与 interrupted 保持一致（True）。
+                return {"ok":True,"session_id":session_id,"intent_id":intent_id,"status":"cancelled","external_work_may_continue":True}
             if row["status"]=="pending":
                 with self.db:
                     self.db.execute("UPDATE intents SET status='cancelled',updated_at=? WHERE id=?",(utcnow(),intent_id))
@@ -1712,7 +1781,20 @@ class BridgeCore:
         proc=self.db.execute("SELECT id,type,attempt,status FROM intents WHERE session_id=? AND status='processing' LIMIT 1",(sid,)).fetchone(); ints=[dict(r) for r in self.db.execute("SELECT id,type,attempt,status FROM intents WHERE session_id=? AND status='interrupted'",(sid,))]
         latest=self.db.execute("SELECT COALESCE(MAX(id),0) FROM events WHERE session_id=?",(sid,)).fetchone()[0]
         stale=not s["export_source_revision"] or s["export_source_revision"]!=s["revision"]
-        return {"ok":True,"session_id":sid,"phase":s["phase"],"deck_path":str(self.workdir/s["deck_path"]) if s["deck_path"] else None,"target_path":str(self.workdir/s["target_path"]),"resource_path":s["target_path"],"revision":s["revision"],"export_revision":s["export_revision"],"export_stale":stale,"agent_state":self.agent_state(sid),"page_online":self.page_online(sid),"any_dirty":any_dirty,"clients":clients,"pending_count":self._count(sid,"pending"),"processing":dict(proc) if proc else None,"interrupted":ints,"recoverable_count":self.db.execute("SELECT COUNT(*) FROM intents WHERE session_id=? AND status IN ('failed','conflict','interrupted')",(sid,)).fetchone()[0],"latest_event_id":latest,"brief_options":self._brief_options_of(s),"track":self.track_of(sid),"view_attached":self.view_attached(sid),"ui_signal_ever":self.ui_signal_ever(sid),"capabilities":{"local_convert":self.allow_convert,"local_imagegen":self.allow_imagegen,"git_ready":bool(s["git_ready"])}}
+        # R3-a（2026-10-28）：轻量意图摘要，供**轨 A（MCP Apps）**在无 query 通道时展示队列。
+        # 列非终态 + recoverable（上限 50 条，按 seq）；`payload` 仅在不超过 INTENT_INLINE_MAX 时附带
+        # ——"按当前版本重新提交"要用它，超大载荷（如 brief/design）不带，页面走正常交互重发。
+        summaries=[]
+        for row in self.db.execute(
+                "SELECT id,seq,type,status,attempt,base_revision,payload_json,payload_bytes,updated_at FROM intents"
+                " WHERE session_id=? AND status IN ('pending','processing','failed','conflict','interrupted')"
+                " ORDER BY seq LIMIT 50",(sid,)):
+            item={"id":row["id"],"seq":row["seq"],"type":row["type"],"status":row["status"],
+                  "attempt":row["attempt"],"base_revision":row["base_revision"],"updated_at":row["updated_at"]}
+            if row["payload_bytes"]<=INTENT_INLINE_MAX:
+                with contextlib.suppress(Exception): item["payload"]=json.loads(row["payload_json"])
+            summaries.append(item)
+        return {"ok":True,"session_id":sid,"phase":s["phase"],"deck_path":str(self.workdir/s["deck_path"]) if s["deck_path"] else None,"target_path":str(self.workdir/s["target_path"]),"resource_path":s["target_path"],"revision":s["revision"],"export_revision":s["export_revision"],"export_stale":stale,"agent_state":self.agent_state(sid),"page_online":self.page_online(sid),"any_dirty":any_dirty,"clients":clients,"pending_count":self._count(sid,"pending"),"processing":dict(proc) if proc else None,"interrupted":ints,"intents":summaries,"recoverable_count":self.db.execute("SELECT COUNT(*) FROM intents WHERE session_id=? AND status IN ('failed','conflict','interrupted')",(sid,)).fetchone()[0],"latest_event_id":latest,"brief_options":self._brief_options_of(s),"track":self.track_of(sid),"view_attached":self.view_attached(sid),"ui_signal_ever":self.ui_signal_ever(sid),"capabilities":{"local_convert":self.allow_convert,"local_imagegen":self.allow_imagegen,"git_ready":bool(s["git_ready"])}}
 
     def query_intents(self,sid,body):
         allowed={"session_id","statuses","cursor","limit","intent_id"}

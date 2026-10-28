@@ -25,15 +25,14 @@ OPERATIONS: dict[str, dict] = {
         "required": ("session_id",), "optional": ("path",),
         "summary": "读取本任务受管的目标 HTML（默认 target_path），返回文本与当前 revision。",
     },
-    "read_asset": {
+    # 资产与产物本是同一个 daemon handler（`read_artifact(kind=...)`），只有路径前缀与
+    # 接受的 class 集合不同，故合成一个工具：入参统一为 **bundle 相对路径**，由本表按
+    # 前缀路由到两条既有路由（`export/` 前缀剥掉后走产物路由）。见 progress/1027。
+    "read_bundle_file": {
         "method": "POST", "path": "/api/bridge/asset-read",
+        "export_path": "/api/bridge/export-read",
         "required": ("session_id", "path"), "optional": (),
-        "summary": "读取受管 assets/ 或 fonts/ 内的已登记资产，返回 base64 与 sha256。",
-    },
-    "read_export": {
-        "method": "POST", "path": "/api/bridge/export-read",
-        "required": ("session_id", "file"), "optional": (),
-        "summary": "读取本任务 export/ 内的已登记产物（如 manifest.json、native/page-01.png），返回 base64 与字节数。",
+        "summary": "读取本任务受管 bundle 内**已登记**的文件：assets/ 与 fonts/ 读图片字体资产，export/ 读导出产物（如 manifest.json、native/page-01.png）。返回 base64、mime 与 sha256。",
     },
     "save_deck": {
         "method": "POST", "path": "/api/save",
@@ -50,21 +49,6 @@ OPERATIONS: dict[str, dict] = {
         "required": ("intent_id", "session_id", "type", "base_revision", "payload"), "optional": ("client_ts",),
         "summary": "提交意图（同一 accept_intent 校验与入队）。intent_id 由 View 生成并在重试时复用，保证幂等。",
         "defaults": {"protocol_version": 2},
-    },
-    "cancel_intent": {
-        "method": "POST", "path": "/api/intent/cancel",
-        "required": ("session_id", "intent_id"), "optional": (),
-        "summary": "取消尚未认领的意图，或作为批次合并的审计标记。",
-    },
-    "retry_intent": {
-        "method": "POST", "path": "/api/intent/retry",
-        "required": ("session_id", "intent_id", "retry_id", "expected_attempt", "mode", "base_revision", "confirmed"), "optional": (),
-        "summary": "按 rebuild|resume 恢复中断的意图；必须显式 confirmed=true。",
-    },
-    "query_intents": {
-        "method": "POST", "path": "/api/intents/query",
-        "required": ("session_id",), "optional": ("statuses", "cursor", "limit", "intent_id"),
-        "summary": "分页查询意图列表或单条意图，用于无 SSE 的轮询恢复。",
     },
     "save_draft": {
         "method": "POST", "path": "/api/bridge/draft",
@@ -172,31 +156,27 @@ def build_request(name: str, arguments, *, consumer_id: str):
             raise DispatchError("INVALID_ARGUMENT", "save_deck 的 init 必须是布尔值")
         if "base_revision" in body and body["base_revision"] is not None and not isinstance(body["base_revision"], str):
             raise DispatchError("INVALID_ARGUMENT", f"{name} 的 base_revision 必须是字符串或 null")
-    elif name == "query_intents":
-        if "cursor" in body and not _is_int(body["cursor"]):
-            raise DispatchError("INVALID_ARGUMENT", "query_intents 的 cursor 必须是整数")
-        if "limit" in body and not _is_int(body["limit"]):
-            raise DispatchError("INVALID_ARGUMENT", "query_intents 的 limit 必须是整数")
-        if "statuses" in body and not isinstance(body["statuses"], list):
-            raise DispatchError("INVALID_ARGUMENT", "query_intents 的 statuses 必须是数组")
-    elif name == "retry_intent":
-        if not _is_int(body.get("expected_attempt")) or body["expected_attempt"] < 1:
-            raise DispatchError("INVALID_ARGUMENT", "retry_intent 的 expected_attempt 必须是正整数")
-        if body.get("mode") not in {"rebuild", "resume"}:
-            raise DispatchError("INVALID_ARGUMENT", "retry_intent 的 mode 必须是 rebuild 或 resume")
-        if body.get("confirmed") is not True:
-            raise DispatchError("INVALID_ARGUMENT", "retry_intent 必须显式 confirmed=true")
-    elif name == "read_asset":
-        if not str(body.get("path", "")).startswith(("assets/", "fonts/")):
-            raise DispatchError("INVALID_ARGUMENT", "read_asset 的 path 必须位于受管 assets/ 或 fonts/ 内")
+    elif name == "read_bundle_file":
+        rel = str(body.get("path", ""))
+        if not rel.startswith(("assets/", "fonts/", "export/")):
+            raise DispatchError("INVALID_ARGUMENT", "read_bundle_file 的 path 必须位于受管 assets/、fonts/ 或 export/ 内")
 
     path = spec["path"]
+    out_body = body
+    if name == "read_bundle_file" and str(body.get("path", "")).startswith("export/"):
+        # 产物路由的字段契约是精确集合 {"session_id","file"}（file 相对 export/），因此显式重建
+        # body，不靠"多带一个字段反正会被忽略"。
+        file_rel = str(body["path"])[len("export/"):]
+        if not file_rel:
+            raise DispatchError("INVALID_ARGUMENT", "read_bundle_file 的 export/ 路径必须带文件名")
+        path = spec["export_path"]
+        out_body = {"session_id": body["session_id"], "consumer_id": body["consumer_id"], "file": file_rel}
     if spec["method"] == "GET":
         from urllib.parse import quote
-        query = "&".join(f"{k}={quote(str(body[k]), safe='')}" for k in sorted(body) if k != "session_id")
-        query = f"session_id={quote(str(body['session_id']))}" + (f"&{query}" if query else "")
+        query = "&".join(f"{k}={quote(str(out_body[k]), safe='')}" for k in sorted(out_body) if k != "session_id")
+        query = f"session_id={quote(str(out_body['session_id']))}" + (f"&{query}" if query else "")
         return "GET", f"{path}?{query}", None
-    return spec["method"], path, body
+    return spec["method"], path, out_body
 
 
 def tool_descriptions() -> dict[str, str]:

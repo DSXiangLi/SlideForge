@@ -165,7 +165,7 @@ A 类写入不进入 Agent 工作队列。为处理“已落盘但响应丢失�
 
 认领最早 pending 时按以下顺序进行：
 
-1. session锁内先按协议§3.2核验open登记和requires_open，再原子acquire owner（他有效owner SESSION_BUSY）；检查无另一processing/未完publication。owner取得不等于请求认领：仍有恢复待决则返回RECOVERY_REQUIRED；可认领时读取事实、复核源revision，registered不能靠heartbeat跳过acquire。
+1. session锁内先按协议§3.2核验open登记和requires_open，再原子acquire owner（他有效owner SESSION_BUSY）；检查无另一processing/未完publication。owner取得不等于请求认领：**认领前先作废陈旧 recoverable（P4.2）**，且**session 级恢复门已移除（P4.3，2026-10-27）**——存在待恢复项不再阻断整会话，认领循环只挑 `pending` 行；可认领时读取事实、复核源revision，registered不能靠heartbeat跳过acquire。
 2. base 与当前不一致时，在同一事务内完成 pending→processing 的认领及 processing→conflict 的拒绝，记录所有权/原因和事件，返回当前 revision；不跳过协议状态机，不自动 rebase，不交给 Agent 假定有效的新版副本。
 3. 有 deck 时，从固定基线清单复制完整 bundle 到 `.pptx-html/jobs/<intent_id>/attempt-<N>/work/<relative-deck>` 的配套目录，首次N=1；无 deck 时只创建合法父目录和空工作区，目标 HTML 不存在，base 为 null。relative-deck 相对 daemon workdir，不包含新的用户可选根；旧 attempt 路径永不复用。
 4. 校验复制前后的清单与字节摘要一致，写 intent 派生 JSON、job 元数据及 attempt/base 清单并 fsync。然后在事务中将 pending 绑定 consumer/lease/attempt，变成 processing。复制失败仍保留 pending，不交付不存在的指针。

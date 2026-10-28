@@ -710,7 +710,7 @@ PNG_1PX = base64.b64decode(
 
 
 class AppsMCPClient(MCPClient):
-    """声明了 MCP Apps UI 扩展的客户端：只在带 `PPTX_HTML_APPS_TOOLS=always` 时列全 18 个工具。
+    """声明了 MCP Apps UI 扩展的客户端：只在带 `PPTX_HTML_APPS_TOOLS=always` 时列全 14 个工具（1027 精简前为 18）。
 
     官方 Python 客户端（`ClientSession`）**无法声明 `extensions`**，所以这里用环境变量
     打开工具面——与"能渲染 widget 却不声明扩展"的宿主（SproutHarness）走同一条路。
@@ -808,7 +808,7 @@ async def apps_group():
             check(names == ["await_intent", "close_session", "get_status", "open_editor", "push_update"],
                   f"non-apps tool list leaked app-only tools: {names}")
 
-        # ② 声明/开启扩展：18 个工具 + `_meta.ui.visibility` + 资源契约
+        # ② 声明/开启扩展：14 个工具（1027 精简前 18） + `_meta.ui.visibility` + 资源契约
         async with AppsMCPClient(tmp) as client:
             listed = await client.session.list_tools()
             by_name = {x.name: x for x in listed.tools}
@@ -827,6 +827,10 @@ async def apps_group():
             entry_meta = by_name["open_editor"].meta or {}
             check((entry_meta.get("ui") or {}).get("resourceUri") == VIEW_URI and entry_meta.get("ui/resourceUri") == VIEW_URI,
                   f"open_editor 的 _meta 三处写不完整: {entry_meta}")
+            # 呈现形态声明（宿主扩展 §15.2 D3）：pptx 是"一工具四视图"，故 pip + 按 view 条件化
+            _ui = entry_meta.get("ui") or {}
+            check(_ui.get("mode") == "pip" and _ui.get("mode_inline_when") == {"arg": "view", "in": ["brief"]},
+                  f"open_editor 缺呈现形态声明（mode='pip' + mode_inline_when=view∈['brief']）: {_ui}")
             resources = (await client.session.list_resources()).resources
             view = [x for x in resources if str(x.uri) == VIEW_URI]
             check(len(view) == 1, f"view resource missing: {[str(x.uri) for x in resources]}")
@@ -899,21 +903,14 @@ async def apps_group():
                             "annotations": [], "anchor": {"revision": saved["revision"], "dirty": False}},
                 "base_revision": saved["revision"]})).content[0].text)
             check(submitted["ok"] and submitted["status"] == "pending", f"submit_intent failed: {submitted}")
-            queried = json.loads((await client.session.call_tool("query_intents", {
-                "session_id": sid, "intent_id": submitted["intent_id"]})).content[0].text)
-            check(queried["items"][0]["type"] == "anno.submitted", f"query_intents mismatch: {queried}")
-            cancelled = json.loads((await client.session.call_tool("cancel_intent", {
-                "session_id": sid, "intent_id": submitted["intent_id"]})).content[0].text)
-            check(cancelled["status"] == "cancelled", f"cancel_intent failed: {cancelled}")
-
             draft = json.loads((await client.session.call_tool("save_draft", {
                 "session_id": sid, "client_id": "harness-view", "html": deck, "annotations": [],
                 "base_revision": saved["revision"]})).content[0].text)
             check(draft["ok"], f"save_draft failed: {draft}")
 
-            asset = json.loads((await client.session.call_tool("read_asset", {
+            asset = json.loads((await client.session.call_tool("read_bundle_file", {
                 "session_id": sid, "path": "assets/pixel.png"})).content[0].text)
-            check(asset["ok"] and asset["mime"] == "image/png" and asset["data_base64"], f"read_asset failed: {str(asset)[:200]}")
+            check(asset["ok"] and asset["mime"] == "image/png" and asset["data_base64"], f"read_bundle_file failed: {str(asset)[:200]}")
             written = json.loads((await client.session.call_tool("write_asset", {
                 "session_id": sid, "path": "assets/pixel.png", "data_base64": asset["data_base64"],
                 "base_revision": saved["revision"]})).content[0].text)
@@ -926,10 +923,19 @@ async def apps_group():
             # ④ 工具层自校验（不依赖宿主鉴权，宿主 isolation 缺口仍在）
             foreign = await client.session.call_tool("read_deck", {"session_id": str(uuid.uuid4())})
             check(foreign.isError and "SESSION_NOT_OWNED" in foreign.content[0].text, "外部 session 未被工具层拒绝")
-            escape = await client.session.call_tool("read_asset", {"session_id": sid, "path": "assets/../../.pptx-html/serve.json"})
+            escape = await client.session.call_tool("read_bundle_file", {"session_id": sid, "path": "assets/../../.pptx-html/serve.json"})
             check(escape.isError, f"路径逃逸未被拒: {escape.content[0].text[:160]}")
-            unknown = await client.session.call_tool("read_asset", {"session_id": sid, "path": "assets/nope.png"})
+            unknown = await client.session.call_tool("read_bundle_file", {"session_id": sid, "path": "assets/nope.png"})
             check(unknown.isError and "NOT_FOUND" in unknown.content[0].text, f"未登记路径未被拒: {unknown.content[0].text[:160]}")
+            # `export/` 前缀必须路由到产物读取（不是被前缀守卫拒）：守卫放行后由产物登记表给出
+            # NOT_FOUND，这条断言就证明前缀确实生效
+            export_unknown = await client.session.call_tool("read_bundle_file", {"session_id": sid, "path": "export/nope.json"})
+            check(export_unknown.isError and "NOT_FOUND" in export_unknown.content[0].text,
+                  f"export/ 前缀未路由到产物读取: {export_unknown.content[0].text[:160]}")
+            # 分发层前缀守卫：assets/、fonts/、export/ 之外一律 INVALID_ARGUMENT
+            prefix_guard = await client.session.call_tool("read_bundle_file", {"session_id": sid, "path": "etc/passwd"})
+            check(prefix_guard.isError and "INVALID_ARGUMENT" in prefix_guard.content[0].text,
+                  f"非受管前缀未被分发层拒: {prefix_guard.content[0].text[:160]}")
 
             # ⑤ 错误信封（F9）：失败一律 `isError=true` + **纯 JSON 文本**，参数校验错也不例外；
             #    SDK 的 `Error executing tool <name>: …` 散文前缀不得漏给模型与 View。
@@ -1029,7 +1035,7 @@ async def apps_group():
 
         discovery = json.loads((root / ".pptx-html" / "serve.json").read_text())
         one_request(discovery["origin"], "/api/bridge/stop", {"reason": "cli-stop"}, discovery["management_token"])
-    print("PASS apps: dual-mode tool face (5/18) with spec-only ui.visibility and a mimeTypes capability gate, "
+    print("PASS apps: dual-mode tool face (5/14) with spec-only ui.visibility and a mimeTypes capability gate, "
           "self-contained view resource, track-A attach/arbitration/read/save/intent/draft chain, "
           "cross-process session ownership and tool-layer self-validation")
 

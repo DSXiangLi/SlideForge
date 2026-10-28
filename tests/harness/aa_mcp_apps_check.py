@@ -212,7 +212,7 @@ def run_trusted_arm(base, page, daemon, opened, work, discovery, browser_token, 
     # A1/F9 · 工具错误：server 端已是**纯 JSON 信封**（无 SDK 散文前缀），
     # 宿主原样下发的 CallToolResult 必须 isError 且文本可直接 JSON.parse 出 error.code。
     raw = frame.evaluate("""async () => {
-      var r = await window.pptxMcp.app.callServerTool({name:'read_asset', arguments:{session_id: mcpApp.sessionId, path: 'etc/passwd'}});
+      var r = await window.pptxMcp.app.callServerTool({name:'read_bundle_file', arguments:{session_id: mcpApp.sessionId, path: 'etc/passwd'}});
       var blocks = (r && r.content) || [];
       return {isError: !!(r && r.isError), text: ((blocks[0] || {}).text) || '',
               structured: (r && r.structuredContent) == null ? null : r.structuredContent};
@@ -224,7 +224,7 @@ def run_trusted_arm(base, page, daemon, opened, work, discovery, browser_token, 
     check(body.get("ok") is False and (body.get("error") or {}).get("code") == "INVALID_ARGUMENT",
           f"错误文本不是可解析的 JSON 信封（F9）: {raw.get('text')[:160]}")
     err = frame.evaluate("""async () => {
-      try { await window.pptxMcp.callTool('read_asset', {session_id: mcpApp.sessionId, path: 'etc/passwd'}); return {code:'NO_ERROR'}; }
+      try { await window.pptxMcp.callTool('read_bundle_file', {session_id: mcpApp.sessionId, path: 'etc/passwd'}); return {code:'NO_ERROR'}; }
       catch(e){ return {code: e.code || null, message: e.message}; }
     }""")
     check(err.get("code") == "INVALID_ARGUMENT", f"未还原出 error.code: {err}")
@@ -894,7 +894,82 @@ def run_noncompliant_host_arm(base, page, opened, rel="view.html"):
           "不应存在只读降级模式的措辞（决策：按官方规范开发）")
 
 
+# ── P3.1 登记制静态断言（2026-10-28）──────────────────────────────────────────
+# 共享 UI 代码**不得**直连"轨通道"函数——那正是"某个形态下点了没用"的成因（审计 S1/§2.2）。
+# 规则：`bridgeFetch` / `mcpAppCall` 的调用者只能是①四态实现内部，或②下方**登记在册**的
+#       "轨专属传输包装"。往登记表里加名字 = 明确承认"这是轨专属实现"，是一项需评审的动作。
+_TRANSPORT_CALLERS = {
+    # 轨 B（bridge）传输包装
+    "bridgeSubmitIntent", "bridgeResendIntent", "bridgeCancelIntent", "bridgeStopIntent",
+    "bridgeRetryIntent", "bridgeRecoverIntents", "bridgeLoadDeck", "bridgePersistDraft",
+    "bridgeConnectSSE", "bridgeStatusAndRecover", "bridgeForceExport", "bridgeHeartbeat",
+    "pollConvertStatus",   # 静态态(伴随服务)/轨 B 的本地转换轮询，内部按 bridge.enabled 分流
+    # 轨 A（mcpApp）传输包装
+    "mcpAppBoot", "mcpAppLoadDeck", "mcpAppPollOnce", "mcpAppPersistDraft", "mcpAppSubmitIntent",
+    "mcpAppHydrateImage", "mcpAppHydrateCss",
+}
+_TRANSPORT_PROXIES = ("bridgeFetch", "mcpAppCall")
+_NAME_CHARS = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$")
+
+
+def _is_call(line: str, fn: str) -> bool:
+    """行内是否出现 `fn(` 形式的调用（排除定义行与更长的标识符前缀）。"""
+    start = 0
+    while True:
+        i = line.find(fn + "(", start)
+        if i < 0:
+            return False
+        if (line[i - 1] if i else " ") not in _NAME_CHARS:
+            return True
+        start = i + 1
+
+
+def _fn_name(line: str):
+    s = line.strip()
+    for prefix in ("async function ", "function "):
+        if s.startswith(prefix):
+            return s[len(prefix):].split("(")[0].strip() or None
+    return None
+
+
+def assert_ui_plane_discipline() -> None:
+    """登记制：共享 UI 不得直连轨通道（P3.1 的反回潮断言；失败即退出）。"""
+    src = (ROOT / "editor.html").read_text(encoding="utf-8").split("\n")
+    ranges = {}
+    for name in ("staticHost", "embeddedHost", "bridgeHost", "mcpAppHost"):
+        starts = [i for i, l in enumerate(src) if l.strip().startswith("var %s = {" % name)]
+        assert starts, f"找不到四态实现 {name}（editor.html 结构已变，断言需更新）"
+        s = starts[0]
+        e = next(j for j in range(s + 1, len(src)) if src[j].startswith("};"))
+        ranges[name] = (s + 1, e + 1)
+
+    def in_host(ln: int) -> bool:
+        return any(a <= ln <= b for a, b in ranges.values())
+
+    violations = []
+    for i, line in enumerate(src, 1):
+        for fn in _TRANSPORT_PROXIES:
+            if not _is_call(line, fn) or _fn_name(line) == fn:
+                continue
+            if in_host(i):
+                continue
+            caller = None
+            for j in range(i - 1, -1, -1):
+                nm = _fn_name(src[j])
+                if nm:
+                    caller = nm
+                    break
+            if caller in _TRANSPORT_CALLERS:
+                continue
+            violations.append(f":{i} {fn} ← {caller or '<顶层>'}")
+    if violations:
+        raise SystemExit(
+            "P3.1 违规：共享 UI 直连轨通道（应改走 hostBridge 策略面；确属轨专属实现则登记进 "
+            "_TRANSPORT_CALLERS）：\n  " + "\n  ".join(violations))
+
+
 def main() -> int:
+    assert_ui_plane_discipline()   # P3.1 登记制：静态、廉价、先于浏览器臂失败
     from playwright.sync_api import sync_playwright
     from tools.bridge_mcp import build_view_html
 

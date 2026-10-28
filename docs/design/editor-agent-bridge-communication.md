@@ -270,7 +270,7 @@ management token 不进入 browser URL、HTML、intent 或 SSE；正常 MCP 工�
 
 Agent 调用 `await_intent`，MCP 代理调用管理 `/api/bridge/await`。认领过程由 session lock 串行化，并使用若干短 SQLite 事务，而不是把 bundle 复制和扫描包在一个长事务里：
 
-1. 在 session lock 内用短事务校验 consumer 已通过 `open_editor` 登记且未 close，原子取得 waiting owner；其他有效 owner 得到 `SESSION_BUSY`，存在待恢复请求则得到 `RECOVERY_REQUIRED`。
+1. 在 session lock 内用短事务校验 consumer 已通过 `open_editor` 登记且未 close，原子取得 waiting owner；其他有效 owner 得到 `SESSION_BUSY`；**认领前先作废陈旧 recoverable（P4.2），且 session 级恢复门已移除（P4.3，2026-10-27）**——存在待恢复项不再阻断整会话的认领（`agent_state`/`recoverable_count` 仍如实呈现）。
 2. 锁内选择最早可执行的 pending intent，读取 facts 并复核 base revision；若 base 已变化，在短事务中记录 conflict 与事件，不创建可交付副本。
 3. 仍在 session lock/认领准备门闩保护下、但不持有 SQLite 写事务，创建或复用候选 `work_path`，复制完整 bundle，扫描复制前后清单和字节摘要，并落盘 intent/job 元数据。复制或扫描失败时 intent 保持 pending。
 4. 复制完成后再用短事务复核 owner、base 和当前状态，登记 attempt/`work_path`，把 pending 原子改为 processing，并在同一事务写 `intent-status` 事件。

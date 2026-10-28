@@ -353,11 +353,14 @@ Host（SproutHarness / Claude / …）— AppBridge ←postMessage JSON-RPC→ i
 | `push_update` | `push_update` | 验证证据模型、CAS 发布**原样** |
 | `get_status` | `get_status` | View 轮询也走它 |
 | `close_session` | `close_session` | 原样 |
-| （`/api/*` 非工具端点） | `attach_view` / `read_deck` / `save_deck` / `read_asset` / `write_asset` / `submit_intent` / `cancel_intent` / `retry_intent` / `query_intents` / `save_draft` / `list_versions` / `rollback` / `read_export` —— **全部 `visibility:["app"]`（根级 + `ui` 双写）** | 等价于轨 B 的浏览器 HTTP 端点 |
+| （`/api/*` 非工具端点） | `attach_view` / `read_deck` / `read_bundle_file` / `save_deck` / `write_asset` / `submit_intent` / `save_draft` / `list_versions` / `rollback` —— **全部 `visibility:["app"]`（根级 + `ui` 双写）** | 等价于轨 B 的浏览器 HTTP 端点 |
 
-**红线变更需签字**：AGENTS.md 现写"恰好五个 `pptx-html-bridge` MCP 工具可见时必须 editor-first"。轨 A 下工具数**不减反增**（+13 个 app-only）。建议改写为：
+> ⚠️ **2026-10-27（1027 精简，见 §10.13）**：本行原列 **13** 个 app-only 工具，现为 **9** 个——`cancel_intent` / `retry_intent` / `query_intents` 删除（全仓无 View 调用方；daemon 三条路由保留给轨 B），`read_asset` + `read_export` 合并为 `read_bundle_file`。本文 §5/§6 等处的 `read_asset` / `read_export` 一律按 `read_bundle_file` 读（`assets|fonts` 前缀走资产路由，`export/` 前缀走产物路由）。
+
+**红线变更需签字**：AGENTS.md 现写"恰好五个 `pptx-html-bridge` MCP 工具可见时必须 editor-first"。轨 A 下工具数**不减反增**（+9 个 app-only）。建议改写为：
 > **"轨 B 恰好五个工具；轨 A 工具面扩展，但 `open_editor` 仍是唯一带 UI 的入口、唯一面向模型的创作入口；全部 app-only 工具 `visibility:["app"]`（根级 + `ui` 双写，对模型不可见）。"**
 > editor-first 原则两轨一致。工具总数变化必须经用户确认后再实施。
+> **（2026-10-27 履行）**：第二次工具数变化（13 → 9，工具面 18 → 14）即按本行要求先取用户签字后实施，见 §10.13。
 
 ### 4.4 通道映射总表
 
@@ -615,7 +618,7 @@ A9 的并排/滑动/差异视图需要 export 产物（`deck-vector` 的逐页 S
 8. **§5.11 对比质检的产物载入未定**：轨 A 可能不得不降级为"仅在轨 B 提供对比"。
 9. **图片管道性能**：54 页 deck 数十张图经 base64 的首屏性能待 P3 实测；方案 b 依赖对端 ACAO 与宿主 CSP 放行，且与"传输层整层删除"矛盾（§5.2）。
 10. **大载荷宿主限制**：单个工具结果的尺寸上限未知【未验证】；必要时切 `ui://` 资源分片。
-11. **红线变更未决**：轨 A 工具数从 5 增至 18，需用户明确签字（§4.3）。
+11. **红线变更分两次履行**：轨 A 工具数 5 → 18 于 2026-10-20 经用户签字（§4.3、§9 #1）；**1027 再精简 18 → 14**（删 `cancel_intent`/`retry_intent`/`query_intents`、并 `read_asset`+`read_export` → `read_bundle_file`）于 2026-10-27 经用户签字，见 §10.13。
 12. **`await_intent` 是双轨共用单点**：仲裁相位（§4.2）与 D1 的认领校验（§5.10）都改它。缓解：仲裁**自解除**（仅本会话从未有 UI 信号时启用一次），轨 B 零时延回退。
 
 ---
@@ -624,7 +627,7 @@ A9 的并排/滑动/差异视图需要 export 产物（`deck-vector` 的逐页 S
 
 | # | 事项 | 裁决 | 落地位置 |
 |---|---|---|---|
-| 1 | 轨 A 工具数 5 → 18 的红线措辞 | ✅ **按 §4.3 改写 AGENTS.md** | 已改：红线第 1 条拆为「轨 B 恰好五工具」+「轨 A 扩展但 `open_editor` 仍是唯一带 UI / 唯一面向模型的入口」，并写明 `visibility` 根级 + `ui` 双写 |
+| 1 | 轨 A 工具数 5 → 18 的红线措辞 | ✅ **按 §4.3 改写 AGENTS.md** | 已改：红线第 1 条拆为「轨 B 恰好五工具」+「轨 A 扩展但 `open_editor` 仍是唯一带 UI / 唯一面向模型的入口」，并写明 `visibility` 根级 + `ui` 双写；**（2026-10-27）第二次工具数变更 18 → 14 同规矩先取签字后实施，见 §10.13** |
 | 2 | §5.10 D2：是否允许"锚点指向未落盘内容"提交 | ✅ **允许**（诚实标注 `dirty`，由 D3 按条报"已失效/已重定位"） | §5.10.3 D2 |
 | 3 | P0.5 是否先于 P1 实施 | ✅ **先做**（双轨共用、与 MCP Apps 升级解耦、可独立验收） | §7 P0.5 行 |
 | 4 | §5.2 方案 b（loopback 静态服务） | ✅ **保留为可选优化、不默认启用**；须在评审中明确承认它是对 §0"传输层整层不启动"的例外 | §5.2 方案 b |
@@ -679,10 +682,10 @@ A9 的并排/滑动/差异视图需要 export 产物（`deck-vector` 的逐页 S
 
 原设计断言"不能按能力注册两套工具集，只能在调用期分流"。前半句仍然成立（注册期早于 `initialize`），但**`tools/list` 发生在 `initialize` 之后**，因此可以在**列举期**按客户端能力过滤：
 
-- 声明了 `io.modelcontextprotocol/ui`（或环境变量 `PPTX_HTML_APPS_TOOLS=always`）→ 列出 18 个工具；
+- 声明了 `io.modelcontextprotocol/ui`（或环境变量 `PPTX_HTML_APPS_TOOLS=always`）→ 列出 14 个工具（1027 精简前为 18）；
 - 否则（`auto` 默认）→ 只列出面向模型的 5 个。
 
-这条改动的价值：轨 B（当前唯一真实宿主）看到的仍是**恰好五个工具**，`AGENTS.md` 红线与既有 `r_bridge_check` 断言**零改动**通过；轨 A 宿主才看到 13 个 app-only 工具。
+这条改动的价值：轨 B（当前唯一真实宿主）看到的仍是**恰好五个工具**，`AGENTS.md` 红线与既有 `r_bridge_check` 断言**零改动**通过；轨 A 宿主才看到 9 个 app-only 工具（1027 精简前为 13）。
 **已知限制**：【实测】官方 Python `ClientSession` **无法声明 `extensions`**（构造参数里没有该入口），所以"能力声明"这条路只有自带宿主才有；**能渲染 widget 却不声明扩展**的宿主（SproutHarness）需要 `PPTX_HTML_APPS_TOOLS=always`（另有 `never` 用于强制关闭）。
 
 ### 10.4 `get_status` 的轨道信息放顶层，不动 `capabilities`
@@ -780,3 +783,16 @@ A9 的并排/滑动/差异视图需要 export 产物（`deck-vector` 的逐页 S
 3. **`_meta` 的规范面收敛（F4 / F5 / F11）**：`visibility` **只**写 `_meta.ui.visibility`（去掉根级双写——规范明确否决扁平键）；客户端能力门在扩展键之外**必须**校验 `mimeTypes` 含 `text/html;profile=mcp-app`（缺省按宽松处理）；资源补显式 `prefersBorder: false`；18 个工具统一补 `title`（集中在 `tools/bridge_mcp.py:TOOL_TITLES`）。
 
 另有两处**属于服务可用性与归属语义**的修复，也请以审计文档为准：daemon 启动失败不再拖垮 MCP server（注册期与 daemon 解耦）、会话归属判定从 MCP 进程内存**下沉到 daemon**（`consumers` 表），因此 §4.2 里"内存 `owned_sessions`"的描述与 §3.1 的"工具层自校验"实现均已改口径。版本号亦改为**单源**：`editor.html` 头部 → 构建脚本 → bundle manifest → server 上报（§3.1 曾有两处字面量，会产生"编辑器 v3.9.3 / 上报 3.9.2"的漂移）。
+
+### 10.13 1027 工具面精简（2026-10-27，用户签字；修正 §4.3 的清单与 §10.3 的计数）
+
+**触发**：用户提问"为何需要这么多工具"。体检结论：18 个里 **3 个全仓无调用方**、**2 个打同一个 daemon handler**；而 13 个 app-only 的由来是**路线对齐**（每个 ≈ 一条浏览器 HTTP 端点 + 一条沙箱缺口），不是 13 个功能。逐条证据（含 file:line）见 `docs/progress/1027_tool_surface_slimming.md`。
+
+**改动**（app-only **13 → 9**，工具面 **18 → 14**）：
+
+1. **删 `cancel_intent` / `retry_intent` / `query_intents`**：三者只在服务端测试里被调用，View 侧零调用点；而它们的 UI 对应物（`editor.html` 任务面板的「取消 / 停止处理 / 续用原副本 / 从当前版本重建」）走的是**轨 B 的 `bridgeFetch` + `bridge.token`**——沙箱里拿不到该凭证，轨 A 点必失败（现状是"工具是死的、按钮是坏的"）。**daemon 侧 `/api/intent/cancel`、`/api/intent/retry`、`/api/intents/query` 三条路由保留**（轨 B 浏览器与 `bridgeRecoverIntents` 继续使用）；轨 A 同步撤掉那组按钮。轨 A「停止处理」的替代路径为模型侧 `close_session`（中断未完成 attempt 并释放 lease）。
+2. **`read_asset` + `read_export` → `read_bundle_file(session_id, path)`**：入参统一为 **bundle 相对路径**，由 `tools/bridge_dispatch.py` 按前缀路由（`assets/`｜`fonts/` → `/api/bridge/asset-read` 原样；`export/` 剥前缀 → `/api/bridge/export-read`）。两者本就是同一个 `read_artifact(kind=...)`（`bridge_core.py:1039`，`read_export_file` 只是 5 行 shim），**daemon 契约与 `bundle_files` 白名单一字未动**。
+
+**明确不做**（评估后否决，理由见 progress §2.4）：合并 `save_deck` / `write_asset` / `rollback`（同一 CAS 发布族，但校验、事件、`allow_git_init` 各异，合并会把共享校验的爆炸半径放大到三条写入路径）；通用 `bridge_request(method, path, body)` passthrough（等于把 daemon **全部**路由的写权限交给沙箱，并丢掉逐工具 `readOnlyHint`/`destructiveHint` 所承载的宿主同意语义）。
+
+**遗留**：`read_bundle_file` 的 `export/` 分支在轨 A 本就落在本文 §5.11 声明的"无产物通道"降级路径上；若后续确认轨 A 不再提供产物下载，该分支连同 `/api/bridge/export-read` 可再收一层（工具面到 13）。

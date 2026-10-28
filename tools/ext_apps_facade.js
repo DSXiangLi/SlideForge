@@ -8,7 +8,13 @@
 (function(){
   var App = __ext.App, PostMessageTransport = __ext.PostMessageTransport;
   var api = window.pptxMcp || (window.pptxMcp = {});
-  var app = new App({ name: "pptx-html-editor", version: VIEW_VERSION });
+  /* 第二个参数是 **appCapabilities**（SDK 构造签名 `new App(appInfo, appCapabilities, options)`）。
+     此前只传了 appInfo → View 从未声明任何能力，宿主的 §15.3 交叉校验读不到
+     `availableDisplayModes`（只在日志里提示）。本编辑器两种形态都支持：
+     脑暴走 inline、其余视图走 pip（工具的 `_meta.ui.mode=pip` + `mode_inline_when`），
+     故两侧都要声明，否则工具声明 pip 而 View 不含 pip 会被宿主**降级为 inline 并记 error**。 */
+  var app = new App({ name: "pptx-html-editor", version: VIEW_VERSION },
+                    { availableDisplayModes: ["inline", "pip"] });
 
   /* 引导脚本早于本模块执行，因此这里必须**在 connect 之前**接上引导期注册的回调
      （SDK 规定 handler 要在 connect 前注册，否则可能漏掉通知；且对 onteardown 这类
@@ -19,6 +25,15 @@
     if (typeof handler !== "function") return {};
     try { await handler(); return {}; }
     catch(e){ return { error: String((e && e.message) || e) }; }
+  };
+  /* 宿主上下文变更（pip 面板拖宽 / resize / containerDimensions 变化）。SDK 规定 handler 必须
+     在 connect 前注册。这里只做"缓存 + 转发"：真正的重排交给 editor.html（它才知道哪些量依赖宽度）。 */
+  app.onhostcontextchanged = function(ctx){
+    if (!ctx) return;
+    api.__hostContext = ctx;
+    var handler = api.__hostCtx;
+    if (typeof handler !== "function") return;
+    try { handler(ctx); } catch(e){ /* 观察者异常不得打断协议 */ }
   };
   /* 宿主载荷可能在 editor.html 注册回调**之前**到达（引导脚本早于 bundle 执行，注册点在脚本中段），
      这正是 `bridge_mcp.py` 注释里记过的"编辑器一直停在等待宿主下发会话"。因此这里缓冲最后一次
@@ -173,7 +188,11 @@
       onToolInput: function(cb){ api.__toolInput = cb;
         if (api.__lastToolInput){ try { cb(api.__lastToolInput); } catch(e){} } },
       onToolResult: function(cb){ api.__toolResult = cb;
-        if (api.__lastToolResult){ try { cb(api.__lastToolResult); } catch(e){} } }
+        if (api.__lastToolResult){ try { cb(api.__lastToolResult); } catch(e){} } },
+      /* 宿主上下文（含 containerDimensions）变更：注册时若已有上下文则**立即回放一次**，
+         保证调用方拿到最新值；后续变更由 app.onhostcontextchanged 转发过来。 */
+      onHostContextChanged: function(cb){ api.__hostCtx = cb;
+        if (api.__hostContext){ try { cb(api.__hostContext); } catch(e){} } }
     };
   }
 

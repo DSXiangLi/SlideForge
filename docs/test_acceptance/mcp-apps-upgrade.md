@@ -52,12 +52,12 @@ PASS fault: 9 captured unittest cases + real HTTP SSE expired-cursor resync
 `open_editor(..., open_browser=true)`，本轮 SKILL 桥流程改为显式 `open_browser="auto"`，该字面量同步
 更新（1 行）。**其余断言零改动**——工具面"恰好五个"、`capabilities` 精确相等、JS/SSE/鉴权行为都原样通过。
 
-`--group apps` 覆盖的断言（逐条）：
-- **工具面双模**：`PPTX_HTML_APPS_TOOLS=never`（等价于未声明扩展的客户端）→ 恰好五个工具；`=always` → 18 个；
-- **双写 visibility**：13 个 app-only 工具**每个**都同时有根级 `visibility:["app"]` 与 `ui.visibility:["app"]`（宿主 N15 读取路径缺陷的规避，设计 §3.1 第 3 条）；
+`--group apps` 覆盖的断言（逐条）（**2026-10-27 按 1027 精简更新计数与链路**）：
+- **工具面双模**：`PPTX_HTML_APPS_TOOLS=never`（等价于未声明扩展的客户端）→ 恰好五个工具；`=always` → **14** 个（1027 精简前为 18）；
+- **app-only 的可见性标注**：**9** 个 app-only 工具（1027 精简前 13 个）**每个**都写 `_meta.ui.visibility:["app"]`，且**不带**根级 `_meta.visibility`（F4：规范只认 `ui.visibility`；本文档此前记的"根级 + `ui` 双写"是 F4 之前的状态）；
 - **入口 `_meta` 三处写**：`open_editor` 的 `ui.resourceUri` 与 `ui/resourceUri` 都是 `ui://pptx-html-bridge/editor.html`；
-- **资源契约**：mime `text/html;profile=mcp-app`、`_meta.ui.permissions={"clipboardWrite":{}}`、View HTML ≤ 2 MB（实测 **626 KB**）、含引导门面与 SDK bundle、无外链 `script`；
-- **轨 A 链路**：`attach_view` → `get_status.track == "mcp-app"` → `await_intent(kind="mcp_app")`（已决即采用，不阻塞）→ `read_deck` → `save_deck`（revision 前进）→ 陈旧 `base_revision` 被拒（`REVISION_CONFLICT`）→ `submit_intent`（含 `anchor`）→ `query_intents` → `cancel_intent` → `save_draft` → `read_asset`/`write_asset` → `list_versions`；
+- **资源契约**：mime `text/html;profile=mcp-app`、`_meta.ui.permissions={"clipboardWrite":{}}`、View HTML ≤ 2 MB（2026-10-28 实测 **746 KB** @ v3.9.7）、含引导门面与 SDK bundle、无外链 `script`；
+- **轨 A 链路**：`attach_view` → `get_status.track == "mcp-app"` → `await_intent(kind="mcp_app")`（已决即采用，不阻塞）→ `read_deck` → `save_deck`（revision 前进）→ 陈旧 `base_revision` 被拒（`REVISION_CONFLICT`）→ `submit_intent`（含 `anchor`）→ `save_draft` → `read_bundle_file`（`assets`/`fonts` 前缀读资产、`export/` 前缀读产物）/`write_asset` → `list_versions`；`cancel_intent` / `retry_intent` / `query_intents` 三个**工具**已于 1027 删除（其 daemon 路由仍由 `test_bridge_core.py` 覆盖，轨 B 继续使用）；
 - **工具层自校验**（不依赖宿主鉴权）：外部 session → `SESSION_NOT_OWNED`；`assets/../../.pptx-html/serve.json` → 拒；未登记资产 → `NOT_FOUND`。
 
 ### 2.3 View 端到端（T36，自带宿主模拟器）

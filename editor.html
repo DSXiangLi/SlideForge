@@ -4,11 +4,43 @@
 <!--
   ============================================================================
   HTML PPTX 编辑器 · editor.html
-  版本：v3.9.5（2026-10-26）
+  版本：v3.9.7（2026-10-28）
   实现依据：docs/design-editor.md v0.3（评审修订稿）+ docs/design/editor-v2.md
   标记契约：skills/html-pptx/references/editing-contract.md v8（本页是消费侧实现）
 
   变更记录：
+  - v3.9.7（状态流修复：轨 A 队列可见、批注提交即发送、通道统一，见 docs/progress/1028_editor_state_flow_fixes.md）：
+    ① **轨 A 队列可见**：`mcpAppApplyStatus()` 合并 `get_status.intents` 轻量摘要（daemon 本轮新增）
+    进 `bridge.intents`——「请求记录」在轨 A 不再恒空（此前轨 A 无 query 通道，面板结构性为空）。
+    ② **基线过期可见 + 可处置**：pending 行的 `base_revision` 与当前 revision 不一致时标注
+    "基线已过期（认领时会冲突）"；轨 A 对 pending/recoverable 行提供**「按当前版本重新提交」**
+    （走 app-only `submit_intent`——轨 A 无 retry 通道，重发语义等价，且不扩工具面/不破红线）。
+    ③ **批注提交即发送**：`annoSubmit` 入清单后**立即发送整份清单**（与「发送给 AI」同一条路径），
+    不再需要手动复制或二次点击。
+    ④ **不再静默降级**：嵌入/静态态把"发送"降级为复制时给出明确文案（原为静默复制，用户看起来
+    像"点了没反应"）。
+    ⑤ **转换通道统一**：`convertDeck()` 改走 `hostBridge.intent`（与 `reFlip` 同一实现），
+    顺带修掉它漏掉的 static 分支。
+    ⑥ **呈现形态接入宿主 pip（宿主设计 §十五）**：工具补 `_meta.ui.mode='pip'` +
+    `mode_inline_when={arg:'view',in:['brief']}`——**脑暴 inline、其余三视图 pip**（pptx 是
+    "一工具四视图"，工具级静态声明表达不了，故按参数条件化）；View 侧补
+    `appCapabilities.availableDisplayModes=['inline','pip']`（此前 `new App(appInfo)` 漏了
+    第二个参数，**从未声明过任何能力**，宿主的 §15.3 交叉校验读不到）；并接
+    `onhostcontextchanged` 合并 `containerDimensions`（pip 面板可拖宽，不接就按旧宽排版）。
+    ⑦ **策略面收敛（P3.1）**：恢复族（cancel/stop/retry/resend/list）新增**唯一入口**
+    `hostBridge.recover(op, x, mode?)`——轨 B 走既有 HTTP；轨 A 只有 `list` 与 `retry`
+    （`retry` 即"按当前版本重新提交"，不扩工具面）；嵌入/静态**明确拒绝**、不静默。任务面板
+    四个按钮、简报区三个按钮、`openBrief` 的状态刷新**全部改走策略面**——此前这三处共享 UI
+    直接点名 `bridge*` 函数，正是"某态下点了没用"的成因。轨 B 自此进入 **maintenance-only
+    （冻结）**，见 `docs/progress/1028_dual_track_freeze_and_p31.md`。
+  - v3.9.6（MCP 工具面精简：轨 A 撤任务恢复按钮、资产/产物读取合并为 read_bundle_file，见 docs/progress/1027_tool_surface_slimming.md）：
+    ① **轨 A 撤任务恢复按钮**：轨 A 的沙箱拿不到 bridge 凭证（`bridge.token` 只在轨 B 由
+    `bridgeParseLaunch()` 设置），取消/停止/重发/续用/重建都走 `bridgeFetch`，在轨 A 必然失败；
+    `bridgeRenderTasks()` 现按轨判定跳过这组按钮（app-only 的意图恢复工具已在 1027 移除，
+    轨 B 通道是通的、行为不变）。
+    ② **读工具合并**：`read_asset` + `read_export` → `read_bundle_file(session_id, path)`，`path`
+    统一为 bundle 相对路径——`assets/…`、`fonts/…` 读资产，`export/…` 读产物，分发层按前缀路由；
+    工具面 18 → 14（app-only 13 → 9）。
   - v3.9.5（宿主内「打开文件」「换图」回正 + 首份 deck 到达切编辑页）：
     ① **轨优先、能力其次（第二次修同一个坑）**：`openViaPicker()` 原先只按 `state.fsaa`
     判定，而 `showOpenFilePicker` 在宿主 iframe（嵌入态 / 轨 A）里**存在但调用必被拒**——
@@ -81,7 +113,7 @@
     ② 高度上报落地——`hostViewportMaxHeight()` 改读宿主 `hostContext.containerDimensions`，
     握手后按宿主编制内的最高高度发一次 size-changed（宿主只跟随高度并钳到 maxHeight，A2）；
     ③ CSS 资产水合——deck 的 `@font-face` / CSS `url(assets|fonts/…)` 在轨 A 没有可用基址，
-    载入时经 `read_asset` 换成 data: URI（与 <img> 同一纪律，但**不需要**反向还原：
+    载入时经 `read_bundle_file` 换成 data: URI（与 <img> 同一纪律，但**不需要**反向还原：
     CSSOM 改动不回写 <style> 文本，磁盘 deck 天然保持纯净，A4）。
   - v3.9（MCP Apps 双轨 P1+P3，docs/design/mcp-apps-upgrade.md）：抽出**宿主适配层
     `hostBridge`**（四态策略面 load/save/asset/intent/status/poll/viewport/background/
@@ -92,8 +124,8 @@
     save_deck（CAS + 回执）、write_asset 换图、submit_intent（指令型不被陈旧基线阻断，
     带 anchor 标注）+ 敲门短句、save_draft 服务端草稿 + setModelContext 便条（2s 防抖）、
     2s 轮询 get_status（空闲退避 10s、hidden 暂停、远端 revision 变化先保草稿再横幅）、
-    read_export + downloadFile（>20MB 回落"告知路径"）、list_versions / rollback、
-    onteardown 异步 flush 草稿后才回执、图片按可见页懒加载 read_asset → data: URI
+    read_bundle_file（export/ 前缀）+ downloadFile（>20MB 回落"告知路径"）、list_versions / rollback、
+    onteardown 异步 flush 草稿后才回执、图片按可见页懒加载 read_bundle_file → data: URI
     （序列化还原 assets/ 相对路径）。**沙箱限制如实降级**：宿主 iframe 若只有
     `allow-scripts`（不透明源），嵌套渲染文档不可访问——deck 能显示但不能编辑，
     页面明确提示并给出出路（规范沙箱 / 轨 B 独立窗口），不伪装可编辑。
@@ -3956,7 +3988,18 @@ var embeddedHost = {
   },
   asset: function(){ return false; },   /* 换图同样沿用 FSAA 直写 */
   intent: async function(type, payload, embeddedMessage, fallbackText){
-    window.parent.postMessage(embeddedMessage,'*');if(fallbackText)await copyText(fallbackText);toast('已发送宿主');return {route:'embedded'};
+    /* v3.9.7：不再静默降级——嵌入态的"发送"只对实现了 pptx-html:* 协议的宿主有效；
+       通用容器（如 MCP 宿主）根本收不到这条 postMessage，原来只弹一句"已发送宿主"，
+       用户看到的就是"点了没用"。现在显式告警 + 复制兜底。 */
+    var copied=false;
+    try{ window.parent.postMessage(embeddedMessage,'*'); }
+    catch(e){ console.warn('[editor] postMessage 失败：'+(e&&e.message)); }
+    if(fallbackText) copied=await copyText(fallbackText);
+    console.warn('[editor] 嵌入态发送：意图以 postMessage 发出，仅实现了 pptx-html:* 协议的宿主会响应。'
+      +' 若宿主是通用容器（如 MCP 宿主），应改走轨 A（MCP Apps）或轨 B（Bridge）。');
+    toast(copied ? '已向宿主发送请求；宿主未响应时可直接粘贴已复制的指令'
+                 : '已向宿主发送请求（宿主未响应时请手动复制指令）');
+    return {route:'embedded',copied:copied};
   },
   status: function(){ return probeBackend(); },
   poll: function(){ return null; },   /* 嵌入态无轮询：产物与版本由宿主决定 */
@@ -4037,6 +4080,16 @@ var bridgeHost = {
   intent: async function(type, payload, embeddedMessage, fallbackText){
     var j=await bridgeSubmitIntent(type,payload);toast('请求已记录 · seq '+j.seq);return {route:'bridge',result:j};
   },
+  /* P3.1（2026-10-28）：恢复族收敛进策略面——调用方（任务面板 / 简报区按钮）只认
+     `hostBridge.recover`，不再直接点名 `bridge*` 函数。轨 B 这里就是既有 HTTP 通道。 */
+  recover: async function(op, x, mode){
+    if (op === 'cancel') return bridgeCancelIntent(x && x.id);
+    if (op === 'stop')   return bridgeStopIntent(x);
+    if (op === 'retry')  return bridgeRetryIntent(x, mode || 'rebuild');
+    if (op === 'resend') return bridgeResendIntent(x);
+    if (op === 'list')   return bridgeRecoverIntents();
+    throw new Error('未知的恢复操作：' + op);
+  },
   status: function(){ return bridgeStatusAndRecover(); },
   poll: function(){ return bridgeConnectSSE(); },
   viewport: hostViewportFallback,
@@ -4054,7 +4107,7 @@ var bridgeHost = {
    MCP Apps 态（轨 A）：View 在宿主 iframe 内
    一切通道经 window.pptxMcp 门面 → 宿主代理 → app-only 工具（设计 §4.3/§6.1）。
    沙箱硬约束：无 localStorage/indexedDB/cookie（草稿只服务端化）、无 FSAA、
-   无 fetch 同源（资产经 read_asset 取 base64）、下载只有 ui/download-file（≤20MB）。
+   无 fetch 同源（资产经 read_bundle_file 取 base64）、下载只有 ui/download-file（≤20MB）。
    ============================================================ */
 var mcpApp = {
   sessionId:null, clientId:null, resourcePath:null, revision:null, latestServerRevision:null,
@@ -4119,6 +4172,34 @@ function mcpAppApplyStatus(st){
   briefSyncRender();
   state.backend = {ok:true, bridge:false, mcpApp:true,
                    gitReady:!!mcpApp.capabilities.git_ready, convert:!!mcpApp.capabilities.local_convert};
+  /* v3.9.7：合并 daemon 的轻量意图摘要——轨 A 没有 query 通道，这是它唯一能看到队列的来源
+     （此前"请求记录"在轨 A 结构性为空，而 AI 侧 pending_count 有值 → 用户看到的是两套事实）。 */
+  if (Array.isArray(st.intents)) bridgeMergeStatusIntents(st.intents);
+}
+/* 把 get_status.intents 摘要并入 bridge.intents。只读合并：本地的纯 UI 在途态优先（不被覆盖）。 */
+var BRIDGE_UI_ONLY_STATUSES = ['submitting','unconfirmed','retrying'];
+function bridgeMergeStatusIntents(list){
+  var changed = false;
+  list.forEach(function(x){
+    if (!x || !x.id) return;
+    var local = bridge.intents[x.id];
+    if (local && BRIDGE_UI_ONLY_STATUSES.indexOf(local.status) >= 0) return;
+    var prev = local ? [local.seq,local.type,local.status,local.attempt,local.base_revision] : null;
+    var next = [x.seq,x.type,x.status,x.attempt,x.base_revision];
+    if (!prev || JSON.stringify(prev) !== JSON.stringify(next)) changed = true;
+    bridge.intents[x.id] = Object.assign({}, local || {}, {
+      id:x.id, seq:x.seq, type:x.type, status:x.status, attempt:x.attempt,
+      base_revision:x.base_revision, payload:(x.payload !== undefined ? x.payload : (local && local.payload) || null)
+    });
+  });
+  if (changed){ bridgeRenderTasks(); bridgeRefreshBriefSummary(); }
+}
+/* 当前 CAS 基线（按形态取）：轨 A = mcpApp.revision，轨 B = bridge.loadedRevision。 */
+function currentRevision(){
+  var k = hostKindDetect();
+  if (k === 'mcp-app') return mcpApp.revision || null;
+  if (k === 'bridge') return bridge.loadedRevision || null;
+  return null;
 }
 /* 宿主把 open_editor 的**工具结果**下发给 View；session 上下文只从这里来（§5.3） */
 function mcpAppOnToolResult(params){
@@ -4193,6 +4274,26 @@ function mcpAppSizeWatch(){
   var wrap = document.querySelector('#briefOverlay .brief-wrap');
   if (wrap){ try { mcpApp.sizeObserver.observe(wrap); } catch(e){} }
 }
+/* pip 面板可拖宽（宿主 §15.2 D7：形态不可变，但容器尺寸会变）→ 只重排**与宽度相关**的部分：
+   注入 deck 内的批注角标按 --slide-scale 反缩放补偿、对比叠层是绝对定位，两者必须按新宽度重算；
+   其余交给 CSS 弹性布局自然回流；顺带重报一次尺寸（pip 下宿主要看的是宽度，高度它自己定）。 */
+function mcpAppOnHostCtxChanged(ctx){
+  if (!ctx || !ctx.containerDimensions) return;
+  var w = ctx.containerDimensions.width;
+  if (typeof w !== 'number' || !isFinite(w) || w <= 0) return;
+  if (mcpApp.hostWidth === w) return;
+  mcpApp.hostWidth = w;
+  try { rebuildAnnoMarks(); } catch(e){}
+  try { positionCmpOverlay(true); } catch(e){}
+  try { mcpAppReportSize(); } catch(e){}
+}
+function mcpAppHostCtxWatch(){
+  var facade = window.pptxMcp;
+  if (!facade || typeof facade.onHostContextChanged !== 'function') return;
+  try {
+    facade.onHostContextChanged(mcpAppOnHostCtxChanged);   /* 注册即回放一次当前上下文 */
+  } catch(e){ console.warn('[editor] 注册 hostContext 变更回调失败：' + (e && e.message)); }
+}
 async function mcpAppBoot(){
   if (mcpApp.ready || !mcpApp.sessionId) return false;
   try { await window.pptxMcp.ready; }
@@ -4204,6 +4305,7 @@ async function mcpAppBoot(){
     mcpAppApplyStatus(st);
     mcpAppTeardownHook();
     mcpAppSizeWatch();
+    mcpAppHostCtxWatch();   /* pip 面板可拖宽：接宿主上下文变更，重排宽度相关布局 */
     if (st.deck_path){ await mcpAppLoadDeck(st.resource_path, st.revision, false); }
     else mcpAppRenderState('working','等待创作内容','请完成需求脑暴后明确发送给 AI');
     if (!launch.applied) applyLaunch(launchHint());   /* 首屏分流：此时 deck 已知（§7.1） */
@@ -4252,7 +4354,7 @@ async function mcpAppLoadDeck(path, revision, preserve){
     return false;
   }
 }
-/* 资产：轨 A 无同源 fetch，按可见页懒加载 read_asset → data: URI（设计 §5.2 方案 a） */
+/* 资产：轨 A 无同源 fetch，按可见页懒加载 read_bundle_file → data: URI（设计 §5.2 方案 a） */
 function mcpAppHydrateImages(){
   var d = doc(); if (!d) return;
   if (!mcpApp.hydrateObserver && typeof IntersectionObserver === 'function'){
@@ -4277,7 +4379,7 @@ async function mcpAppHydrateImage(img){
   if (!rel || img.hasAttribute('data-pptx-hydrated')) return;
   img.setAttribute('data-pptx-hydrated','1');
   try {
-    var payload = await mcpAppCall('read_asset', {session_id:mcpApp.sessionId, path:rel});
+    var payload = await mcpAppCall('read_bundle_file', {session_id:mcpApp.sessionId, path:rel});
     img.setAttribute('src', 'data:' + payload.mime + ';base64,' + payload.data_base64);
   } catch(e){ img.removeAttribute('data-pptx-hydrated'); }
 }
@@ -4367,7 +4469,7 @@ async function mcpAppHydrateCss(){
       var rel = entry.hits[h].rel, dataUri = cache[rel];
       if (!dataUri){
         try {
-          var payload = await mcpAppCall('read_asset', {session_id:mcpApp.sessionId, path:rel});
+          var payload = await mcpAppCall('read_bundle_file', {session_id:mcpApp.sessionId, path:rel});
           dataUri = 'data:' + payload.mime + ';base64,' + payload.data_base64;
           cache[rel] = dataUri;
         } catch(e){ continue; }
@@ -4548,7 +4650,7 @@ var mcpAppHost = {
          轨 B 的 bridgeHost.asset 同一处理（`bridge.loadedRevision=receipt.revision`）。 */
       mcpApp.revision = receipt.revision;
       /* 渲染态用 data:（轨 A 无同源 fetch），但**引用**留在 data-pptx-src 里：serializeClean 会把它
-         还原成 assets/ 相对路径——磁盘 deck 保持纯净是设计红线（§5.2 方案 a），与 read_asset 水合同一机制。 */
+         还原成 assets/ 相对路径——磁盘 deck 保持纯净是设计红线（§5.2 方案 a），与 read_bundle_file 水合同一机制。 */
       img.removeAttribute('data-pptx-hydrated');
       img.setAttribute('data-pptx-src', rel);
       img.setAttribute('src', dataUrl); img.setAttribute('data-image-state','uploaded');
@@ -4560,6 +4662,14 @@ var mcpAppHost = {
     } catch(e){ showWarn('图片上传未完成：' + e.message + '。'); return true; }
   },
   intent: function(type, payload, embeddedMessage, fallbackText){ return mcpAppSubmitIntent(type, payload); },
+  /* P3.1：轨 A 没有 HTTP 恢复通道（1027 删了 app-only 恢复工具、沙箱也拿不到 `bridge.token`）。
+     能做的两件：`list` = 读 get_status 的轻量摘要；`retry` = **按当前版本重新提交**
+     （结果等价于 rebuild，且不扩工具面/不破红线）。其余操作**明确拒绝**，不静默。 */
+  recover: async function(op, x){
+    if (op === 'list'){ var st = await mcpAppCall('get_status', {session_id:mcpApp.sessionId}); mcpAppApplyStatus(st); return st; }
+    if (op === 'retry') return bridgeResubmitIntent(x);
+    throw new Error('轨 A 不支持「' + op + '」：请用「按当前版本重新提交」，或在独立窗口（轨 B）处理');
+  },
   status: function(){ return mcpAppCall('get_status', {session_id:mcpApp.sessionId}).then(mcpAppApplyStatus); },
   poll: function(){ mcpAppStartPoll(); },
   viewport: function(){ return hostViewportMaxHeight() || hostViewportFallback(); },
@@ -4573,7 +4683,7 @@ var mcpAppHost = {
   download: async function(url, name){
     var file = name || String(url || '').split('/').pop();
     try {
-      var payload = await mcpAppCall('read_export', {session_id:mcpApp.sessionId, file:file});
+      var payload = await mcpAppCall('read_bundle_file', {session_id:mcpApp.sessionId, path:'export/'+file});
       if (payload.bytes > 20*1024*1024){
         toast('产物 ' + (payload.bytes/1048576).toFixed(1) + 'MB 超过宿主 20MB 下载上限，请在宿主工作目录取件：export/' + file);
         return false;
@@ -4653,6 +4763,14 @@ var hostBridge = {
   save: function(ctx){ return hostBridge.impl().save(ctx); },
   asset: function(ctx){ return hostBridge.impl().asset(ctx); },
   intent: function(type, payload, embeddedMessage, fallbackText){ return hostBridge.impl().intent(type, payload, embeddedMessage, fallbackText); },
+  /* P3.1（2026-10-28）：恢复族（cancel / stop / retry / resend / list）的**唯一入口**——
+     调用方不再点名 `bridge*`；轨 B 走 HTTP，轨 A 只有 list/retry（= 按当前版本重新提交），
+     嵌入/静态无此能力 → **明确拒绝**（"点了没反应"的成因之一正是这里过去没有入口）。 */
+  recover: function(op, x, mode){
+    var impl = hostBridge.impl();
+    if (impl && typeof impl.recover === 'function') return impl.recover(op, x, mode);
+    return Promise.reject(new Error('当前形态（' + hostBridge.kind + '）不支持意图恢复：请在轨 B 或独立窗口处理'));
+  },
   status: function(){ return hostBridge.impl().status(); },
   poll: function(){ return hostBridge.impl().poll(); },
   viewport: function(){ return hostBridge.impl().viewport(); },
@@ -4870,7 +4988,7 @@ function openHtml(text, name, handle, assetsUrl, deckPath, opts){
              ? opts.exportBaseUrl.replace(/\/?$/, '/')
              : (triDeckBase !== null ? triDeckBase + 'export/' : null);
   /* 轨 A（MCP Apps）：View 没有自己的产物源，相对路径会打到**宿主源**（404 噪音，甚至误读
-     宿主资源）。因此这里不设产物基址；产物读取只走 read_export（见 mcpAppHost.download），
+     宿主资源）。因此这里不设产物基址；产物读取只走 read_bundle_file（export/ 前缀）（见 mcpAppHost.download），
      对比/导出视图在轨 A 明确按"无产物通道"处理（设计 §5.11 允许的降级）。 */
   if (typeof hostBridge !== 'undefined' && hostBridge.kind === 'mcp-app'){ triDeckBase = null; triBaseUrl = null; }
   triPages = []; triMissing = {}; triStatus = 'idle';
@@ -5537,6 +5655,9 @@ $('annoSubmit').addEventListener('click', function(){
   closeAnnoModal();
   rebuildAnnoMarks();
   renderAnnoList();
+  /* v3.9.7：提交即发送——与「一键转换」同体验，不再要求手动复制或二次点击。
+     非发送轨（static/嵌入）由 hostBridge.intent 降级，并给出明确提示（不再静默）。 */
+  sendAnnotations({skipUnchanged:true});
 });
 /* Esc 关闭弹窗 = 取消 */
 window.addEventListener('keydown', function(e){
@@ -5650,13 +5771,22 @@ $('btnExportAnno').addEventListener('click', async function(){
   var ok = await copyText(out.text);
   toast(ok ? '批注指令已复制（尚未提交）' : '复制失败，请检查剪贴板权限');
 });
-$('btnSendAnno').addEventListener('click', async function(){
-  if (!annotations.length) return;
+/* v3.9.7：批注发送统一入口——「提交批注」（自动，内容未变则跳过）与清单里的「发送给 AI」（显式，总是发）
+   共用同一条路径。发送轨由 hostBridge.intent 决定；static/嵌入 轨降级为复制并**明确提示**。 */
+async function sendAnnotations(opts){
+  opts = opts || {};
+  if (!annotations.length) return false;
+  if (opts.skipUnchanged && !annoUnexported){ return false; }   /* 自动路径：清单没变就不重复发送 */
   var out=buildAnnoExport();
   try{
     await bridgeSend('anno.submitted',out.payload,{type:'pptx-html:annotations',payload:out.payload},out.text);
     annoUnexported=false;bridge.annotationGeneration++;renderAnnoList();bridgeScheduleDraft();
-  }catch(e){toast('批注发送失败：'+e.message);}
+    return true;
+  }catch(e){ toast('批注发送失败：'+e.message); return false; }
+}
+$('btnSendAnno').addEventListener('click', async function(){
+  if (!annotations.length) return;
+  await sendAnnotations();
 });
 
 async function writeFileToHandle(handle, content){
@@ -5693,7 +5823,7 @@ async function replaceImage(img){
   var file = await pickImageFile();
   if (!file) return;   /* 用户取消 / 未选到文件 */
 
-  /* 当前文件名/目录的真相源是**引用**，不是渲染用的 src：轨 A 的图片经 read_asset 水合成
+  /* 当前文件名/目录的真相源是**引用**，不是渲染用的 src：轨 A 的图片经 read_bundle_file 水合成
      data: URI（相对路径留在 data-pptx-src 里），照 src 取名字会算出 `iVBORw0…==.png`
      这种垃圾名（会照此写进受管 assets/ 并把引用指向不存在的文件）。 */
   var curSrc = (img.getAttribute('data-editor-cache-orig') || img.getAttribute('data-pptx-src')
@@ -5799,7 +5929,7 @@ async function serializeClean(){
     n.setAttribute('src', n.getAttribute('data-editor-cache-orig'));
     n.removeAttribute('data-editor-cache-orig');
   });
-  /* 轨 A 的 read_asset 水合（data: URI）还原为 assets/ 相对路径：磁盘 deck 必须保持纯净，
+  /* 轨 A 的 read_bundle_file 水合（data: URI）还原为 assets/ 相对路径：磁盘 deck 必须保持纯净，
      数据 URI 只活在沙箱内的渲染态（设计 §5.2 方案 a） */
   Array.prototype.forEach.call(clone.querySelectorAll('[data-pptx-src]'), function(n){
     n.setAttribute('src', n.getAttribute('data-pptx-src'));
@@ -6781,7 +6911,9 @@ function openBrief(){
   /* Bridge 态每次进入 brief 视图拉取最新 brief_options（覆盖语义：agent 可再次
      open_editor(brief_options=...) 更新；P1 不做驻留页实时推送，重进视图生效） */
   if (bridge.enabled && bridge.sessionId){
-    bridgeFetch('/api/bridge/status', { method:'POST', body: JSON.stringify({ session_id: bridge.sessionId }) })
+    /* P3.1：状态刷新走策略面，不再直接 bridgeFetch（此处门是轨 B 的——轨 A 的
+       brief_options/deckKnown 由 mcpAppApplyStatus 直接写入，不需要在这里重复取）。 */
+    Promise.resolve(hostBridge.status())
       .then(function(st){
         bridge.briefOptions = (st && st.brief_options) || null;
         bridge.deckKnown = (st && st.phase && st.phase !== 'briefing') || !!(st && st.deck_path);
@@ -7068,9 +7200,14 @@ function briefRenderSubmission(stateName,message,meta){
   box.dataset.state=stateName;var line=box.querySelector('span');line.textContent='';var strong=document.createElement('b');strong.textContent=label;line.appendChild(strong);line.appendChild(document.createTextNode(' · '+detail));
   var busy=briefSubmissionBusy(),item=bridge.intents[bridge.briefSubmission.intentId];
   $('btnBriefSend').disabled=busy;$('btnBriefSend').setAttribute('aria-busy',busy?'true':'false');
-  $('btnBriefStop').hidden=!(item&&item.status==='processing');
-  $('btnBriefResume').hidden=!(item&&item.status==='interrupted');
-  $('btnBriefRetry').hidden=!(item&&(item.status==='unconfirmed'||['failed','conflict','interrupted'].indexOf(item.status)>=0));
+  /* 轨 A（MCP Apps）不渲染这三个恢复按钮：理由同 bridgeRenderTasks——沙箱里拿不到 bridge 凭证，
+     重发/续用/重建都走 bridgeFetch（需 bridge.token，只有轨 B 由 bridgeParseLaunch 设置），在轨 A
+     点必失败（提交失败后 status='failed' 会让「重新构建」真的露出来）；app-only 的意图恢复工具已在
+     1027 移除（见 docs/progress/1027_tool_surface_slimming.md）。轨 B 行为不变。 */
+  var trackA=(typeof hostBridge!=='undefined'&&hostBridge.kind==='mcp-app');
+  $('btnBriefStop').hidden=trackA||!(item&&item.status==='processing');
+  $('btnBriefResume').hidden=trackA||!(item&&item.status==='interrupted');
+  $('btnBriefRetry').hidden=trackA||!(item&&(item.status==='unconfirmed'||['failed','conflict','interrupted'].indexOf(item.status)>=0));
   $('btnBriefRetry').textContent=item&&item.status==='unconfirmed'?'重发确认':'重新构建';
 }
 function briefObserveIntent(item){
@@ -7126,11 +7263,12 @@ $('btnBriefSend').addEventListener('click', async function(){
 });
 $('btnBriefRetry').addEventListener('click',function(){
   var item=bridge.intents[bridge.briefSubmission.intentId];if(!item)return;
-  if(item.status==='unconfirmed')bridgeResendIntent(item);
-  else if(['failed','conflict','interrupted'].indexOf(item.status)>=0)bridgeRetryIntent(item,'rebuild');
+  /* P3.1：经策略面（轨 B 走 HTTP；轨 A 若是 retry 则等价于"按当前版本重新提交"） */
+  if(item.status==='unconfirmed')hostBridge.recover('resend',item);
+  else if(['failed','conflict','interrupted'].indexOf(item.status)>=0)hostBridge.recover('retry',item,'rebuild');
 });
-$('btnBriefResume').addEventListener('click',function(){var item=bridge.intents[bridge.briefSubmission.intentId];if(item&&item.status==='interrupted')bridgeRetryIntent(item,'resume');});
-$('btnBriefStop').addEventListener('click',function(){var item=bridge.intents[bridge.briefSubmission.intentId];if(item&&item.status==='processing')bridgeStopIntent(item);});
+$('btnBriefResume').addEventListener('click',function(){var item=bridge.intents[bridge.briefSubmission.intentId];if(item&&item.status==='interrupted')hostBridge.recover('retry',item,'resume');});
+$('btnBriefStop').addEventListener('click',function(){var item=bridge.intents[bridge.briefSubmission.intentId];if(item&&item.status==='processing')hostBridge.recover('stop',item);});
 
 /* ============================================================
    文字样式编辑（v1.6 §1，契约"样式覆盖"节）
@@ -7587,7 +7725,7 @@ async function refreshExport(){
   }
   /* ready=有 manifest；none=通道可用但无产物（从未翻转）；unavailable=
      file:// 直开（fetch 被浏览器拦截）或 MCP Apps 轨（View 无产物源）——诚实降级为引导
-     文案，不报错不伪装。轨 A 的产物读取走 read_export，报「无产物通道」。 */
+     文案，不报错不伪装。轨 A 的产物读取走 read_bundle_file（export/ 前缀），报「无产物通道」。 */
   triStatus = triManifest ? 'ready'
             : (location.protocol === 'file:' || trackA ? 'unavailable' : 'none');
   buildTriPages();
@@ -8237,10 +8375,16 @@ function pollConvertStatus(){
 }
 async function convertDeck(){
   if(converting||!state.loaded)return;
-  var host={type:'pptx-html:export-intent',action:'re-export',slideIds:null,formats:['pptx','svg','png','pdf']};
-  if(state.embedded){window.parent.postMessage(host,'*');toast('已向宿主发送一键转换请求');return;}
-  if(bridge.enabled){
-    try{await bridgeSubmitIntent('convert.requested',{formats:['pptx','vector','pdf'],scope:'all'});toast('转换请求已进入 Agent 队列');}catch(e){toast('转换请求失败：'+e.message);}return;
+  var cmdText='python3 skills/html-pptx/scripts/export-pptx.py '+(state.deckPath||'<deck>/index.html')+' --force --track both';
+  if(hostKindDetect()!=='static'){
+    /* v3.9.7：统一走策略面（与 reFlip 同一实现）。原先这里手写 hostKindDetect() 分支——既与 reFlip
+       重复，又漏掉 static 臂；轨判定与降级提示（嵌入态不再静默、静态态明确复制）都交给 hostBridge.intent。 */
+    try{
+      await bridgeSend('convert.requested',{formats:['pptx','vector','pdf'],scope:'all'},
+        {type:'pptx-html:export-intent',action:'re-export',slideIds:null,formats:['pptx','svg','png','pdf']},cmdText);
+      toast('转换请求已提交');
+    }catch(e){toast('转换请求失败：'+e.message);}
+    return;
   }
   if(state.backend&&state.backend.convert&&state.deckPath){
     converting=true;$('btnConvert').disabled=true;$('btnConvert').textContent='转换执行中…';
@@ -8531,17 +8675,52 @@ function bridgeRenderTasks(){
     var head=document.createElement('div');head.className='bridge-task-head';var name=document.createElement('b');name.textContent=x.type||'intent';
     var st=document.createElement('span');st.className='bridge-'+x.status;st.textContent=x.status+(x.attempt?' · attempt '+x.attempt:'');head.appendChild(name);head.appendChild(st);row.appendChild(head);
     var msg=document.createElement('div');msg.className='bridge-task-msg';msg.textContent=(x.error&&x.error.message)||(x.result_summary&&x.result_summary.message)||('seq '+(x.seq||'待确认'));row.appendChild(msg);
-    if(['failed','conflict','interrupted'].indexOf(x.status)>=0||x.status==='pending'||x.status==='processing'||x.status==='unconfirmed'){
+    /* v3.9.7：基线过期的 pending 行先说清楚——否则用户要等它被认领时才突然看到 conflict。 */
+    if(x.status==='pending'&&x.base_revision&&currentRevision()&&x.base_revision!==currentRevision()){
+      var staleTag=document.createElement('div');staleTag.className='bridge-task-msg';
+      staleTag.textContent='基线已过期（认领时会冲突）——可「按当前版本重新提交」';
+      row.appendChild(staleTag);
+    }
+    /* 轨 A（MCP Apps）不渲染任务恢复按钮：沙箱拿不到 bridge 凭证，取消/停止/重发/续用/重建都走
+       bridgeFetch（需 bridge.token，只在轨 B 由 bridgeParseLaunch 设置），在轨 A 必然失败；app-only
+       的意图恢复工具已在 1027 移除（见 docs/progress/1027_tool_surface_slimming.md）。轨 B 行为不变。 */
+    var trackA=(typeof hostBridge!=='undefined'&&hostBridge.kind==='mcp-app');
+    if(!trackA&&(['failed','conflict','interrupted'].indexOf(x.status)>=0||x.status==='pending'||x.status==='processing'||x.status==='unconfirmed')){
       var acts=document.createElement('div');acts.className='bridge-task-actions';
-      if(x.status==='pending'){var c=document.createElement('button');c.textContent='取消';c.onclick=function(){bridgeCancelIntent(x.id);};acts.appendChild(c);}
-      if(x.status==='processing'){var s=document.createElement('button');s.className='bridge-danger';s.textContent='停止处理';s.onclick=function(){bridgeStopIntent(x);};acts.appendChild(s);}
-      if(x.status==='unconfirmed'&&x.request){var u=document.createElement('button');u.textContent='重发确认';u.onclick=function(){bridgeResendIntent(x);};acts.appendChild(u);}
-      if(x.status==='interrupted'){var p=document.createElement('button');p.textContent='续用原副本';p.onclick=function(){bridgeRetryIntent(x,'resume');};acts.appendChild(p);}
-      if(['failed','conflict','interrupted'].indexOf(x.status)>=0){var r=document.createElement('button');r.textContent='从当前版本重建';r.onclick=function(){bridgeRetryIntent(x,'rebuild');};acts.appendChild(r);}
+      if(x.status==='pending'){var c=document.createElement('button');c.textContent='取消';c.onclick=function(){hostBridge.recover('cancel',x);};acts.appendChild(c);}
+      if(x.status==='processing'){var s=document.createElement('button');s.className='bridge-danger';s.textContent='停止处理';s.onclick=function(){hostBridge.recover('stop',x);};acts.appendChild(s);}
+      if(x.status==='unconfirmed'&&x.request){var u=document.createElement('button');u.textContent='重发确认';u.onclick=function(){hostBridge.recover('resend',x);};acts.appendChild(u);}
+      if(x.status==='interrupted'){var p=document.createElement('button');p.textContent='续用原副本';p.onclick=function(){hostBridge.recover('retry',x,'resume');};acts.appendChild(p);}
+      if(['failed','conflict','interrupted'].indexOf(x.status)>=0){var r=document.createElement('button');r.textContent='从当前版本重建';r.onclick=function(){hostBridge.recover('retry',x,'rebuild');};acts.appendChild(r);}
       row.appendChild(acts);
+    } else if(trackA){
+      /* v3.9.7：轨 A 没有 retry 通道（1027 删了 app-only 恢复工具、沙箱也拿不到 bridge 凭证），
+         改用 app-only 的 submit_intent **按当前版本重新提交**——结果等价于重建，且不扩工具面/不破红线。
+         只在"可处置"时出现：recoverable，或 pending 且基线已过期。 */
+      var needsResend=(['failed','conflict','interrupted'].indexOf(x.status)>=0)
+        || (x.status==='pending'&&x.base_revision&&currentRevision()&&x.base_revision!==currentRevision());
+      if(needsResend&&x.payload&&x.seq){
+        var actsA=document.createElement('div');actsA.className='bridge-task-actions';
+        var ra=document.createElement('button');ra.textContent='按当前版本重新提交';
+        ra.onclick=function(){bridgeResubmitIntent(x);};actsA.appendChild(ra);
+        row.appendChild(actsA);
+      }
     }
     box.appendChild(row);
   });
+}
+/* v3.9.7：把一条旧请求**按当前版本重新提交**（轨 A 无 retry 通道时的等价处置）。
+   载荷来自 get_status 的轻量摘要；没有载荷时不假装能重放，如实提示。 */
+async function bridgeResubmitIntent(x){
+  if(!x||!x.type) return;
+  if(!x.payload){ toast('这条请求没有可重放的载荷，请在对应面板重新发起'); return; }
+  try{
+    var prefix=String(x.type).split('.')[0];
+    await bridgeSend(x.type, x.payload,
+      {type:'pptx-html:'+prefix+'-intent', payload:x.payload},
+      JSON.stringify({type:x.type, payload:x.payload}, null, 2));
+    toast('已按当前版本重新提交：'+x.type);
+  }catch(e){ toast('重新提交失败：'+e.message); }
 }
 async function bridgeRecoverIntents(){
   var cursor=0,merged={};

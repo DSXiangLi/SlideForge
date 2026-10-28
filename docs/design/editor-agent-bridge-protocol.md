@@ -66,7 +66,7 @@ v1 同一目录只登记一个受管 deck，避免共享 assets/fonts/export 归
 会话聚合 agent_state 为 `offline/waiting/working/paused/recovering`；调用者独立 consumer_state 为 `registered/waiting/working/paused/expired`。daemon 存活或 consumer 已登记不等于 Agent 正在等待。waiting 的有效性由 lease 证明；processing 的有效性由持久 owner 记录证明，lease 只反映最近活性。管理 open 与 await 的职责分离：
 
 1. `open_editor` 的管理 open 事务登记/刷新本 consumer，记录 `(session_id,consumer_id,state,registered_at,requires_open,lease_until)`。无人 owner 时本 consumer 为 registered、无 owner；若已有别人 waiting 有效 owner 或任意 processing owner，仅把本 consumer 登记为 registered，不抢占、不终止对方。若本 consumer 已是 owner，刷新登记；processing 不因 lease 时间恢复或失效。
-2. `await_intent` 在事务内 acquire：先核验本 consumer 已 open 登记且 requires_open=false；对 registered/paused/expired 且不存在 processing/未完 publication、无人有效 waiting owner的情况取得owner并waiting，建立90秒lease。同一 waiting owner重入；他人有效 waiting owner或任意 processing owner一律`SESSION_BUSY`。waiting lease 过期可回收；processing 绝不因 lease 过期转 interrupted。存在 recoverable 请求时仍返回`RECOVERY_REQUIRED`，直到用户明确处理。
+2. `await_intent` 在事务内 acquire：先核验本 consumer 已 open 登记且 requires_open=false；对 registered/paused/expired 且不存在 processing/未完 publication、无人有效 waiting owner的情况取得owner并waiting，建立90秒lease。同一 waiting owner重入；他人有效 waiting owner或任意 processing owner一律`SESSION_BUSY`。waiting lease 过期可回收；processing 绝不因 lease 过期转 interrupted。**恢复门是 per-intent 而非 session 级**（P4.3，2026-10-27）：认领循环只挑 `pending` 行，一条 `interrupted/conflict/failed` 自身不是 `pending`、天然不可被认领，因此存在 recoverable 请求时**不再**对整会话返回 `RECOVERY_REQUIRED`；同会话的其它 `pending` 请求可正常认领，待恢复项改由 `agent_state=recovering` 与 `recoverable_count` 如实呈现。
 3. claim把pending转processing后，owner从“可过期waiting lease”升级为“持久processing owner”。90秒字段继续由15秒heartbeat/progress更新，只供`last_seen/health`展示和诊断，不是fencing deadline。同一owner持当前attempt即使超过90秒再heartbeat、progress、complete/fail，仍恢复并通过所有权检查；第二consumer不能因telemetry过期接管。正常redelivery保持同一attempt/work_path；resume已经在retry事务中递增attempt，因此不需要新增栅栏字段。
 4. processing 只由以下事件结束：该 owner `push_update(complete|fail)`；原 consumer `close_session`；浏览器对该 intent 显式停止；daemon restart 的保守恢复；真实 base CAS、validation/seal 或 publication 结果使其进入 conflict/failed/interrupted/succeeded。单纯时间经过、心跳丢失、页面关闭、一次 await/MCP tool timeout 都不得结束 processing。
 5. close 将本consumer置paused、requires_open=true；若它拥有 processing，则该请求转interrupted并释放owner，否则仅释放waiting owner。同consumer必须再次open_editor重复同目标/session，事务清除requires_open并回registered，随后才能await。heartbeat、get_status和成功receipt重放均不能越过显式close闸门。
@@ -75,8 +75,8 @@ v1 同一目录只登记一个受管 deck，避免共享 assets/fonts/export 归
 - `await_intent` 的最小/默认/最大值集中为 1/3600/3600 秒。默认一小时用于页面脑暴；等待占用当前 MCP tool call，但用户可由宿主取消，取消本次等待不删除 pending，也不改变已经 processing 的请求。
 - waiting long poll 超时返回 timeout，不产生假请求，不推进执行状态；waiting owner 的90秒lease由代理 heartbeat维持，和单次long poll timeout是两个概念。
 - 用户选择继续优化时 Agent 重挂；用户明确结束时 close_session。脑暴提交后可关 tab，已接收的请求仍执行。
-- 页面关闭不取消任务。pending 可取消；processing 的浏览器显式停止转interrupted并释放owner，但只撤销 Bridge 写入/发布资格，不保证杀死外部进程、供应商任务或撤销费用。
-- daemon restart 无法证明旧进程仍可安全通信，因此启动恢复仍把遗留 processing 置interrupted并清owner，避免死进程永久锁定。历史原因标为 `lease-expired` 的 interrupted 记录不自动改状态，但可按§6.1走resume。
+- 页面关闭不取消任务。pending 可取消；processing 的浏览器显式停止转interrupted并释放owner，但只撤销 Bridge 写入/发布资格，不保证杀死外部进程、供应商任务或撤销费用。**interrupted 再取消即放弃**（P4.1，2026-10-27）：→`cancelled`（清 owner/lease、attempt 同步置 `cancelled`、写 `intent-status` 事件），响应 `external_work_may_continue:true`——放弃只让状态机前进，同样不保证终止外部进程或撤销费用。
+- daemon restart 无法证明旧进程仍可安全通信，因此启动恢复仍把遗留 processing 置interrupted并清owner，避免死进程永久锁定。**陈旧自愈**（P4.2，2026-10-27）：无 lease 且 `updated_at` 早于 `STALE_RECOVERY_GRACE_SEC`（600 秒）的 `interrupted/failed` 记录，由 daemon 在启动与每次认领前自动置 `cancelled` 并写 `intent-status` 事件（"事事有回响"）；`conflict` **不在**自愈范围——基线冲突必须由用户在页面上决定 rebuild/resume。历史原因标为 `lease-expired` 的 interrupted 记录同样受该自愈判据约束（不再永不自愈），未过期时仍可按§6.1走resume。
 - 尚未认领的 pending 请求在新消费者 attach 后可以正常执行；已成功请求只返回记录，不再次认领。
 
 ### 3.3 浏览器
@@ -91,6 +91,8 @@ pending → processing → succeeded
                     → conflict
                     → interrupted
 pending → cancelled
+interrupted                 → 用户取消（放弃，P4.1）              → cancelled
+interrupted / failed        → 陈旧自愈（无 lease 且超宽限期，P4.2）→ cancelled
 failed/conflict/interrupted → 用户明确 rebuild → pending（attempt 增加，新work_path）
 interrupted                 → 用户明确 resume  → pending（attempt 增加，复用原work_path）
 ```
@@ -162,7 +164,7 @@ Agent 使用纪律：Bridge 首次打开后的当前回合固定且只调用一�
 
 示例中的摘要字符串不是合法 hash 的格式范本；实际 revision 为 `sha256:` 加 64 个小写十六进制字符。所有可变输出均按真实任务生成。
 
-超时结果：`{ok:true,kind:'timeout',session_id,page_online,agent_state,pending_count,interrupted_count}`。他人占有返回 `SESSION_BUSY`；待恢复请求返回 `RECOVERY_REQUIRED` 及 intent_id/status，不自动绕过。
+超时结果：`{ok:true,kind:'timeout',session_id,page_online,agent_state,pending_count,interrupted_count}`。他人占有返回 `SESSION_BUSY`。**session 级恢复门已移除（P4.3）**：存在 recoverable 请求不再阻断整会话的认领，待恢复项由 `agent_state=recovering` / `recoverable_count` 如实呈现；仅当被认领的 `pending` 请求自身基线已过期时，认领才返回 `RECOVERY_REQUIRED`（带 `intent_id` / `status=conflict`），须由用户决定 rebuild/resume。
 
 取消工具等待仅停止本次 long poll，释放等待连接，不删除 pending 或成功记录。认领与取消竞争时 processing 保留，重试按同 owner 重放。
 
@@ -218,7 +220,7 @@ fresh是上述完整集合的全局binding，不按formats子集标fresh。conve
 
 输入：session_id 必填。
 
-返回：`{ok,session_id,phase,deck_path,target_path,revision,export_revision,export_stale,agent_state,page_online,any_dirty,clients,pending_count,processing,interrupted,recoverable_count,latest_event_id,brief_options,capabilities}`。brief_options 为会话当前存储的动态脑暴选项（§5.1；未注入为 null），浏览器据此决定脑暴页渲染动态问题组或回落静态问卷。recoverable_count为当前failed/conflict/interrupted请求总数；不是恢复列表，详情及分页必须调用浏览器POST /api/intents/query。processing/interrupted仍只含id/type/attempt/status摘要，不返回完整HTML或历史payload。clients含online、dirty（离线null）、active_edit、draft_pending、revision、last_seen。未知session返回SESSION_NOT_FOUND。
+返回：`{ok,session_id,phase,deck_path,target_path,revision,export_revision,export_stale,agent_state,page_online,any_dirty,clients,pending_count,processing,interrupted,intents,recoverable_count,latest_event_id,brief_options,capabilities}`。**`intents`（2026-10-28 新增）**是轻量意图摘要数组，供**轨 A（MCP Apps）**在无 query 通道时展示队列：元素 `{id,seq,type,status,attempt,base_revision,updated_at}`，`payload` 仅在 `payload_bytes ≤ 16 KiB` 时附带（供"按当前版本重新提交"）；只列非终态 + recoverable，按 seq 升序、上限 50 条。brief_options 为会话当前存储的动态脑暴选项（§5.1；未注入为 null），浏览器据此决定脑暴页渲染动态问题组或回落静态问卷。recoverable_count为当前failed/conflict/interrupted请求总数；不是恢复列表，详情及分页必须调用浏览器POST /api/intents/query。processing/interrupted仍只含id/type/attempt/status摘要，不返回完整HTML或历史payload。clients含online、dirty（离线null）、active_edit、draft_pending、revision、last_seen。未知session返回SESSION_NOT_FOUND。
 
 open_editor与get_status的capabilities统一为 `{local_convert:boolean,git_ready:boolean}`：前者仅表示daemon是否显式启用--convert，后者表示本任务Git保护基线/仓库当前可用，不证明未保存DOM已备份。浏览器完成首次heartbeat绑定后，通过已有鉴权POST /api/bridge/status读取能力；不调用管理open获取、不把这些字段泄露进公共health。真正执行时仍检查互斥/权限/保护状态，capabilities不是绕过门禁的许可。
 
@@ -295,7 +297,7 @@ intent POST 的完整 JSON body≤2MiB；payload 按递归对象键排序、数�
 | POST /api/bridge/heartbeat | 管理或浏览器 | §7.3 role 分支精确 body；续租或更新本 client 快照 |
 | POST /api/intent | 浏览器 | 公共请求 → `{ok,accepted,intent_id,seq,status}` |
 | POST /api/intent/retry | 浏览器 | §6.1 session_id/intent_id/retry_id/expected_attempt/mode(`rebuild|resume`)/base_revision/confirmed → 不可变 retry receipt |
-| POST /api/intent/cancel | 浏览器 | session_id/intent_id；pending→cancelled，processing→interrupted并释放owner；不承诺终止外部进程/费用 |
+| POST /api/intent/cancel | 浏览器 | session_id/intent_id；pending→cancelled，processing→interrupted并释放owner，**interrupted→cancelled（放弃，P4.1）**；不承诺终止外部进程/费用 |
 | GET /api/events?session_id=...&after=... | 浏览器 | text/event-stream，after 为非负 event id |
 | POST /api/bridge/draft | 浏览器 | session_id/client_id/html/annotations/base_revision → `{ok,draft_id}`；创建 client 必须匹配绑定 |
 | GET /api/bridge/drafts?session_id=... | 浏览器 | 当前 session 最近50条草稿元数据，含创建 client；不返完整正文 |
