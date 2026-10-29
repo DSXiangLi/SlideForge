@@ -7177,7 +7177,7 @@ function buildBriefExport(){
     ' ｜ 明暗：' + (briLab || '按主题世界决定（缺省）'));
   lines.push('主题：' + themeLine);
   lines.push('字体：' + briefFieldText(fontLab, briefDefLabel('font'), briefDynDefaulted('font', briefAnswers.font)) +
-    ' ｜ 插画：' + (illLab || briefDefLabel('illust') + '（缺省）'));
+    ' ｜ 配图方式：' + (illLab || briefDefLabel('illust') + '（缺省）'));
   /* ⑧b 混合烙入：烙入页清单（缺省驱动——不答展开为语义清单"封面+各章节扉页+收束页"，
      脑暴时 deck 尚不存在、无真实页 id；Step 1 页计划阶段落到具体 slide id） */
   var bakePages = null, bakeDefaulted = false;

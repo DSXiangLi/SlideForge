@@ -52,14 +52,19 @@ def read_deck(deck):
 
 def setup_serve():
     os.makedirs(SERVE, exist_ok=True)
-    for name, target in [('editor.html', os.path.join(ROOT, 'editor.html')),
-                         ('decks', os.path.join(ROOT, 'tests/decks'))]:
-        dst = os.path.join(SERVE, name)
-        if os.path.islink(dst):
-            os.remove(dst)
-        elif os.path.exists(dst):
-            shutil.rmtree(dst)
-        os.symlink(target, dst)
+    # editor.html 必须是**副本**而不是软链：软链会让"测试脚本往 serve 目录写一份对照版本"直接
+    # 改坏仓库源码（2026-10-29 实际踩过——一次对照实验把仓库 editor.html 覆盖成了 HEAD 版）。
+    # decks/ 体积大且从不被写，保留软链。
+    dst_editor = os.path.join(SERVE, 'editor.html')
+    if os.path.islink(dst_editor) or os.path.exists(dst_editor):
+        os.remove(dst_editor)
+    shutil.copy(os.path.join(ROOT, 'editor.html'), dst_editor)
+    dst_decks = os.path.join(SERVE, 'decks')
+    if os.path.islink(dst_decks):
+        os.remove(dst_decks)
+    elif os.path.exists(dst_decks):
+        shutil.rmtree(dst_decks)
+    os.symlink(os.path.join(ROOT, 'tests/decks'), dst_decks)
     shutil.copy(os.path.join(ROOT, 'tests/harness/harness.html'), os.path.join(SERVE, 'harness.html'))
     os.makedirs(RESULTS, exist_ok=True)
 
@@ -704,9 +709,19 @@ def test_annotation_e2e(browser):
         fs = df.evaluate("parseFloat(getComputedStyle(document.querySelector('.anno-badge')).fontSize)")
         if abs(fs - 13 / scale) > 0.6:
             problems.append('角标未反缩放：font-size=%.2f，期望 %.2f' % (fs, 13 / scale))
+        # v3.9.7「批注提交即发送」：提交那一刻就整份发出 ⇒ 提交后**不应**再有"未导出"提示
+        # （与下方"导出后清空提示"同源）。旧断言期望"提交后仍提示未导出"，与该产品决策直接
+        # 冲突，已于 2026-10-29 更正；并补一条"确实发出去了"的正向断言，避免把"什么都没发生"
+        # 当成通过。
+        page.wait_for_function(
+            "() => document.getElementById('ed').contentWindow.document"
+            ".getElementById('annoUnexp').textContent === ''", timeout=5000)
         unexp = editor_frame(page).evaluate("document.getElementById('annoUnexp').textContent")
-        if unexp != '未导出':
-            problems.append('未导出提示缺失：%r' % unexp)
+        if unexp != '':
+            problems.append('提交后仍提示未导出：%r' % unexp)
+        if page.evaluate(
+                "window.__inbox.filter(m => m && m.type === 'pptx-html:annotations').length") < 1:
+            problems.append('提交批注后没有发出 pptx-html:annotations（提交即发送失效？）')
         if editor_frame(page).evaluate('window.state.dirty') is not False:
             problems.append('批注置脏了！')
         if dirty_events(page) != []:

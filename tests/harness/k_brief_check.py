@@ -12,7 +12,7 @@
      「design-brief」，且未作答组标注（缺省）；
   ④ 状态隔离：脑暴页选择不得污染设计决策抽屉的 answers（theme 仍为 null）；
   ⑤ Esc 关闭覆盖层；
-  ⑥ 烙入策略三态（imagegen v2 G1）：⑧b 三态选项齐备；条件追问随「混合烙入」
+  ⑥ 配图方式三态（imagegen v2 G1）：⑧b 三态选项齐备；条件追问随「部分页整页重绘」
      显隐；缺省展开为语义清单（封面/各章节扉页/收束页 + defaulted）；
      显式清单分隔符解析；纯 HTML 不携带 bake_intent。
 退出码：全过 0，任一失败 1。
@@ -93,10 +93,9 @@ def main():
                   and sorted(ba['cover']) == ['date', 'title', 'toc'],
                   repr(ba))
 
-            # ③ 生成简报
-            page.click('#btnBriefGen')
-            page.wait_for_selector('#briefResult:not([hidden])')
-            text = page.inner_text('#briefPreview')
+            # ③ 简报内容（v3.9.x 起「生成」并入「发送」，`#btnBriefGen` 已不存在：预览由
+            #    buildBriefExport() 产出，这里直接读构造器输出，不为了断言真的提交一次）
+            text = page.evaluate("() => buildBriefExport().text")
             for kw in ['需求简报', '现场演讲', 'B1', '柠檬黄', 'design-brief',
                        '请按以下需求简报制作 HTML 幻灯片', '章节目录',
                        'SLOT: theme tokens', 'SLOT: theme css']:
@@ -107,6 +106,7 @@ def main():
             states = page.evaluate("() => ['loading','pending','processing','succeeded','error'].every(s => document.querySelector('.brief-submit-status[data-state=\"'+s+'\"]') || [...document.styleSheets].some(sheet => { try { return [...sheet.cssRules].some(r => r.selectorText && r.selectorText.includes('data-state=\"'+s+'\"')); } catch(e) { return false; } }))")
             check('③e 状态机样式覆盖 loading/pending/processing/succeeded/error', states)
             page.click('#btnBriefSend')
+            page.wait_for_selector('#briefResult:not([hidden])')
             page.wait_for_function("() => bridge.briefSubmission.state === 'succeeded' && bridge.briefSubmission.route === 'copy'")
             copy_status = page.inner_text('#briefSubmitStatus')
             check('③f copy 路由文案独立且不冒充 MCP', '已复制' in copy_status and '未进入 Bridge 队列' in copy_status and '没有 MCP tool result' in copy_status, copy_status)
@@ -119,43 +119,40 @@ def main():
             check('④ 抽屉 answers 未被脑暴页污染（theme=%r）' % drawer_theme,
                   drawer_theme is None)
 
-            # ⑥ 烙入策略三态（imagegen v2 G1 / briefing.md 第⑧组）：
+            # ⑥ 配图方式三态（imagegen v2 G1 / briefing.md 第⑧组）：
             #    ⑧b 三态单选 + 条件追问 + bake_intent 字段 + 缺省展开
             n_ill = page.evaluate(
                 "document.querySelectorAll('#briefOverlay .opt[data-id=\"html\"],"
                 "#briefOverlay .opt[data-id=\"ai\"],#briefOverlay .opt[data-id=\"bake\"]').length")
-            check('⑥a 插画模式三态选项齐备（html/ai/bake）', n_ill == 3)
+            check('⑥a 配图方式三态选项齐备（html/ai/bake）', n_ill == 3)
             bake_hidden = page.evaluate(
                 "document.getElementById('briefBakePages').style.display === 'none'")
-            check('⑥b 未选混合烙入时条件追问隐藏', bake_hidden)
+            check('⑥b 未选「部分页整页重绘」时条件追问隐藏', bake_hidden)
             page.click('#briefOverlay .opt[data-id="bake"]')
             bake_shown = page.evaluate(
                 "document.getElementById('briefBakePages').style.display !== 'none'")
-            check('⑥c 选「混合烙入」后条件追问显示', bake_shown)
-            page.click('#btnBriefGen')
-            text = page.inner_text('#briefPreview')
-            j = page.evaluate('window.briefLast.json')
+            check('⑥c 选「部分页整页重绘」后条件追问显示', bake_shown)
+            text = page.evaluate("() => buildBriefExport().text")
+            j = page.evaluate("() => buildBriefExport().json")
             bi = (j.get('answers') or {}).get('bake_intent') or {}
-            check('⑥d 缺省展开：文本「烙入：封面、各章节扉页、收束页（缺省）」',
-                  '插画：混合烙入' in text and '烙入：封面、各章节扉页、收束页（缺省）' in text)
+            check('⑥d 缺省展开：文本「配图方式：部分页整页重绘」+「整页重绘：封面、各章节扉页、收束页（缺省）」',
+                  '配图方式：部分页整页重绘' in text and '整页重绘：封面、各章节扉页、收束页（缺省）' in text)
             check('⑥e bake_intent 缺省展开为语义清单 + defaulted',
                   bi.get('pages') == ['封面', '各章节扉页', '收束页'] and bi.get('defaulted') is True,
                   repr(bi))
             page.fill('#briefBakePages input', '封面、 Q3 复盘页')
-            page.click('#btnBriefGen')
-            text = page.inner_text('#briefPreview')
-            j = page.evaluate('window.briefLast.json')
+            text = page.evaluate("() => buildBriefExport().text")
+            j = page.evaluate("() => buildBriefExport().json")
             bi = (j.get('answers') or {}).get('bake_intent') or {}
             check('⑥f 显式清单：分隔符解析 + 不再标缺省',
-                  '烙入：封面、Q3 复盘页' in text and '（缺省）' not in text.split('烙入：')[1].split('\n')[0]
+                  '整页重绘：封面、Q3 复盘页' in text and '（缺省）' not in text.split('整页重绘：')[1].split('\n')[0]
                   and bi.get('pages') == ['封面', 'Q3 复盘页'] and bi.get('defaulted') is False,
                   repr(bi))
             page.click('#briefOverlay .opt[data-id="html"]')
-            page.click('#btnBriefGen')
-            j = page.evaluate('window.briefLast.json')
-            check('⑥g 纯 HTML 不携带 bake_intent、无「烙入：」行',
-                  'bake_intent' not in (j.get('answers') or {})
-                  and '烙入：' not in page.inner_text('#briefPreview'))
+            j = page.evaluate("() => buildBriefExport().json")
+            t = page.evaluate("() => buildBriefExport().text")
+            check('⑥g 纯 HTML 不携带 bake_intent、无「整页重绘：」行',
+                  'bake_intent' not in (j.get('answers') or {}) and '整页重绘：' not in t)
             page.click('#briefOverlay .opt[data-id="bake"]')   # 还原现场，不干扰后续断言
 
             # ⑤ Esc 关闭

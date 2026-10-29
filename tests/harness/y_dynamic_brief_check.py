@@ -54,6 +54,32 @@ def check(label, cond, detail=''):
         FAILURES.append(label)
 
 
+def reenter_brief(page, marker, timeout=10000):
+    """关掉脑暴浮层再重新进入，返回"是否在 `#briefBody` 里看到 `marker`"。
+
+    为什么不用 Esc 关：焦点可能落在 deck 的 iframe 里，顶层 `window` 的 keydown 收不到——
+    实测按 Esc 后 `#briefOverlay` 仍是 show，而 rail 按钮 `#btnBrief` 正好被浮层盖住，
+    点它会被 Playwright 判为 "... intercepts pointer events"（这是 T35 长期红的**第一层**原因）。
+    改用浮层自己的 ✕，与用户操作一致。
+
+    **不抛异常**：`marker` 等不到时返回 False，交由调用点记 FAIL 并继续跑后面的断言——
+    否则一次超时会把整个 T35 的后续结果全部吞掉（2026-10-29 实测如此）。
+    """
+    if page.evaluate("() => document.getElementById('briefOverlay').classList.contains('show')"):
+        page.click('#btnBriefClose')
+        page.wait_for_function(
+            "() => !document.getElementById('briefOverlay').classList.contains('show')", timeout=timeout)
+    page.click('#btnBrief')
+    page.wait_for_function(
+        "() => document.getElementById('briefOverlay').classList.contains('show')", timeout=timeout)
+    try:
+        page.wait_for_function(
+            "m => document.getElementById('briefBody').innerText.includes(m)", arg=marker, timeout=timeout)
+        return True
+    except Exception:
+        return False
+
+
 def one_request(origin, path, body=None, bearer=None):
     headers = {}
     data = None
@@ -233,57 +259,61 @@ def main():
                 check('T35d-0 二次带参整体替换（响应回显新值）',
                       code_d == 200 and (opened_d.get('brief_options') or {}).get('context_summary')
                       == 'T35 验收·覆盖语义第二版', '%s' % code_d)
-                page.keyboard.press('Escape')
-                page.wait_for_timeout(200)
-                page.click('#btnBrief')
-                page.wait_for_timeout(600)
+                page.wait_for_timeout(800)
+                got_v2 = reenter_brief(page, 'T35 验收·覆盖语义第二版')
                 body_text2 = page.inner_text('#briefBody')
                 check('T35d-1 页面重进 brief 视图取到新值',
-                      '动态场景·重构汇报' in body_text2 and '动态场景·登台述职' not in body_text2)
+                      got_v2 and '动态场景·重构汇报' in body_text2 and '动态场景·登台述职' not in body_text2,
+                      '重进后 briefBody 未含新值（既有失败：服务端已存新 options，页面重进却没取到）: %r'
+                      % body_text2[:160])
                 code_k, opened_k = open_editor(origin, management)
                 check('T35d-2 不带参保持原值',
                       code_k == 200 and (opened_k.get('brief_options') or {}).get('context_summary')
                       == 'T35 验收·覆盖语义第二版', '%s' % code_k)
-                page.keyboard.press('Escape')
-                page.wait_for_timeout(200)
-                page.click('#btnBrief')
-                page.wait_for_timeout(600)
+                got_v2b = reenter_brief(page, 'T35 验收·覆盖语义第二版')
                 check('T35d-3 不带参后页面仍为新值',
-                      '动态场景·重构汇报' in page.inner_text('#briefBody'))
+                      got_v2b and '动态场景·重构汇报' in page.inner_text('#briefBody'))
 
                 # ---------- T35f 动态作答 → design-brief JSON 格式 diff ----------
-                page.click('[data-dyn-group="scene"] .opt[data-id="present"]')
-                page.click('[data-dyn-group="x-data"] .opt[data-id="__ai__"]')
-                # prefilled audience 不展开不修改 = 接受推断值
-                page.click('#btnBriefGen')
-                page.wait_for_selector('#briefResult:not([hidden])')
-                j = page.evaluate('window.briefLast.json')
-                ans = j.get('answers') or {}
-                expect_keys = {'topic', 'scene', 'audience', 'source', 'pages', 'theme', 'font',
-                               'motion', 'brightness', 'cover', 'illustration', 'density_derived'}
-                check('T35f-0 顶层与 answers 键结构（仅多可选 extras）',
-                      j.get('kind') == 'design-brief' and j.get('version') == 1
-                      and set(ans.keys()) == expect_keys | {'extras'}, repr(sorted(ans.keys())))
-                check('T35f-1 动态组选择映射回既有 answers 键（scene 键不变）',
-                      ans.get('scene', {}).get('choice') == 'present'
-                      and ans['scene'].get('label') == '动态场景·重构汇报'
-                      and ans['scene'].get('defaulted') is False, repr(ans.get('scene')))
-                check('T35f-2 prefilled 未修改按接受推断计入（不标缺省）',
-                      ans.get('audience', {}).get('choice') == 'exec'
-                      and ans['audience'].get('defaulted') is False, repr(ans.get('audience')))
-                check('T35f-3 x-* 条件组进 extras；「由 AI 决定」按缺省语义标注',
-                      (ans.get('extras') or {}).get('x-data', {}).get('choice') == 'hero'
-                      and ans['extras']['x-data'].get('defaulted') is True
-                      and ans['extras']['x-data'].get('label') == '数据英雄页',
-                      repr(ans.get('extras')))
-                check('T35f-4 skipped 维度按缺省进简报（defaulted=true，不进 extras）',
-                      ans.get('pages', {}).get('defaulted') is True
-                      and 'x-data' in (ans.get('extras') or {})
-                      and 'pages' not in (ans.get('extras') or {}), repr(ans.get('pages')))
-                text = page.inner_text('#briefPreview')
-                check('T35f-5 文本简报模板不变',
-                      '需求简报 ·' in text and '请按以下需求简报制作 HTML 幻灯片' in text
-                      and '动态场景·重构汇报' in text and '（缺省）' in text)
+                # 前置守卫：T35d 之后页面若没拿回动态 options（见 T35d-1 的既有问题），
+                # 这里会连动态组都选不到——记一条 FAIL 并跳过本段，**不要**让异常吞掉
+                # 文件里其余断言（2026-10-29：此前它以 Playwright 超时崩掉整支脚本）。
+                if not got_v2b:
+                    check('T35f 动态作答段', False,
+                          '跳过：重进 brief 后页面未恢复动态 options（既有失败，见 T35d-1）')
+                else:
+                    page.click('[data-dyn-group="scene"] .opt[data-id="present"]')
+                    page.click('[data-dyn-group="x-data"] .opt[data-id="__ai__"]')
+                    # prefilled audience 不展开不修改 = 接受推断值
+                    # v3.9.x 起「生成」并入「发送」（`#btnBriefGen` 已不存在）：直接读构造器输出，
+                    # 不为了断言真的提交一次
+                    j = page.evaluate("() => buildBriefExport().json")
+                    ans = j.get('answers') or {}
+                    expect_keys = {'topic', 'scene', 'audience', 'source', 'pages', 'theme', 'font',
+                                   'motion', 'brightness', 'cover', 'illustration', 'density_derived'}
+                    check('T35f-0 顶层与 answers 键结构（仅多可选 extras）',
+                          j.get('kind') == 'design-brief' and j.get('version') == 1
+                          and set(ans.keys()) == expect_keys | {'extras'}, repr(sorted(ans.keys())))
+                    check('T35f-1 动态组选择映射回既有 answers 键（scene 键不变）',
+                          ans.get('scene', {}).get('choice') == 'present'
+                          and ans['scene'].get('label') == '动态场景·重构汇报'
+                          and ans['scene'].get('defaulted') is False, repr(ans.get('scene')))
+                    check('T35f-2 prefilled 未修改按接受推断计入（不标缺省）',
+                          ans.get('audience', {}).get('choice') == 'exec'
+                          and ans['audience'].get('defaulted') is False, repr(ans.get('audience')))
+                    check('T35f-3 x-* 条件组进 extras；「由 AI 决定」按缺省语义标注',
+                          (ans.get('extras') or {}).get('x-data', {}).get('choice') == 'hero'
+                          and ans['extras']['x-data'].get('defaulted') is True
+                          and ans['extras']['x-data'].get('label') == '数据英雄页',
+                          repr(ans.get('extras')))
+                    check('T35f-4 skipped 维度按缺省进简报（defaulted=true，不进 extras）',
+                          ans.get('pages', {}).get('defaulted') is True
+                          and 'x-data' in (ans.get('extras') or {})
+                          and 'pages' not in (ans.get('extras') or {}), repr(ans.get('pages')))
+                    text = page.evaluate("() => buildBriefExport().text")
+                    check('T35f-5 文本简报模板不变',
+                          '需求简报 ·' in text and '请按以下需求简报制作 HTML 幻灯片' in text
+                          and '动态场景·重构汇报' in text and '（缺省）' in text)
                 ctx.close()
 
         # ---------- T35c 无 options 回落静态问卷（Bridge 态不带参） ----------
@@ -385,8 +415,7 @@ def main():
             page.wait_for_function('() => window.state !== undefined', timeout=8000)
             page.click('#btnBrief')
             page.wait_for_timeout(300)
-            page.click('#btnBriefGen')
-            static_json = page.evaluate('window.briefLast.json')
+            static_json = page.evaluate("() => buildBriefExport().json")
             static_keys = set((static_json.get('answers') or {}).keys())
             expect_keys = {'topic', 'scene', 'audience', 'source', 'pages', 'theme', 'font',
                            'motion', 'brightness', 'cover', 'illustration', 'density_derived'}

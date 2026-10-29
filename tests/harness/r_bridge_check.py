@@ -380,9 +380,11 @@ def ui_group():
                     check(launch["hash"] == "" and launch["token"] and launch["session"] == opened["session_id"], f"fragment/session storage failed: {launch}")
                     check(uuid.UUID(launch["client"]).version == 4, f"invalid browser client id: {launch['client']}")
                     page.fill("#briefTopic", "桥接首份演示")
-                    page.click("#btnBriefGen"); page.click("#btnBriefCopy")
+                    # v3.9.x 起「生成简报」与「发送」合并为一个按钮（`#btnBriefGen` 已不存在），
+                    # 且预览/复制按钮在生成前是 hidden（位于 #briefResult 内）——所以这里不再模拟
+                    # "先预览再发送"，直接断言**发送前**队列仍为空（原断言的实质），提交走 #btnBriefSend。
                     _, empty_query = one_request(origin, "/api/intents/query", {"session_id": opened["session_id"], "cursor": 0, "limit": 50}, launch["token"], origin)
-                    check(empty_query["items"] == [], f"preview/copy unexpectedly submitted: {empty_query}")
+                    check(empty_query["items"] == [], f"pre-send queue unexpectedly non-empty: {empty_query}")
                     page.click("#btnBriefSend")
                     page.wait_for_function("() => bridge.briefSubmission.state === 'pending'", timeout=8000)
                     pending = page.evaluate("() => ({id:bridge.briefSubmission.intentId,seq:bridge.briefSubmission.seq,disabled:document.getElementById('btnBriefSend').disabled,text:document.getElementById('briefSubmitStatus').innerText})")

@@ -147,6 +147,23 @@ FAIL  T34-theme-proving        ← 既有失败（主题轨道待办）
 - **T35 是既有失败且成因不同**：`1023_run_e2e.log` 与 `1024_run_e2e_*.log` 的失败签名同族（`waiting for locator("#btnBrief")` 超时，只是行号随 SSE 时序落在 238 或 249）。机制：`bridgeApplyEvent` 的 `view-hint` 分支**无条件** `applyLaunch(data.view)`，于是一次 `open_editor(view="brief")` 会把用户刚关掉的脑暴视图重新盖上来，检查里随后的 Escape→点 `#btnBrief` 就被遮住。**是否算缺陷是设计判断**（§6 的意图是"每次 open_editor 的 view 都生效"，加 `launch.applied` 守卫会改变该语义），本次不动，仅记录。
 - 上一份基线（改动前工作树）：`_logs/1024_run_e2e_baseline.log` = **62 项 60 PASS / 2 FAIL**（T34 + T35）。
 
+#### 2.5.2 2026-10-29 存量红清理
+
+起因是 v3.11.0 全页文案改名（[1029_ui_copy_plain_language](../progress/1029_ui_copy_plain_language.md)）后做的一次回归清扫，
+顺手把长期红一并定性。逐条结论：
+
+| 测试 | 现状 | 说明 |
+|---|---|---|
+| T31-brief | ✅ **已修（ALL PASS）** | `#btnBriefGen` 已删（生成并入「发送」）；断言改读 `buildBriefExport()`；4 条文案断言随 v3.11.0 同步 |
+| T7-annotation | ✅ **已修** | 旧期望"提交后仍提示未导出"与 v3.9.7「批注提交即发送」冲突；改为"无提示 **且** 确实发出了 `pptx-html:annotations`" |
+| T32-imagegen-entries | ✅ **已修** | 读取已删除的 `#btnBridgeBake` 抛异常会**截断整轮 E2E**（无汇总行）；删死字段 |
+| T29-bridge(ui 组) | ❌ **仍红（已定位）** | 第二层：`#btnBriefRetry`/`#btnBriefStop`/`#btnBriefResume` 于 v3.9.9 随"简报区恢复按钮并入任务面板"删除，该段 5 处仍依赖 → 需按任务面板重写 |
+| T35-dynamic-brief | ❌ **仍红（已定位）** | 第一层（Esc 关不掉浮层导致点被拦截）已修；第二层是**应用侧真问题**：服务端已存新 `brief_options`，轨 B 页面**重进 brief 拿不到**（嵌入态注入正常） |
+| T34-theme-proving | ❌ **仍红（既有）** | deck 实为 7 主题 × 8 页型 = 56 页（无 g3）、`data-ig` 只在 g1/g2/g4、多处真实重叠 → 属**主题轨道待办**，非测试问题 |
+
+完整分析、证据链与"未做/为何不做"见 [`docs/progress/1029_stale_test_cleanup.md`](../progress/1029_stale_test_cleanup.md)。
+
+**清理后全量复核**：`==== 汇总：62 项，59 PASS，3 FAIL ====`（清理前 **57 PASS / 5 FAIL**）——T7 / T31 / T32 三条转 PASS ✅，剩下 3 条即上表的 T29-ui / T35 / T34。
 
 ---
 
