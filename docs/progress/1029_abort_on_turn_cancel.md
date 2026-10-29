@@ -32,7 +32,7 @@
   时序图给出 `alt Tool complete → tool-result / else Tool cancelled → tool-cancelled` 两条互斥分支。
 - 结论：**"取消"确实有标准，但它只规范"宿主 → View"这一半**（告诉已渲染的 UI："这次工具调用被取消了"）。规范**不建模** agent 的工作队列 / 意图状态——那是我们 bridge 自己的东西。因此：
   - "把在途意图如实转 `interrupted`"**不与规范冲突**，属于我们用既有协议词汇表达的业务状态；
-  - 但**宿主那一半我们没实现**（`mcp_apps_design.md` §10 表 B 里标 🚫，理由写的是"View 只存在于工具完成后"——这条理由**已过时**，本任务之后仍欠账，见 §8）。
+  - 但**宿主那一半我们没实现**（`mcp_apps_design.md` §10.3.1 表 B2 里标 🚫，理由写的是"View 只存在于工具完成后"——**该理由经 2026-10-29 复核仍然成立**，见 §8）。
 
 ## 4. 方案取舍
 
@@ -112,7 +112,7 @@ push_update(action, session_id=None, intent_id=None, attempt=None, message="", v
 
 ## 8. 未做 / 后续
 
-- **宿主侧 `ui/notifications/tool-cancelled`**（规范 **MUST**，独立欠账）：取消时宿主应告知 View "这次工具调用被取消了"。`mcp_apps_design.md` §10 表 B 现标 🚫 且理由（"View 只存在于工具完成后"）**已过时**，需重评后实施。**独立于本任务**，待用户确认再动。
+- **宿主侧 `ui/notifications/tool-cancelled`**（规范 **MUST**，独立欠账）：取消时宿主应告知 View"这次工具调用被取消了"。**2026-10-29 专项复核结论：不是"待实施"，而是"单独做不了"**——该通知的参数只有 `reason`、**没有 `toolCallId`**，语义是"本 View 所属那次调用被取消"；而宿主 `graph.py` **先执行工具、后建 View**（且 §8 决策 6 强制"先 tool_result 再 mcp_app"）⇒ 取消发生时接收者结构性地不存在（属"合规的空集"）。它与 `tool-input-partial` 是同一项 **Phase B 结构性时序改造**，须整包立项（登记在框架设计文档 `docs/design/agent/mcp_apps_design.md` §11.13 / §10.3.1 表 B2）。**与本次 abort 无关**：那个痛点已由桥协议（`abort` → `interrupted` → 页面轮询 `get_status`）解决。
 - **手动删除历史请求（方案 C）**：仍是想做的兜底项，可作后续小迭代。
 - **不做**："用户发下一条消息就自动清 `processing`"——会误杀正常长任务（模型可能正等着在下一回合继续），明确不采纳。
 
