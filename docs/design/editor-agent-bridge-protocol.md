@@ -68,7 +68,7 @@ v1 同一目录只登记一个受管 deck，避免共享 assets/fonts/export 归
 1. `open_editor` 的管理 open 事务登记/刷新本 consumer，记录 `(session_id,consumer_id,state,registered_at,requires_open,lease_until)`。无人 owner 时本 consumer 为 registered、无 owner；若已有别人 waiting 有效 owner 或任意 processing owner，仅把本 consumer 登记为 registered，不抢占、不终止对方。若本 consumer 已是 owner，刷新登记；processing 不因 lease 时间恢复或失效。
 2. `await_intent` 在事务内 acquire：先核验本 consumer 已 open 登记且 requires_open=false；对 registered/paused/expired 且不存在 processing/未完 publication、无人有效 waiting owner的情况取得owner并waiting，建立90秒lease。同一 waiting owner重入；他人有效 waiting owner或任意 processing owner一律`SESSION_BUSY`。waiting lease 过期可回收；processing 绝不因 lease 过期转 interrupted。**恢复门是 per-intent 而非 session 级**（P4.3，2026-10-27）：认领循环只挑 `pending` 行，一条 `interrupted/conflict/failed` 自身不是 `pending`、天然不可被认领，因此存在 recoverable 请求时**不再**对整会话返回 `RECOVERY_REQUIRED`；同会话的其它 `pending` 请求可正常认领，待恢复项改由 `agent_state=recovering` 与 `recoverable_count` 如实呈现。
 3. claim把pending转processing后，owner从“可过期waiting lease”升级为“持久processing owner”。90秒字段继续由15秒heartbeat/progress更新，只供`last_seen/health`展示和诊断，不是fencing deadline。同一owner持当前attempt即使超过90秒再heartbeat、progress、complete/fail，仍恢复并通过所有权检查；第二consumer不能因telemetry过期接管。正常redelivery保持同一attempt/work_path；resume已经在retry事务中递增attempt，因此不需要新增栅栏字段。
-4. processing 只由以下事件结束：该 owner `push_update(complete|fail)`；原 consumer `close_session`；浏览器对该 intent 显式停止；daemon restart 的保守恢复；真实 base CAS、validation/seal 或 publication 结果使其进入 conflict/failed/interrupted/succeeded。单纯时间经过、心跳丢失、页面关闭、一次 await/MCP tool timeout 都不得结束 processing。
+4. processing 只由以下事件结束：该 owner `push_update(complete|fail)`；该 owner 在**用户终止本轮对话**时 `push_update(abort)`（转 `interrupted`，**副本保留、不置 requires_open**——见下）；原 consumer `close_session`；浏览器对该 intent 显式停止；daemon restart 的保守恢复；真实 base CAS、validation/seal 或 publication 结果使其进入 conflict/failed/interrupted/succeeded。单纯时间经过、心跳丢失、页面关闭、一次 await/MCP tool timeout 都不得结束 processing。**`abort` 的必要性**：`processing` 按设计不因 lease 过期自动死，因此 owner「主动放手」时必须显式说——框架的取消路径（用户点停止 / `abort_event`）正是这个位置，不说就会留下**幽灵 `processing`**（面板撒谎）并可能被 `await_intent` 重投而**重跑已取消的转换**。
 5. close 将本consumer置paused、requires_open=true；若它拥有 processing，则该请求转interrupted并释放owner，否则仅释放waiting owner。同consumer必须再次open_editor重复同目标/session，事务清除requires_open并回registered，随后才能await。heartbeat、get_status和成功receipt重放均不能越过显式close闸门。
 6. daemon 每15秒接受owner heartbeat：waiting 时延长90秒lease；processing 时只更新 telemetry。registered状态不伪发心跳证明在线。waiting自然过期且没有显式close闸门的已登记consumer可由await重新acquire；新consumer必须先open。
 
@@ -102,7 +102,7 @@ interrupted                 → 用户明确 resume  → pending（attempt 增�
    **重开页面丢弃排队请求**：`attach_view` 收到**新的 `client`**（同页面轮询期会用同一个 client 重复上报，不触发）时，把该会话的 `pending`/`failed`/`conflict` 置 `cancelled`，**保留 `interrupted`**（唯一能 resume）与 `processing`；每条写 `intent-status`、写一条 `notice{kind:'reopen-discard'}`，返回里给出 `discarded` 列表。**不得**用 `open_editor` 当"重开"信号（它在换 consumer/恢复会话时也会被调用）。
 3. await 在事务内认领最早可执行 pending，请求和 consumer 绑定。一个 session 最多一个 processing 请求、一个 owner；浏览器恢复视图优先展示recoverable，但队列本身不因页面排序擅自跳过或取消pending。
 4. 同一processing owner重试await时重放同一认领结果并带`redelivered:true`；不要求lease仍在未来，也不重新复制/清空work_path。其他consumer一律`SESSION_BUSY`。
-5. push_update动作绑定intent_id、attempt、consumer_id；同一持久processing owner持当前attempt可迟到progress/complete/fail。resume先递增attempt，因此旧producer携旧attempt的API写入被拒绝，即使前后consumer_id相同。结果落盘后返回receipt，重复complete只返回原receipt，不重复发布。
+5. push_update动作绑定intent_id、attempt、consumer_id；同一持久processing owner持当前attempt可迟到progress/complete/fail。**`abort` 是本 owner 在用户终止回合时的宽形态**（2026-10-29）：可省 `intent_id`（= 释放本 consumer 当前在途意图；无在途时如实抛 `RECOVERY_REQUIRED`），也可再省 `session_id`（按 `consumer_id` 反查该 consumer 登记的会话逐个处理；未登记则 `SESSION_NOT_FOUND`）；该 `idless` 形态**豁免 attempt 校验**、**不接受 validation**。abort 只把 `processing` 转 `interrupted`（副本保留、不置 `requires_open`、不保证杀外部进程），**不**用于"结束协作"。resume先递增attempt，因此旧producer携旧attempt的API写入被拒绝，即使前后consumer_id相同。结果落盘后返回receipt，重复complete只返回原receipt，不重复发布。
 6. 每一次持久状态变化都必须在同一SQLite事务写`intent-status`事件，提交后通知session condition/SSE连接；包括claim、cancel/stop、fail、conflict、complete、close、daemon-restart interrupt、rebuild、resume，以及兼容迁移读取到旧`lease-expired` interrupted。不得出现“数据库已变但SSE只等下一次别的事件才醒来”。
 7. publish中断由事务日志恢复；结果响应丢失可查询状态。不依赖模型记忆after_seq来断言任务已执行。
 8. 不宣称外部副作用“恰好一次”：生图付费 API、Agent 任意 shell 等不由桥控制。保证的是已确认接收的请求可恢复、发布操作可核验、重复请求不重复发布、未知执行结果必须显式处理。
@@ -175,14 +175,14 @@ Agent 使用纪律：Bridge 首次打开后的当前回合固定且只调用一�
 
 | 参数 | 类型/缺省 | 含义 |
 |---|---|---|
-| session_id | string，必填 | 任务 |
-| intent_id | string，必填 | 当前认领请求 |
-| attempt | integer ≥1，必填 | API栅栏与逻辑执行代次；rebuild和resume都递增 |
-| action | `progress/complete/fail`，必填 | 通知/完成/失败 |
+| session_id | string，必填（`abort` 宽形态可省） | 任务；`abort` 省略时按 `consumer_id` 反查其登记会话 |
+| intent_id | string，必填（`abort` 宽形态可省） | 当前认领请求；`abort` 省略时 = 释放本 consumer 当前在途意图 |
+| attempt | integer ≥1，必填（`idless abort` 豁免校验） | API栅栏与逻辑执行代次；rebuild和resume都递增 |
+| action | `progress/complete/fail/abort`，必填 | 通知/完成/失败/主动中止 |
 | message | string，空串 | 最多 2000 字符的人类可读状态，不传凭证 |
-| validation | object 或 null，缺省 null | 新 complete 必须提供下述精确结构；progress/fail 只允许省略或 null |
+| validation | object 或 null，缺省 null | 新 complete 必须提供下述精确结构；progress/fail/abort 只允许省略或 null |
 
-代理自动带consumer_id。progress只更新processing owner的活性时间、写notice，不发布、不推进终态；90秒telemetry过期不使progress失效。同一consumer/attempt的迟到progress/fail/complete只要owner尚未被明确释放或daemon重启，仍按processing所有权接受。progress/fail 的 owner、attempt、processing 检查与写入必须位于同一 session lock 和 SQLite 事务中，状态更新使用带 status/attempt/consumer 条件的 UPDATE；若 stop/retry/close 已抢先推进状态则返回 `RECOVERY_REQUIRED`，不得覆盖新 attempt 或释放新 owner。complete 在 publication session lock 内再次复核同样的三元所有权。resume已经递增attempt，旧producer的旧attempt一律`RECOVERY_REQUIRED`，即使前后consumer_id相同也不能完成新执行。fail记录失败原因并保留工作副本。complete只发布服务分配的attempt工作副本，**不接受任意源目录、任意shell或原始HTML参数**。服务检查所有权、attempt、路径/符号链接、validation、目标revision，再执行日志化发布。生成类必须存在目标HTML；转换类必须完整重建并验收both集合（含native与manifest双轨），formats仅决定下载选择；daemon不代跑验收和转换。
+代理自动带consumer_id。**abort（2026-10-29）**：producer 在**用户终止本轮对话**时如实放手——把 `processing` 转 `interrupted`，工作副本**保留**、清 `consumer_id`/`lease_until`、`attempt` 同步置 `interrupted`、写 `intent-status`、错误码 `AGENT_ABORTED`（`retryable:true`），**不置 `requires_open`**（这是它与 `close_session`「结束协作」的关键区别），`resume` 与 `rebuild` 两个出口都保留。**宽形态**：可省 `intent_id`（= 释放本 consumer 当前在途意图；无在途时如实抛 `RECOVERY_REQUIRED`），再可省 `session_id`（按 `consumer_id` 反查会话；未登记则 `SESSION_NOT_FOUND`）；该形态豁免 attempt 校验、不接受 validation。abort 只撤销 Bridge 的写入/发布资格，**不保证**杀死外部进程或撤销费用。progress只更新processing owner的活性时间、写notice，不发布、不推进终态；90秒telemetry过期不使progress失效。同一consumer/attempt的迟到progress/fail/complete只要owner尚未被明确释放或daemon重启，仍按processing所有权接受。progress/fail 的 owner、attempt、processing 检查与写入必须位于同一 session lock 和 SQLite 事务中，状态更新使用带 status/attempt/consumer 条件的 UPDATE；若 stop/retry/close 已抢先推进状态则返回 `RECOVERY_REQUIRED`，不得覆盖新 attempt 或释放新 owner。complete 在 publication session lock 内再次复核同样的三元所有权。resume已经递增attempt，旧producer的旧attempt一律`RECOVERY_REQUIRED`，即使前后consumer_id相同也不能完成新执行。fail记录失败原因并保留工作副本。complete只发布服务分配的attempt工作副本，**不接受任意源目录、任意shell或原始HTML参数**。服务检查所有权、attempt、路径/符号链接、validation、目标revision，再执行日志化发布。生成类必须存在目标HTML；转换类必须完整重建并验收both集合（含native与manifest双轨），formats仅决定下载选择；daemon不代跑验收和转换。
 
 validation 仅有以下字段，未知字段拒绝：
 

@@ -1502,8 +1502,34 @@ class BridgeCore:
         if count and len(pages)<count: raise BridgeError(422,"INVALID_ARTIFACT","native 参考页图不完整")
 
     def push_update(self,session_id,intent_id,attempt,consumer_id,action,message="",validation=None):
-        if action not in {"progress","complete","fail"} or not isinstance(message,str) or len(message)>2000 or isinstance(attempt,bool) or not isinstance(attempt,int) or attempt<1: raise BridgeError(400,"INVALID_ARGUMENT","update 参数非法")
-        if action in {"progress","fail"} and validation is not None: raise BridgeError(400,"INVALID_ARGUMENT","progress/fail 不接受 validation")
+        if action=="abort" and session_id is None:
+            # 2026-10-29（用户决策 B）：连 session_id 也可省——按 consumer_id 反查它登记过的会话。
+            # 框架的取消路径只知道 consumer（由 MCP server 注入），不知道 bridge session id（形如 s_xxx，
+            # 与 harness thread_id 不同），所以必须支持这一形态。逐会话递归走同一条已校验路径；
+            # 某会话没有在途意图（RECOVERY_REQUIRED）属正常，跳过；全都没有才如实报错。
+            sessions=[r["session_id"] for r in self.db.execute("SELECT DISTINCT session_id FROM consumers WHERE consumer_id=?",(consumer_id,)).fetchall()]
+            if not sessions: raise BridgeError(404,"SESSION_NOT_FOUND","consumer 未登记任何会话")
+            out=[]
+            for _sid in sessions:
+                try: out.append(self.push_update(_sid,None,None,consumer_id,"abort",message))
+                except BridgeError as exc:
+                    if exc.code!="RECOVERY_REQUIRED": raise
+            if not out: raise BridgeError(409,"RECOVERY_REQUIRED","当前没有可中止的在途意图",True)
+            return {"ok":True,"aborted":sum(x["aborted"] for x in out),"results":out}
+        idless_abort = action=="abort" and intent_id is None
+        if action not in {"progress","complete","fail","abort"} or not isinstance(message,str) or len(message)>2000 or (not idless_abort and (isinstance(attempt,bool) or not isinstance(attempt,int) or attempt<1)): raise BridgeError(400,"INVALID_ARGUMENT","update 参数非法")
+        if action in {"progress","fail","abort"} and validation is not None: raise BridgeError(400,"INVALID_ARGUMENT","progress/fail/abort 不接受 validation")
+        if action!="abort" and intent_id is None: raise BridgeError(400,"INVALID_ARGUMENT","除 abort 外必须提供 intent_id")
+        if action=="abort" and intent_id is None:
+            # 不带 intent_id 的 abort = "释放本 consumer 当前持有的全部在途意图"。
+            # 这是给**框架的取消路径**准备的：用户点"停止"时，框架只知道 session_id，
+            # 拿不到 intent_id（意图是在被取消的那次 await_intent 内部认领的）。
+            # 协议保证同一 session 至多一条 processing，故实际至多一条；逐条递归走同一条
+            # 已校验的路径（保留每行的所有权检查）。
+            rows=self.db.execute("SELECT id,attempt FROM intents WHERE session_id=? AND status='processing' AND consumer_id=?",(session_id,consumer_id)).fetchall()
+            if not rows: raise BridgeError(409,"RECOVERY_REQUIRED","当前没有可中止的在途意图",True)
+            return {"ok":True,"aborted":len(rows),
+                    "results":[self.push_update(session_id,r["id"],r["attempt"],consumer_id,"abort",message) for r in rows]}
         with self._session_lock(session_id):
             self._expire(session_id)
             row=self.db.execute("SELECT * FROM intents WHERE id=? AND session_id=?",(intent_id,session_id)).fetchone()
@@ -1531,6 +1557,22 @@ class BridgeCore:
                     eid=self._event(session_id,"intent-status",{"session_id":session_id,"intent_id":intent_id,"status":"failed","attempt":attempt}); self._release_owner(session_id,consumer_id)
                 self._notify(session_id)
                 return {"ok":True,"intent_id":intent_id,"status":"failed","events":[eid],"page_online":self.page_online(session_id)}
+            if action=="abort":
+                # 2026-10-29（用户决策）：producer 主动中止——典型触发是"用户终止了本轮对话"。
+                # 语义上**不是失败**：工作副本保留、落 `interrupted`（正是协议里"owner 因 stop/close/
+                # restart 失效、副本保留"的定义）⇒ `resume` 与 `rebuild` 两个出口都在，且
+                # `await_intent` 不会再把它重投给同一 consumer（避免"已被取消的转换在下一轮被重跑"
+                # 这类重复副作用）。与 `close_session` 的区别：**不置 requires_open**——那是"结束协作"
+                # 的语义，比"终止这一轮"重得多。
+                error={"code":"AGENT_ABORTED","message":message or "producer aborted","retryable":True}
+                with self.db:
+                    changed=self.db.execute("UPDATE intents SET status='interrupted',error_json=?,consumer_id=NULL,lease_until=NULL,updated_at=? WHERE id=? AND session_id=? AND status='processing' AND attempt=? AND consumer_id=?",(canonical_json(error).decode(),utcnow(),intent_id,session_id,attempt,consumer_id))
+                    if changed.rowcount!=1: raise BridgeError(409,"RECOVERY_REQUIRED","abort 所有权竞争失败",True)
+                    changed_attempt=self.db.execute("UPDATE attempts SET status='interrupted' WHERE intent_id=? AND attempt=? AND status='processing' AND consumer_id=?",(intent_id,attempt,consumer_id))
+                    if changed_attempt.rowcount!=1: raise BridgeError(409,"RECOVERY_REQUIRED","abort attempt 状态已变化",True)
+                    eid=self._event(session_id,"intent-status",{"session_id":session_id,"intent_id":intent_id,"status":"interrupted","attempt":attempt}); self._release_owner(session_id,consumer_id)
+                self._notify(session_id)
+                return {"ok":True,"intent_id":intent_id,"status":"interrupted","events":[eid],"page_online":self.page_online(session_id)}
         attempt_row=self.db.execute("SELECT work_path FROM attempts WHERE intent_id=? AND attempt=?",(intent_id,attempt)).fetchone()
         if not attempt_row: raise BridgeError(422,"INVALID_ARTIFACT","工作副本不存在")
         work_path=Path(attempt_row[0]); _safe_regular(work_path,self.internal)
@@ -2284,8 +2326,11 @@ class BridgeHandler(BaseHTTPRequestHandler):
                     body["session_id"],body["consumer_id"],body.get("timeout_sec",AWAIT_TIMEOUT_DEFAULT_SEC),
                     cancelled=self._client_disconnected))
             if path=="/api/bridge/update":
-                self._management();self._fields(body,{"session_id","intent_id","attempt","consumer_id","action"},{"message","validation"})
-                return self._json(self.core.push_update(body["session_id"],body["intent_id"],body["attempt"],body["consumer_id"],body["action"],body.get("message",""),body.get("validation")))
+                # 2026-10-29：intent_id/attempt 放宽为可选——`action=abort` 允许不带它们
+                # （= 释放本 consumer 的在途意图，供框架取消路径使用）；其余动作由
+                # `push_update` 内部要求必须提供。
+                self._management();self._fields(body,{"consumer_id","action"},{"session_id","intent_id","attempt","message","validation"})
+                return self._json(self.core.push_update(body.get("session_id"),body.get("intent_id"),body.get("attempt"),body["consumer_id"],body["action"],body.get("message",""),body.get("validation")))
             if path=="/api/bridge/close":
                 self._management();self._fields(body,{"session_id","consumer_id"},{"reason"})
                 return self._json(self.core.close_consumer(body["session_id"],body["consumer_id"],body.get("reason","user-ended")))

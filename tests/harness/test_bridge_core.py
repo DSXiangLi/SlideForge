@@ -715,6 +715,66 @@ class CoreCase(unittest.TestCase):
         self.assertEqual(self.core.db.execute(
             "SELECT COUNT(*) FROM intents WHERE session_id=?", (sid,)).fetchone()[0], 2)
 
+    def test_push_update_abort_interrupts_and_releases_owner(self):
+        """用户终止本轮对话 → producer 报 `abort`：processing → interrupted（副本保留、owner 释放），
+        且 `await_intent` **不再**把它重投给同一 consumer（避免被取消的任务在下一轮被重跑）。"""
+        opened = self.open()
+        sid = opened["session_id"]
+        iid = str(uuid.uuid4())
+        self.submit(opened, iid)
+        self.assertEqual(self.core.await_intent(sid, "consumer-a", 1)["intent_id"], iid)
+
+        res = self.core.push_update(sid, iid, 1, "consumer-a", "abort", "用户终止了本轮对话")
+        self.assertEqual(res["status"], "interrupted")
+        self.assertEqual(self.core.db.execute(
+            "SELECT status FROM intents WHERE id=?", (iid,)).fetchone()[0], "interrupted")
+        self.assertEqual(self.core.db.execute(
+            "SELECT status FROM attempts WHERE intent_id=? AND attempt=1", (iid,)).fetchone()[0], "interrupted")
+        self.assertIsNone(self.core._session(sid)["owner_consumer_id"], "abort 必须释放 owner")
+        event = self.core.db.execute(
+            "SELECT data_json FROM events WHERE session_id=? AND type='intent-status' ORDER BY id DESC LIMIT 1",
+            (sid,)).fetchone()
+        self.assertEqual(json.loads(event[0])["status"], "interrupted")
+
+        again = self.core.await_intent(sid, "consumer-a", 1)
+        self.assertEqual(again["kind"], "timeout", "被中止的意图不得被重投")
+        self.assertEqual(again.get("interrupted_count"), 1)
+
+    def test_abort_without_intent_id_releases_current_inflight(self):
+        """框架取消路径用的形态：`abort` **不带 intent_id** = 释放本 consumer 当前持有的在途意图
+        （用户点"停止"时框架只知道 session_id，拿不到 intent_id）。"""
+        opened = self.open()
+        sid = opened["session_id"]
+        iid = str(uuid.uuid4())
+        self.submit(opened, iid)
+        self.core.await_intent(sid, "consumer-a", 1)
+        res = self.core.push_update(sid, None, None, "consumer-a", "abort", "用户终止了本轮对话")
+        self.assertEqual(res["aborted"], 1)
+        self.assertEqual(res["results"][0]["status"], "interrupted")
+        self.assertEqual(self.core.db.execute(
+            "SELECT status FROM intents WHERE id=?", (iid,)).fetchone()[0], "interrupted")
+        # 没有在途意图时如实报错，不静默成功
+        with self.assertRaises(BridgeError) as none_left:
+            self.core.push_update(sid, None, None, "consumer-a", "abort", "again")
+        self.assertEqual(none_left.exception.code, "RECOVERY_REQUIRED")
+
+    def test_abort_without_session_or_intent_resolves_from_consumer(self):
+        """框架取消路径的最终形态：`abort` 只给 `consumer_id`（session_id/intent_id 都不给）
+        → 按 consumer 反查会话并释放在途意图。"""
+        opened = self.open()
+        sid = opened["session_id"]
+        iid = str(uuid.uuid4())
+        self.submit(opened, iid)
+        self.core.await_intent(sid, "consumer-a", 1)
+        res = self.core.push_update(None, None, None, "consumer-a", "abort", "用户终止了本轮对话")
+        self.assertEqual(res["aborted"], 1)
+        self.assertEqual(self.core.db.execute(
+            "SELECT status FROM intents WHERE id=?", (iid,)).fetchone()[0], "interrupted")
+        # 未登记的 consumer 如实 404
+        with self.assertRaises(BridgeError) as unknown:
+            self.core.push_update(None, None, None, "consumer-zzz", "abort", "x")
+        self.assertEqual(unknown.exception.code, "SESSION_NOT_FOUND")
+
     def test_intent_state_transitions_persist_events_and_notify_waiters(self):
         opened = self.open()
         sid = opened["session_id"]

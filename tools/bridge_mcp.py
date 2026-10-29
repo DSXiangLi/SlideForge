@@ -504,10 +504,10 @@ class BridgeMCP:
             annotations=ToolAnnotations(readOnlyHint=False, destructiveHint=True, idempotentHint=False, openWorldHint=False),
         )
         async def push_update(
-            session_id: Annotated[str, Field(min_length=1, description="Session identifier that owns the claimed intent.")],
-            intent_id: Annotated[str, Field(min_length=1, description="Intent identifier returned by await_intent; must match the current claimed request.")],
-            attempt: Annotated[int, Field(ge=1, description="Positive attempt number returned by await_intent; rebuild and resume both increment it, while resume may safely reuse the registered prior work_path.")],
-            action: Annotated[Literal["progress", "complete", "fail"], Field(description="progress refreshes processing liveness telemetry without publishing or extending an ownership deadline; complete validates and publishes, and fail records a terminal failure without publishing.")],
+            action: Annotated[Literal["progress", "complete", "fail", "abort"], Field(description="progress refreshes processing liveness telemetry without publishing or extending an ownership deadline; complete validates and publishes; fail records a terminal failure without publishing; abort records that the producer stopped without finishing — the intent becomes interrupted, the work copy is kept and both resume and rebuild stay available. Use abort when the user terminates the turn so the daemon stops showing a phantom 'processing'.")],
+            session_id: Annotated[str | None, Field(description="Session identifier that owns the claimed intent; required for progress/complete/fail. **Optional for action=abort** — omitting it (together with intent_id/attempt) aborts whatever in-flight intent this consumer currently holds, resolved from the consumer registration.")] = None,
+            intent_id: Annotated[str | None, Field(description="Intent identifier returned by await_intent; required for progress/complete/fail. **Optional for action=abort** — omitting it means 'abort whatever this consumer currently holds' (the framework's cancel path uses this: it knows the session but not the intent id).")] = None,
+            attempt: Annotated[int | None, Field(description="Positive attempt number returned by await_intent; required for progress/complete/fail, optional for abort.")] = None,
             message: Annotated[str, Field(max_length=2000, description="Human-readable progress, completion, or actionable failure summary.")] = "",
             validation: Annotated[ValidationEvidence | None, Field(description="Required exact validation evidence for complete; omit for progress and fail.")] = None,
         ) -> dict[str, object]:
