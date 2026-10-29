@@ -4,11 +4,22 @@
 <!--
   ============================================================================
   HTML PPTX 编辑器 · editor.html
-  版本：v3.9.8（2026-10-28）
+  版本：v3.9.9（2026-10-29）
   实现依据：docs/design-editor.md v0.3（评审修订稿）+ docs/design/editor-v2.md
   标记契约：skills/html-pptx/references/editing-contract.md v8（本页是消费侧实现）
 
   变更记录：
+  - v3.9.9（按钮简化：生图入口合并 + 简报区恢复按钮并入任务面板，见 docs/progress/1029_editor_button_simplification.md）：
+    ① **生图入口合并**：页头 `btnBake`/`btnIllustrate` 与桥栏 `btnBridgeBake`/`btnBridgeIllustrate`
+    是**同一动作的两对按钮**（绑同一个 handler、按形态二选一）。现统一到**页头那一对**（页头在
+    四种形态下都可见），删除桥栏那一对及其 handler；`updateImagegenEntry()` 的条件由
+    `state.loaded && !bridge.enabled` 简化为 `state.loaded`，并让 title 按 `hostKindDetect()`
+    三态给准（此前 Bridge/轨 A 下会错说"复制指令文本"）。
+    ② **简报区恢复按钮并入任务面板**：删除 `btnBriefStop/Resume/Retry`——它与任务面板的
+    取消/停止处理/重发确认/续用原副本/从当前版本重建 **完全重复**，且轨 A 下多数动作沙箱无权做。
+    改为一个 **「查看请求记录」**：点它退出简报视图并展开面板，处置统一在面板里按状态给出
+    （全部经策略面 `hostBridge.recover`）。
+    ③ 净效果：markup 按钮 **58 → 54**；另删除一段按形态显隐的分支与一组重复 handler。
   - v3.9.8（轨 A 的恢复入口补齐 + 出错态也渲染状态栏）：
     ① **轨 A 简报区给出真能用的恢复动作**：1027 曾把 `btnBriefStop/Resume/Retry` 三个按轨
     全藏，而简报视图下 `#bridgeBar`/`#bridgeTasks` 又被 CSS 关闭 → 轨 A 在简报页里
@@ -752,8 +763,8 @@
   .brief-submit-status[data-state="error"]{color:#914b42;border-color:#d9aaa2;background:#fff7f4}
   .brief-submit-status[data-state="error"]::before{background:#b44f43}
   .brief-submit-status b{color:var(--ink);font-weight:600}.brief-submit-status code{font-size:10px;word-break:break-all}
-  #btnBriefRetry,#btnBriefResume,#btnBriefStop{font-size:11px;padding:4px 10px}
-  #btnBriefStop{color:#914b42;border-color:#d9aaa2}.brief-other-count{font-size:10px;color:var(--muted);white-space:nowrap}
+  #btnBriefTasks{font-size:11px;padding:4px 10px}
+  .brief-other-count{font-size:10px;color:var(--muted);white-space:nowrap}
 
   /* 动态脑暴（briefing v2 / brief-dynamic-brainstorming.md §9）：画像卡、
      推荐徽标、prefilled 折叠行、skipped 折叠区、「由 AI 决定」快捷项 */
@@ -966,8 +977,9 @@
   </div>
   <button id="btnReplaceImg" disabled title="替换当前选中图片（等价手势：选中图片后再点击一次）">替换图片</button>
   <button id="btnHistory" disabled title="未检测到伴随服务：运行 python3 tools/edit.py 启动后可获得 git 版本记录">历史</button>
-  <!-- v3.7（G5）：非 Bridge 形态的生图入口。Bridge 态由桥栏 btnBridgeBake/
-       btnBridgeIllustrate 承担且 UI 不变，这两个按钮仅在嵌入态/裸静态态显示。 -->
+  <!-- 生图入口（G5；v3.9.9 简化）：**所有形态统一用这两个**。此前 Bridge 态由桥栏另放一对
+       `btnBridgeBake`/`btnBridgeIllustrate`，同一动作两个位置、按形态二选一（纯重复）；
+       现只保留页头这一对（页头在四种形态下都可见），桥栏只留「请求记录」。 -->
   <button id="btnBake" hidden>重烙当前页</button>
   <button id="btnIllustrate" hidden>补齐插画</button>
 </header>
@@ -976,8 +988,6 @@
   <span class="bridge-dot"></span><b id="bridgeState">Bridge 未连接</b>
   <span id="bridgeRevision"></span><span class="bridge-notice" id="bridgeNotice"></span>
   <span class="spacer"></span>
-  <button id="btnBridgeBake" hidden>重烙当前页</button>
-  <button id="btnBridgeIllustrate" hidden>补齐插画</button>
   <button id="btnBridgeTasks">请求记录</button>
 </div>
 <div class="bridge-tasks" id="bridgeTasks"></div>
@@ -1220,9 +1230,10 @@
           <span><b>准备提交</b> · 将根据当前环境选择 Bridge、嵌入宿主或复制通道。</span>
         </div>
         <span id="briefOtherCount" class="brief-other-count" hidden></span>
-        <button id="btnBriefStop" hidden>停止处理</button>
-        <button id="btnBriefResume" hidden>续用副本</button>
-        <button id="btnBriefRetry" hidden>重新构建</button>
+        <!-- v3.9.9 简化：原 停止处理/续用副本/重新构建 三个按钮与任务面板完全重复（同一批动作、
+             两套 UI），已合并为一个入口——点它退出简报视图并展开「请求记录」，所有处置统一在
+             面板里按状态给出（且都经策略面 hostBridge.recover）。 -->
+        <button id="btnBriefTasks" hidden>查看请求记录</button>
       </div>
     </div>
   </div>
@@ -4169,8 +4180,7 @@ function mcpAppRenderState(kind, label, notice){
   $('bridgeRevision').textContent = mcpApp.revision ? mcpApp.revision.slice(0,19)
                               : (mcpApp.phase === 'briefing' ? '等待首份 deck' : '');
   $('bridgeNotice').textContent = notice || '';
-  $('btnBridgeBake').hidden = !state.loaded;
-  $('btnBridgeIllustrate').hidden = !state.loaded;
+  /* v3.9.9：桥栏不再承载生图入口（统一到页头的 btnBake/btnIllustrate，所有形态一致） */
 }
 function mcpAppApplyStatus(st){
   if (!st) return;
@@ -7224,26 +7234,11 @@ function briefRenderSubmission(stateName,message,meta){
   box.dataset.state=stateName;var line=box.querySelector('span');line.textContent='';var strong=document.createElement('b');strong.textContent=label;line.appendChild(strong);line.appendChild(document.createTextNode(' · '+detail));
   var busy=briefSubmissionBusy(),item=bridge.intents[bridge.briefSubmission.intentId];
   $('btnBriefSend').disabled=busy;$('btnBriefSend').setAttribute('aria-busy',busy?'true':'false');
-  /* 轨 A（MCP Apps）不渲染这三个恢复按钮：理由同 bridgeRenderTasks——沙箱里拿不到 bridge 凭证，
-     重发/续用/重建都走 bridgeFetch（需 bridge.token，只有轨 B 由 bridgeParseLaunch 设置），在轨 A
-     点必失败（提交失败后 status='failed' 会让「重新构建」真的露出来）；app-only 的意图恢复工具已在
-     1027 移除（见 docs/progress/1027_tool_surface_slimming.md）。轨 B 行为不变。 */
-  var trackA=(typeof hostBridge!=='undefined'&&hostBridge.kind==='mcp-app');
-  /* v3.9.8：轨 A **不再三个按钮全藏** —— 那等于"零恢复入口"，而模型还在让用户"去页面重试"。
-     `retry` 在轨 A 等价于**按当前版本重新提交**（`hostBridge.recover('retry')` → `submit_intent`），
-     是轨 A 唯一真的能做的恢复动作；停止/续用沙箱无权做（拿不到 bridge 凭证），保持隐藏、不给死按钮。 */
-  if (trackA){
-    var canResend=!!(item&&['failed','conflict','interrupted'].indexOf(item.status)>=0);
-    $('btnBriefStop').hidden=true;
-    $('btnBriefResume').hidden=true;
-    $('btnBriefRetry').hidden=!canResend;
-    if (canResend) $('btnBriefRetry').textContent='按当前版本重新提交';
-    return;
-  }
-  $('btnBriefStop').hidden=!(item&&item.status==='processing');
-  $('btnBriefResume').hidden=!(item&&item.status==='interrupted');
-  $('btnBriefRetry').hidden=!(item&&(item.status==='unconfirmed'||['failed','conflict','interrupted'].indexOf(item.status)>=0));
-  $('btnBriefRetry').textContent=item&&item.status==='unconfirmed'?'重发确认':'重新构建';
+  /* v3.9.9 简化：简报区不再自建恢复按钮——它与任务面板的 取消/停止处理/重发确认/续用原副本/
+     从当前版本重建 **完全重复**，且轨 A 下多数动作沙箱无权做（1028 刚为此打过补丁）。
+     只留一个入口「查看请求记录」：有意图（含在途提交）时显示，点它回工作台展开面板，
+     处置统一在面板里按状态给出（全部经策略面 `hostBridge.recover`）。 */
+  $('btnBriefTasks').hidden = !(item || bridge.briefSubmission.intentId);
 }
 function briefObserveIntent(item){
   if(!item||item.type!=='brief.submitted')return;
@@ -7296,14 +7291,13 @@ $('btnBriefSend').addEventListener('click', async function(){
     toast('需求简报发送失败：'+e.message);
   }
 });
-$('btnBriefRetry').addEventListener('click',function(){
-  var item=bridge.intents[bridge.briefSubmission.intentId];if(!item)return;
-  /* P3.1：经策略面（轨 B 走 HTTP；轨 A 若是 retry 则等价于"按当前版本重新提交"） */
-  if(item.status==='unconfirmed')hostBridge.recover('resend',item);
-  else if(['failed','conflict','interrupted'].indexOf(item.status)>=0)hostBridge.recover('retry',item,'rebuild');
+$('btnBriefTasks').addEventListener('click',function(){
+  /* v3.9.9：简报区的恢复动作统一并入任务面板——先退出简报视图（工作台 chrome 只在非 brief
+     视图可见），再展开「请求记录」面板。 */
+  if (document.body.getAttribute('data-launch')==='brief') closeBrief();
+  $('bridgeTasks').classList.add('show');
+  bridgeRenderTasks();
 });
-$('btnBriefResume').addEventListener('click',function(){var item=bridge.intents[bridge.briefSubmission.intentId];if(item&&item.status==='interrupted')hostBridge.recover('retry',item,'resume');});
-$('btnBriefStop').addEventListener('click',function(){var item=bridge.intents[bridge.briefSubmission.intentId];if(item&&item.status==='processing')hostBridge.recover('stop',item);});
 
 /* ============================================================
    文字样式编辑（v1.6 §1，契约"样式覆盖"节）
@@ -8513,8 +8507,7 @@ function bridgeRenderState(kind, label, notice){
   $('bridgeState').textContent = label || 'Bridge 已连接';
   $('bridgeRevision').textContent = bridge.loadedRevision ? bridge.loadedRevision.slice(0, 19) : (bridge.phase === 'briefing' ? '等待首份 deck' : '');
   $('bridgeNotice').textContent = notice || bridge.lastNotice || '';
-  $('btnBridgeBake').hidden = !state.loaded;
-  $('btnBridgeIllustrate').hidden = !state.loaded;
+  /* v3.9.9：桥栏不再承载生图入口（统一到页头的 btnBake/btnIllustrate，所有形态一致） */
 }
 function bridgeAnnotations(){
   return annotations.length ? buildAnnoExport().payload.annotations : [];
@@ -8923,17 +8916,18 @@ function requestIllustrate(){
   var slots=[],d=doc();if(d)Array.prototype.forEach.call(d.querySelectorAll('[data-image-slot][data-image-state="placeholder"]'),function(x){var s=x.getAttribute('data-image-slot');if(s&&slots.indexOf(s)<0)slots.push(s);});
   bridgeSend('illustrate.requested',{slots:slots},{type:'pptx-html:illustrate-intent',slots:slots},'请按插画模式补齐待生成图片槽位');
 }
-$('btnBridgeBake').addEventListener('click',requestBakeCurrent);
-$('btnBridgeIllustrate').addEventListener('click',requestIllustrate);
 $('btnBake').addEventListener('click',requestBakeCurrent);
 $('btnIllustrate').addEventListener('click',requestIllustrate);
-/* 顶栏生图按钮只在非 Bridge 形态显示（Bridge 态桥栏已有同功能按钮，避免重复），
-   提示文案随形态自适应：嵌入态=通知宿主，裸静态态=复制指令交给 AI。 */
+/* 生图入口（v3.9.9 简化）：**所有形态统一用页头这一对**——此前 Bridge 态另用桥栏一对，
+   同一动作两个位置、按形态二选一，属纯重复，已删。提示文案按真实形态自适应。 */
 function updateImagegenEntry(){
-  var show=state.loaded&&!bridge.enabled;
+  var show=state.loaded;
   $('btnBake').hidden=!show;$('btnIllustrate').hidden=!show;
   if(!show)return;
-  var hint=state.embedded?'（向宿主发送请求，由宿主侧 AI 工作流执行）':'（复制指令文本，交给 AI coding agent 执行）';
+  var k=hostKindDetect();
+  var hint = k==='embedded' ? '（向宿主发送请求，由宿主侧 AI 工作流执行）'
+           : k==='static'   ? '（复制指令文本，交给 AI coding agent 执行）'
+           : '（提交意图，进入 AI 队列）';
   $('btnBake').title='重新烙入当前页为整页 AI 生图'+hint;
   $('btnIllustrate').title='扫描全部 placeholder 图片槽位并请求补齐插画'+hint;
 }
