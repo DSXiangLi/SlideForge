@@ -4,11 +4,22 @@
 <!--
   ============================================================================
   HTML PPTX 编辑器 · editor.html
-  版本：v3.9.9（2026-10-29）
+  版本：v3.10.0（2026-10-29）
   实现依据：docs/design-editor.md v0.3（评审修订稿）+ docs/design/editor-v2.md
   标记契约：skills/html-pptx/references/editing-contract.md v8（本页是消费侧实现）
 
   变更记录：
+  - v3.10.0（轨 A 产物通道：转换/翻转完成后页面自动加载 export/ 产物，见 docs/progress/1029_track_a_artifact_channel.md）：
+    此前轨 A（MCP Apps 宿主内嵌）**结构性地读不到 `export/`**——`openHtml` 显式把 `triBaseUrl`
+    置 null，于是产物清单恒空、对比质检恒黑面、下载按钮恒不可用，且转换成功、`export-refreshed`
+    事件也到了却**什么都不加载**；用户看到的是一句"无产物通道"的降级文案。现补齐：
+    ① `triArtifactUri(rel)` 成为产物地址解析的**唯一入口**——轨 A 经 app-only 工具
+    `read_bundle_file` 水合成 `data:` URI（工具面不扩），其余形态仍是基址直链；
+    ② `mcpAppLoadExport()` 静态读取 `export/manifest.json`（轨 A 无同源 fetch），
+    取代原 `triStatus='unavailable'` 的降级；③ 触发点：`get_status.export_revision` 变化
+    （轨 A 没有 SSE，这是它唯一的"产物已更新"信号）、装载 deck、`export-refreshed`
+    （轨 B）、「重新读取 export/」按钮；④ 按**可见页**懒加载产物图（rel 只取一次、不遍历整个 deck）；
+    ⑤ 下载判据由"必须有 HTTP 基址"改为"有 manifest"，轨 A 的下载按文件名走 `read_bundle_file`。
   - v3.9.9（按钮简化：生图入口合并 + 简报区恢复按钮并入任务面板，见 docs/progress/1029_editor_button_simplification.md）：
     ① **生图入口合并**：页头 `btnBake`/`btnIllustrate` 与桥栏 `btnBridgeBake`/`btnBridgeIllustrate`
     是**同一动作的两对按钮**（绑同一个 handler、按形态二选一）。现统一到**页头那一对**（页头在
@@ -4137,6 +4148,7 @@ var mcpApp = {
   phase:null, view:null, booted:false, ready:false, handshakeFailed:false,
   pollTimer:null, pollDelay:2000, idlePolls:0, pollFailures:0,
   draftTimer:null, noteTimer:null, hydrateObserver:null, epoch:0,
+  exportRevision:null, exportEpoch:0,   /* v3.10 轨 A 产物通道：export_revision 变化 → 重读 manifest */
   reportedHeight:null, sizeObserver:null, sizeTimer:null, cssHydrated:null, fontCspWarned:false,
   capabilities:{local_convert:false,local_imagegen:false,git_ready:false},
   /* 首屏分流（brief-page-split §6）：view 分别来自 tool-input / tool-result；
@@ -4188,6 +4200,13 @@ function mcpAppApplyStatus(st){
   mcpApp.resourcePath = st.resource_path || mcpApp.resourcePath;
   mcpApp.latestServerRevision = st.revision || mcpApp.latestServerRevision;
   if (st.capabilities) mcpApp.capabilities = st.capabilities;
+  /* v3.10 轨 A 产物通道：轨 A 没有 SSE，唯一的"产物已更新"信号是 get_status 的 export_revision。
+     变化时丢弃 data: URI 缓存并重读 export/manifest.json —— 转换/翻转完成后页面自动加载产物。 */
+  if (st.export_revision !== undefined && st.export_revision !== mcpApp.exportRevision){
+    mcpApp.exportRevision = st.export_revision;
+    triDataUri = {}; triFailed = {}; triPending = {};
+    mcpAppLoadExport();
+  }
   /* 首屏分流要的两件事：会话有没有 deck（决定缺省）、动态脑暴的 brief_options（轨 A 原本缺失） */
   mcpApp.deckKnown = (st.phase && st.phase !== 'briefing') || !!st.deck_path;
   mcpApp.briefOptions = st.brief_options || null;
@@ -5022,8 +5041,9 @@ function openHtml(text, name, handle, assetsUrl, deckPath, opts){
              ? opts.exportBaseUrl.replace(/\/?$/, '/')
              : (triDeckBase !== null ? triDeckBase + 'export/' : null);
   /* 轨 A（MCP Apps）：View 没有自己的产物源，相对路径会打到**宿主源**（404 噪音，甚至误读
-     宿主资源）。因此这里不设产物基址；产物读取只走 read_bundle_file（export/ 前缀）（见 mcpAppHost.download），
-     对比/导出视图在轨 A 明确按"无产物通道"处理（设计 §5.11 允许的降级）。 */
+     宿主资源）。因此这里不设 HTTP 基址——资产与 export/ 产物统一走 read_bundle_file
+     （见 triArtifactUri：轨 A 返回 data: URI，其余形态返回基址直链）。v3.10 起轨 A 拥有完整
+     产物通道，不再按"无产物通道"降级。 */
   if (typeof hostBridge !== 'undefined' && hostBridge.kind === 'mcp-app'){ triDeckBase = null; triBaseUrl = null; }
   triPages = []; triMissing = {}; triStatus = 'idle';
   /* 换文件复位：翻回正面、退出源层编辑、回到编辑态 */
@@ -7668,9 +7688,9 @@ function pad2(n){ return ('0' + n).slice(-2); }
    SVG 转曲件与 HTML 同源，对比信息量低；LO 渲染近似真实 PowerPoint。
    无 native 产物（无 soffice/老导出）时回退 SVG。烙入页直通位图，无意义返回 null。 */
 function nativeUrlOf(ps){
-  if (!triBaseUrl || !ps || !ps.manifest) return null;
+  if (!ps || !ps.manifest) return null;
   if (ps.renderMode === 'baked' || ps.carrier === 'baked') return null;
-  return triBaseUrl + 'native/page-' + pad2(ps.manifestIdx + 1) + '.png';
+  return triArtifactUri('export/native/page-' + pad2(ps.manifestIdx + 1) + '.png');
 }
 
 /* deck 相对路径 → 可加载 URL；无基址（file:// 直开 / 宿主未给）返回 null */
@@ -7680,8 +7700,41 @@ function deckAssetUrl(rel){
   return triDeckBase !== null ? triDeckBase + rel : null;
 }
 
-/* 产物 URL 缓存破击：manifest 的 exported_at 每次导出必变 */
+/* ---------- export/ 产物地址解析（v3.10：轨 A 产物通道）----------
+   轨 A（MCP Apps）的 View 没有同源 fetch，`export/` 与 `assets/` 一律经 app-only 工具
+   `read_bundle_file` 水合成 data: URI（同一个通道，工具面不扩）。其余形态 = 基址 + rel 的
+   HTTP 直链：`export/…` 走 `triBaseUrl`，`assets/`、`fonts/` 走 `triDeckBase`。
+
+   缓存 rel → data URI；未命中时**异步取一次**（在途/失败各记一份），到位后重渲染视图。
+   之所以能在"渲染时"触发拉取：构建视图的每条路径（翻面背面 / 对比 / 叠层）都会经
+   `triArtifactUri`，而它只在当前页的产物上失手 ⇒ 天然按可见页懒加载，不会遍历整个 deck。 */
+var triDataUri = {};   // rel → data: URI（取成功）
+var triFailed = {};    // rel → true（取过且失败，不再重试）
+var triPending = {};   // rel → true（在途，避免重复拉取）
+function triArtifactUri(rel){
+  if (!rel) return null;
+  if (hostKindDetect() !== 'mcp-app'){
+    if (/^(assets|fonts)\//.test(rel)) return triDeckBase != null ? triDeckBase + rel : null;
+    /* export/… 的基准是 `triBaseUrl`（显式 `exportBaseUrl`，或 `triDeckBase + 'export/'`），
+       它自带 `export/` 前缀 —— 所以这里要把 rel 的前缀摘掉，否则会拼成 export/export/。 */
+    return triBaseUrl != null ? triBaseUrl + rel.replace(/^export\//, '') : null;
+  }
+  if (rel in triDataUri) return triDataUri[rel];
+  if (!triFailed[rel] && !triPending[rel]){ triPending[rel] = true; mcpAppFetchArtifact(rel); }
+  return null;
+}
+async function mcpAppFetchArtifact(rel){
+  try {
+    var payload = await mcpAppCall('read_bundle_file', {session_id:mcpApp.sessionId, path:rel});
+    triDataUri[rel] = 'data:' + payload.mime + ';base64,' + payload.data_base64;
+  } catch(e){ triFailed[rel] = true; }
+  delete triPending[rel];
+  buildTriPages(); renderTriViews();   /* 回填：native 优先、矢量件回落由既有渲染逻辑决定 */
+}
+
+/* 产物 URL 缓存破击：manifest 的 exported_at 每次导出必变（data: URI 不能挂查询串） */
 function triCacheBust(){
+  if (hostKindDetect() === 'mcp-app') return '';
   var t = triManifest && triManifest.export && triManifest.export.exported_at;
   return t ? '?v=' + encodeURIComponent(t) : '';
 }
@@ -7702,16 +7755,18 @@ function buildTriPages(){
     }
     var carrier = mp ? (mp.carrier || null) : null;
     /* 背面/对比的导出件：HTML 页 = export/page-NN.svg（png 降级页 = .png）；
-       烙入页 = 烙入图本身（assets/page-<id>.png，契约 v7 页面级槽位） */
+       烙入页 = 烙入图本身（assets/page-<id>.png，契约 v7 页面级槽位）。
+       一律交给 `triArtifactUri`：轨 B/静态得到 HTTP 直链，轨 A 得到 data: URI（或 null=在途）。 */
     var artifact = null;
     if (mp){
       if (rm === 'baked' || carrier === 'baked'){
         var img = slide.querySelector('img[data-image-slot^="page-baked"]');
-        artifact = deckAssetUrl(img && img.getAttribute('src'));
-      } else if (carrier === 'svg' && triBaseUrl){
-        artifact = triBaseUrl + 'page-' + pad2(mi + 1) + '.svg';
-      } else if (carrier === 'png-fallback' && triBaseUrl){
-        artifact = triBaseUrl + 'page-' + pad2(mi + 1) + '.png';
+        var raw = img && (img.getAttribute('data-pptx-src') || img.getAttribute('src'));
+        artifact = triArtifactUri(raw ? String(raw).split('?')[0].replace(/^\.?\//, '') : null);
+      } else if (carrier === 'svg'){
+        artifact = triArtifactUri('export/page-' + pad2(mi + 1) + '.svg');
+      } else if (carrier === 'png-fallback'){
+        artifact = triArtifactUri('export/page-' + pad2(mi + 1) + '.png');
       }
     }
     /* stale = deck 当前 hash ≠ 导出时 hash（防幻觉硬规则 3：hash 失效检测） */
@@ -7737,12 +7792,12 @@ function applySavedHashes(){
   renderTriViews();
 }
 
-/* ---------- export/ 读取（三通道，openHtml 已初始化基址） ---------- */
+/* ---------- export/ 读取（v3.10 三形态：轨 A 经 read_bundle_file，其余 HTTP 三通道） ---------- */
 async function refreshExport(){
   triMissing = {};
   if (!state.loaded){ triStatus = 'idle'; triPages = []; renderTriViews(); return; }
-  var trackA = (typeof hostBridge !== 'undefined' && hostBridge.kind === 'mcp-app');
-  if (!triManifest && triBaseUrl && location.protocol !== 'file:' && !trackA){
+  if (hostKindDetect() === 'mcp-app'){ await mcpAppLoadExport(); return; }
+  if (!triManifest && triBaseUrl && location.protocol !== 'file:'){
     triStatus = 'loading'; renderTriViews();
     try {
       var r = await fetch(triBaseUrl + 'manifest.json', { cache: 'no-store' });
@@ -7752,18 +7807,50 @@ async function refreshExport(){
       }
     } catch(e){}
   }
-  /* ready=有 manifest；none=通道可用但无产物（从未翻转）；unavailable=
-     file:// 直开（fetch 被浏览器拦截）或 MCP Apps 轨（View 无产物源）——诚实降级为引导
-     文案，不报错不伪装。轨 A 的产物读取走 read_bundle_file（export/ 前缀），报「无产物通道」。 */
+  /* ready=有 manifest；none=通道可用但无产物（从未翻转）；unavailable=file:// 直开
+     （fetch 被浏览器拦截）——诚实降级为引导文案，不报错不伪装。轨 A 走 mcpAppLoadExport。 */
   triStatus = triManifest ? 'ready'
-            : (location.protocol === 'file:' || trackA ? 'unavailable' : 'none');
+            : (location.protocol === 'file:' ? 'unavailable' : 'none');
   buildTriPages();
   renderTriViews();
 }
 
-/* 「刷新产物」：技能重新翻转后重新读取；注入态 manifest（无基址可 fetch）保留 */
+/* 轨 A 的 export/manifest.json 读取：无同源 fetch，只有 read_bundle_file 这一条通道。
+   取到 → 三态工作台（产物清单/对比质检/翻面背面）与轨 B 完全同构；取不到 → triStatus='none'
+   （引导态），不再报「无产物通道」。 */
+async function mcpAppLoadExport(){
+  if (hostKindDetect() !== 'mcp-app' || !mcpApp.sessionId) return;
+  var epoch = ++mcpApp.exportEpoch;
+  triStatus = 'loading'; renderTriViews();
+  try {
+    var payload = await mcpAppCall('read_bundle_file', {session_id:mcpApp.sessionId, path:'export/manifest.json'});
+    if (epoch !== mcpApp.exportEpoch) return;
+    var j = JSON.parse(new TextDecoder('utf-8').decode(b64ToBytes(payload.data_base64)));
+    triManifest = (j && j.pages) ? j : null;
+  } catch(e){
+    if (epoch !== mcpApp.exportEpoch) return;
+    triManifest = null;
+  }
+  triStatus = triManifest ? 'ready' : 'none';
+  buildTriPages();
+  renderTriViews();
+}
+function b64ToBytes(b64){
+  var bin = atob(b64 || ''), out = new Uint8Array(bin.length);
+  for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+/* 「刷新产物」：技能重新翻转后重新读取；注入态 manifest（无基址可 fetch）保留。
+   轨 A 顺带丢弃 data: URI 缓存（同一 rel 的产物已变，不能续用旧的）。 */
 async function triRefresh(){
   if (!state.loaded) return;
+  if (hostKindDetect() === 'mcp-app'){
+    triDataUri = {}; triFailed = {}; triPending = {};
+    await mcpAppLoadExport();
+    toast(triManifest ? '已重新读取 export/' : '未发现 export/ 产物');
+    return;
+  }
   if (!triInjected && triBaseUrl) triManifest = null;
   await refreshExport();
   toast(triManifest ? '已重新读取 export/' : '未发现 export/ 产物');
@@ -7788,13 +7875,14 @@ function buildArtifactFace(ps){
   };
   if (!ps) return blackOf('页面不存在');
   if (triStatus === 'unavailable')
-    return blackOf('无法读取 export/（无产物通道）· 请通过伴随服务打开或让宿主注入 exportManifest');
+    return blackOf('无法读取 export/（file:// 直开）· 请通过伴随服务打开或让宿主注入 exportManifest');
   if (!triManifest) return blackOf('未翻转 · 请运行翻转技能');
   if (!ps.manifest) return blackOf('未翻转 · 该页不在 export/manifest.json 中');
   if (!ps.artifact)
     return blackOf(ps.renderMode === 'baked'
       ? '烙入图地址无法解析 · 请检查 assetsUrl'
-      : '产物地址未知 · 请让宿主提供 exportBaseUrl');
+      : (hostKindDetect() === 'mcp-app' ? '产物地址未知或仍在加载'
+                                         : '产物地址未知 · 请让宿主提供 exportBaseUrl'));
   if (triMissing[ps.artifact]) return blackOf('产物缺失 · 请重新运行翻转技能');
   face.dataset.artState = ps.stale ? 'stale' : 'ready';
   var img = document.createElement('img');
@@ -8044,7 +8132,7 @@ function renderCmpArtifacts(){
     var note = document.createElement('div');
     note.className = 'cmp-art-note';
     note.textContent = triStatus === 'unavailable'
-      ? '本页面读不到 export/（无产物通道：file:// 直开被浏览器拦截，或 MCP Apps 轨未提供产物源）——请通过伴随服务（python3 tools/edit.py）打开，或让宿主注入 exportManifest / exportBaseUrl。'
+      ? '本页面读不到 export/（file:// 直开会被浏览器拦截相对路径读取）——请通过伴随服务（python3 tools/edit.py）打开，或让宿主注入 exportManifest / exportBaseUrl。'
       : '尚未翻转：让 AI coding agent 运行 export-pptx.py 生成 export/ 产物后点「刷新产物」。';
     box.appendChild(note);
   }
@@ -8133,16 +8221,16 @@ function buildCmpOlContent(ps){
     blackLine = '页面不存在';
   } else if (cmpView === 'diff'){
     /* 差异热区是导出管线资产（编辑器无栅格化能力，只消费） */
-    if (triStatus === 'unavailable') blackLine = '无法读取 export/（无产物通道）';
+    if (triStatus === 'unavailable') blackLine = '无法读取 export/（file:// 直开被浏览器拦截）';
     else if (!triManifest || !ps.manifest) blackLine = '未翻转 · 无差异热区资产';
     else if (ps.renderMode === 'baked' || ps.carrier === 'baked') blackLine = '烙入页直通导出 · 无差异热区';
-    else if (!triBaseUrl) blackLine = '产物地址未知 · 请让宿主提供 exportBaseUrl';
-    else url = triBaseUrl + 'page-' + pad2(ps.manifestIdx + 1) + '.diff.png';
+    else if (!(url = triArtifactUri('export/page-' + pad2(ps.manifestIdx + 1) + '.diff.png')))
+      blackLine = hostKindDetect() === 'mcp-app' ? '产物地址未知或仍在加载' : '产物地址未知 · 请让宿主提供 exportBaseUrl';
   } else {
-    if (triStatus === 'unavailable') blackLine = '无法读取 export/（无产物通道）';
+    if (triStatus === 'unavailable') blackLine = '无法读取 export/（file:// 直开被浏览器拦截）';
     else if (!triManifest || !ps.manifest) blackLine = '未翻转 · 请运行翻转技能';
-    else if (!ps.artifact) blackLine = '产物地址未知 · 请让宿主提供 exportBaseUrl';
-    else url = nativeUrlOf(ps) || ps.artifact;   /* 原生 PPTX 渲染优先，矢量件回落 */
+    else if (!(url = nativeUrlOf(ps) || ps.artifact))
+      blackLine = hostKindDetect() === 'mcp-app' ? '产物地址未知或仍在加载' : '产物地址未知 · 请让宿主提供 exportBaseUrl';
   }
   if (url && triMissing[url + '#ol']){ url = null; blackLine = '产物缺失 · 请重新运行翻转技能'; }
   if (url){
@@ -8246,16 +8334,24 @@ function renderExportView(){
   var guide = $('expGuide'), table = $('expTable'), rows = $('expRows'), sum = $('expSummary');
   rows.innerHTML = '';
   guide.hidden = true; table.hidden = true; sum.textContent = '';
-  $('btnDlPptx').dataset.url = (triStatus === 'ready' && triBaseUrl) ? triBaseUrl + 'deck.pptx' : '';
+  /* 下载件的"可用"判据是 manifest（与形态无关）：轨 B/静态给 HTTP 直链，轨 A 给 rel
+     ——轨 A 的下载由宿主适配层按**文件名**走 read_bundle_file，不需要（也不该）预取整个 pptx。 */
+  var canDl = triStatus === 'ready';
+  var dlUrl = function(name){
+    if (!canDl) return '';
+    return hostKindDetect() === 'mcp-app' ? 'export/' + name : (triBaseUrl ? triBaseUrl + name : '');
+  };
+  $('btnDlPptx').dataset.url = dlUrl('deck.pptx');
   $('btnDlMain').disabled = !$('btnDlPptx').dataset.url;
   /* 双轨产物（C3）：保真轨下载件仅在新 schema（tracks 字段）且保真轨成功时显示；
      旧 schema manifest（无 tracks）保持单按钮现状，不报错 */
   var exp0 = (triManifest && triManifest.export) || {};
   var trk = exp0.tracks || null;
-  $('btnDlVector').hidden = !(trk && trk.vector && trk.vector.ok && triBaseUrl);
-  $('btnDlPdf').hidden = !(trk && trk.vector && trk.vector.ok && triBaseUrl);
-  $('btnDlVector').dataset.url = (trk && trk.vector && trk.vector.ok && triBaseUrl) ? triBaseUrl + 'deck-vector.pptx' : '';
-  $('btnDlPdf').dataset.url = (trk && trk.vector && trk.vector.ok && triBaseUrl) ? triBaseUrl + 'deck.pdf' : '';
+  var vecOk = !!(trk && trk.vector && trk.vector.ok);
+  $('btnDlVector').hidden = !vecOk;
+  $('btnDlPdf').hidden = !vecOk;
+  $('btnDlVector').dataset.url = vecOk ? dlUrl('deck-vector.pptx') : '';
+  $('btnDlPdf').dataset.url = vecOk ? dlUrl('deck.pdf') : '';
   if (!state.loaded){
     guide.innerHTML = '先打开一份 HTML 幻灯片。';
     guide.hidden = false;
@@ -8263,7 +8359,7 @@ function renderExportView(){
   }
   if (triStatus !== 'ready'){
     guide.innerHTML = (triStatus === 'unavailable'
-      ? '本页面读不到 <code>export/</code> 产物：file:// 直开会被浏览器拦截相对路径读取，MCP Apps 轨（宿主内嵌）目前也不提供产物通道。' +
+      ? '本页面读不到 <code>export/</code> 产物：file:// 直开会被浏览器拦截相对路径读取。' +
         '请通过伴随服务 <code>python3 tools/edit.py</code> 打开本页，或让宿主在 <code>pptx-html:load</code> 消息中注入 <code>exportManifest</code> / <code>exportBaseUrl</code>。<br>'
       : '') +
       '还没有 export/ 产物（该 deck 从未翻转）。翻转而非编辑器职责——转换即技能：<br>' +
@@ -8328,16 +8424,17 @@ function renderExportView(){
     /* uncovered_glyphs 非空 → 字体子集已过期（防线 A 需重跑） */
     tr.appendChild(td(ps.uncovered.length ? 'fonts stale（缺 ' + ps.uncovered.length + ' 字形）' : ''));
     var ops = document.createElement('td');
-    if (ps.artifact && triBaseUrl){
+    if (ps.artifact){
       var dl = document.createElement('button');
       dl.className = 'btn-dl';
       dl.textContent = '下载 ' + (ps.carrier === 'svg' ? 'SVG' : 'PNG');
-      dl.title = ps.artifact;
-      dl.dataset.url = ps.artifact;
-      dl.addEventListener('click', function(){
-        downloadAsset(ps.artifact, (ps.carrier === 'svg' ? 'page-' + pad2(ps.manifestIdx + 1) + '.svg'
-                                                          : 'page-' + pad2(ps.idx + 1) + '.png'));
-      });
+      dl.title = '第 ' + (ps.idx + 1) + ' 页产物';
+      /* 轨 A 的产物地址是 data: URI，不必（也不该）塞进 dataset；下载按**文件名**走
+         read_bundle_file（mcpAppHost.download 自动补 export/ 前缀）。 */
+      var dlName = (ps.carrier === 'svg' ? 'page-' + pad2(ps.manifestIdx + 1) + '.svg'
+                                         : 'page-' + pad2(ps.idx + 1) + '.png');
+      dl.dataset.url = hostKindDetect() === 'mcp-app' ? '' : ps.artifact;
+      dl.addEventListener('click', function(){ downloadAsset(dl.dataset.url, dlName); });
       ops.appendChild(dl);
     }
     var rf = document.createElement('button');
@@ -8355,7 +8452,8 @@ function renderExportView(){
 /* 产物下载：HTTP 态直链/FSAA 另存；嵌入态 postMessage（export-intent, action=download）。
    通道分流在宿主适配层——静态/Bridge 共用 HTTP 直链，嵌入态交宿主交付。 */
 async function downloadAsset(url, name){
-  if (!url){ toast('产物地址未知（无 exportBaseUrl），无法下载'); return; }
+  /* 判据是"有地址或有文件名"：轨 A 的下载由宿主适配层按**文件名**取（url 可以为空）。 */
+  if (!url && !name){ toast('产物地址未知（无 exportBaseUrl），无法下载'); return; }
   return hostBridge.download(url, name);
 }
 $('btnDlPptx').addEventListener('click', function(){

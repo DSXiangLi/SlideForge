@@ -753,6 +753,88 @@ def run_local_canvas_and_asset_arm(browser, base, root):
         managed_post(daemon, "/api/bridge/stop", {"reason": "cli-stop"})
 
 
+SVG_PAGE = ('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="9" viewBox="0 0 16 9">'
+            '<rect width="16" height="9" fill="#123456"/></svg>')
+
+EXPORT_MANIFEST = {
+    "deck": {"title": "轨 A 产物通道验收"},
+    "theme": {},
+    "pages": [
+        {"slide_id": "s1", "render_mode": "html", "carrier": "svg", "fidelity": 99.5},
+        {"slide_id": "s2", "render_mode": "html", "carrier": "svg", "fidelity": 98.0},
+    ],
+    "export": {"exported_at": "2026-10-29T00:00:00+00:00", "exporter": "harness",
+               "carriers": {"svg": 2, "baked": 0, "png-fallback": 0}, "fidelity_avg": 98.75,
+               "tracks": {"editable": {"ok": True}, "vector": {"ok": True}}},
+}
+
+
+def run_track_a_artifacts_arm(browser, base, root):
+    """⑪ 受信沙箱臂（v3.10 轨 A 产物通道）：export/ 必须经 read_bundle_file 自动加载。
+
+    回归的病：轨 A 结构性读不到 `export/`（`triBaseUrl=null` → 产物清单恒空、对比恒黑面、
+    下载恒不可用；转换成功、`export-refreshed` 也到了却什么都不加载）。本臂断言：装载即可
+    读到 manifest、当前页产物水合成 `data:` URI、下载判据不再依赖 HTTP 基址、
+    `export_revision` 变化（轨 A 唯一的"产物已更新"信号）触发重读。
+    """
+    work = root / "tracka-artifacts"
+    work.mkdir(parents=True)
+    (work / "assets").mkdir()
+    (work / "assets" / "pixel.png").write_bytes(PNG_1PX)
+    (work / "fonts").mkdir()
+    (work / "fonts" / "harness.woff2").write_bytes(FONT_BYTES)
+    (work / "index.html").write_text(DECK, encoding="utf-8")
+    exp = work / "export"
+    (exp / "native").mkdir(parents=True)
+    (exp / "manifest.json").write_text(json.dumps(EXPORT_MANIFEST), encoding="utf-8")
+    for i in (1, 2):
+        (exp / f"page-{i:02d}.svg").write_text(SVG_PAGE, encoding="utf-8")
+        (exp / f"page-{i:02d}.diff.png").write_bytes(PNG_1PX)
+        (exp / "native" / f"page-{i:02d}.png").write_bytes(PNG_1PX)
+    for name in ("deck.pptx", "deck-vector.pptx", "deck.pdf"):
+        (exp / name).write_bytes(b"harness")
+    with Daemon(work) as daemon:
+        discovery = discover(work)
+        opened = managed_post(daemon, "/api/bridge/open", {
+            "consumer_id": "split-harness", "deck_path": str(work / "index.html"),
+            "output_path": "index.html", "view": "edit", "open_browser": False})
+        sid = opened["session_id"]
+        # 发布一次：bundle 登记表是**白名单**，export/ 只有在某次发布扫到之后才可读
+        # （真实链路由 agent 的 complete/save 发布建立；这里用一次 asset 写触发）。
+        managed_post(daemon, "/api/bridge/asset", {
+            "session_id": sid, "path": "assets/pixel.png",
+            "data_base64": base64.b64encode(PNG_1PX).decode("ascii"),
+            "base_revision": opened["revision"]})
+        view = ViewPage(browser, base, discovery)
+        try:
+            view.result(opened)
+            wait_for(lambda: view.state()["deckText"], what="⑪ 受管 deck 载入")
+            view.frame.evaluate("() => triRefresh()")
+            wait_for(lambda: view.frame.evaluate("() => triStatus") == "ready",
+                     what="⑪ 轨 A 经 read_bundle_file 读到 export/manifest.json")
+            check("read_bundle_file" in view.chain(), "⑪ 轨 A 没有走 read_bundle_file 读产物")
+            check(view.frame.evaluate("() => triManifest.pages.length") == 2, "⑪ manifest 页数不符")
+            check(view.frame.evaluate("() => !$('expTable').hidden") is True,
+                  "⑪ 产物清单表未显示（轨 A 仍是空/引导态）")
+            check(view.frame.evaluate("() => $('expRows').children.length") == 2, "⑪ 产物清单没有两行")
+            check(not view.frame.evaluate("() => document.body.innerText.includes('无产物通道')"),
+                  "⑪ 轨 A 仍在报「无产物通道」")
+            check(view.frame.evaluate("() => !!$('btnDlPptx').dataset.url"),
+                  "⑪ 主产物下载仍不可用（判据不该依赖 HTTP 基址）")
+            view.frame.evaluate("() => triArtifactUri('export/page-01.svg')")
+            wait_for(lambda: str(view.frame.evaluate(
+                "() => triDataUri['export/page-01.svg'] || ''")).startswith("data:image/svg"),
+                what="⑪ 当前页产物水合成 data: URI")
+            before = view.chain().count("read_bundle_file")
+            view.frame.evaluate("() => mcpAppApplyStatus({export_revision: 'sha256:changed-export'})")
+            wait_for(lambda: view.chain().count("read_bundle_file") > before,
+                     what="⑪ export_revision 变化触发重读 manifest")
+            view.assert_clean("⑪ 轨 A 产物通道")
+        finally:
+            view.close()
+        managed_post(daemon, "/api/bridge/stop", {"reason": "cli-stop"})
+
+
 def run_launch_split_host_arm(browser, base, root):
     """受限沙箱臂（仓库默认 `allow_same_origin: false` → 只有 allow-scripts）。
 
@@ -907,6 +989,8 @@ _TRANSPORT_CALLERS = {
     # 轨 A（mcpApp）传输包装
     "mcpAppBoot", "mcpAppLoadDeck", "mcpAppPollOnce", "mcpAppPersistDraft", "mcpAppSubmitIntent",
     "mcpAppHydrateImage", "mcpAppHydrateCss",
+    # v3.10 轨 A 产物通道：export/manifest.json（mcpAppLoadExport）与逐页产物图（mcpAppFetchArtifact）
+    "mcpAppLoadExport", "mcpAppFetchArtifact",
 }
 _TRANSPORT_PROXIES = ("bridgeFetch", "mcpAppCall")
 _NAME_CHARS = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$")
@@ -1018,6 +1102,8 @@ def main() -> int:
                 run_brief_first_deck_trusted_arm(browser, base, root)
                 # ⑩ 本地画布守卫 + 轨 A 换图（v3.9.5）
                 run_local_canvas_and_asset_arm(browser, base, root)
+                # ⑪ 轨 A 产物通道（v3.10）：export/ 经 read_bundle_file 自动加载
+                run_track_a_artifacts_arm(browser, base, root)
                 browser.close()
             managed_post(daemon, "/api/bridge/stop", {"reason": "cli-stop"})
 

@@ -544,6 +544,8 @@ notifyAgent("批注已提交（batch#2）")
 A9 的并排/滑动/差异视图需要 export 产物（`deck-vector` 的逐页 SVG/PNG、`manifest.json`）。轨 A 无服务端 origin → 全部要经 `read_export` base64 中转，64 页 × 多档体积可观。
 **一期决策**：轨 A 的对比质检**按可见页懒加载单文件**，不做全量预取；若实测不可接受，**降级为"对比质检仅在轨 B 提供"**（诚实降级优于卡顿）。**待 P3 实测决定。**
 
+> **【2026-10-29 落地，本节缺口已补齐】** 体积纪律按"按可见页懒加载"执行；"降级为轨 B 独有"**不采纳**——轨 A 已于 `editor.html` v3.10.0 获得完整产物通道（`triArtifactUri` → `read_bundle_file` → `data:` URI），详见 §10.14。下文 §10.10 第 1、2 条与 §10.13 末尾"遗留"中"轨 A 无产物通道"的口径**同时作废**。
+
 ---
 
 ## 6. 改造清单
@@ -796,3 +798,21 @@ A9 的并排/滑动/差异视图需要 export 产物（`deck-vector` 的逐页 S
 **明确不做**（评估后否决，理由见 progress §2.4）：合并 `save_deck` / `write_asset` / `rollback`（同一 CAS 发布族，但校验、事件、`allow_git_init` 各异，合并会把共享校验的爆炸半径放大到三条写入路径）；通用 `bridge_request(method, path, body)` passthrough（等于把 daemon **全部**路由的写权限交给沙箱，并丢掉逐工具 `readOnlyHint`/`destructiveHint` 所承载的宿主同意语义）。
 
 **遗留**：`read_bundle_file` 的 `export/` 分支在轨 A 本就落在本文 §5.11 声明的"无产物通道"降级路径上；若后续确认轨 A 不再提供产物下载，该分支连同 `/api/bridge/export-read` 可再收一层（工具面到 13）。
+
+### 10.14 轨 A 产物通道（2026-10-29）——§5.11 的缺口已补齐，降级取消
+
+**触发**：用户实测"一键转换导出"里 agent 正常导出了 pptx，但页面上**什么都没有加载**。排查确认：daemon 侧完全正常（一次成功的 `convert.requested` 连着发了 `deck-changed`(39) / `export-refreshed`(40) / `intent-status:succeeded`(41)，`export/` 产物齐全且已在 `bundle_files` 白名单内），问题在 **View 侧结构性读不到 `export/`**——正是 §5.11 一期决策留下的"轨 A 无产物通道"。
+
+**病根（三处叠加，都在 editor.html 轨 A 分支）**：① `openHtml` 对 mcp-app 显式把 `triBaseUrl`/`triDeckBase` 置 null（§10.10 第 1 条的做法）；② `refreshExport` 因此只能落 `triStatus='unavailable'`；③ `bridgeForceExport`（`export-refreshed` 的落点）第一行 `if(!triBaseUrl)return` 直接返回，`buildTriPages`/`nativeUrlOf` 的产物地址也全部依赖该基址。净效果：产物清单恒空、对比质检恒黑面、下载按钮恒不可用，`export-refreshed` 到了也**什么都不发生**。
+
+**落地**（`editor.html` v3.10.0，工具面与 daemon 契约**一字未改**）：
+
+1. **`triArtifactUri(rel)` 成为产物地址解析的唯一入口**：轨 A 经既有 app-only 工具 `read_bundle_file` 水合成 `data:` URI（rel → URI 缓存 + 在途/失败登记，rel 只取一次），其余形态仍是基址直链——`export/…` 走 `triBaseUrl`（注意摘掉 rel 的 `export/` 前缀，否则会拼成 `export/export/`），`assets/`、`fonts/` 走 `triDeckBase`。
+2. **`mcpAppLoadExport()`**：轨 A 读 `export/manifest.json`（`read_bundle_file` → `TextDecoder` 解 base64），取代 `triStatus='unavailable'`；取不到则落 `'none'`（引导态）。
+3. **触发点**：`get_status.export_revision` 变化（**轨 A 没有 SSE，这是它唯一的"产物已更新"信号**；同时丢弃 data: 缓存）、装载 deck、`export-refreshed`（轨 B）、「重新读取 export/」按钮。
+4. **按可见页懒加载**：产物图只在构建视图时经 `triArtifactUri` 触发，而视图只会请求**当前页**的产物 ⇒ 不遍历整个 deck，符合 §5.11"一期决策"的体积纪律。
+5. **下载判据由"必须有 HTTP 基址"改为"有 manifest"**：轨 A 的下载按**文件名**走 `read_bundle_file`（`mcpAppHost.download` 自动补 `export/` 前缀），不再把整个 pptx 预取成 data URI。
+
+**验收**：`aa_mcp_apps_check.py` 新增第九臂 `run_track_a_artifacts_arm`（⑪）——断言"装载即读到 manifest、产物清单两行、不出现「无产物通道」、下载可用、当前页产物水合成 `data:image/svg`、`export_revision` 变化触发重读"。**已做负向对照**：把 `editor.html` 换回修复前的 `HEAD` 版本，该臂在"等 triStatus=ready"处超时失败；换回修复版即通过。回归：`o_tri_view_check` ALL PASS（**过程中它抓到一处真回归**——`deck/export/export/page-01.svg` 的双前缀拼接，已修）、`aa_mcp_apps_check` ALL PASS、`test_bridge_core` 53 passed、`r_bridge_check` sdk/apps/integration PASS、bundle `--check` OK。
+
+**对 §5.11 / §10.10 / §10.13 的更正**：§5.11 的"若实测不可接受则降级为轨 B 独有"**不采纳**（实测可接受）；§10.10 第 1、2 条的"轨 A 明确报无产物通道"作废；§10.13 末尾"遗留"里"若后续确认轨 A 不再提供产物下载，可再收一层（工具面到 13）"**不再成立**——该分支现在是轨 A 的**唯一**产物通道，必须保留。
