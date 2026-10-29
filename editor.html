@@ -8806,7 +8806,9 @@ function bridgeRenderTasks(){
   var box=$('bridgeTasks');box.innerHTML='';var rows=Object.keys(bridge.intents).map(function(k){return bridge.intents[k];}).sort(function(a,b){return (a.seq||0)-(b.seq||0);});
   if(!rows.length){var e=document.createElement('div');e.className='bridge-task';e.textContent='暂无请求记录';box.appendChild(e);return;}
   rows.forEach(function(x){
-    var row=document.createElement('div');row.className='bridge-task';
+    /* dataset.intentId：任务面板的行需可被**稳定寻址**（测试/自动化要按 intent 定位动作按钮；
+       2026-10-29 加，配合"恢复动作已从简报区迁到面板"）。 */
+    var row=document.createElement('div');row.className='bridge-task';row.dataset.intentId=x.id;
     var head=document.createElement('div');head.className='bridge-task-head';var name=document.createElement('b');name.textContent=x.type||'intent';
     var st=document.createElement('span');st.className='bridge-'+x.status;st.textContent=x.status+(x.attempt?' · attempt '+x.attempt:'');head.appendChild(name);head.appendChild(st);row.appendChild(head);
     var msg=document.createElement('div');msg.className='bridge-task-msg';msg.textContent=(x.error&&x.error.message)||(x.result_summary&&x.result_summary.message)||('seq '+(x.seq||'待确认'));row.appendChild(msg);
@@ -8880,6 +8882,13 @@ async function bridgeStatusAndRecover(){
   if(!launch.applied)applyLaunch(launchHint());
   briefSyncRender();
   bridge.lastAppliedEventId=E;sessionStorage.setItem('pptx-html:bridge-event:'+bridge.sessionId,String(E));updateHistoryBtn();
+  /* 必须 return：`hostBridge.status()` 的唯一调用方 openBrief()（E:6979）把这个**返回值**当
+     status 对象读 `st.brief_options`。此前没有 return ⇒ 解析为 undefined ⇒ openBrief 用
+     `(st && st.brief_options) || null` 把刚拉到的 brief_options **覆盖成 null**，导致轨 B
+     每次进入脑暴视图都退回静态问卷（"重进视图生效"从未成立）。2026-10-29 定位：
+     docs/progress/1029_brief_options_refresh_fix.md。其余直调点（resync/SSE 重连/心跳后）
+     都不读返回值，加 return 无副作用。 */
+  return st;
 }
 async function bridgeApplyEvent(evt){
   var data=evt.data||{};data.__eventId=evt.id;

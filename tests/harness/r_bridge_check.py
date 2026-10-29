@@ -402,7 +402,12 @@ def ui_group():
                     check("不是 MCP JSON-RPC tool result" in success, f"brief success conflated web status with tool result: {success}")
                     page.wait_for_function("() => state.loaded && bridge.loadedRevision && document.getElementById('deckFrame').contentDocument.body.textContent.includes('首次生成已加载')", timeout=12000)
                     check((root / "index.html").exists(), "first publication did not create target deck")
-                    check(page.locator("#bridgeState").inner_text() in ("Bridge 已同步", "Bridge offline", "Bridge waiting"), "bridge state not visible")
+                    # 状态条文案由 `bridgeRenderState` 写（'Bridge '+agent_state、'Agent 更新'、'请求已记录'…），
+                    # 且 `#bridgeBar` 在简报模式下被 CSS 隐藏 → **不能一次性同步读**（会读到空串而假失败）。
+                    # 这里等"状态条可见且非空"，只断言"状态可见"这件事。
+                    page.wait_for_function(
+                        "() => { const el = document.getElementById('bridgeState');"
+                        " return !!el && el.offsetParent !== null && el.innerText.trim() !== ''; }", timeout=15000)
 
                     # brief-page-split §7.2：首份 deck 刚产生且用户已提交过简报 → 脑暴视图自动退出、工作台恢复可见
                     page.wait_for_function("() => document.body.getAttribute('data-launch') === null "
@@ -418,36 +423,102 @@ def ui_group():
                         "session_id": opened["session_id"], "intent_id": failed_claim["intent_id"],
                         "attempt": failed_claim["attempt"], "consumer_id": consumer,
                         "action": "fail", "message": "可恢复测试"})
-                    page.wait_for_function("id => bridge.briefSubmission.intentId === id && bridge.briefSubmission.state === 'error' && !document.getElementById('btnBriefRetry').hidden", arg=failed_claim["intent_id"], timeout=8000)
+                    page.wait_for_function("id => bridge.briefSubmission.intentId === id && bridge.briefSubmission.state === 'error'", arg=failed_claim["intent_id"], timeout=8000)
                     page.wait_for_timeout(700)
                     page.reload();page.wait_for_function("id => bridge.bound && bridge.briefSubmission.intentId === id && bridge.briefSubmission.state === 'error'", arg=failed_claim["intent_id"], timeout=10000)
-                    page.click("#btnBrief")
-                    check(not page.locator("#btnBriefRetry").is_hidden(), "brief failure recovery action was not restored from query/IndexedDB")
+
+                    # ── v3.9.9 起「恢复动作」从简报区迁到**任务面板**（简报区只剩一个
+                    #    `#btnBriefTasks`「查看请求记录」，动作按钮由 `bridgeRenderTasks()` 渲染进
+                    #    `#bridgeTasks`、行带 `data-intent-id`）。统一用下面两个小工具驱动。
+                    #    注意：二次确认仍在——`askConfirm` 位于**策略面**（`bridgeStopIntent` /
+                    #    `bridgeRetryIntent`），面板按钮与旧简报区按钮共用，故下面仍要点 `#confirmOk`。
+                    def brief_open(attempts=4, timeout=8000):
+                        """确保简报视图打开（浮层显示）。
+
+                        这里有个**测试侧竞态**（2026-10-29 用探针钉死）：`view-hint` 事件会把在线页面
+                        直接切走——`bridgeApplyEvent` 里 `view-hint → applyLaunch(data.view)` **不受
+                        `launch.applied` 保护**，而本文件多处服务端 `/api/bridge/open` 会推新 hint。
+                        于是刚点开的脑暴视图可能被拽回工作台（探针实测：超时那刻 `launch=null`、
+                        `overlay=false`，但 `bound/connected/briefRendered` 都正常）。
+                        所以点一次不够——有界重试到浮层**真的显示**（等同用户"再点一次"）。
+                        """
+                        for _ in range(attempts):
+                            if page.evaluate("() => document.getElementById('briefOverlay').classList.contains('show')"):
+                                return
+                            # 走 rail 按钮的**同一入口函数**：`page.click('#btnBrief')` 偶发
+                            # "不可点"30s 超时（浮层/过渡遮挡），而这条路径要的是"到达脑暴视图"，
+                            # 不是"验证 rail 按钮可点"（后者由别处覆盖）。
+                            page.evaluate("() => { if (typeof launchEnterBrief === 'function') launchEnterBrief(); }")
+                            try:
+                                page.wait_for_function(
+                                    "() => document.getElementById('briefOverlay').classList.contains('show')",
+                                    timeout=timeout)
+                                return
+                            except Exception:
+                                continue
+                        raise AssertionError("brief view 未能打开（连续 %d 次被 view-hint/状态切换打断）" % attempts)
+
+                    def panel_open():
+                        """确保任务面板**可见可点**。
+
+                        两条容易踩的 CSS 事实（2026-10-29 实测）：
+                          ① `body[data-launch="brief"] > #bridgeTasks{display:none!important}`（`#bridgeBar` 同）
+                             —— 简报模式下整个面板/桥栏都被 CSS 藏起来；
+                          ② 面板入口 `#btnBriefTasks` 只在 `data-launch==='brief'` 时才顺手 `closeBrief()`，
+                             否则浮层会继续盖住面板。
+                        顺序：按当前可见的入口展开 → 浮层仍开着就关掉 → 还没展开则再用桥栏入口兜一次。
+                        """
+                        page.evaluate("""() => {
+                          const tasks = () => document.getElementById('bridgeTasks');
+                          const ov = document.getElementById('briefOverlay');
+                          const clickIfUsable = (el) => { if (el && el.offsetParent !== null) el.click(); };
+                          if (!tasks().classList.contains('show')) {
+                            clickIfUsable(ov.classList.contains('show') ? document.getElementById('btnBriefTasks')
+                                                                       : document.getElementById('btnBridgeTasks'));
+                          }
+                          if (ov.classList.contains('show')) clickIfUsable(document.getElementById('btnBriefClose'));
+                          if (!tasks().classList.contains('show')) clickIfUsable(document.getElementById('btnBridgeTasks'));
+                        }""")
+
+                    def panel_btn(iid, label):
+                        panel_open()
+                        return page.locator('[data-intent-id="%s"] button:has-text("%s")' % (iid, label))
+
+                    # 恢复入口在 reload 后仍可用（等价于旧断言"recovery action restored from query/IndexedDB"：
+                    # `#btnBriefTasks` 的显隐由 `briefSubmission.intentId` 决定，后者是 query/IndexedDB 恢复来的）
+                    brief_open()
+                    check(page.locator("#btnBriefTasks").count() == 1, "brief view lost its task-panel entry (#btnBriefTasks)")
+                    check(panel_btn(failed_claim["intent_id"], "重新生成").is_visible(),
+                          "failed brief lost its recovery action after reload (query/IndexedDB 恢复)")
                     retry_before = page.evaluate("id => ({status:bridge.intents[id].status,error:bridge.intents[id].error})", failed_claim["intent_id"])
                     page.evaluate("() => { bridge.latestServerRevision='sha256:'+('0'.repeat(64)); }")
-                    page.click("#btnBriefRetry");page.wait_for_selector("#confirmMask.show");page.click("#confirmOk")
+                    panel_btn(failed_claim["intent_id"], "重新生成").click();page.wait_for_selector("#confirmMask.show");page.click("#confirmOk")
                     page.wait_for_function("id => bridge.intents[id].status === 'failed'", arg=failed_claim["intent_id"], timeout=8000)
                     retry_after = page.evaluate("id => ({status:bridge.intents[id].status,error:bridge.intents[id].error})", failed_claim["intent_id"])
                     check(retry_after == retry_before, f"failed retry did not restore prior status/error: before={retry_before} after={retry_after}")
                     check(retry_after["status"] != "interrupted", f"failed retry fabricated interrupted state: {retry_after}")
                     page.evaluate("revision => { bridge.latestServerRevision=revision; }", result["revision"])
+                    brief_open()   # 再提交一次简报要回到简报视图
                     page.click("#btnBriefSend")
                     page.wait_for_function("id => Object.values(bridge.intents).some(x => x.type === 'brief.submitted' && x.status === 'pending' && x.id !== id)", arg=failed_claim["intent_id"], timeout=8000)
                     priority = page.evaluate("id => ({primary:bridge.briefSubmission.intentId,state:bridge.briefSubmission.state,other:document.getElementById('briefOtherCount').innerText,disabled:document.getElementById('btnBriefSend').disabled,pending:Object.values(bridge.intents).find(x=>x.type==='brief.submitted'&&x.status==='pending'&&x.id!==id).id})", failed_claim["intent_id"])
                     check(priority["primary"] == failed_claim["intent_id"] and priority["state"] == "error" and "其他 brief ×2" in priority["other"] and priority["disabled"], f"brief recovery priority/count mismatch: {priority}")
                     page.evaluate("id => bridgeCancelIntent(id)", priority["pending"])
                     page.wait_for_function("id => bridge.intents[id].status === 'cancelled'", arg=priority["pending"], timeout=8000)
-                    page.click("#btnBriefRetry");page.wait_for_selector("#confirmMask.show");page.click("#confirmOk")
+                    panel_btn(failed_claim["intent_id"], "重新生成").click();page.wait_for_selector("#confirmMask.show");page.click("#confirmOk")
                     page.wait_for_function("id => bridge.briefSubmission.intentId === id && bridge.briefSubmission.state === 'pending' && bridge.intents[id].attempt === 2", arg=failed_claim["intent_id"], timeout=8000)
                     rebuilt_claim = managed_post(origin, management, "/api/bridge/await", {
                         "session_id": opened["session_id"], "consumer_id": consumer, "timeout_sec": 1})
                     page.evaluate("() => bridgeRecoverIntents()")
-                    page.wait_for_function("id => bridge.briefSubmission.intentId === id && bridge.briefSubmission.state === 'processing' && !document.getElementById('btnBriefStop').hidden", arg=failed_claim["intent_id"], timeout=8000)
-                    page.click("#btnBriefStop");page.wait_for_selector("#confirmMask.show");page.click("#confirmOk")
-                    page.wait_for_function("id => bridge.intents[id].status === 'interrupted' && !document.getElementById('btnBriefResume').hidden && !document.getElementById('btnBriefRetry').hidden", arg=failed_claim["intent_id"], timeout=8000)
+                    page.wait_for_function("id => bridge.briefSubmission.intentId === id && bridge.briefSubmission.state === 'processing'", arg=failed_claim["intent_id"], timeout=8000)
+                    panel_btn(failed_claim["intent_id"], "停止").click();page.wait_for_selector("#confirmMask.show");page.click("#confirmOk")
+                    page.wait_for_function("id => bridge.intents[id].status === 'interrupted'", arg=failed_claim["intent_id"], timeout=8000)
+                    check(panel_btn(failed_claim["intent_id"], "继续上次").is_visible()
+                          and panel_btn(failed_claim["intent_id"], "重新生成").is_visible(),
+                          "interrupted row lost its resume/rebuild actions")
                     stopped = page.evaluate("id => bridge.intents[id]", failed_claim["intent_id"])
                     check(stopped.get("external_work_may_continue") is True, f"processing stop warning missing: {stopped}")
-                    page.click("#btnBriefResume");page.wait_for_selector("#confirmMask.show");page.click("#confirmOk")
+                    panel_btn(failed_claim["intent_id"], "继续上次").click();page.wait_for_selector("#confirmMask.show");page.click("#confirmOk")
                     page.wait_for_function("id => bridge.intents[id].status === 'pending' && bridge.intents[id].attempt === 3 && bridge.intents[id].reused_work_path === true", arg=failed_claim["intent_id"], timeout=8000)
                     resumed_claim = managed_post(origin, management, "/api/bridge/await", {
                         "session_id": opened["session_id"], "consumer_id": consumer, "timeout_sec": 1})
@@ -469,6 +540,10 @@ def ui_group():
                     page.wait_for_function("() => window.bridge && bridge.bound", timeout=10000)
                     check(page.evaluate("() => bridge.launchView === null"), "URL fragment 的未知 view 被写进了启动提示")
                     page.wait_for_function("() => document.body.getAttribute('data-launch') === 'brief'", timeout=10000)
+                    # `openBrief()` 在轨 B 要先 `hostBridge.status()` 往返一次才 `show()`（P0 修复后语义
+                    # 才是对的），所以"落脑暴视图"必须等**浮层真的显示**，不能只等 `data-launch` 这个
+                    # 同步标记——2026-10-29 实测该断言因此偶发假失败。
+                    page.wait_for_function("() => document.getElementById('briefOverlay').classList.contains('show')", timeout=15000)
                     fallback = page.evaluate("""() => ({launch:document.body.getAttribute('data-launch'),
                       shown:document.getElementById('briefOverlay').classList.contains('show'),
                       header:document.querySelector('body > header').getBoundingClientRect().height,

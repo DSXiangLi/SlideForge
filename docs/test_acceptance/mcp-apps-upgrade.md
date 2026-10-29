@@ -157,13 +157,13 @@ FAIL  T34-theme-proving        ← 既有失败（主题轨道待办）
 | T31-brief | ✅ **已修（ALL PASS）** | `#btnBriefGen` 已删（生成并入「发送」）；断言改读 `buildBriefExport()`；4 条文案断言随 v3.11.0 同步 |
 | T7-annotation | ✅ **已修** | 旧期望"提交后仍提示未导出"与 v3.9.7「批注提交即发送」冲突；改为"无提示 **且** 确实发出了 `pptx-html:annotations`" |
 | T32-imagegen-entries | ✅ **已修** | 读取已删除的 `#btnBridgeBake` 抛异常会**截断整轮 E2E**（无汇总行）；删死字段 |
-| T29-bridge(ui 组) | ❌ **仍红（已定位）** | 第二层：`#btnBriefRetry`/`#btnBriefStop`/`#btnBriefResume` 于 v3.9.9 随"简报区恢复按钮并入任务面板"删除，该段 5 处仍依赖 → 需按任务面板重写 |
-| T35-dynamic-brief | ❌ **仍红（已定位）** | 第一层（Esc 关不掉浮层导致点被拦截）已修；第二层是**应用侧真问题**：服务端已存新 `brief_options`，轨 B 页面**重进 brief 拿不到**（嵌入态注入正常） |
+| T29-bridge(ui 组) | ✅ **已修（2026-10-29）** | 该段按任务面板重写（面板行加 `data-intent-id` 寻址；`askConfirm` 仍在策略面，故确认步骤保留）→ `--group ui` 连续两次 PASS |
+| T35-dynamic-brief | ✅ **已修（2026-10-29）** | 根因是应用 bug：`bridgeStatusAndRecover()` 缺 `return` ⇒ `openBrief()` 用其返回值把 `brief_options` 覆盖成 `null`（轨 B 每次进脑暴视图退回静态问卷）→ 加 `return st;` 后 **ALL PASS** |
 | T34-theme-proving | ❌ **仍红（既有）** | deck 实为 7 主题 × 8 页型 = 56 页（无 g3）、`data-ig` 只在 g1/g2/g4、多处真实重叠 → 属**主题轨道待办**，非测试问题 |
 
 完整分析、证据链与"未做/为何不做"见 [`docs/progress/1029_stale_test_cleanup.md`](../progress/1029_stale_test_cleanup.md)。
 
-**清理后全量复核**：`==== 汇总：62 项，59 PASS，3 FAIL ====`（清理前 **57 PASS / 5 FAIL**）——T7 / T31 / T32 三条转 PASS ✅，剩下 3 条即上表的 T29-ui / T35 / T34。
+**全量复核（2026-10-29 两轮）**：清理后 **62 项 59 PASS / 3 FAIL**（剩 T29-ui / T35 / T34）；修掉 T29-ui 与 T35 的**根因**后再跑 **62 项 61 PASS / 1 FAIL**——唯一剩下的是 **T34**（deck 内容任务，属主题轨道）。两处根因与改动见 [`docs/progress/1029_brief_options_refresh_fix.md`](../progress/1029_brief_options_refresh_fix.md)。
 
 ---
 

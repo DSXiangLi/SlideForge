@@ -1,6 +1,9 @@
 # 1029 · 存量红测试清理 + harness 软链硬化
 
 > **状态**：部分完成（2 修好 / 1 精确定位（应用侧真问题）/ 1 属主题轨道 / 1 需按新 UI 重写一段）
+>
+> **后续更新（2026-10-29 同日晚）**：本文 §2 表里 **T29-ui 与 T35 两条已修复**，根因（`bridgeStatusAndRecover()` 缺 `return` / 恢复动作迁移后的寻址）与改动见
+> [`1029_brief_options_refresh_fix.md`](1029_brief_options_refresh_fix.md)——阅读 §2/§3/§4 时请以该文为准，**只剩 T34 仍红**。
 > **日期**：2026-10-29
 > **来源**：用户批准"清 5 个存量红 + 硬化 `setup_serve`"
 > **前置**：[`1029_ui_copy_plain_language.md`](1029_ui_copy_plain_language.md)（v3.11.0 文案改名，连带打到若干硬编码旧标签）
