@@ -127,7 +127,7 @@
 | A6 | 目录侧栏缩略图 + 拖拽排序 | Shadow DOM E:6302,6305、HTML5 拖拽 E:6394 → **改 deck DOM 顺序** E:6421 → `setDirty` E:6432 | `attachShadow`、pointer capture | ✅ 可用 |
 | A7 | 三态工作台 | 编辑/批注/翻转 `viewSeg` E:775-778 → `setView` E:6710 / `applyView` E:6719 | — | ✅ 可用 |
 | A8 | 双面卡翻面 | `flipBadge` E:867 + `F` 键 E:4203 → `setFlip` 3D E:6631 | `transitionend` E:6658 | ✅ 可用 |
-| A9 | 对比质检 | 并排/滑动/差异 E:838-840 → `applyCmpView` E:6763；分割线拖拽 E:7017；热区 E:7032 | — | ⚠️ 可用但**产物载体待设计**（见 §5.11） |
+| A9 | 对比检查 | 并排/滑动/差异 E:838-840 → `applyCmpView` E:6763；分割线拖拽 E:7017；热区 E:7032 | — | ⚠️ 可用但**产物载体待设计**（见 §5.11） |
 | A10 | 播放动效 | **编辑器无播放功能**：加载即 `__pptxMotion.freeze()` E:4002，序列化 `restoreAll` E:4732 | — | ✅ 可用 |
 
 **B 类 · 设计决策输入（产出"给 AI 的指令"，由 agent 落码）**
@@ -144,7 +144,7 @@
 |---|---|---|---|
 | C1 | 生图入口三态 | `btnBake`/`btnIllustrate` E:800-801,7674；桥栏 E:808-809 → `requestBake` E:7664 / `requestIllustrate` E:7668 | ✅ Bridge=intent / 嵌入=postMessage / 静态=复制 |
 | C2 | 导出（一键转换 + 下载） | `btnConvert` E:7238；下载 deck.pptx / vector.pdf E:7177-7185；重新翻转 E:7139,7198 | ✅ `export-intent` E:7156,7201,7223 |
-| C3 | 产物清单 | 导出内页签 E:903-904 | — |
+| C3 | 交付物 | 导出内页签 E:903-904 | — |
 | C4 | 版本历史与回滚 | `btnHistory` E:7773 → 列表 E:7781 → 回滚 E:7836 | ❌ 本地 → 服务端 `list_versions`/`rollback` |
 
 **D 类 · 状态与持久化**
@@ -539,10 +539,10 @@ notifyAgent("批注已提交（batch#2）")
 - 新 revision 载入后**重解锚点**，解不出的就地标黄，不静默丢；
 - **「提交」与「载入远端」解耦**：提交不再要求画布是当前版本（D2）；横幅只在真的会覆盖用户画布时拦人。
 
-### 5.11 对比质检的产物载入（轨 A 缺口）【本轮补】
+### 5.11 对比检查的产物载入（轨 A 缺口）【本轮补】
 
 A9 的并排/滑动/差异视图需要 export 产物（`deck-vector` 的逐页 SVG/PNG、`manifest.json`）。轨 A 无服务端 origin → 全部要经 `read_export` base64 中转，64 页 × 多档体积可观。
-**一期决策**：轨 A 的对比质检**按可见页懒加载单文件**，不做全量预取；若实测不可接受，**降级为"对比质检仅在轨 B 提供"**（诚实降级优于卡顿）。**待 P3 实测决定。**
+**一期决策**：轨 A 的对比检查**按可见页懒加载单文件**，不做全量预取；若实测不可接受，**降级为"对比检查仅在轨 B 提供"**（诚实降级优于卡顿）。**待 P3 实测决定。**
 
 > **【2026-10-29 落地，本节缺口已补齐】** 体积纪律按"按可见页懒加载"执行；"降级为轨 B 独有"**不采纳**——轨 A 已于 `editor.html` v3.10.0 获得完整产物通道（`triArtifactUri` → `read_bundle_file` → `data:` URI），详见 §10.14。下文 §10.10 第 1、2 条与 §10.13 末尾"遗留"中"轨 A 无产物通道"的口径**同时作废**。
 
@@ -600,7 +600,7 @@ A9 的并排/滑动/差异视图需要 export 产物（`deck-vector` 的逐页 S
 | **P0.5 协议修（双轨共用，已裁决先做）** | **D1**（写入基线与锚点版本拆开：`INSTRUCTION_INTENT_TYPES` + accept 归一化 + claim 归一化不毒化）✅ 已实施 ／ **D2**（编辑器提交解耦、`anchor` 标注 `revision`+`dirty`）✅ 已实施 ／ **D3**（锚点处理时解析）⏳ agent/SKILL 侧待做 ／ **D4**（批注批次合并）⏳ agent/SKILL 侧待做 ／ **6 个正负例测试** ✅ 已补 | ✅ `test_bridge_core.py` **44 passed**（原 38，+6）；✅ `r_bridge_check.py` 六组全 PASS；⏳ `run_e2e.py` 61 项回归在跑（**未出结果前不得记 PASS**） | ⚠️ **D1 落在无测试覆盖区**（变更前无任何断言覆盖 `accept_intent` 陈旧基线），已补测；`await_intent` 是双轨共用单点 |
 | **P1 适配层抽取** | editor.html 抽出统一宿主适配层（四态检测 + 策略接口 + `hostViewport` + 便条维护），**行为零变化** | 现有 e2e 61 项全绿 | 纯重构，可回滚 |
 | **P2 server 双模** | `bridge_dispatch.py` + 资源注册 + `attach_view` + app-only 工具组 + `_meta` 双写断言 + `await_intent` 异步化（§6.2 第 4 条） | 双模注册单测 + `r_bridge_check` 全绿 | 不改轨 B 行为 |
-| **P3 View 第四态** | editor.html 轨 A 态（读 deck / 保存 / 图片 / 轮询 / 草稿 / teardown / 下载 / 便条 / 批注批次 UI） | **harness 第三组宿主模拟器**：可参照宿主自身做法——`mcp_apps_tester.html`（264 行宿主模拟页）+ `tests/test_mcp_apps_host_matrix.py`（能力处置表与 SDK handler 全集双向 diff）+ L1/L2/L3 三层（pytest / node 探针驱动真实 bundle / playwright 真实页面）；另需实测 §5.11 对比质检与 §5.9 下载体积 | widget 生命周期不受控 |
+| **P3 View 第四态** | editor.html 轨 A 态（读 deck / 保存 / 图片 / 轮询 / 草稿 / teardown / 下载 / 便条 / 批注批次 UI） | **harness 第三组宿主模拟器**：可参照宿主自身做法——`mcp_apps_tester.html`（264 行宿主模拟页）+ `tests/test_mcp_apps_host_matrix.py`（能力处置表与 SDK handler 全集双向 diff）+ L1/L2/L3 三层（pytest / node 探针驱动真实 bundle / playwright 真实页面）；另需实测 §5.11 对比检查与 §5.9 下载体积 | widget 生命周期不受控 |
 | **P4 真实宿主** | SproutHarness 端到端（脑暴 → 生成 → 发布 → 编辑 → **异步批注** → 再生成）；Claude Desktop 可选 | 证据入 `docs/test_acceptance/`；**未跑项一律记 NOT_RUN** | 宿主分支未合并 |
 | **P5 插件打包**（正交） | 按 Agent Plugins 打包，widget 三件套入产物 | 冷启动探针 | — |
 
@@ -617,7 +617,7 @@ A9 的并排/滑动/差异视图需要 export 产物（`deck-vector` 的逐页 S
 5. **`notifyAgent` 的用户确认闸门是 UX 问题**：能触发回合，但用户必须点一下；不点则永不到达。**P4 第一个要看的体验点**。兜底是"便条 + `await_intent(1)` 轮询"（§5.5 第 5 条）。
 6. **`ui/download-file` 的 20 MB 上限对导出产物偏紧**（字体内嵌 + 双位图双写）→ P3 实测单档；超限回落"告知路径"。
 7. **布局约束是轨 A 最实的代价**：仅 `inline`、高度上限 1200px、宽度不跟随。工作台在此尺寸下的可用性需 P3 真机评估，可能需要"紧凑模式"。
-8. **§5.11 对比质检的产物载入未定**：轨 A 可能不得不降级为"仅在轨 B 提供对比"。
+8. **§5.11 对比检查的产物载入未定**：轨 A 可能不得不降级为"仅在轨 B 提供对比"。
 9. **图片管道性能**：54 页 deck 数十张图经 base64 的首屏性能待 P3 实测；方案 b 依赖对端 ACAO 与宿主 CSP 放行，且与"传输层整层删除"矛盾（§5.2）。
 10. **大载荷宿主限制**：单个工具结果的尺寸上限未知【未验证】；必要时切 `ui://` 资源分片。
 11. **红线变更分两次履行**：轨 A 工具数 5 → 18 于 2026-10-20 经用户签字（§4.3、§9 #1）；**1027 再精简 18 → 14**（删 `cancel_intent`/`retry_intent`/`query_intents`、并 `read_asset`+`read_export` → `read_bundle_file`）于 2026-10-27 经用户签字，见 §10.13。
@@ -633,9 +633,9 @@ A9 的并排/滑动/差异视图需要 export 产物（`deck-vector` 的逐页 S
 | 2 | §5.10 D2：是否允许"锚点指向未落盘内容"提交 | ✅ **允许**（诚实标注 `dirty`，由 D3 按条报"已失效/已重定位"） | §5.10.3 D2 |
 | 3 | P0.5 是否先于 P1 实施 | ✅ **先做**（双轨共用、与 MCP Apps 升级解耦、可独立验收） | §7 P0.5 行 |
 | 4 | §5.2 方案 b（loopback 静态服务） | ✅ **保留为可选优化、不默认启用**；须在评审中明确承认它是对 §0"传输层整层不启动"的例外 | §5.2 方案 b |
-| 5 | §5.11 对比质检在轨 A 的取舍 | ✅ **按可见页懒加载单文件**；P3 实测不可接受时才降级为轨 B 独有 | §5.11 |
+| 5 | §5.11 对比检查在轨 A 的取舍 | ✅ **按可见页懒加载单文件**；P3 实测不可接受时才降级为轨 B 独有 | §5.11 |
 
-**遗留待验证（非裁决项，P3/P4 实测）**：下载 20 MB 上限对导出产物的实际余量；1200px 高度下的工作台可用性；对比质检产物载入的真实代价。
+**遗留待验证（非裁决项，P3/P4 实测）**：下载 20 MB 上限对导出产物的实际余量；1200px 高度下的工作台可用性；对比检查产物载入的真实代价。
 
 ---
 
@@ -725,7 +725,7 @@ A9 的并排/滑动/差异视图需要 export 产物（`deck-vector` 的逐页 S
 **已实现**（`editor.html` 的 `mcpApp*`）：`ready`/`attach_view`/`get_status`/`read_deck` 载入渲染、`save_deck`（CAS + receipt + Git 初始化确认）、`write_asset`（换图后随即保存引用）、`submit_intent`（指令型不因陈旧基线阻断 + `anchor` 上报 + 敲门短句）、`save_draft` 草稿（防抖）+ `setModelContext` 便条（2s 防抖，含 D5 的 `active_edit`/待处理数/批注数）、2s 轮询 `get_status`（空闲退避 10s、`document.hidden` 暂停、远端 revision 变化走"有脏则先保草稿 + 横幅"）、`read_export` + `downloadFile`（>20 MB 回落"告知路径"）、`list_versions`/`rollback`、`onteardown` 异步 flush 草稿后才回执、图片按可见页懒加载 `read_asset` → `data:` URI（保存序列化时还原 `assets/` 相对路径）。**10.11 起补充**：资产水合并含 deck 文档的 `@font-face` 与 CSS `url(assets/…|fonts/…)`（无需反向还原）；高度上报落地（`hostViewportMaxHeight()` 实读 `hostContext.containerDimensions`，`mcpAppReportSize()`/`mcpAppSizeWatch()` 去重上报期望高度）。
 **未实现（明确记录，勿当已做）**：
 - §5.10.4 的**批注批次分组 UI**（每条状态：待处理/处理中/已应用/已重定位/已失效）与"新 revision 载入后重解锚点标黄"；
-- §5.11 的**对比质检产物按可见页懒加载**（轨 A 下对比视图目前仍依赖 `exportBaseUrl`，轨 A 不可用 → 视为**轨 B 独有**，与设计允许的降级一致）；
+- §5.11 的**对比检查产物按可见页懒加载**（轨 A 下对比视图目前仍依赖 `exportBaseUrl`，轨 A 不可用 → 视为**轨 B 独有**，与设计允许的降级一致）；
 - `PPTX_HTML_APPS_TOOLS` 之外的**能力自动发现**（官方 Python 客户端无法声明扩展，见 10.3）。
 
 ### 10.10 ⚠️ 重大发现：宿主沙箱只有 `allow-scripts` 时，嵌套渲染文档**不可访问**（修正 §1.2）
@@ -801,9 +801,9 @@ A9 的并排/滑动/差异视图需要 export 产物（`deck-vector` 的逐页 S
 
 ### 10.14 轨 A 产物通道（2026-10-29）——§5.11 的缺口已补齐，降级取消
 
-**触发**：用户实测"一键转换导出"里 agent 正常导出了 pptx，但页面上**什么都没有加载**。排查确认：daemon 侧完全正常（一次成功的 `convert.requested` 连着发了 `deck-changed`(39) / `export-refreshed`(40) / `intent-status:succeeded`(41)，`export/` 产物齐全且已在 `bundle_files` 白名单内），问题在 **View 侧结构性读不到 `export/`**——正是 §5.11 一期决策留下的"轨 A 无产物通道"。
+**触发**：用户实测"导出为 PPTX"里 agent 正常导出了 pptx，但页面上**什么都没有加载**。排查确认：daemon 侧完全正常（一次成功的 `convert.requested` 连着发了 `deck-changed`(39) / `export-refreshed`(40) / `intent-status:succeeded`(41)，`export/` 产物齐全且已在 `bundle_files` 白名单内），问题在 **View 侧结构性读不到 `export/`**——正是 §5.11 一期决策留下的"轨 A 无产物通道"。
 
-**病根（三处叠加，都在 editor.html 轨 A 分支）**：① `openHtml` 对 mcp-app 显式把 `triBaseUrl`/`triDeckBase` 置 null（§10.10 第 1 条的做法）；② `refreshExport` 因此只能落 `triStatus='unavailable'`；③ `bridgeForceExport`（`export-refreshed` 的落点）第一行 `if(!triBaseUrl)return` 直接返回，`buildTriPages`/`nativeUrlOf` 的产物地址也全部依赖该基址。净效果：产物清单恒空、对比质检恒黑面、下载按钮恒不可用，`export-refreshed` 到了也**什么都不发生**。
+**病根（三处叠加，都在 editor.html 轨 A 分支）**：① `openHtml` 对 mcp-app 显式把 `triBaseUrl`/`triDeckBase` 置 null（§10.10 第 1 条的做法）；② `refreshExport` 因此只能落 `triStatus='unavailable'`；③ `bridgeForceExport`（`export-refreshed` 的落点）第一行 `if(!triBaseUrl)return` 直接返回，`buildTriPages`/`nativeUrlOf` 的产物地址也全部依赖该基址。净效果：交付物恒空、对比检查恒黑面、下载按钮恒不可用，`export-refreshed` 到了也**什么都不发生**。
 
 **落地**（`editor.html` v3.10.0，工具面与 daemon 契约**一字未改**）：
 
@@ -813,6 +813,6 @@ A9 的并排/滑动/差异视图需要 export 产物（`deck-vector` 的逐页 S
 4. **按可见页懒加载**：产物图只在构建视图时经 `triArtifactUri` 触发，而视图只会请求**当前页**的产物 ⇒ 不遍历整个 deck，符合 §5.11"一期决策"的体积纪律。
 5. **下载判据由"必须有 HTTP 基址"改为"有 manifest"**：轨 A 的下载按**文件名**走 `read_bundle_file`（`mcpAppHost.download` 自动补 `export/` 前缀），不再把整个 pptx 预取成 data URI。
 
-**验收**：`aa_mcp_apps_check.py` 新增第九臂 `run_track_a_artifacts_arm`（⑪）——断言"装载即读到 manifest、产物清单两行、不出现「无产物通道」、下载可用、当前页产物水合成 `data:image/svg`、`export_revision` 变化触发重读"。**已做负向对照**：把 `editor.html` 换回修复前的 `HEAD` 版本，该臂在"等 triStatus=ready"处超时失败；换回修复版即通过。回归：`o_tri_view_check` ALL PASS（**过程中它抓到一处真回归**——`deck/export/export/page-01.svg` 的双前缀拼接，已修）、`aa_mcp_apps_check` ALL PASS、`test_bridge_core` 53 passed、`r_bridge_check` sdk/apps/integration PASS、bundle `--check` OK。
+**验收**：`aa_mcp_apps_check.py` 新增第九臂 `run_track_a_artifacts_arm`（⑪）——断言"装载即读到 manifest、交付物两行、不出现「无产物通道」、下载可用、当前页产物水合成 `data:image/svg`、`export_revision` 变化触发重读"。**已做负向对照**：把 `editor.html` 换回修复前的 `HEAD` 版本，该臂在"等 triStatus=ready"处超时失败；换回修复版即通过。回归：`o_tri_view_check` ALL PASS（**过程中它抓到一处真回归**——`deck/export/export/page-01.svg` 的双前缀拼接，已修）、`aa_mcp_apps_check` ALL PASS、`test_bridge_core` 53 passed、`r_bridge_check` sdk/apps/integration PASS、bundle `--check` OK。
 
 **对 §5.11 / §10.10 / §10.13 的更正**：§5.11 的"若实测不可接受则降级为轨 B 独有"**不采纳**（实测可接受）；§10.10 第 1、2 条的"轨 A 明确报无产物通道"作废；§10.13 末尾"遗留"里"若后续确认轨 A 不再提供产物下载，可再收一层（工具面到 13）"**不再成立**——该分支现在是轨 A 的**唯一**产物通道，必须保留。

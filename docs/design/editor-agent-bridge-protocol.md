@@ -319,7 +319,7 @@ intent POST 的完整 JSON body≤2MiB；payload 按递归对象键排序、数�
 
 对无 MCP 的手动启动，daemon 发放本地编辑会话浏览器凭证，网页功能不要求安装 mcp 包。普通 http.server/file:// 不支持这些 API，维持现有降级；不把无后端静态场景误判为保存成功。旧匿名写 API 明确401，提供的 editor/启动脚本/测试一起升级；嵌入 postMessage 保持不变，桥不接管宿主保存。
 
-嵌入 postMessage 协议（宿主 iframe 集成面，与 Bridge 通道正交；权威实现在 editor.html 顶部注释）：入站 `pptx-html:load`（html/name?/assetsUrl?/exportManifest?/exportBaseUrl?）与 `pptx-html:assets-changed {files: string[]}`（v3.7 起——宿主完成生图/换图后通知编辑器按文件清单热刷新图片资产，img src 加 `?v=` cache-bust，不整页 reload、不置脏；与 Bridge SSE 的 assets-changed 事件语义等价、通道不同）；出站 `pptx-html:save` / `pptx-html:dirty` / `pptx-html:annotations` / `pptx-html:brief` / `pptx-html:design` / `pptx-html:export-intent` / `pptx-html:bake-intent {slideIds}`（v3.7 起，重烙当前页，对应 Bridge intent bake.requested）/ `pptx-html:illustrate-intent {slots}`（补齐插画，对应 illustrate.requested）。嵌入态的生图按钮只表达意图，执行由宿主侧 AI 工作流决定。
+嵌入 postMessage 协议（宿主 iframe 集成面，与 Bridge 通道正交；权威实现在 editor.html 顶部注释）：入站 `pptx-html:load`（html/name?/assetsUrl?/exportManifest?/exportBaseUrl?）与 `pptx-html:assets-changed {files: string[]}`（v3.7 起——宿主完成生图/换图后通知编辑器按文件清单热刷新图片资产，img src 加 `?v=` cache-bust，不整页 reload、不置脏；与 Bridge SSE 的 assets-changed 事件语义等价、通道不同）；出站 `pptx-html:save` / `pptx-html:dirty` / `pptx-html:annotations` / `pptx-html:brief` / `pptx-html:design` / `pptx-html:export-intent` / `pptx-html:bake-intent {slideIds}`（v3.7 起，整页重绘，对应 Bridge intent bake.requested）/ `pptx-html:illustrate-intent {slots}`（自动补图，对应 illustrate.requested）。嵌入态的生图按钮只表达意图，执行由宿主侧 AI 工作流决定。
 
 ### 7.3 heartbeat 精确结构与浏览器绑定
 

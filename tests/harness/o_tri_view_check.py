@@ -236,9 +236,9 @@ def main():
                        ready: ok.dataset.artState,
                        img: ok.querySelector('img') ? ok.querySelector('img').src : null };
             }""")
-            check('②c 无产物页右窗格黑面（产物缺失文案、无 loading 伪装）',
+            check('②c 无产物页右窗格黑面（缺失文案、无 loading 伪装）',
                   black2['black'] == 'black' and '缺失' in black2['text']
-                  and '翻转' in black2['text']
+                  and '导出' in black2['text']
                   and '加载中' not in black2['text'] and 'loading' not in black2['text'].lower(),
                   repr(black2['text']))
             check('②d 有产物页右窗格就绪（img 指向产物：native 优先 / SVG 回落）',
@@ -252,7 +252,7 @@ def main():
                 sid: r.dataset.sid,
                 badges: Array.from(r.querySelectorAll('.badge')).map(b => b.textContent) }))""")
             ok_badges = all(len(r['badges']) == 3 for r in rows2) and \
-                any('烙入' in r['badges'] for r in rows2) and \
+                any('整页图' in r['badges'] for r in rows2) and \
                 all(('fresh' in r['badges']) for r in rows2)
             check('②e 页清单徽标三分量（形态/状态/保真分）齐备', ok_badges, repr(rows2))
 
@@ -298,7 +298,7 @@ def main():
             }""", timeout=8000)
             blk3 = page.evaluate("document.querySelector('#flipBack .tri-face').textContent")
             check('③d 编辑态黑面：页码 + 状态一行小字、无假进度条',
-                  'ch-now' in blk3 and '翻转' in blk3
+                  'ch-now' in blk3 and '导出' in blk3
                   and '加载中' not in blk3 and '%' not in blk3, repr(blk3))
             page.keyboard.press('f')
             page.wait_for_function("""() =>
@@ -336,7 +336,7 @@ def main():
               guideHidden: document.getElementById('expGuide').hidden })""")
             check('⑥a 导出面板四页齐备、载体/保真分渲染（3 绿 + 烙入直通）',
                   len(exp6['rows']) == 4
-                  and [r['carrier'] for r in exp6['rows']] == ['SVG', 'SVG', '烙入直通', 'SVG']
+                  and [r['carrier'] for r in exp6['rows']] == ['SVG', 'SVG', '整页图', 'SVG']
                   and sum(1 for r in exp6['rows'] if r['fidGreen']) == 3
                   and exp6['rows'][2]['fid'] == '直通',
                   repr(exp6['rows']))
@@ -402,7 +402,7 @@ def main():
             check('⑦a 删 export/ 后对比页全黑面 + 引导文案、不报错',
                   dg['status'] == 'none' and len(dg['black']) == 4
                   and all(b == 'black' for b in dg['black'])
-                  and 'export-pptx.py' in dg['note'] and not a2_errors,
+                  and '导出' in dg['note'] and not a2_errors,
                   repr({'status': dg['status'], 'black': dg['black'], 'err': a2_errors}))
             page.click('#viewSeg button[data-view="export"]')
             page.wait_for_timeout(150)
@@ -509,7 +509,7 @@ def main():
             }""")
             check('⑥e 导出面板 stale 行与水印同源 + 「请让 AI 重新翻转本页」引导',
                   row6['stale'] and row6['badge'] == 'stale'
-                  and '请让 AI 重新翻转本页' in row6['hint'], repr(row6))
+                  and '请让 AI 重新导出这一页' in row6['hint'], repr(row6))
             page.frame_locator('#ed').locator(
                 '.exp-row[data-sid="cover"] .btn-reflip').click()
             page.wait_for_timeout(200)

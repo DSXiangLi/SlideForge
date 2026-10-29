@@ -80,7 +80,7 @@ Agent 认领后只修改 work_path。用户同时继续编辑是允许的：若�
 
 - “导出交付件”对应 convert.requested，v1作用范围为整份 deck；文件名/三格式与既有技能一致。
 - “重新生成本页整页图”对应 bake.requested，必须显式选择，不能因为该页是 baked 就把导出请求自动升级成付费生图。
-- “补齐插画”对应 illustrate.requested，只有用户声明插画模式才能提交。
+- “自动补图”对应 illustrate.requested，只有用户声明插画模式才能提交。
 - 代表页审批、失败不伪造 generated、导出门禁和单向纪律不因桥接而取消。
 - L1 本地 opt-in 转换与 L2 Agent 转换是互斥执行路径，同一次点击只走一个。复制按钮不是另一次入队。
 

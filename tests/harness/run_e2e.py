@@ -2848,8 +2848,9 @@ def test_nav_v7(browser):
 # ---------- 测试 32：生图入口三态与嵌入协议补全（imagegen v2 P2 G5 / editor v3.7） ----------
 
 def test_imagegen_entries(browser):
-    """(a) 嵌入态：顶栏「重烙当前页」「补齐插画」可见、bridge bar 不显示；点击发
+    """(a) 嵌入态：顶栏「整页重绘」「自动补图」可见、bridge bar 不显示；点击发
     pptx-html:bake-intent {slideIds} 与 pptx-html:illustrate-intent {slots}；
+    （注：v3.9.9 起生图入口只保留页头这一对，桥栏那一对已删除——断言不再读 `btnBridgeBake`）
     (b) 入站 pptx-html:assets-changed {files}：命中 img src 加 ?v= 热刷新且不置脏；
     (c) 独立（裸静态）态：按钮可见，点击走复制指令文本路径（stub copyText 取证，
     不依赖系统剪贴板）。"""
@@ -2867,7 +2868,6 @@ def test_imagegen_entries(browser):
           bake: !document.getElementById('btnBake').hidden,
           ill: !document.getElementById('btnIllustrate').hidden,
           bridgeBar: document.getElementById('bridgeBar').classList.contains('show'),
-          bridgeBake: !document.getElementById('btnBridgeBake').hidden,
           slide: triPages[curSlideIdx].slideId })""")
         if not (vis['bake'] and vis['ill']):
             problems.append('嵌入态顶栏生图按钮不可见：%r' % vis)
@@ -2924,10 +2924,10 @@ def test_imagegen_entries(browser):
         page.evaluate("window.__copied = null; document.getElementById('btnBake').click()")
         page.wait_for_function('() => window.__copied !== null', timeout=5000)
         copied2 = page.evaluate('window.__copied')
-        if '补齐' not in (copied1 or ''):
-            problems.append('独立态补齐插画未复制指令文本：%r' % copied1)
-        if '请重新烙入页面' not in (copied2 or ''):
-            problems.append('独立态重烙未复制指令文本：%r' % copied2)
+        if '补上配图' not in (copied1 or ''):
+            problems.append('独立态自动补图未复制指令文本：%r' % copied1)
+        if '整页重画' not in (copied2 or ''):
+            problems.append('独立态整页重绘未复制指令文本：%r' % copied2)
     finally:
         ctx.close()
     report('T32-imagegen-entries', '生图入口三态与嵌入协议补全（G5）', not problems,

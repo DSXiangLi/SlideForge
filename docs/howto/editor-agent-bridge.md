@@ -265,7 +265,7 @@ python3 tools/bridge_core.py revision /absolute/attempt/work/index.html
 桥不是生成技能的前置条件：
 
 - iframe 嵌入继续使用既有 postMessage：入站 `pptx-html:load`、`pptx-html:assets-changed {files}`（v3.7 起，宿主完成生图/换图后按文件清单热刷新图片资产，语义等价 Bridge SSE assets-changed、通道不同）与 `pptx-html:brief-options {options}`（v3.8 起动态脑暴注入，页面侧轻量 schema 校验，非法/未注入回落静态问卷）；出站 `pptx-html:save/dirty/brief/annotations/design/export-intent`，以及 v3.7 起顶栏生图按钮的 `pptx-html:bake-intent {slideIds}` 与 `pptx-html:illustrate-intent {slots}`（嵌入态按钮只表达意图，执行由宿主侧 AI 工作流决定）。
-- `file://` 或普通静态服务器继续使用 File System Access API（浏览器支持时）或下载 HTML 副本；「重烙当前页」「补齐插画」按钮在裸静态态同样可见，点击复制指令文本交给 AI coding agent。
+- `file://` 或普通静态服务器继续使用 File System Access API（浏览器支持时）或下载 HTML 副本；「整页重绘」「自动补图」按钮在裸静态态同样可见，点击复制指令文本交给 AI 执行。
 - 脑暴、设计、批注和转换请求退化为复制指令，交给 AI coding agent；页面不得显示“已进入 Agent 队列”。
 - 没有 `--convert` 时，页面只复制技能转换命令，不声称本地转换已启动。
 - 桥请求失败时不会匿名重试写接口，也不会把下载副本冒充已发布到工作区。

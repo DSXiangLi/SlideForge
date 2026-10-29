@@ -4,11 +4,20 @@
 <!--
   ============================================================================
   HTML PPTX 编辑器 · editor.html
-  版本：v3.10.0（2026-10-29）
+  版本：v3.11.0（2026-10-29）
   实现依据：docs/design-editor.md v0.3（评审修订稿）+ docs/design/editor-v2.md
   标记契约：skills/html-pptx/references/editing-contract.md v8（本页是消费侧实现）
 
   变更记录：
+  - v3.11.0（全页文案与信息架构：内部术语换成用户语言，见 docs/progress/1029_ui_copy_plain_language.md）：
+    只改用户能看到的字，不动任何功能与结构。① 生图两个入口改名并补人话提示——「重烙当前页」→
+    「整页重绘」、「补齐插画」→「自动补图」（此前这两个按钮**连 title 都没有**，悬停也得不到解释）；
+    ② 视图「翻转」→「交付」，「产物清单/对比质检」→「交付物/对比检查」，「重新读取产物」→「刷新」；
+    ③ 「源层编辑/退出源层」→「编辑原版/退出原版」；④ 下载项从「deck.pptx（可编辑轨 · 主交付）」这类
+    双轨黑话改为「PPTX（可编辑）/ PPTX（保真）/ PDF（打印用）」；⑤ 「一键转换导出」→「导出为 PPTX」，
+    导出流程的 toast 与「转换」措辞统一为「导出」；⑥ 任务面板「停止处理/重发确认/续用原副本/从当前版本
+    重建」→「停止/确认重发/继续上次/重新生成」并补后果提示；⑦ 脑暴页「插画模式/混合烙入」→
+    「配图方式/部分页整页重绘」；⑧ 去掉品牌副标题里写死的 v3.1（版本单源在文件头，避免二次漂移）。
   - v3.10.0（轨 A 产物通道：转换/翻转完成后页面自动加载 export/ 产物，见 docs/progress/1029_track_a_artifact_channel.md）：
     此前轨 A（MCP Apps 宿主内嵌）**结构性地读不到 `export/`**——`openHtml` 显式把 `triBaseUrl`
     置 null，于是产物清单恒空、对比质检恒黑面、下载按钮恒不可用，且转换成功、`export-refreshed`
@@ -962,13 +971,13 @@
 <body>
 
 <header>
-  <div class="brand">HTML PPTX 编辑器<small>v3.1</small></div>
+  <div class="brand">HTML PPTX 编辑器</div>
   <button id="btnOpen">打开文件</button>
   <button id="btnSave" class="primary" disabled title="将修改写回原文件">保存 (⌘S)</button>
-  <div class="seg seg-main" id="viewSeg" title="编辑=就地改字换图 / 批注=框选写意见 / 翻转=产物清单与对比质检">
+  <div class="seg seg-main" id="viewSeg" title="编辑=就地改字换图 / 批注=框选写意见 / 交付=交付物与对比检查">
     <button data-view="edit" class="on">编辑</button>
     <button data-view="annotate">批注</button>
-    <button data-view="export">翻转</button>
+    <button data-view="export">交付</button>
   </div>
   <div class="file-name" id="fileName">未打开文件</div>
   <div class="spacer"></div>
@@ -991,8 +1000,8 @@
   <!-- 生图入口（G5；v3.9.9 简化）：**所有形态统一用这两个**。此前 Bridge 态由桥栏另放一对
        `btnBridgeBake`/`btnBridgeIllustrate`，同一动作两个位置、按形态二选一（纯重复）；
        现只保留页头这一对（页头在四种形态下都可见），桥栏只留「请求记录」。 -->
-  <button id="btnBake" hidden>重烙当前页</button>
-  <button id="btnIllustrate" hidden>补齐插画</button>
+  <button id="btnBake" hidden>整页重绘</button>
+  <button id="btnIllustrate" hidden>自动补图</button>
 </header>
 
 <div class="bridge-bar" id="bridgeBar" data-state="offline">
@@ -1029,11 +1038,11 @@
         <div class="seg" id="cmpViewSeg" title="同屏查看方式（默认落定=并排）">
           <button data-cmp="side" class="on">并排</button>
           <button data-cmp="swipe">滑动分割</button>
-          <button data-cmp="diff">差异热区</button>
+          <button data-cmp="diff">差异高亮</button>
         </div>
         <div class="cmp-tools">
-          <button id="btnCmpBack" title="返回翻转 · 产物清单">← 产物清单</button>
-          <button id="btnTriRefresh" title="技能重新翻转后点此重新读取 export/ 目录">重新读取产物</button>
+          <button id="btnCmpBack" title="返回交付物清单">← 交付物</button>
+          <button id="btnTriRefresh" title="导出结果更新后，点此重新读取">刷新</button>
           <span class="cmp-note" id="cmpNote"></span>
         </div>
         <div class="cmp-note">对比目标 = 原生 PPTX（deck.pptx）的 LibreOffice 参考渲染——近似真实 PowerPoint，比转曲 SVG 有信息量；老导出无 native/ 页图时自动回落矢量件。</div>
@@ -1056,12 +1065,12 @@
         <button class="primary" id="btnOpen2">打开文件</button>
       </div>
 
-      <button class="flip-badge" id="flipBadge" hidden title="翻面查看当前页的翻转产物（快捷键 F）">翻面 (F)</button>
-      <button class="src-edit-open" id="btnSrcEdit" hidden title="打开该烙入页的 HTML 源层做文字编辑（保存后烙入图将标记过期）">源层编辑</button>
+      <button class="flip-badge" id="flipBadge" hidden title="翻面查看当前页的导出件（快捷键 F）">翻面 (F)</button>
+      <button class="src-edit-open" id="btnSrcEdit" hidden title="这一页是 AI 生成的整页图；点此可改它底下的原始文字（保存后生成图会标记为过期）">编辑原版</button>
       <div class="src-edit-bar" id="srcEditBar">
-        <span>正在编辑烙入页「<b id="srcEditSid"></b>」的源层——保存后烙入图将标记过期，需让 AI 重新翻转本页</span>
+        <span>正在编辑这一页的原版文字「<b id="srcEditSid"></b>」——保存后这一页的生成图会标记为过期，需要让 AI 重新生成</span>
         <span class="spacer"></span>
-        <button id="btnSrcEditClose">退出源层</button>
+        <button id="btnSrcEditClose">退出原版</button>
       </div>
 
       <!-- 对比叠层（滑动分割 / 差异热区）：叠加在当前页上方 -->
@@ -1090,19 +1099,19 @@
   <div class="export-view" id="exportView" hidden>
     <div class="exp-inner">
       <div class="exp-head">
-        <h2>翻转产物</h2>
-        <div class="seg exp-sub" id="expSubSeg" title="产物清单=页级交付态表格 / 对比质检=并排·滑动分割·差异热区">
-          <button data-view="artifacts" class="on">产物清单</button>
-          <button data-view="compare">对比质检</button>
+        <h2>交付物</h2>
+        <div class="seg exp-sub" id="expSubSeg" title="交付物=每页交付状态 / 对比检查=并排·滑动分割·差异高亮">
+          <button data-view="artifacts" class="on">交付物</button>
+          <button data-view="compare">对比检查</button>
         </div>
-        <button id="btnConvert" class="primary" title="一键运行技能导出管线（产出 deck.pptx / deck-vector.pptx / deck.pdf / 逐页 SVG / 逐页 PNG 全套）；嵌入态向宿主发转换请求">一键转换导出</button>
-        <button id="btnExpRefresh" title="技能重新翻转后点此重新读取 export/ 目录">重新读取产物</button>
+        <button id="btnConvert" class="primary" title="运行导出流程，生成 PPTX（可编辑）/ PPTX（保真）/ PDF 与每页图片">导出为 PPTX</button>
+        <button id="btnExpRefresh" title="导出结果更新后，点此重新读取">刷新</button>
         <div class="dl-wrap" id="dlWrap">
-          <button id="btnDlMain" title="下载交付件（多格式合一下拉）">下载交付件 ▾</button>
+          <button id="btnDlMain" title="下载导出文件（多格式下拉）">下载 ▾</button>
           <div class="dl-menu" id="dlMenu" hidden>
-            <button id="btnDlPptx" data-url="" title="下载可编辑轨 PPTX 主交付件（HTTP 态直链/FSAA 另存；嵌入态由宿主交付）">deck.pptx（可编辑轨 · 主交付）</button>
-            <button id="btnDlVector" data-url="" hidden title="下载保真轨 PPTX（转曲 SVG，视觉封存/老 Office 走 PNG）">deck-vector.pptx（保真轨 · 视觉封存）</button>
-            <button id="btnDlPdf" data-url="" hidden title="下载保真轨直出 PDF">deck.pdf（打印审阅）</button>
+            <button id="btnDlPptx" data-url="" title="可编辑的 PPTX：文字仍可在 PowerPoint 里修改；嵌入态由宿主交付">PPTX（可编辑）</button>
+            <button id="btnDlVector" data-url="" hidden title="保真的 PPTX：整页转为矢量图，版式不会跑偏；老版本 Office 走 PNG">PPTX（保真）</button>
+            <button id="btnDlPdf" data-url="" hidden title="导出 PDF，方便打印与审阅">PDF（打印用）</button>
           </div>
         </div>
       </div>
@@ -4044,7 +4053,7 @@ var embeddedHost = {
       window.parent.postMessage({ type:'pptx-html:export-intent', action:'download',
                                   files:[{ name: name, url: url }] }, '*');
     } catch(e){}
-    toast('已向宿主发送下载请求（嵌入态产物由宿主交付）');
+    toast('已向宿主发送下载请求（嵌入态由宿主交付）');
     return true;
   },
   versions: function(){ return hostCompanionVersions(); },
@@ -4738,7 +4747,7 @@ var mcpAppHost = {
     try {
       var payload = await mcpAppCall('read_bundle_file', {session_id:mcpApp.sessionId, path:'export/'+file});
       if (payload.bytes > 20*1024*1024){
-        toast('产物 ' + (payload.bytes/1048576).toFixed(1) + 'MB 超过宿主 20MB 下载上限，请在宿主工作目录取件：export/' + file);
+        toast('文件 ' + (payload.bytes/1048576).toFixed(1) + 'MB 超过宿主 20MB 下载上限，请在宿主工作目录取件：export/' + file);
         return false;
       }
       await window.pptxMcp.downloadFile(file, payload.mime, payload.data_base64);
@@ -5023,7 +5032,7 @@ function openHtml(text, name, handle, assetsUrl, deckPath, opts){
     var probe = new DOMParser().parseFromString(text, 'text/html');
     contractOk = !!(probe.querySelector('.slide') && probe.querySelector('[data-slide-id]'));
   } catch(e){}
-  if (!contractOk) showWarn('该文件似乎不是 html-pptx 技能产物（缺少 .slide / data-slide-id 标记），仍可打开，但仅带标记的元素可编辑。');
+  if (!contractOk) showWarn('这个文件看起来不是本编辑器产出的幻灯片（缺少 .slide / data-slide-id 标记）。仍可打开，但只有带标记的元素能编辑。');
   else hideWarn();
 
   /* v3.0 export/ 读取通道初始化（editor-tri-view.md §6，三通道按优先级）：
@@ -5468,7 +5477,7 @@ function updateStatusBar(){
     var r1 = findReg(editEl);
     $('sbSel').textContent = '编辑中：' + (r1 ? r1.path : editEl.tagName.toLowerCase()) + '（Esc 取消 · 失焦/Ctrl+Enter 确认）';
   } else if (srcEdit){
-    $('sbSel').textContent = '源层编辑中（烙入页）：双击源层文字进入编辑，完成后点「退出源层」——保存即翻转该页 hash，烙入图标记过期';
+    $('sbSel').textContent = '正在编辑这一页的原版文字：双击文字进入编辑，完成后点「退出原版」——保存后这一页的生成图会标记为过期';
   } else if (selEl){
     var r2 = findReg(selEl);
     var kind = selEl.hasAttribute('data-editable-image') ? '图片' : '文本';
@@ -6382,10 +6391,10 @@ var BRIEF_GROUPS = [
     { id:'dark',  label:'暗底' },
     { id:'mixed', label:'混合节奏' }
   ]},
-  { id:'illust', title:'⑧b 插画模式', impact:'三态：纯 HTML 不生成图片（缺省）；AI 插画进入 Step 5.5 管线（页内槽位逐槽生图）；混合烙入 = 选定页整页生图（Step 5.6，文字烧死在图里、用编辑性换表现力），需声明烙入页清单并随简报冻结。', options:[
+  { id:'illust', title:'⑧b 配图方式', impact:'三态：纯 HTML 不出图（缺省）；AI 配图只为页面上留白/占位处生成图片；整页重绘 = 把选定页整页交给 AI 画成一张图（文字会画进图里、不能再改，换来更强的视觉表现力），需列出要做整页图的页面并随简报固定。', options:[
     { id:'html', label:'纯 HTML', def:true },
-    { id:'ai',   label:'AI 插画', d:'Step 5.5 管线（页内槽位）' },
-    { id:'bake', label:'混合烙入', d:'Step 5.6 整页生图（封面/扉页/收束）' }
+    { id:'ai',   label:'AI 配图', d:'只为页面上还没有图的位置生图' },
+    { id:'bake', label:'部分页整页重绘', d:'选定的少数页整页画成一张图（封面/扉页/收束页）' }
   ]}
 ];
 var BRIEF_NARRATIVES = [
@@ -7176,7 +7185,7 @@ function buildBriefExport(){
     bakePages = briefAnswers.bakePages.split(/[、,，;；\n]+/)
       .map(function(s){ return s.trim(); }).filter(function(s){ return s; });
     if (!bakePages.length){ bakePages = ['封面', '各章节扉页', '收束页']; bakeDefaulted = true; }
-    lines.push('烙入：' + bakePages.join('、') + (bakeDefaulted ? '（缺省）' : ''));
+    lines.push('整页重绘：' + bakePages.join('、') + (bakeDefaulted ? '（缺省）' : ''));
   }
   lines.push('封面元素：' + (coverLabs.length ? coverLabs.join('、') : '无') +
     (coverDefaulted ? '（缺省）' : '') + ' ｜ 尺寸：16:9 网页版（固定）');
@@ -7271,7 +7280,7 @@ function briefObserveIntent(item){
     succeeded:'Bridge 已确认 Kimi 完成此 intent；页面展示的是 intent 状态/发布回执，不是 MCP JSON-RPC tool result。',
     failed:'处理失败；简报仍保留，可从当前版本重新构建。',
     conflict:'基线冲突；简报仍保留，可从当前版本重新构建。',
-    interrupted:'处理被中断；确认旧 writer 已停止后可续用原副本，不能确认时请选择重新构建。',
+    interrupted:'处理被中断；确认上一次执行已停止后可以「继续上次」，不确定时请选「重新生成」。',
     cancelled:'请求已取消；简报仍保留，可再次发送。',
     retrying:'正在提交恢复决定。'
   };
@@ -7848,12 +7857,12 @@ async function triRefresh(){
   if (hostKindDetect() === 'mcp-app'){
     triDataUri = {}; triFailed = {}; triPending = {};
     await mcpAppLoadExport();
-    toast(triManifest ? '已重新读取 export/' : '未发现 export/ 产物');
+    toast(triManifest ? '已读取到导出结果' : '还没有导出结果');
     return;
   }
   if (!triInjected && triBaseUrl) triManifest = null;
   await refreshExport();
-  toast(triManifest ? '已重新读取 export/' : '未发现 export/ 产物');
+  toast(triManifest ? '已读取到导出结果' : '还没有导出结果');
 }
 $('btnTriRefresh').addEventListener('click', triRefresh);
 $('btnExpRefresh').addEventListener('click', triRefresh);
@@ -7876,17 +7885,17 @@ function buildArtifactFace(ps){
   if (!ps) return blackOf('页面不存在');
   if (triStatus === 'unavailable')
     return blackOf('无法读取 export/（file:// 直开）· 请通过伴随服务打开或让宿主注入 exportManifest');
-  if (!triManifest) return blackOf('未翻转 · 请运行翻转技能');
+  if (!triManifest) return blackOf('还没有导出结果 · 请让 AI 执行导出');
   if (!ps.manifest) return blackOf('未翻转 · 该页不在 export/manifest.json 中');
   if (!ps.artifact)
     return blackOf(ps.renderMode === 'baked'
-      ? '烙入图地址无法解析 · 请检查 assetsUrl'
-      : (hostKindDetect() === 'mcp-app' ? '产物地址未知或仍在加载'
-                                         : '产物地址未知 · 请让宿主提供 exportBaseUrl'));
-  if (triMissing[ps.artifact]) return blackOf('产物缺失 · 请重新运行翻转技能');
+      ? '生成图地址无法解析 · 请检查 assetsUrl'
+      : (hostKindDetect() === 'mcp-app' ? '导出件地址未知或仍在加载'
+                                         : '导出件地址未知 · 请让宿主提供 exportBaseUrl'));
+  if (triMissing[ps.artifact]) return blackOf('导出件缺失 · 请让 AI 重新导出');
   face.dataset.artState = ps.stale ? 'stale' : 'ready';
   var img = document.createElement('img');
-  img.alt = '第 ' + (ps.idx + 1) + ' 页翻转产物';
+  img.alt = '第 ' + (ps.idx + 1) + ' 页导出件';
   var nat = nativeUrlOf(ps);
   face.dataset.artKind = nat ? 'native' : (ps.carrier || 'svg');
   img.src = (nat || ps.artifact) + triCacheBust();
@@ -7976,7 +7985,7 @@ function openSrcEdit(){
   var d = doc(); if (!d) return;
   var slide = d.querySelector('section.slide[data-slide-id="' + ps.slideId + '"]');
   var src = slide && slide.querySelector('.baked-source');
-  if (!src){ toast('该烙入页没有 .baked-source 源层'); return; }
+  if (!src){ toast('这一页没有可编辑的原版文字'); return; }
   clearSelection();
   srcEdit = src;
   src.classList.add('ed-src-open');   /* 覆盖 hidden：注入样式 display:block !important */
@@ -8061,7 +8070,7 @@ function applyCmpView(){
   });
   $('cmpDivider').style.display = cmpView === 'swipe' ? '' : 'none';
   $('cmpDiffCtl').style.display = cmpView === 'diff' ? '' : 'none';
-  $('cmpTagR').textContent = cmpView === 'diff' ? '差异热区' : '翻转产物（原生 PPTX 渲染优先）';
+  $('cmpTagR').textContent = cmpView === 'diff' ? '差异高亮' : '导出件（原生 PPTX 渲染优先）';
   cmpOlSid = null;
   if (inCmp){ positionCmpOverlay(true); startCmpRaf(); }
 }
@@ -8090,8 +8099,8 @@ function renderCmpList(){
   if (!state.loaded) return;
   $('cmpNote').textContent = triStatus === 'ready'
     ? (triManifest.export && triManifest.export.exported_at
-        ? '翻转于 ' + triManifest.export.exported_at.slice(0, 19).replace('T', ' ') : '')
-    : '尚未发现 export/ 产物——请运行翻转技能后点「刷新产物」';
+        ? '导出于 ' + triManifest.export.exported_at.slice(0, 19).replace('T', ' ') : '')
+    : '还没有导出结果——让 AI 导出后点「刷新」';
   var rows = triPages.slice();
   rows.sort(function(a, b){
     var fa = a.fidelity, fb = b.fidelity;
@@ -8110,7 +8119,7 @@ function renderCmpList(){
     sid.className = 'sid'; sid.textContent = ps.slideId; sid.title = ps.slideId;
     row.appendChild(no); row.appendChild(sid);
     row.appendChild(badge(ps.renderMode === 'baked' ? 'b-baked' : '',
-                          ps.renderMode === 'baked' ? '烙入' : 'HTML'));
+                          ps.renderMode === 'baked' ? '整页图' : 'HTML'));
     if (triManifest){
       row.appendChild(badge(ps.stale ? 'b-stale' : 'b-fresh', ps.stale ? 'stale' : 'fresh'));
       row.appendChild(badge(fidClass(ps.fidelity), ps.fidelity == null ? '—' : ps.fidelity.toFixed(1)));
@@ -8133,7 +8142,7 @@ function renderCmpArtifacts(){
     note.className = 'cmp-art-note';
     note.textContent = triStatus === 'unavailable'
       ? '本页面读不到 export/（file:// 直开会被浏览器拦截相对路径读取）——请通过伴随服务（python3 tools/edit.py）打开，或让宿主注入 exportManifest / exportBaseUrl。'
-      : '尚未翻转：让 AI coding agent 运行 export-pptx.py 生成 export/ 产物后点「刷新产物」。';
+      : '还没有导出结果：让 AI 运行导出后点「刷新」。';
     box.appendChild(note);
   }
   triPages.forEach(function(ps){
@@ -8222,17 +8231,17 @@ function buildCmpOlContent(ps){
   } else if (cmpView === 'diff'){
     /* 差异热区是导出管线资产（编辑器无栅格化能力，只消费） */
     if (triStatus === 'unavailable') blackLine = '无法读取 export/（file:// 直开被浏览器拦截）';
-    else if (!triManifest || !ps.manifest) blackLine = '未翻转 · 无差异热区资产';
-    else if (ps.renderMode === 'baked' || ps.carrier === 'baked') blackLine = '烙入页直通导出 · 无差异热区';
+    else if (!triManifest || !ps.manifest) blackLine = '还没有导出结果 · 没有差异高亮图';
+    else if (ps.renderMode === 'baked' || ps.carrier === 'baked') blackLine = '这一页是整页图，没有差异高亮';
     else if (!(url = triArtifactUri('export/page-' + pad2(ps.manifestIdx + 1) + '.diff.png')))
-      blackLine = hostKindDetect() === 'mcp-app' ? '产物地址未知或仍在加载' : '产物地址未知 · 请让宿主提供 exportBaseUrl';
+      blackLine = hostKindDetect() === 'mcp-app' ? '导出件地址未知或仍在加载' : '导出件地址未知 · 请让宿主提供 exportBaseUrl';
   } else {
     if (triStatus === 'unavailable') blackLine = '无法读取 export/（file:// 直开被浏览器拦截）';
-    else if (!triManifest || !ps.manifest) blackLine = '未翻转 · 请运行翻转技能';
+    else if (!triManifest || !ps.manifest) blackLine = '还没有导出结果 · 请让 AI 执行导出';
     else if (!(url = nativeUrlOf(ps) || ps.artifact))
-      blackLine = hostKindDetect() === 'mcp-app' ? '产物地址未知或仍在加载' : '产物地址未知 · 请让宿主提供 exportBaseUrl';
+      blackLine = hostKindDetect() === 'mcp-app' ? '导出件地址未知或仍在加载' : '导出件地址未知 · 请让宿主提供 exportBaseUrl';
   }
-  if (url && triMissing[url + '#ol']){ url = null; blackLine = '产物缺失 · 请重新运行翻转技能'; }
+  if (url && triMissing[url + '#ol']){ url = null; blackLine = '导出件缺失 · 请让 AI 重新导出'; }
   if (url){
     var img = document.createElement('img');
     img.className = 'cmp-ol-img';
@@ -8328,7 +8337,7 @@ $('cmpDiffOp').addEventListener('input', function(){
 });
 
 /* ---------- 导出面板（§2：页级清单 + 产物下载；不发起转换） ---------- */
-var CARRIER_LABEL = { 'svg': 'SVG', 'png-fallback': 'PNG 降级', 'baked': '烙入直通' };
+var CARRIER_LABEL = { 'svg': 'SVG', 'png-fallback': 'PNG 回退', 'baked': '整页图' };
 
 function renderExportView(){
   var guide = $('expGuide'), table = $('expTable'), rows = $('expRows'), sum = $('expSummary');
@@ -8359,14 +8368,14 @@ function renderExportView(){
   }
   if (triStatus !== 'ready'){
     guide.innerHTML = (triStatus === 'unavailable'
-      ? '本页面读不到 <code>export/</code> 产物：file:// 直开会被浏览器拦截相对路径读取。' +
+      ? '本页面读不到导出结果：file:// 直开会被浏览器拦截相对路径读取。' +
         '请通过伴随服务 <code>python3 tools/edit.py</code> 打开本页，或让宿主在 <code>pptx-html:load</code> 消息中注入 <code>exportManifest</code> / <code>exportBaseUrl</code>。<br>'
       : '') +
-      '还没有 export/ 产物（该 deck 从未翻转）。翻转而非编辑器职责——转换即技能：<br>' +
-      '1. 让 AI coding agent 运行 <code>python3 skills/html-pptx/scripts/export-pptx.py ' +
+      '还没有导出结果（这份幻灯片还没导出过）。导出由 AI 执行，编辑器只负责展示：<br>' +
+      '1. 让 AI 导出（对话里说"导出成 PPTX 吧"），或运行 <code>python3 skills/html-pptx/scripts/export-pptx.py ' +
       (state.deckPath || '&lt;deck&gt;/index.html') + '</code>；<br>' +
-      '2. 产物落在 deck 的 <code>export/</code> 目录（deck.pptx 可编辑轨 / deck-vector.pptx 与 deck.pdf 保真轨 / page-NN.svg / manifest.json）；<br>' +
-      '3. 回到本页点「重新读取 export/」。';
+      '2. 导出文件会放在这份幻灯片的 <code>export/</code> 目录（PPTX 可编辑版 / PPTX 保真版 / PDF / 每页图片 / manifest.json）；<br>' +
+      '3. 回到本页点「刷新」。';
     guide.hidden = false;
     return;
   }
@@ -8376,18 +8385,18 @@ function renderExportView(){
     var te = exp.tracks.editable || {}, tv = exp.tracks.vector || {};
     trackLine = '可编辑轨（deck.pptx）：' + (te.ok
       ? 'native 文本覆盖 ' + (te.native_text_ratio != null ? (te.native_text_ratio * 100).toFixed(1) + '%' : '—') +
-        ' ｜ 烙图 ' + (te.rasterized || 0) + ' 件 ｜ uncovered ' + ((te.uncovered || []).length) +
+        ' ｜ 生成图 ' + (te.rasterized || 0) + ' 件 ｜ uncovered ' + ((te.uncovered || []).length) +
         ' ｜ 字体' + (te.fonts_embedded && te.fonts_embedded.length ? '已随档 ' + te.fonts_embedded.length + ' 族'
                        : '未随档')
       : '失败（' + (te.error || te.gate || '未知') + '）') +
       '　·　保真轨（deck-vector.pptx / deck.pdf）：' + (tv.ok
-      ? '载体 SVG ' + ((tv.carriers || {}).svg || 0) + ' · 烙入 ' + ((tv.carriers || {}).baked || 0) +
+      ? '载体 SVG ' + ((tv.carriers || {}).svg || 0) + ' · 整页图 ' + ((tv.carriers || {}).baked || 0) +
         ' · PNG 降级 ' + ((tv.carriers || {})['png-fallback'] || 0) +
         ' ｜ 平均保真分 ' + (tv.fidelity_avg == null ? '—' : tv.fidelity_avg)
       : '失败（' + (tv.error || tv.gate || '未知') + '）');
   }
-  sum.textContent = trackLine || ('翻转于 ' + (exp.exported_at || '—') +
-    ' ｜ 载体：SVG ' + ((exp.carriers || {}).svg || 0) + ' · 烙入直通 ' + ((exp.carriers || {}).baked || 0) +
+  sum.textContent = trackLine || ('导出于 ' + (exp.exported_at || '—') +
+    ' ｜ 载体：SVG ' + ((exp.carriers || {}).svg || 0) + ' · 整页图 ' + ((exp.carriers || {}).baked || 0) +
     ' · PNG 降级 ' + ((exp.carriers || {})['png-fallback'] || 0) +
     ' ｜ 平均保真分 ' + (exp.fidelity_avg == null ? '—' : exp.fidelity_avg) +
     ' ｜ 门禁 ' + (exp.gate ? ('render=' + exp.gate.render + ' / drift=' +
@@ -8404,7 +8413,7 @@ function renderExportView(){
     };
     tr.appendChild(td(String(ps.idx + 1), 'mono'));
     tr.appendChild(td(ps.slideId, 'mono'));
-    tr.appendChild(td(ps.renderMode === 'baked' ? '烙入页' : 'HTML 页'));
+    tr.appendChild(td(ps.renderMode === 'baked' ? '整页图' : 'HTML'));
     tr.appendChild(td(ps.carrier ? (CARRIER_LABEL[ps.carrier] || ps.carrier) : '—'));
     var ftd = document.createElement('td');
     if (ps.fidelity != null) ftd.appendChild(badge(fidClass(ps.fidelity), ps.fidelity.toFixed(1)));
@@ -8415,7 +8424,7 @@ function renderExportView(){
       std.appendChild(badge('b-stale', 'stale'));
       var hint = document.createElement('div');
       hint.className = 'exp-hint';
-      hint.textContent = '请让 AI 重新翻转本页';
+      hint.textContent = '请让 AI 重新导出这一页';
       std.appendChild(hint);
     } else {
       std.appendChild(badge(ps.manifest ? 'b-fresh' : '', ps.manifest ? 'fresh' : '未翻转'));
@@ -8428,7 +8437,7 @@ function renderExportView(){
       var dl = document.createElement('button');
       dl.className = 'btn-dl';
       dl.textContent = '下载 ' + (ps.carrier === 'svg' ? 'SVG' : 'PNG');
-      dl.title = '第 ' + (ps.idx + 1) + ' 页产物';
+      dl.title = '第 ' + (ps.idx + 1) + ' 页导出件';
       /* 轨 A 的产物地址是 data: URI，不必（也不该）塞进 dataset；下载按**文件名**走
          read_bundle_file（mcpAppHost.download 自动补 export/ 前缀）。 */
       var dlName = (ps.carrier === 'svg' ? 'page-' + pad2(ps.manifestIdx + 1) + '.svg'
@@ -8439,8 +8448,8 @@ function renderExportView(){
     }
     var rf = document.createElement('button');
     rf.className = 'btn-reflip';
-    rf.textContent = '重新翻转';
-    rf.title = '编辑器不发起转换：嵌入态向宿主发送翻转请求，否则复制技能命令';
+    rf.textContent = '重新导出';
+    rf.title = '编辑器自己不做导出：嵌入态向宿主发请求，否则复制命令交给 AI 执行';
     rf.addEventListener('click', function(){ reFlip([ps.slideId]); });
     ops.appendChild(rf);
     tr.appendChild(ops);
@@ -8453,7 +8462,7 @@ function renderExportView(){
    通道分流在宿主适配层——静态/Bridge 共用 HTTP 直链，嵌入态交宿主交付。 */
 async function downloadAsset(url, name){
   /* 判据是"有地址或有文件名"：轨 A 的下载由宿主适配层按**文件名**取（url 可以为空）。 */
-  if (!url && !name){ toast('产物地址未知（无 exportBaseUrl），无法下载'); return; }
+  if (!url && !name){ toast('导出件地址未知（未提供 exportBaseUrl），无法下载'); return; }
   return hostBridge.download(url, name);
 }
 $('btnDlPptx').addEventListener('click', function(){
@@ -8480,7 +8489,7 @@ $('dlMenu').addEventListener('click', function(){ $('dlMenu').hidden = true; });
 function reFlip(slideIds){
   var cmd='python3 skills/html-pptx/scripts/export-pptx.py '+(state.deckPath||'<deck>/index.html')+' --force --track both';
   bridgeSend('convert.requested',{formats:['pptx','vector','pdf'],scope:'all'},
-    {type:'pptx-html:export-intent',action:'re-export',slideIds:slideIds||null},cmd).catch(function(e){toast('翻转请求失败：'+e.message);});
+    {type:'pptx-html:export-intent',action:'re-export',slideIds:slideIds||null},cmd).catch(function(e){toast('重新导出请求失败：'+e.message);});
 }
 
 /* 一键转换仅选择一条路由：宿主 → L2 bridge intent → opt-in 本地转换 → 复制。 */
@@ -8494,10 +8503,10 @@ function pollConvertStatus(){
         ? await bridgeFetch('/api/convert-status?session_id='+encodeURIComponent(bridge.sessionId))
         : await fetch('api/convert-status',{cache:'no-store'}).then(function(r){return r.json();});
       if(j.status==='running')return;
-      clearInterval(convertPollTimer);convertPollTimer=null;converting=false;$('btnConvert').disabled=false;$('btnConvert').textContent='一键转换导出';
-      if(j.status==='done'){toast('本地转换已完成，正在重新读取产物');if(bridge.enabled)bridgeForceExport({__eventId:Date.now(),export_revision:null});else triRefresh();}
-      else if(j.status==='failed')toast('转换失败：'+String(j.tail||'请查看服务状态').slice(0,200));
-    }catch(e){clearInterval(convertPollTimer);convertPollTimer=null;converting=false;$('btnConvert').disabled=false;$('btnConvert').textContent='一键转换导出';toast('转换状态读取失败：'+e.message);}
+      clearInterval(convertPollTimer);convertPollTimer=null;converting=false;$('btnConvert').disabled=false;$('btnConvert').textContent='导出为 PPTX';
+      if(j.status==='done'){toast('导出完成，正在刷新交付物');if(bridge.enabled)bridgeForceExport({__eventId:Date.now(),export_revision:null});else triRefresh();}
+      else if(j.status==='failed')toast('导出失败：'+String(j.tail||'请查看服务状态').slice(0,200));
+    }catch(e){clearInterval(convertPollTimer);convertPollTimer=null;converting=false;$('btnConvert').disabled=false;$('btnConvert').textContent='导出为 PPTX';toast('导出状态读取失败：'+e.message);}
   },5000);
 }
 async function convertDeck(){
@@ -8509,25 +8518,25 @@ async function convertDeck(){
     try{
       await bridgeSend('convert.requested',{formats:['pptx','vector','pdf'],scope:'all'},
         {type:'pptx-html:export-intent',action:'re-export',slideIds:null,formats:['pptx','svg','png','pdf']},cmdText);
-      toast('转换请求已提交');
-    }catch(e){toast('转换请求失败：'+e.message);}
+      toast('导出请求已提交');
+    }catch(e){toast('导出请求失败：'+e.message);}
     return;
   }
   if(state.backend&&state.backend.convert&&state.deckPath){
-    converting=true;$('btnConvert').disabled=true;$('btnConvert').textContent='转换执行中…';
+    converting=true;$('btnConvert').disabled=true;$('btnConvert').textContent='导出执行中…';
     try{
       var j=await fetch('api/convert',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({path:state.deckPath})}).then(function(r){return r.json();});
       if(!j.ok)throw new Error((j.error&&j.error.message)||j.error||'启动失败');pollConvertStatus();
-    }catch(e){converting=false;$('btnConvert').disabled=false;$('btnConvert').textContent='一键转换导出';toast('转换请求失败：'+e.message);}return;
+    }catch(e){converting=false;$('btnConvert').disabled=false;$('btnConvert').textContent='导出为 PPTX';toast('导出请求失败：'+e.message);}return;
   }
   var cmd='python3 skills/html-pptx/scripts/export-pptx.py '+(state.deckPath||'<deck>/index.html')+' --force --track both';
-  copyText(cmd).then(function(ok){toast(ok?'转换命令已复制':'请运行技能 export-pptx.py 完成转换');});
+  copyText(cmd).then(function(ok){toast(ok?'导出命令已复制':'请运行技能 export-pptx.py 完成转换');});
 }
 $('btnConvert').addEventListener('click', convertDeck);
 function resumeConvertIfRunning(){
   if(!state.backend||!state.backend.convert||bridge.enabled)return;
   fetch('api/convert-status',{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){
-    if(j&&j.status==='running'){converting=true;$('btnConvert').disabled=true;$('btnConvert').textContent='转换执行中…';pollConvertStatus();}
+    if(j&&j.status==='running'){converting=true;$('btnConvert').disabled=true;$('btnConvert').textContent='导出执行中…';pollConvertStatus();}
   }).catch(function(){});
 }
 
@@ -8774,7 +8783,7 @@ async function bridgeForceExport(data){
     var r=await bridgeFetch(url,{cache:'no-store'}),j=r instanceof Response?await r.json():r;
     if(sid!==bridge.sessionId||epoch!==bridge.manifestEpoch)return;
     triManifest=j&&j.pages?j:null;triStatus=triManifest?'ready':'none';bridge.exportRevision=data.export_revision||null;buildTriPages();renderTriViews();
-  }catch(e){if(epoch===bridge.manifestEpoch){triManifest=null;triStatus='none';renderTriViews();bridgeRenderState('error','产物读取失败',e.message);}}
+  }catch(e){if(epoch===bridge.manifestEpoch){triManifest=null;triStatus='none';renderTriViews();bridgeRenderState('error','导出结果读取失败',e.message);}}
 }
 function bridgeRefreshAssets(data){
   bridge.latestServerRevision=data.revision;
@@ -8814,10 +8823,10 @@ function bridgeRenderTasks(){
     if(!trackA&&(['failed','conflict','interrupted'].indexOf(x.status)>=0||x.status==='pending'||x.status==='processing'||x.status==='unconfirmed')){
       var acts=document.createElement('div');acts.className='bridge-task-actions';
       if(x.status==='pending'){var c=document.createElement('button');c.textContent='取消';c.onclick=function(){hostBridge.recover('cancel',x);};acts.appendChild(c);}
-      if(x.status==='processing'){var s=document.createElement('button');s.className='bridge-danger';s.textContent='停止处理';s.onclick=function(){hostBridge.recover('stop',x);};acts.appendChild(s);}
-      if(x.status==='unconfirmed'&&x.request){var u=document.createElement('button');u.textContent='重发确认';u.onclick=function(){hostBridge.recover('resend',x);};acts.appendChild(u);}
-      if(x.status==='interrupted'){var p=document.createElement('button');p.textContent='续用原副本';p.onclick=function(){hostBridge.recover('retry',x,'resume');};acts.appendChild(p);}
-      if(['failed','conflict','interrupted'].indexOf(x.status)>=0){var r=document.createElement('button');r.textContent='从当前版本重建';r.onclick=function(){hostBridge.recover('retry',x,'rebuild');};acts.appendChild(r);}
+      if(x.status==='processing'){var s=document.createElement('button');s.className='bridge-danger';s.textContent='停止';s.title='停止这次 AI 处理；已经开始的费用可能无法撤销';s.onclick=function(){hostBridge.recover('stop',x);};acts.appendChild(s);}
+      if(x.status==='unconfirmed'&&x.request){var u=document.createElement('button');u.textContent='确认重发';u.title='网络中断后，确认这次请求到底有没有送达';u.onclick=function(){hostBridge.recover('resend',x);};acts.appendChild(u);}
+      if(x.status==='interrupted'){var p=document.createElement('button');p.textContent='继续上次';p.title='接着上次中断的进度继续（复用已经做好的部分）';p.onclick=function(){hostBridge.recover('retry',x,'resume');};acts.appendChild(p);}
+      if(['failed','conflict','interrupted'].indexOf(x.status)>=0){var r=document.createElement('button');r.textContent='重新生成';r.title='丢掉中间结果，按当前页面内容从头再做一次';r.onclick=function(){hostBridge.recover('retry',x,'rebuild');};acts.appendChild(r);}
       row.appendChild(acts);
     } else if(trackA){
       /* v3.9.7：轨 A 没有 retry 通道（1027 删了 app-only 恢复工具、沙箱也拿不到 bridge 凭证），
@@ -8963,7 +8972,7 @@ async function bridgeResendIntent(item){
   if(!item.request)return;
   item.status='submitting';bridgeRefreshBriefSummary();bridgeRenderTasks();
   try{var j=await bridgeFetch('/api/intent',{method:'POST',body:JSON.stringify(item.request)});bridgeMergeIntent({id:item.id,seq:j.seq,type:item.type,status:j.status,attempt:item.attempt,base_revision:item.base_revision,request:item.request});}
-  catch(e){item.status='unconfirmed';bridgeRefreshBriefSummary();bridgeRenderTasks();bridgeScheduleDraft();toast('重发确认失败：'+e.message);}
+  catch(e){item.status='unconfirmed';bridgeRefreshBriefSummary();bridgeRenderTasks();bridgeScheduleDraft();toast('确认重发失败：'+e.message);}
 }
 async function bridgeCancelIntent(id){
   try{var j=await bridgeFetch('/api/intent/cancel',{method:'POST',body:JSON.stringify({session_id:bridge.sessionId,intent_id:id})});bridgeMergeIntent({id:id,status:j.status,external_work_may_continue:!!j.external_work_may_continue});}
@@ -9008,11 +9017,11 @@ $('btnBridgeTasks').addEventListener('click',function(){$('bridgeTasks').classLi
    pptx-html:bake-intent 消息（不复用 export-intent，语义清晰）。 */
 function requestBakeCurrent(){
   var p=triPages[curSlideIdx];if(!p)return;
-  bridgeSend('bake.requested',{slide_ids:[p.slideId]},{type:'pptx-html:bake-intent',slideIds:[p.slideId]},'请重新烙入页面 '+p.slideId);
+  bridgeSend('bake.requested',{slide_ids:[p.slideId]},{type:'pptx-html:bake-intent',slideIds:[p.slideId]},'请把这一页整页重画成一张图：'+p.slideId);
 }
 function requestIllustrate(){
   var slots=[],d=doc();if(d)Array.prototype.forEach.call(d.querySelectorAll('[data-image-slot][data-image-state="placeholder"]'),function(x){var s=x.getAttribute('data-image-slot');if(s&&slots.indexOf(s)<0)slots.push(s);});
-  bridgeSend('illustrate.requested',{slots:slots},{type:'pptx-html:illustrate-intent',slots:slots},'请按插画模式补齐待生成图片槽位');
+  bridgeSend('illustrate.requested',{slots:slots},{type:'pptx-html:illustrate-intent',slots:slots},'请为这些位置补上配图：'+(slots.join('、')||'页面上的占位图'));
 }
 $('btnBake').addEventListener('click',requestBakeCurrent);
 $('btnIllustrate').addEventListener('click',requestIllustrate);
@@ -9023,11 +9032,11 @@ function updateImagegenEntry(){
   $('btnBake').hidden=!show;$('btnIllustrate').hidden=!show;
   if(!show)return;
   var k=hostKindDetect();
-  var hint = k==='embedded' ? '（向宿主发送请求，由宿主侧 AI 工作流执行）'
-           : k==='static'   ? '（复制指令文本，交给 AI coding agent 执行）'
-           : '（提交意图，进入 AI 队列）';
-  $('btnBake').title='重新烙入当前页为整页 AI 生图'+hint;
-  $('btnIllustrate').title='扫描全部 placeholder 图片槽位并请求补齐插画'+hint;
+  var hint = k==='embedded' ? '（向宿主发送请求，由宿主侧 AI 执行）'
+           : k==='static'   ? '（复制指令文本，交给 AI 执行）'
+           : '（提交后进入 AI 队列，完成后页面自动刷新）';
+  $('btnBake').title='整页重绘：把这一页整页交给 AI 重画成一张图。原排版会保留，可随时回退。'+hint;
+  $('btnIllustrate').title='自动补图：把这一页里还没配图的占位处，交给 AI 画上配图。'+hint;
 }
 
 /* ============================================================

@@ -6,7 +6,7 @@
 
 ## 0. 一句话结论
 
-用户设想的六条能力中**四条已完整存在**（脑暴声明插画→占位槽位+预写 intent、一键补齐插画、单页一键烙入+当前页截图作风格锚、混合 deck 双轨导出），**MCP 侧无需新增工具**。真正的缺口是八处体验与质量短板（§3 G1–G8），本设计逐一给出方案。
+用户设想的六条能力中**四条已完整存在**（脑暴声明插画→占位槽位+预写 intent、一键自动补图、单页一键烙入+当前页截图作风格锚、混合 deck 双轨导出），**MCP 侧无需新增工具**。真正的缺口是八处体验与质量短板（§3 G1–G8），本设计逐一给出方案。
 
 ## 1. 现状能力盘点（证据级）
 
@@ -16,8 +16,8 @@
 |---|---|---|
 | 脑暴选 AI 插画 → 生成 HTML 时预留插画位置 | ✅ 已有。脑暴第⑧组含插画模式单选；生成期写入图片槽位三属性占位 | `references/briefing.md:31`；`references/editing-contract.md:113–135` |
 | 占位处写入"要呈现的内容/生图指令" | ✅ 已有。`data-image-intent` 即槽位级生图指令片段 | `editing-contract.md:127` |
-| 页面提供一键生成插画按钮 / 免交互直接生成 | ✅ Bridge 模式已有「补齐插画」按钮（扫 placeholder 槽位发 `illustrate.requested` intent）；agent 侧逐槽生成无需用户逐张确认 | `editor.html:752,6319–6322`；`SKILL.md:84` |
-| 单页一键生图、以当前页为参考图 | ✅ 已有。Bridge 栏「重烙当前页」→ `bake.requested`；风格锚 = 真实 HTML 页浏览器截图（非另一张生图） | `editor.html:751,6318`；`SKILL.md:282`；`page-render-mode.md:48` |
+| 页面提供一键生成插画按钮 / 免交互直接生成 | ✅ Bridge 模式已有「自动补图」按钮（扫 placeholder 槽位发 `illustrate.requested` intent）；agent 侧逐槽生成无需用户逐张确认 | `editor.html:752,6319–6322`；`SKILL.md:84` |
+| 单页一键生图、以当前页为参考图 | ✅ 已有。Bridge 栏「整页重绘」→ `bake.requested`；风格锚 = 真实 HTML 页浏览器截图（非另一张生图） | `editor.html:751,6318`；`SKILL.md:282`；`page-render-mode.md:48` |
 | 作为技能一部分 / 或提供 MCP 工具 | ✅ 两者都已成立。生图是技能子流程（Step 5.5/5.6 + `imagegen-adapter.py`）；Bridge 六种 intent 已含 `bake.requested`/`illustrate.requested`，恰好五工具完整承载，**不需要第六个 MCP 工具** | `tools/bridge_core.py:64`；`tools/bridge_mcp.py` |
 | 部分页图片、部分页 HTML 混合 | ✅ 已有且是回归验收项（bake-mix fixture：4 页混合 deck） | `tests/decks/bake-mix/`；harness m/n/p/q 各 check |
 | 生图色彩与原 HTML 一致 | ⚠️ 只有前置约束：指令注入主题 token 逐字色值 + 参考图锚定；**无后置机器校验** | `compile-bake-prompts.py:52–69`；`bake-prompts.md:52` |
@@ -115,7 +115,7 @@
 **方案**：
 
 1. **协议补全**：嵌入协议出站正式收录 `pptx-html:illustrate-intent {slots}` 与 `pptx-html:bake-intent {slideIds}`（bake 当前在嵌入态无独立出站消息，复用 export-intent 语义不清晰，应独立）；入站新增 `pptx-html:assets-changed {files}`——宿主完成生图/换图后通知编辑器热刷新指定资产，不必整页 reload。
-2. **嵌入态按钮显性化**：「重烙当前页」「补齐插画」按钮从 Bridge bar 专属改为三态可见（Bridge 态发 intent / 嵌入态发 postMessage / 裸静态态复制指令文本），文案随形态自适应。
+2. **嵌入态按钮显性化**：「整页重绘」「自动补图」按钮从 Bridge bar 专属改为三态可见（Bridge 态发 intent / 嵌入态发 postMessage / 裸静态态复制指令文本），文案随形态自适应。
 3. 修正 `editor.html:6501` 注释与实际出站消息清单同步。
 
 **改动面**：`editor.html`、协议文档（AGENTS.md 宿主集成段、`editor-agent-bridge-protocol.md` 嵌入协议节）、harness 嵌入态用例。
