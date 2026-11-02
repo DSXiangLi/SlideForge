@@ -4,11 +4,20 @@
 <!--
   ============================================================================
   HTML PPTX 编辑器 · editor.html
-  版本：v3.12.4（2026-11-02）
+  版本：v3.12.5（2026-11-03）
   实现依据：docs/design-editor.md v0.3（评审修订稿）+ docs/design/editor-v2.md
   标记契约：skills/html-pptx/references/editing-contract.md v8（本页是消费侧实现）
 
   变更记录：
+  - v3.12.5（View 保活：在线信号改成心跳 + 轮询失败自愈）：daemon 判「View 在线」的**唯一**依据是
+    `attach_view` 写下的 `view_attached_at` 落在存续窗口内，而本页原先只在 boot attach 一次
+    ⇒ **开满一个窗口就自降 `track=pending`**：轨道判定错、`open_editor(open_browser="auto")`
+    会多开一个独立浏览器窗口、排障时把"页面活着"读成"页面没了"（2026-11-02 实测误判）。
+    三处修：① 轮询里按 ≥8s 节流补报 `attach_view`（同 client 幂等——只有 client 变了才触发
+    「新页面接管→丢弃排队请求」）；② 隐藏态跳过状态轮询但**心跳照发**（面板被宿主藏起来 ≠
+    用户关掉了编辑器），并在可见性变化 / 宿主上下文变化时立刻补一次；③ 轮询失败**永不自行停止**，
+    改为 2s 起按 1.6 倍退避到 30s 封顶、任一次成功即复位——旧实现 >30 次 `mcpAppStopPoll()`
+    会把编辑器变成永久死的。daemon 侧存续窗口 30s → 90s。
   - v3.12.4（窄面板不再丢控件）：用户报告 pip 面板里「整页重绘」「自动补图」两个按钮**凭空不见**。
     查因（无头实测）：页头是 `display:flex` **单行**且**无 overflow**，全部控件固有宽约 1060px；
     而 pip 面板宽度是 `clamp(0.6×内容区, 560, 内容区−420)`，常见落在 560–1000px —— 挤不下的控件
@@ -4427,6 +4436,8 @@ function mcpAppSyncDisplayMode(ctx){
 function mcpAppOnHostCtxChanged(ctx){
   if (!ctx) return;
   mcpAppSyncDisplayMode(ctx);
+  /* 宿主上下文变 = 宿主还记得我 ⇒ 立刻补一次保活心跳（不等下一个轮询 tick） */
+  if (typeof mcpAppHeartbeatTick === 'function') mcpAppHeartbeatTick(true);
   if (!ctx.containerDimensions) return;
   var w = ctx.containerDimensions.width;
   if (typeof w !== 'number' || !isFinite(w) || w <= 0) return;
@@ -4796,11 +4807,36 @@ function mcpAppStartPoll(){
   mcpApp.pollTimer = setInterval(mcpAppPollOnce, mcpApp.pollDelay);
 }
 function mcpAppStopPoll(){ if (mcpApp.pollTimer){ clearInterval(mcpApp.pollTimer); mcpApp.pollTimer = null; } }
+/* ── View 保活（2026-11-03）──────────────────────────────────────────────
+   为什么需要：daemon 判「View 在线」的**唯一**依据是 `attach_view` 写入的 `view_attached_at`
+   落在存续窗口内（`bridge_core.VIEW_SIGNAL_STALE_SEC`），而本页原先只在 boot 里 attach 一次
+   ⇒ 开满一个窗口就自降为 `track=pending`：轨道判定错、`open_editor(open_browser="auto")` 会
+   多开一个独立浏览器窗口、排障时把"页面活着"读成"页面没了"。
+   为什么可以反复报：`attach_view` 只有在 `client` **变了**时才触发"新页面接管 → 丢弃排队请求"，
+   同 client 重复上报是幂等的；它只写 `view_attached_at`/`view_client`/`updated_at`，
+   不碰 `intents.updated_at`，因此与 600s 的陈旧自愈判据互不干扰。
+   节流 ≥8s：足够覆盖 2s 轮询与 10s 空闲退避两种节奏，也不会把工具面刷爆。 */
+var mcpAppBeat = { at: 0 };
+function mcpAppHeartbeatTick(force){
+  if (!mcpApp.ready || !mcpApp.sessionId) return;
+  var now = Date.now();
+  if (!force && now - mcpAppBeat.at < 8000) return;
+  mcpAppBeat.at = now;
+  mcpAppCall('attach_view', {session_id:mcpApp.sessionId, client:mcpApp.clientId})
+    .catch(function(){ /* 心跳失败不打扰用户：下一次轮询会再试 */ });
+}
+/* 用户切回来 / 宿主上下文变化 = "我还在"，立刻补一次，不等下一个 tick */
+document.addEventListener('visibilitychange', function(){ if (!document.hidden) mcpAppHeartbeatTick(true); });
+
 async function mcpAppPollOnce(){
-  if (!mcpApp.ready || document.hidden) return;
+  if (!mcpApp.ready) return;
+  mcpAppHeartbeatTick(false);   /* 先报"我在线"：隐藏态也要报——面板被宿主藏起来 ≠ 用户关掉了编辑器 */
+  if (document.hidden) return;  /* 隐藏时不做状态轮询（省 IPC），但心跳照发 */
   try {
     var st = await mcpAppCall('get_status', {session_id:mcpApp.sessionId});
+    var recovering = mcpApp.pollFailures > 0;
     mcpApp.pollFailures = 0;
+    if (recovering && mcpApp.pollDelay !== 2000){ mcpApp.pollDelay = 2000; mcpAppStartPoll(); }
     mcpAppApplyStatus(st);
     /* 首份 deck 到达也算"变化"：脑暴会话（deck_path=NULL, revision=NULL）的
        `mcpApp.revision` 是 null，旧条件 `st.revision && mcpApp.revision && …` 恒假 →
@@ -4833,7 +4869,14 @@ async function mcpAppPollOnce(){
   } catch(e){
     mcpApp.pollFailures++;
     if (mcpApp.pollFailures === 3) mcpAppRenderState('error','与宿主失联', e.message + '（widget 可能已被宿主回收，需要重新打开编辑器）');
-    if (mcpApp.pollFailures > 30) mcpAppStopPoll();
+    /* 旧行为：>30 次直接 `mcpAppStopPoll()` ⇒ 一次网络抖动 / 宿主短暂回收就把编辑器变成
+       **永久死的**（轮询停了就再没人把它拉回来）。现改为**退避重试、永不自行停止**：
+       2s 起按 1.6 倍涨、封顶 30s；任一次成功即复位（见上面的 recovering 分支）。
+       `mcpAppStopPoll()` 只留给真正的拆卸路径（宿主 teardown / 页面关闭）。 */
+    if (mcpApp.pollFailures > 2){
+      var back = Math.min(30000, Math.round(2000 * Math.pow(1.6, Math.min(mcpApp.pollFailures - 2, 8))));
+      if (mcpApp.pollDelay !== back){ mcpApp.pollDelay = back; mcpAppStartPoll(); }
+    }
   }
 }
 /* 便条（背景）+ 服务端草稿：轨 A 无本地存储，save_draft 是唯一草稿通道 */

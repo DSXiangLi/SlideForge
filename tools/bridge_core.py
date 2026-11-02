@@ -55,7 +55,12 @@ STALE_RECOVERY_GRACE_SEC = 600
 # 且改 core 的 await_intent 会牵动双轨共用的阻塞语义。
 VIEW_WAIT_SEC_DEFAULT = 8
 VIEW_WAIT_SEC_MAX = 120
-VIEW_SIGNAL_STALE_SEC = 30
+# View 保活窗口（2026-11-03 修）：View 的在线信号是 attach_view 的**心跳**，但原先取 30s——
+# 而编辑器只在 boot 时 attach 一次（`editor.html` 轮询里没有），于是**开满 30 秒会话就自降为
+# `pending`**：track 判错、`open_editor(open_browser="auto")` 会多开一个独立窗口、排障时误判成
+# "页面没了"。放长到 90s（与 2s 轮询 / 10s 空闲退避同量级），并配合编辑器侧的心跳：
+# 隐藏态的低频心跳在后台标签被节流到 ~60s 时也仍能落在窗口内。
+VIEW_SIGNAL_STALE_SEC = 90
 # app-only 工具读取上限（base64 经 JSON 中转，别把内存吃光）
 DOCUMENT_READ_MAX = 8 * 1024 * 1024
 ARTIFACT_READ_MAX = 24 * 1024 * 1024
