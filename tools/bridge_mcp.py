@@ -96,7 +96,10 @@ AWAIT_HTTP_TIMEOUT_MARGIN_SEC = 15
 # 加上加载与首心跳的时延，余量不足会让仲裁先判"轨 B"而实际上轨 A 已经接上。
 VIEW_ARBITRATION_MARGIN_SEC = 4
 
-VIEW_URI = "ui://pptx-html-bridge/editor.html"
+EDITOR_URI = "ui://pptx-html-bridge/editor.html"
+BRIEF_URI = "ui://pptx-html-bridge/brief.html"
+# 兼容别名：编辑器资源的旧名（部分验收脚本仍按此导入）。新代码请用 EDITOR_URI / BRIEF_URI。
+VIEW_URI = EDITOR_URI
 VIEW_MIME = "text/html;profile=mcp-app"
 APPS_EXTENSION = "io.modelcontextprotocol/ui"
 VIEW_BUNDLE_PATH = PROJECT_ROOT / "tools" / "ext_apps_bundle.js"
@@ -127,6 +130,8 @@ VIEW_VERSION = _view_version()
 # 工具 `title`：规范不强制，但官方示例都给 app 工具标题，且宿主列表里这是唯一的人类可读名
 # （审计 F11 实测各工具的 title 全是 None）。集中一张表，不散进各工具装饰器里。
 TOOL_TITLES = {
+    "open_brief": "打开需求脑暴",
+    "get_revision": "读取候选 revision",
     "open_editor": "打开编辑器",
     "await_intent": "等待用户意图",
     "push_update": "回写发布",
@@ -141,6 +146,7 @@ TOOL_TITLES = {
     "save_draft": "保存服务端草稿",
     "list_versions": "列出历史版本",
     "rollback": "回滚到历史版本",
+    "rebaseline": "对齐版本基线",
 }
 
 # View 引导：必须在 editor.html 自身脚本之前**同步**定义 window.pptxMcp，
@@ -192,31 +198,65 @@ VIEW_BOOTSTRAP = """<script>
 # 优先，故不再需要（F4）。
 APP_ONLY_META = {"ui": {"visibility": ["app"]}}
 
+# 仅轨 A 列举的**面向模型**入口：`open_brief`。
+# 为什么单独一组：轨 B 的工具面是**冻结的恰好五个**（AGENTS.md 红线），
+# 而脑暴拆成独立工具是轨 A 的可移植性诉求（一个 View 一份形态声明）。
+# 两者的列举门相同（`apps_tools_listed()`），但可见性语义不同，故不并入 APP_ONLY_META。
+# 仅轨 A 列举的**面向模型**入口：
+#   open_brief —— 脑暴页（形态拆分要求一个 View 一份声明）
+#   get_revision —— 只读取本 attempt 工作副本的源 revision（轨 A 的 agent 在沙箱里拿不到
+#     `tools/bridge_core.py`，算不出 `candidate_revision`；轨 B 的 agent 在宿主机上跑，够得着，不需要它）
+MODEL_GATED_TOOL_NAMES = ("open_brief", "get_revision")
+
 # app-only 工具的共用参数注记。必须放在模块级：`from __future__ import annotations`
 # 会把注解变成字符串，FastMCP 用函数的 __globals__ 求值，闭包内定义的名字解析不到。
 SessionId = Annotated[str, Field(min_length=1, description="Session identifier returned by open_editor.")]
 
 
 def _tool_meta(resource_uri: str | None = None) -> dict[str, Any]:
+    """工具 `_meta`：`_meta.ui` **只允许**标准两键（`resourceUri` / `visibility`）。
+
+    呈现形态（inline / pip / fullscreen）**不在工具元数据里声明**——规范的
+    `McpUiToolMeta` 没有这个字段（`src/spec.types.ts:764-793`），形态归宿主裁量
+    （官方概览 `docs/overview.md:201`：the Host always has final say over its own UI）。
+    我方表达形态诉求的标准位置只有两处，都在 View 侧：`appCapabilities.availableDisplayModes`
+    （硬约束：宿主 MUST NOT 切到未声明形态）与 `ui/request-display-mode`（软请求）。
+    历史上这里写过宿主扩展 `mode` / `mode_inline_when`，已废弃——见
+    `docs/design/mcp-apps-standard-split.md`（"零自定义协议字段"）。
+    """
     meta: dict[str, Any] = {"visibility": ["model", "app"]}
     ui: dict[str, Any] = {"visibility": ["model", "app"]}
     if resource_uri:
         ui["resourceUri"] = resource_uri
+        # 扁平键是规范的**已废弃**形式（`apps.mdx:347` 明文 deprecated，GA 前移除），
+        # 保留只为兼容尚未升级的读取方；嵌套键优先。
         meta["ui/resourceUri"] = resource_uri
-        # 呈现形态声明（**宿主扩展**，spec 的 McpUiToolMeta 无此字段；见宿主设计 §15.2 D3）。
-        # 编辑器是"需要长期占位的常驻工作台" → pip（停靠宽侧栏）；
-        # **但同一个 `open_editor` 也承载脑暴视图**（brief/edit/annotate/export 四视图一工具），
-        # 而形态是工具级静态声明、表达不了"按视图区分"——故用 `mode_inline_when` 条件化：
-        # 宿主在发射 mcp_app 事件时用**本次 tool_args** 求值，命中则用 inline，否则用 `mode`。
-        # 脑暴是一次性 widget（宿主设计 §一），其余三视图才需要常驻宽面板。
-        ui["mode"] = "pip"
-        ui["mode_inline_when"] = {"arg": "view", "in": ["brief"]}
     meta["ui"] = ui
     return meta
 
 
-def build_view_html() -> str:
-    """把 editor.html 与注入的 View SDK bundle 合成一个自包含资源（无外链）。"""
+def _variant_boot(variant: str) -> str:
+    """呈现变体常量（编译期注入，View 侧据此声明能力形态）。
+
+    两个资源共用同一份 `editor.html` 源码，差异只在**这里注入的常量**：
+    `brief` 只声明 `["inline"]`（一次性表单，结果落信息流）；`editor` 声明
+    `["inline","pip"]` 并在握手后请求 pip（"能同时看到对话与编辑器"，见设计 §0 D-1）。
+    **刻意不声明 fullscreen**——声明集合就是宿主 MUST NOT 越过的边界。
+    """
+    return (
+        "<script>\n"
+        "/* MCP Apps View 呈现变体（server 注入，勿手改；见 tools/bridge_mcp.py 与\n"
+        "   docs/design/mcp-apps-standard-split.md）。取值：brief | editor */\n"
+        f"window.__PPTX_VIEW_VARIANT__ = {json.dumps(variant)};\n"
+        "</script>"
+    )
+
+
+def build_view_html(variant: str = "editor") -> str:
+    """把 editor.html 与注入的 View SDK bundle 合成一个自包含资源（无外链）。
+
+    `variant` 只影响注入的呈现变体常量，不改变源码——单源双资源，避免两份 UI 代码漂移。
+    """
     html = (PROJECT_ROOT / "editor.html").read_text(encoding="utf-8")
     if not VIEW_BUNDLE_PATH.exists():
         raise RuntimeError("缺少 View bundle：先跑 python3 tools/build_ext_apps_bundle.py")
@@ -224,7 +264,7 @@ def build_view_html() -> str:
     hits = sorted({m.group(0) for m in EXTERNAL_REF_RE.finditer(html)})
     if hits:
         raise RuntimeError("View HTML 含外链引用，违反 CSP 前提：" + ", ".join(hits[:5]))
-    boot = VIEW_BOOTSTRAP
+    boot = _variant_boot(variant) + VIEW_BOOTSTRAP
     module = "<script>\n(function(){\"use strict\";\n" + bundle.replace("</script", "<\\/script") + "\n})();\n</script>"
     match = re.search(r"<head[^>]*>", html, re.I)
     if not match:
@@ -268,17 +308,22 @@ class BridgeFastMCP(FastMCP):
 
     设计 §3.1 已证明"注册期早于 initialize"，所以不能按能力注册两套工具集；
     但 `tools/list` 发生在 `initialize` 之后，可以在**列举期**按客户端能力分流。
-    这样轨 B（当前唯一真实宿主）看到的仍是恰好五个工具，红线不被 13 个 app-only
-    工具污染；声明了扩展的宿主看到全部 18 个，其中 13 个是 `visibility:["app"]`。
+    这样轨 B 看到的仍是恰好五个工具，红线不被 app-only 工具与轨 A 专属入口污染；
+    声明了扩展的宿主（或 `always`）看到全部 15 个：6 个面向模型 + 9 个 `visibility:["app"]`。
 
     环境变量 `PPTX_HTML_APPS_TOOLS`：`auto`（默认）| `always` | `never`。
-    `always` 供"能渲染 widget 却不声明扩展"的宿主（如 SproutHarness）使用。
+    `always` 供"能渲染 widget 却不声明扩展"的宿主使用（本机实测宿主属此类）。
     """
 
-    def __init__(self, *args, app_only_names=(), **kwargs):
+    def __init__(self, *args, app_only_names=(), model_gated_names=(), **kwargs):
+        """`app_only_names` = `visibility:["app"]` 的工具；`model_gated_names` = 仅轨 A 列举的
+        **面向模型**入口（`open_brief`）——两者的列举门相同，语义不同，别混。
+        """
         self._app_only_names = set(app_only_names)
+        self._gated_names = set(app_only_names) | set(model_gated_names)
         super().__init__(*args, **kwargs)
-        self._view_html: str | None = None
+        # 每个变体缓存一份合成 HTML（单源双资源，见 build_view_html）
+        self._view_html: dict[str, str] = {}
 
     async def call_tool(self, name, arguments):
         """统一错误信封（F9）：任何失败都以 `isError=true` + **纯 JSON 文本** 返回。
@@ -332,13 +377,13 @@ class BridgeFastMCP(FastMCP):
     async def list_tools(self) -> list[Tool]:
         tools = await super().list_tools()
         # 工具标题在这里统一补齐（F11）：`title` 在规范里不是必填，但官方示例都给 app 工具
-        # 标题，且宿主列表里这是唯一的人类可读名。集中一张表，不散进 18 个装饰器。
+        # 标题，且宿主列表里这是唯一的人类可读名。集中一张表，不散进各工具装饰器。
         for tool in tools:
             if not tool.title:
                 tool.title = TOOL_TITLES.get(tool.name)
         if self.apps_tools_listed():
             return tools
-        return [tool for tool in tools if tool.name not in self._app_only_names]
+        return [tool for tool in tools if tool.name not in self._gated_names]
 
 
 def consumer_id_for(workdir: str) -> str:
@@ -385,6 +430,7 @@ class BridgeMCP:
             log_level="ERROR",
             lifespan=lifespan,
             app_only_names=APP_ONLY_TOOL_NAMES,
+            model_gated_names=MODEL_GATED_TOOL_NAMES,
         )
         # serverInfo.version（F7）：mcp 1.28 的 `FastMCP` 不接受 version 形参，低层 Server 于是
         # 回落成 SDK 自己的版本（实测报 1.28.0）。直接写低层实例属性，让 initialize 报**本应用**
@@ -459,11 +505,29 @@ class BridgeMCP:
         result = await self._request(path, body, timeout=timeout)
         return json.dumps(result, ensure_ascii=False, separators=(",", ":"))
 
+    async def _open(self, deck_path, output_path, view, open_browser, brief_options) -> dict[str, object]:
+        """`open_editor` / `open_brief` 的共同出口——两条轨的开会话语义完全相同（设计 §0）。
+
+        "auto" 的解析（设计 §10.7）：只有**本客户端可能渲染内嵌视图**时才起存在性窗口
+        （声明了 UI 扩展，或运维用 PPTX_HTML_APPS_TOOLS=always 打开工具面）。
+        否则按 true 走——不支持 MCP Apps 的宿主保持即时开浏览器行为，零回归。
+        """
+        resolved_open = open_browser
+        if open_browser == "auto":
+            resolved_open = "auto" if self.mcp.apps_tools_listed() else True
+        result = await self._request("/api/bridge/open", {"consumer_id":self.consumer_id,"deck_path":deck_path,"output_path":output_path,"view":view,"open_browser":resolved_open,"brief_options":brief_options})
+        self.owned_sessions.add(result["session_id"])
+        # mode_hint 只是乐观提示：两家真实宿主都不声明 UI 扩展，设计必须在"恒为 unknown"下正确（§4.2）
+        result["mode_hint"] = "mcp-app" if self.mcp.apps_declared() else "unknown"
+        result["mode_source"] = "client-capabilities" if self.mcp.apps_declared() else "none"
+        result["open_browser_resolved"] = resolved_open
+        return result
+
     def _register(self):
         @self.mcp.tool(
-            description="Open or reuse one managed editor task in the configured workdir. Registers this MCP consumer and may initialize the task's isolated Git protection ref. Returns a browser URL containing only a session-scoped browser credential. Does not acquire queue ownership or publish files.",
+            description="Open or reuse one managed editor task and render the **editing workbench** (edit / annotate / export). Registers this MCP consumer and may initialize the task's isolated Git protection ref. Returns a browser URL containing only a session-scoped browser credential. Does not acquire queue ownership or publish files. Requirements brainstorming is a separate tool in MCP Apps hosts — call open_brief for it; in those hosts this tool rejects view='brief'.",
             annotations=ToolAnnotations(readOnlyHint=False, destructiveHint=False, idempotentHint=False, openWorldHint=False),
-            meta=_tool_meta(VIEW_URI),
+            meta=_tool_meta(EDITOR_URI),
         )
         async def open_editor(
             deck_path: Annotated[str | None, Field(description="Absolute path to an existing trusted HTML deck inside the configured workdir, or null to create a new deck through the brief view.")] = None,
@@ -472,19 +536,33 @@ class BridgeMCP:
             open_browser: Annotated[bool | Literal["auto"], Field(description="'auto' (default) starts a bounded existence window for an embedded MCP Apps view and only opens a standalone browser when no UI signal arrives; true opens the browser immediately; false never opens it.")] = "auto",
             brief_options: Annotated[dict[str, object] | None, Field(description="Optional dynamic brief-options object (version 2, kind 'brief-options'; see the briefing v2 schema). The daemon validates it, stores it at session level, and echoes it in session state; a provided value replaces the stored one, while omitting it keeps the stored value. Invalid input is rejected without changing the stored value.")] = None,
         ) -> dict[str, object]:
-            # "auto" 的解析（设计 §10.7）：只有**本客户端可能渲染内嵌视图**时才起存在性窗口
-            # （声明了 UI 扩展，或运维用 PPTX_HTML_APPS_TOOLS=always 打开工具面）。
-            # 否则按 true 走——不支持 MCP Apps 的宿主保持今天的即时开浏览器行为，零回归。
-            resolved_open = open_browser
-            if open_browser == "auto":
-                resolved_open = "auto" if self.mcp.apps_tools_listed() else True
-            result = await self._request("/api/bridge/open", {"consumer_id":self.consumer_id,"deck_path":deck_path,"output_path":output_path,"view":view,"open_browser":resolved_open,"brief_options":brief_options})
-            self.owned_sessions.add(result["session_id"])
-            # mode_hint 只是乐观提示：两家真实宿主都不声明 UI 扩展，设计必须在"恒为 unknown"下正确（§4.2）
-            result["mode_hint"] = "mcp-app" if self.mcp.apps_declared() else "unknown"
-            result["mode_source"] = "client-capabilities" if self.mcp.apps_declared() else "none"
-            result["open_browser_resolved"] = resolved_open
-            return result
+            # 轨 A：脑暴是**独立工具 + 独立资源**（`open_brief`），因为呈现形态由 View 声明、
+            # 一个 View 只能有一份声明（设计 §3.2）。这样报错而不是静默按编辑器资源打开——
+            # 静默会把脑暴塞进编辑器的侧栏，正是本次拆分要消除的形态。
+            if view == "brief" and self.mcp.apps_tools_listed():
+                raise ToolError(json.dumps({
+                    "ok": False,
+                    "error": {
+                        "code": "INVALID_ARGUMENT",
+                        "message": "view='brief' 在本宿主不适用：脑暴已拆为独立工具，请调用 open_brief(...)",
+                        "retryable": False,
+                        "details": {"use_instead": "open_brief", "views": ["edit", "annotate", "export"]},
+                    },
+                }, ensure_ascii=False, separators=(",", ":")))
+            return await self._open(deck_path, output_path, view, open_browser, brief_options)
+
+        @self.mcp.tool(
+            description="Open the requirements brainstorming page for a new deck (or a re-alignment pass on an existing one) in a managed editor task. The page renders inline in the conversation, collects the design brief, and submits it as an intent; it is not the editing workbench.",
+            annotations=ToolAnnotations(readOnlyHint=False, destructiveHint=False, idempotentHint=False, openWorldHint=False),
+            meta=_tool_meta(BRIEF_URI),
+        )
+        async def open_brief(
+            deck_path: Annotated[str | None, Field(description="Absolute path to an existing trusted HTML deck inside the configured workdir when the brief is a re-alignment pass, or null to create a new deck from the brief.")] = None,
+            output_path: Annotated[str, Field(description="Relative HTML target path inside the configured workdir for a new deck; ignored as a source path for an existing deck.")] = "index.html",
+            open_browser: Annotated[bool | Literal["auto"], Field(description="'auto' (default) starts a bounded existence window for an embedded MCP Apps view and only opens a standalone browser when no UI signal arrives; true opens the browser immediately; false never opens it.")] = "auto",
+            brief_options: Annotated[dict[str, object] | None, Field(description="Optional dynamic brief-options object (version 2, kind 'brief-options'; see the briefing v2 schema). The daemon validates it, stores it at session level, and echoes it in session state; a provided value replaces the stored one, while omitting it keeps the stored value. Invalid input is rejected without changing the stored value.")] = None,
+        ) -> dict[str, object]:
+            return await self._open(deck_path, output_path, "brief", open_browser, brief_options)
 
         @self.mcp.tool(
             description=f"Atomically acquire this registered consumer's waiting lease and wait for the earliest pending browser intent. Timeout is bounded to {AWAIT_TIMEOUT_MIN_SEC}-{AWAIT_TIMEOUT_MAX_SEC} seconds and defaults to one day. After claim, processing ownership is durable and does not time-expire; the same owner receives the same attempt until complete, fail, explicit stop/close, or daemon restart. Cancellation only stops this wait and never deletes an intent.",
@@ -514,6 +592,17 @@ class BridgeMCP:
             evidence = (validation.model_dump(exclude={"export_source_revision"} if validation.export_source_revision is None else set())
                         if validation is not None else None)
             return await self._request("/api/bridge/update", {"session_id":session_id,"intent_id":intent_id,"attempt":attempt,"consumer_id":self.consumer_id,"action":action,"message":message,"validation":evidence})
+
+        @self.mcp.tool(
+            description="Return the source revision of the assigned attempt work copy — the exact value push_update(action='complete') requires as validation.candidate_revision. Call it once after every check has passed and touch no file afterwards: reading it again after any write yields a different value, and complete will be refused (that fence is the point of the field). Read-only — it changes no state, extends no lease and emits no event.",
+            annotations=ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotentHint=True, openWorldHint=False),
+        )
+        async def get_revision(
+            session_id: Annotated[str, Field(min_length=1, description="Session identifier that owns the claimed intent.")],
+            intent_id: Annotated[str, Field(min_length=1, description="Intent identifier returned by await_intent.")],
+            attempt: Annotated[int, Field(ge=1, description="Positive attempt number returned by await_intent.")],
+        ) -> dict[str, object]:
+            return await self._request("/api/bridge/revision", {"session_id":session_id,"intent_id":intent_id,"attempt":attempt,"consumer_id":self.consumer_id})
 
         @self.mcp.tool(
             description="Read persistent task, revision, export freshness, browser, queue, recovery and capability state. This is read-only and does not register or acquire a consumer lease.",
@@ -568,6 +657,10 @@ class BridgeMCP:
         async def save_draft(session_id: SessionId, client_id: Annotated[str, Field(min_length=1, description="Stable id for this view instance.")], html: Annotated[str, Field(description="Serialized HTML snapshot; empty string when nothing is loaded yet.")], annotations: Annotated[list[Any], Field(description="Annotation list belonging to the snapshot.")], base_revision: Annotated[str | None, Field(description="Revision the snapshot was taken from, or null.")] = None) -> str:
             return await self._app_request("save_draft", {"session_id": session_id, "client_id": client_id, "html": html, "annotations": annotations, "base_revision": base_revision}, timeout=180)
 
+        @self.mcp.tool(description="Adopt the workspace's current bytes as the new published baseline (drift repair). Needed when someone changed the managed file outside the CAS: afterwards the daemon and the workspace agree again, so intents can be claimed and published. It writes no business file — it re-scans, records reality and keeps a snapshot of the previous state, so the old baseline stays revertible. Idempotent: if nothing drifted it reports aligned=false.", annotations=ToolAnnotations(readOnlyHint=False, destructiveHint=False, idempotentHint=True, openWorldHint=False), meta=dict(APP_ONLY_META))
+        async def rebaseline(session_id: SessionId) -> str:
+            return await self._app_request("rebaseline", {"session_id": session_id})
+
         @self.mcp.tool(description="List the Git-protected version history of the target HTML. The sandboxed view cannot read the workspace, so history must come through this tool.", annotations=ToolAnnotations(readOnlyHint=True, destructiveHint=False, idempotentHint=True, openWorldHint=False), meta=dict(APP_ONLY_META))
         async def list_versions(session_id: SessionId, path: Annotated[str, Field(min_length=1, description="Workspace-relative target HTML path.")]) -> str:
             return await self._app_request("list_versions", {"session_id": session_id, "path": path}, timeout=120)
@@ -577,7 +670,7 @@ class BridgeMCP:
             return await self._app_request("rollback", {"session_id": session_id, "path": path, "hash": hash, "base_revision": base_revision}, timeout=180)
 
         @self.mcp.resource(
-            VIEW_URI,
+            EDITOR_URI,
             name="pptx-html-bridge-editor",
             title="PPTX-HTML 编辑器",
             description="Editor workbench view (edit / annotate / compare) rendered by an MCP Apps host.",
@@ -587,9 +680,27 @@ class BridgeMCP:
             meta={"ui": {"permissions": {"clipboardWrite": {}}, "prefersBorder": False}},
         )
         def editor_view() -> str:
-            if self.mcp._view_html is None:
-                self.mcp._view_html = build_view_html()
-            return self.mcp._view_html
+            return self._view_html_for("editor")
+
+        @self.mcp.resource(
+            BRIEF_URI,
+            name="pptx-html-bridge-brief",
+            title="PPTX-HTML 需求脑暴",
+            description="Requirements brainstorming page rendered inline by an MCP Apps host; submits the brief as an intent and is not the editing workbench.",
+            mime_type=VIEW_MIME,
+            # 与编辑器相反：脑暴是对话流里的表单，需要宿主的边界与底色把自己从正文里分出来。
+            meta={"ui": {"prefersBorder": True}},
+        )
+        def brief_view() -> str:
+            return self._view_html_for("brief")
+
+    def _view_html_for(self, variant: str) -> str:
+        """按变体缓存合成视图（同一份源码 + 注入的呈现变体常量，见 `build_view_html`）。"""
+        html = self.mcp._view_html.get(variant)
+        if html is None:
+            html = build_view_html(variant)
+            self.mcp._view_html[variant] = html
+        return html
 
     async def _arbitrate_view(self, session_id: str, timeout_sec: int) -> dict[str, object] | None:
         """轨道仲裁（设计 §4.2）。三条硬化：

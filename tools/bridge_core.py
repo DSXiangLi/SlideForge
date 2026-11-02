@@ -1134,6 +1134,52 @@ class BridgeCore:
         except IsADirectoryError as exc:
             raise BridgeError(404,"NOT_FOUND",message+"（不是普通文件）",False,dict(details or {},path=rel)) from exc
 
+    def rebaseline(self, session_id, consumer_id):
+        """**采纳工作区现状为新基线**——漂移自愈的唯一正解（2026-11-02，用户反馈"报错不人类友好"）。
+
+        病根：工作区文件可能被**绕过 CAS** 地改过（最典型：发布失败后把产物 `cp` 回受管目标）→
+        `sessions.revision`（发布标记）与磁盘实际内容不再一致 → 之后**发工作副本时校验必失败**（503），
+        整条轨 A 卡死。而"再保存一次"也救不了：`_publish` 有一道**第三方字节闸**（目标文件字节既不是
+        旧 manifest 的、也不是本次候选的 → `RECOVERY_FAILED`）。
+
+        本动作**不写任何业务文件**，只把现实记录下来：
+          ① 重新扫描工作区，刷新 `bundle_files`（把绕过 CAS 写进来的字节正式登记）；
+          ② 把 `revision`/`export_revision` 追平到扫描结果；
+          ③ 为**旧状态**留一份快照（因此这一动作可回滚，不是"覆盖历史"）。
+        这时才需要"保存"——而且之后保存会正常通过第三方字节闸（old_map 已与磁盘一致）。
+
+        要求：调用方是该会话**已登记的 consumer**（与其它 app-only 工具同一条归属校验）。
+        """
+        if not isinstance(consumer_id,str) or not consumer_id:
+            raise BridgeError(400,"INVALID_ARGUMENT","consumer_id 必填")
+        with self._session_lock(session_id):
+            self._expire(session_id)
+            session=self._session(session_id)
+            self.assert_consumer(session_id,consumer_id)
+            target=self._target_abs(session)
+            if not target.exists(): raise BridgeError(422,"INVALID_ARTIFACT","工作区还没有可采纳的目标 HTML")
+            old_manifest=[dict(r) for r in self.db.execute("SELECT path,class,sha256,size,present FROM bundle_files WHERE session_id=?",(session_id,))]
+            old_rev=session["revision"]; old_exp=session["export_revision"]
+            manifest=self.scan_bundle(target)
+            rev,exp=self.revisions(manifest)
+            if rev==old_rev and exp==old_exp:
+                return {"ok":True,"aligned":False,"revision":rev,"export_revision":exp,"session_id":session_id}
+            snapshot_id=None
+            if old_manifest:
+                snapshot_id,_,_=self._snapshot(session_id,old_manifest,self._bundle_root(session),"pre-rebaseline",protect_git=False)
+            now=utcnow()
+            with self.db:
+                self.db.execute("DELETE FROM bundle_files WHERE session_id=?",(session_id,))
+                for item in manifest:
+                    self.db.execute("INSERT INTO bundle_files(session_id,path,class,sha256,size,present) VALUES(?,?,?,?,?,1)",
+                                    (session_id,item["path"],item["class"],item["sha256"],item["size"]))
+                self.db.execute("UPDATE sessions SET revision=?,export_revision=?,updated_at=? WHERE id=?",(rev,exp,now,session_id))
+                self._event(session_id,"notice",{"session_id":session_id,"level":"info",
+                    "message":"已把工作区当前内容采纳为基线（此前存在绕过 CAS 的写入）"})
+            self._notify(session_id)
+            return {"ok":True,"aligned":True,"revision":rev,"export_revision":exp,
+                    "previous_revision":old_rev,"snapshot_id":snapshot_id,"files":len(manifest),"session_id":session_id}
+
     def read_document(self, session_id, path=None):
         """读取本任务受管的目标 HTML（轨 A 的 read_deck）。"""
         session=self._session(session_id)
@@ -1144,8 +1190,17 @@ class BridgeCore:
                                 details={"phase":session["phase"]})
         if len(data)>DOCUMENT_READ_MAX:
             raise BridgeError(413,"PAYLOAD_TOO_LARGE","目标 HTML 超出单次读取上限")
+        # 漂移探测（2026-11-02，用户反馈「报错不人类友好」）：磁盘 bundle 与「已发布 revision」是否一致。
+        # 一致性由 daemon 在**发工作副本时**强制校验（不通过就 503），但那句话对用户毫无可操作性；
+        # 这里顺手把事实（disk_revision / drift）告诉 View，让页面能**主动**提示"保存一次即可对齐"，
+        # 而不是等导出/批注某个操作失败。只在 read_deck 时算一次（不在 2s 轮询路径上），代价可接受。
+        disk_revision=None
+        with contextlib.suppress(Exception):
+            disk_revision=self.revisions(self.scan_bundle(self._target_abs(session)))[0]
+        drift=bool(disk_revision and session["revision"] and disk_revision!=session["revision"])
         return {"ok":True,"session_id":session_id,"path":rel,"revision":session["revision"],"phase":session["phase"],
-                "bytes":len(data),"sha256":hashlib.sha256(data).hexdigest(),"html":data.decode("utf-8",errors="replace")}
+                "bytes":len(data),"sha256":hashlib.sha256(data).hexdigest(),"html":data.decode("utf-8",errors="replace"),
+                "disk_revision":disk_revision,"drift":drift}
 
     def read_artifact(self, session_id, path, *, kind):
         """读取受管 bundle 内**已登记**的资产或导出产物（轨 A 的 read_asset / read_export）。
@@ -1249,9 +1304,21 @@ class BridgeCore:
                     src=target.parent/item["path"]; dst=work_path.parent/item["path"]
                     self._managed_copy_out(src,dst)
             check=self.scan_bundle(work_path)
-            if self.revisions(check)[0] != session["revision"]:
+            actual=self.revisions(check)[0]
+            if actual != session["revision"]:
                 shutil.rmtree(work_root,ignore_errors=True)
-                raise BridgeError(503,"STORAGE_UNAVAILABLE","工作副本校验失败")
+                # 这个 503 几乎只有一个成因：有人**绕过 CAS 直接写了工作区文件**（最典型是发布失败后
+                # 把产物 `cp` 回受管目标）。原先只回"工作副本校验失败"，agent 会误诊成"有旧的阻塞意图"
+                # 而去删 intents/jobs 文件（2026-11-02 实测），治标不治本、还可能丢掉合法请求。
+                # 现在把**事实**（两侧 revision）与**两条出路**一并给出，details 里带机器可读字段。
+                raise BridgeError(503,"STORAGE_UNAVAILABLE",
+                    f"工作区文件与已发布 revision 不一致：磁盘={actual} 记录={session['revision']}。"
+                    "成因通常是绕过 CAS 的直接写入（发布失败后把产物 cp 回受管目标）。"
+                    "出路：① **在编辑器页面上点横幅的「对齐版本」**（把当前文件采纳为新基线，旧版本仍可回滚）——"
+                    "这是唯一正解，再保存一次没有用（会被 _publish 的第三方字节闸拒绝）；"
+                    "② 服务侧可调 `rebaseline`（app-only 工具）做同一件事。"
+                    "不要删除 intents/jobs 文件——那是症状，不是成因。", True,
+                    {"disk_revision":actual,"recorded_revision":session["revision"],"remedy":"save"})
             if intent["type"]=="convert.requested":
                 export_dir=work_path.parent/"export"
                 if export_dir.exists():shutil.rmtree(export_dir)
@@ -1592,8 +1659,48 @@ class BridgeCore:
                     self._notify(session_id)
             raise
 
-    def _release_owner(self,sid,cid):
-        self.db.execute("UPDATE consumers SET state='registered',lease_until=NULL WHERE session_id=? AND consumer_id=?",(sid,cid)); self.db.execute("UPDATE sessions SET owner_consumer_id=NULL,agent_state='offline' WHERE id=? AND owner_consumer_id=?",(sid,cid))
+    def revision_for_attempt(self,session_id,intent_id,attempt,consumer_id):
+        """**只读取值**：本 attempt 工作副本当前的源 revision —— 即 `push_update(complete)`
+        要求的 `validation.candidate_revision`。
+
+        为什么要有它（2026-10-30，用户报告"AI 完成后编辑器不刷新"的根因）：MCP Apps 轨的 agent 跑在
+        沙箱里，**够不到仓库的 `tools/bridge_core.py`**，于是算不出这个值（SKILL 原来就是让跑
+        `python3 tools/bridge_core.py revision <work_path>`）→ `complete` 反复报
+        `VALIDATION_REQUIRED「候选 revision 与工作副本不符」` → 号称完成却从未发布。
+        而 daemon 手里本来就有：`push_update(complete)` 内部就是这么算的，这里只是把**只读的一半**
+        暴露出来。
+
+        **围栏没有被削弱**：返回值绑定"查询那一刻"的字节；agent 之后再写任何文件，
+        `_validate_validation()` 会算出不同值并拒绝 `complete`——这正是该字段存在的意义
+        （证明"跑完门禁之后没有再写"）。因此**不能**改成让 `complete` 自己算。
+
+        围栏条件与 `complete` 完全一致（intent 必须 processing、attempt 必须匹配、consumer 必须是
+        owner）；**纯读**：不改状态、不续 lease、不发事件、不 notify。
+        """
+        if isinstance(attempt,bool) or not isinstance(attempt,int) or attempt<1:
+            raise BridgeError(400,"INVALID_ARGUMENT","attempt 非法")
+        with self._session_lock(session_id):
+            self._expire(session_id)
+            row=self.db.execute("SELECT * FROM intents WHERE id=? AND session_id=?",(intent_id,session_id)).fetchone()
+            if not row: raise BridgeError(404,"INTENT_NOT_FOUND","请求不存在")
+            if row["status"]!="processing" or row["attempt"]!=attempt or row["consumer_id"]!=consumer_id:
+                raise BridgeError(409,"RECOVERY_REQUIRED","consumer/attempt 所有权已失效",True)
+            attempt_row=self.db.execute("SELECT work_path FROM attempts WHERE intent_id=? AND attempt=?",(intent_id,attempt)).fetchone()
+            if not attempt_row: raise BridgeError(422,"INVALID_ARTIFACT","工作副本不存在")
+            work_path=Path(attempt_row[0]); _safe_regular(work_path,self.internal)
+            # 与 `revision_cli()` 走**同一对函数**（scan_bundle + revisions），保证两处口径永远一致
+            dummy=object.__new__(BridgeCore); dummy.workdir=work_path.parent; dummy.secure=SecureRoot(work_path.parent)
+            try: manifest=BridgeCore.scan_bundle(dummy,work_path)
+            finally: dummy.secure.close()
+            rev,_=BridgeCore.revisions(manifest)
+            if not rev: raise BridgeError(422,"INVALID_ARTIFACT","缺少源 HTML")
+            return {"ok":True,"intent_id":intent_id,"attempt":attempt,
+                    "candidate_revision":rev,"base_revision":row["base_revision"],
+                    "work_path":str(work_path),
+                    "files":[{"path":x["path"],"class":x["class"],"size":x["size"],"sha256":x["sha256"]}
+                             for x in manifest if x["present"]]}
+
+    def _release_owner(self,sid,cid):        self.db.execute("UPDATE consumers SET state='registered',lease_until=NULL WHERE session_id=? AND consumer_id=?",(sid,cid)); self.db.execute("UPDATE sessions SET owner_consumer_id=NULL,agent_state='offline' WHERE id=? AND owner_consumer_id=?",(sid,cid))
 
     def _write_key(self,action,base_revision,payload): return hashlib.sha256(b"pptx-html-write-v1\n"+canonical_json([action,base_revision,payload])).hexdigest()
 
@@ -2226,7 +2333,13 @@ class BridgeHandler(BaseHTTPRequestHandler):
         for k,v in (headers or {}).items():self.send_header(k,v)
         self.end_headers();
         if self.command!="HEAD":self.wfile.write(raw)
-    def _error(self,e): self._json(e.payload(),e.status)
+    def _error(self,e):
+        # 让 daemon.log 能回答"这次为什么被拒"：原先 4xx/5xx 只体现在 HTTP 响应体里，日志空无一物，
+        # 排查"请求失败"时（2026-11-02 实测）在服务端找不到任何据可查。这里只记**方法/路径/码/消息**，
+        # 不记 body（可能含 deck 内容）；daemon 的 stderr 直接进 <workdir>/.pptx-html/daemon.log。
+        with contextlib.suppress(Exception):
+            print(f"[bridge] {self.command} {self.path} -> {e.status} {e.code}: {e.message}", file=sys.stderr, flush=True)
+        self._json(e.payload(),e.status)
     def _origin(self): return self.core.origin
     def _check_host_origin(self,write=False,bootstrap_redeem=False):
         host=self.headers.get("Host")
@@ -2300,7 +2413,10 @@ class BridgeHandler(BaseHTTPRequestHandler):
         比对，摘掉后它们的契约一字未改。轨 B（浏览器凭证）不带该字段，走各自的 `_browser`。
         """
         # 这几条路由自己声明 consumer_id（open 时 consumer 尚未登记，更不能校验）
-        if path in {"/api/bridge/open","/api/bridge/await","/api/bridge/update","/api/bridge/close","/api/bridge/heartbeat"}:
+        # `/api/bridge/revision` 同理：它把 consumer_id 交给 `revision_for_attempt()` 做
+        # "intent 必须 processing + attempt 必须匹配 + consumer 必须是 owner" 的**三重围栏**
+        # （与 complete 完全一致），摘掉反而会让围栏失去输入。
+        if path in {"/api/bridge/open","/api/bridge/await","/api/bridge/update","/api/bridge/close","/api/bridge/heartbeat","/api/bridge/revision","/api/bridge/rebaseline"}:
             return
         raw=target.get("consumer_id")
         if raw is None:return
@@ -2331,6 +2447,14 @@ class BridgeHandler(BaseHTTPRequestHandler):
                 # `push_update` 内部要求必须提供。
                 self._management();self._fields(body,{"consumer_id","action"},{"session_id","intent_id","attempt","message","validation"})
                 return self._json(self.core.push_update(body.get("session_id"),body.get("intent_id"),body.get("attempt"),body["consumer_id"],body["action"],body.get("message",""),body.get("validation")))
+            if path=="/api/bridge/rebaseline":
+                # 漂移自愈：采纳工作区现状为新基线（只记录现实 + 留旧快照，不写业务文件）
+                self._management();self._fields(body,{"session_id","consumer_id"})
+                return self._json(self.core.rebaseline(body["session_id"],body["consumer_id"]))
+            if path=="/api/bridge/revision":
+                # 只读取值（轨 A 发布链需要）：见 BridgeCore.revision_for_attempt 的注释
+                self._management();self._fields(body,{"session_id","intent_id","attempt","consumer_id"})
+                return self._json(self.core.revision_for_attempt(body["session_id"],body["intent_id"],body["attempt"],body["consumer_id"]))
             if path=="/api/bridge/close":
                 self._management();self._fields(body,{"session_id","consumer_id"},{"reason"})
                 return self._json(self.core.close_consumer(body["session_id"],body["consumer_id"],body.get("reason","user-ended")))

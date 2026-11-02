@@ -4,11 +4,53 @@
 <!--
   ============================================================================
   HTML PPTX 编辑器 · editor.html
-  版本：v3.11.0（2026-10-29）
+  版本：v3.12.4（2026-11-02）
   实现依据：docs/design-editor.md v0.3（评审修订稿）+ docs/design/editor-v2.md
   标记契约：skills/html-pptx/references/editing-contract.md v8（本页是消费侧实现）
 
   变更记录：
+  - v3.12.4（窄面板不再丢控件）：用户报告 pip 面板里「整页重绘」「自动补图」两个按钮**凭空不见**。
+    查因（无头实测）：页头是 `display:flex` **单行**且**无 overflow**，全部控件固有宽约 1060px；
+    而 pip 面板宽度是 `clamp(0.6×内容区, 560, 内容区−420)`，常见落在 560–1000px —— 挤不下的控件
+    直接排到视口右边、**不可见且没有任何提示**（v3.12.3 新加的「自动保存」把它又推宽 145px，
+    900px 宽的面板里「整页重绘」也一起被挤出去了）。修法：① 页头 `flex-wrap:wrap`，
+    宁可多占一行也不丢控件；② `@media (max-width:1040px)` 收口（View 在 iframe 里，视口宽度
+    就是容器宽度）：隐藏品牌名、样式条允许横向滑动——与 `body[data-display-mode="inline"]`
+    那段同义，补的是此前被当作"宽侧栏"沿用宽布局的 **pip 面板**。宽容器（≥1066px）布局逐像素不变。
+  - v3.12.3（自动保存开关，默认关）：用户问"能否为页面设置自动保存"。先分清两件事——**草稿**本来就自动
+    （`save_draft` 防抖写入，丢不了），本开关管的是**发布**（写回受管文件、推进 revision、产一个历史版本）。
+    默认关，因为每次自动发布都产版本、并与 agent 的发布互抢 CAS 基线。打开后仍受三条约束：停手
+    `AUTO_SAVE_IDLE_MS`（6s，且不在输入中途）才动；两次写回至少隔 `AUTO_SAVE_MIN_GAP_MS`（5s）；
+    **AI 在途（pending/processing）不写、漂移态不写**（交给「对齐版本」）、正在编辑/保存/换图不写。
+    任何失败都**自动关掉开关并说明原因**（不静默重试）。页头开关带 title 讲清后果；嵌入/静态态不可用。
+  - v3.12.2（漂移自愈：把"文件与已发布版本不一致"变成用户能一键解决的动作）：
+    现场：工作区文件曾被**绕过 CAS** 直接写入（发布失败后 `cp` 回受管目标），此后 daemon 发工作副本
+    的校验必然失败，任何请求都认领不了；而用户看到的只有「工作副本校验失败」/「导出请求失败」，
+    完全不知道该做什么（agent 甚至误诊成"有旧的阻塞意图"去删 intent 文件）。本轮：
+    ① daemon 在 `read_deck` 里回报 `disk_revision`/`drift`（不在轮询路径上，只在载入时算一次）；
+    ② 载入即探测：漂移时立刻出横幅「保存一次即可对齐」+ 按钮「保存并对齐」，并把保存按钮高亮
+    （`.need-align`）——保存走 CAS，会把当前磁盘内容设成新基线，漂移随之消失；
+    ③ 任何"需要先保存"的失败（`error.details.remedy === "save"`）统一翻译成人话再抛出，
+    调用方的 toast 不再是机器话；保存成功后自动收起横幅与高亮。
+  - v3.12.1（批注提交后离场：投进受管会话即清空清单与角标，用户决策 A）：
+    用户报告「提交批注后 AI 已开始执行，editor 上的批注还在」。查因：`sendAnnotations()` 成功后只把
+    `annoUnexported` 置假（清「未导出」标记）并立即发送，**从不碰 `annotations`**；清空批注的唯一
+    入口是 `openHtml()` 的 `preserveDraft=false` 分支（换文件），而「远端有新版本」的重载走
+    `preserve=true`（设计上为保住用户现场）——所以提交后批注**永远不会**自己消失。
+    本次按用户选择 A 改为：**投进受管会话（route = bridge / mcp-app）即清空**清单 + 页面角标 + 重置编号，
+    并 toast 告知去向（任务面板「请求记录」仍留着该 intent，含完整载荷，可查看/重发）；
+    **嵌入态（postMessage）与裸静态态（复制）不清**——那两条路没有回看处，清掉等于丢现场，
+    且「复制」本来就不是「发送」。发送失败时同样保留（`annoUnexported` 保持真，可重试）。
+  - v3.12.0（呈现形态走标准协议：脑暴与编辑器拆成两个资源，见 docs/design/mcp-apps-standard-split.md）：
+    此前用宿主扩展 `_meta.ui.mode` / `mode_inline_when` 表达"脑暴 inline、编辑器 pip"，
+    属**非标准**字段（规范的 `McpUiToolMeta` 没有形态字段），与"技能要能适配其他 MCP Apps 框架"冲突。
+    本轮改为只用标准的两个杠杆：① 资源由 server 注入编译期常量 `__PPTX_VIEW_VARIANT__`——
+    脑暴资源只声明 `availableDisplayModes:["inline"]`（宿主 MUST NOT 把它切到 pip），
+    编辑器资源声明 `["inline","pip"]`（**刻意不含 fullscreen**：需求是同时看到对话与编辑器，
+    全屏会挡住对话；不声明即由规范禁止宿主切过去）；② 编辑器在握手后按标准
+    `ui/request-display-mode` 请求一次 pip，并按**返回的真实模式**布局——宿主没有 pip 就落到
+    inline，故新增 `body[data-display-mode]` 与紧凑布局（目录栏归零、页头收紧、样式条可横滚）。
+    `_meta.ui` 回归标准两键（`resourceUri`/`visibility`），形态声明一律不再写进工具元数据。
   - v3.11.0（全页文案与信息架构：内部术语换成用户语言，见 docs/progress/1029_ui_copy_plain_language.md）：
     只改用户能看到的字，不动任何功能与结构。① 生图两个入口改名并补人话提示——「重烙当前页」→
     「整页重绘」、「补齐插画」→「自动补图」（此前这两个按钮**连 title 都没有**，悬停也得不到解释）；
@@ -414,9 +456,14 @@
   button.primary:hover{background:#a84725;border-color:#a84725}
 
   /* ── 顶栏 ─────────────────────────────────────────────── */
+  /* 允许换行（v3.12.4）：pip 面板实测宽度是 `clamp(0.6×内容区, 560, 内容区−420)`，
+     常见落在 560–1000px，而这一行控件的**固有宽度约 1060px**。不允许换行时超出的部分
+     直接跑到视口右边**不可见**（2026-11-02 用户实测：「整页重绘」「自动补图」两个按钮
+     凭空不见——单行制 + 无 overflow，被挤出去的控件没有任何提示）。宽容器下所有控件
+     本来就能排成一行，换行规则不生效；窄容器下宁可多占一行，也不能丢控件。 */
   header{
-    height:54px;flex:none;display:flex;align-items:center;gap:10px;
-    padding:0 16px;background:rgba(253,250,243,.82);
+    min-height:54px;height:auto;flex:none;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    padding:6px 16px;background:rgba(253,250,243,.82);
     backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
     border-bottom:1px solid var(--border);
     position:relative;z-index:40;
@@ -427,6 +474,15 @@
   .file-name{color:var(--muted);max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .file-name .dirty-dot{color:var(--danger);font-weight:700;margin-left:4px}
   .spacer{flex:1}
+  /* 窄栏收口（v3.12.4）：View 跑在 iframe 里，**视口宽度就是那个容器**，
+     所以媒体查询即"容器宽度"——pip 面板（560–1000px）与 inline 窄栏都落进这一段。
+     两条与 `body[data-display-mode="inline"]` 段同义，这里补的是 **pip 面板**：
+     它此前被当作"宽侧栏"沿用宽布局，实际 560px 根本放不下（固有宽约 1060px）。 */
+  @media (max-width:1040px){
+    header .brand{display:none}                 /* 窄栏里品牌名不提供信息 */
+    header .file-name{max-width:100%}
+    .stylebar{flex-wrap:nowrap;overflow-x:auto;max-width:100%;scrollbar-width:thin}
+  }
 
   /* ── 警告条 ───────────────────────────────────────────── */
   .warn-banner{
@@ -699,6 +755,36 @@
   .ver-item .vh{font-size:11px;color:var(--muted);font-family:"SF Mono","Menlo",monospace;margin-top:2px}
   .ver-item>button{flex:none;padding:3px 10px;font-size:12px}
   .ver-empty{padding:16px 8px;color:var(--muted);font-size:12px;text-align:center}
+
+  /* ── 轨 A 形态适配（v3.12.0，标准协议）───────────────────────────
+     形态由宿主决定（View 只声明 availableDisplayModes 并请求一次 pip，宿主有最终裁量权，
+     见 docs/overview.md:201）。`data-display-mode` 由 mcpAppSyncDisplayMode() 按
+     hostContext.displayMode 写到 body：
+       pip    → 停靠侧栏（宿主按 `clamp(0.6×内容区, 560, 内容区−420)` 定宽）→ 本段不生效，
+                窄面板由上面的 `@media (max-width:1040px)` 收口（v3.12.4）；
+       inline → 落在对话流里的窄栏（宿主没有 pip，或拒绝了请求）→ 本段兜底收紧排版。
+     见 docs/design/mcp-apps-standard-split.md §4.3。 */
+  body[data-display-mode="inline"]>header{
+    height:auto;min-height:0;flex-wrap:wrap;gap:6px;padding:6px 10px;
+  }
+  body[data-display-mode="inline"]>header .brand{display:none}   /* 窄栏里品牌名不提供信息 */
+  body[data-display-mode="inline"]>header .file-name{max-width:100%}
+  body[data-display-mode="inline"] .stylebar{
+    /* 样式条整套控件在窄栏必然溢出：允许横向滑动，而不是把页头撑破换行成三层 */
+    flex-wrap:nowrap;overflow-x:auto;max-width:100%;scrollbar-width:thin;
+  }
+  body[data-display-mode="inline"] .toc{width:26px}
+  body[data-display-mode="inline"] .toc.open{width:min(var(--toc-w,248px),72%)}
+  body[data-display-mode="inline"] .toc-hint{display:none}
+  body[data-display-mode="inline"]>footer{gap:6px;padding:6px 10px;flex-wrap:wrap}
+  /* 统一刷新入口（v3.12.1）：落后于已发布版本时点亮，载入后熄灭（设计 §4.4） */
+  #btnRefresh.stale{border-color:var(--accent);color:var(--accent);font-weight:600}
+  /* 自动保存开关（v3.12.3）：打开时点亮，让人一眼看出"改动会自动写回" */
+  #btnAutoSave.on{border-color:var(--accent);color:var(--accent);font-weight:600}
+  #btnAutoSave:disabled{opacity:.5;cursor:not-allowed}
+  /* 需对齐（漂移）：保存按钮高亮，让"保存一次"这个动作一眼可见 */
+  #btnSave.need-align{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 30%,transparent)}
+  #btnRefresh:disabled{opacity:.5;cursor:not-allowed}
 
   /* ── 需求脑暴（v2.5→v3.1：右侧浮动面板形态） ────────────── */
   #briefOverlay{
@@ -974,12 +1060,14 @@
   <div class="brand">HTML PPTX 编辑器</div>
   <button id="btnOpen">打开文件</button>
   <button id="btnSave" class="primary" disabled title="将修改写回原文件">保存 (⌘S)</button>
+  <button id="btnAutoSave" title="自动保存：停手几秒就把改动写回文件（会生成一个新的历史版本）。AI 正在处理请求时不会自动写回，避免和它抢版本。">自动保存 · 关</button>
   <div class="seg seg-main" id="viewSeg" title="编辑=就地改字换图 / 批注=框选写意见 / 交付=交付物与对比检查">
     <button data-view="edit" class="on">编辑</button>
     <button data-view="annotate">批注</button>
     <button data-view="export">交付</button>
   </div>
   <div class="file-name" id="fileName">未打开文件</div>
+  <button id="btnRefresh" title="拉取最新版本与交付物（有未落盘的修改时会先问，不会直接覆盖）">刷新</button>
   <div class="spacer"></div>
   <div class="stylebar" id="styleBar">
     <select id="stFont" title="字体（作用于整个选中文字元素）"></select>
@@ -4327,8 +4415,19 @@ function mcpAppSizeWatch(){
 /* pip 面板可拖宽（宿主 §15.2 D7：形态不可变，但容器尺寸会变）→ 只重排**与宽度相关**的部分：
    注入 deck 内的批注角标按 --slide-scale 反缩放补偿、对比叠层是绝对定位，两者必须按新宽度重算；
    其余交给 CSS 弹性布局自然回流；顺带重报一次尺寸（pip 下宿主要看的是宽度，高度它自己定）。 */
+/* 当前形态落到 body 上（`data-display-mode`），布局只读这个属性——形态由宿主决定，
+   View 只适配（标准的 pip 请求也可能被拒）。pip = 停靠宽侧栏；其余（含宿主没报）
+   一律按 inline 处理：规范里 inline 就是默认形态（`apps.mdx:743`），也是我们的兜底
+   （设计 §0 D-3「pip 最优先、inline 兜底」）。 */
+function mcpAppSyncDisplayMode(ctx){
+  if (hostKindDetect() !== 'mcp-app'){ document.body.removeAttribute('data-display-mode'); return; }
+  var mode = (ctx && ctx.displayMode === 'pip') ? 'pip' : 'inline';
+  document.body.setAttribute('data-display-mode', mode);
+}
 function mcpAppOnHostCtxChanged(ctx){
-  if (!ctx || !ctx.containerDimensions) return;
+  if (!ctx) return;
+  mcpAppSyncDisplayMode(ctx);
+  if (!ctx.containerDimensions) return;
   var w = ctx.containerDimensions.width;
   if (typeof w !== 'number' || !isFinite(w) || w <= 0) return;
   if (mcpApp.hostWidth === w) return;
@@ -4349,12 +4448,20 @@ async function mcpAppBoot(){
   try { await window.pptxMcp.ready; }
   catch(e){ mcpApp.handshakeFailed = true; mcpAppRenderState('error','宿主握手失败', e.message); toast('MCP Apps 握手失败：' + e.message); return false; }
   mcpApp.ready = true;
+  /* 形态同步**早于任何 IPC**：宿主给的形态一拿到就该生效——否则后续 IPC 一旦失败（或宿主回
+     了些非预期载荷），页面会一直停在 boot 里的暂定值 `inline`，哪怕它其实挂在 pip 面板里
+     （真机踩过：残卡/失联时按 inline 排版）。下面 boot 成功路径里还会再同步一次，幂等。 */
+  mcpAppSyncDisplayMode(window.pptxMcp.hostContext ? window.pptxMcp.hostContext() : null);
   try {
     await mcpAppCall('attach_view', {session_id:mcpApp.sessionId, client:mcpApp.clientId});
     var st = await mcpAppCall('get_status', {session_id:mcpApp.sessionId});
     mcpAppApplyStatus(st);
     mcpAppTeardownHook();
     mcpAppSizeWatch();
+    /* 形态同步**要先于布局**：`data-display-mode` 决定紧凑还是宽栏排版。
+       facade 的 onHostContextChanged 注册时会回放一次当前上下文；这里再显式同步一次，
+       避免"宿主一次都没发过 host-context-changed"时属性缺席（缺席即 CSS 走默认宽栏）。 */
+    mcpAppSyncDisplayMode(window.pptxMcp.hostContext ? window.pptxMcp.hostContext() : null);
     mcpAppHostCtxWatch();   /* pip 面板可拖宽：接宿主上下文变更，重排宽度相关布局 */
     if (st.deck_path){ await mcpAppLoadDeck(st.resource_path, st.revision, false); }
     else mcpAppRenderState('working','等待创作内容','请完成需求脑暴后明确发送给 AI');
@@ -4367,6 +4474,148 @@ async function mcpAppBoot(){
     return false;
   }
 }
+/* ============================================================
+   漂移自愈（v3.12.2）——"能自救 + 看得懂"
+
+   背景：工作区文件可能被**绕过 CAS** 地改过（最典型是发布失败后把产物 `cp` 回受管目标）。
+   此时 daemon 发工作副本的校验必然失败，任何请求都认领不了 —— 而用户看到的只是一句
+   「工作副本校验失败」或「导出请求失败」，既不知道原因也不知道该做什么（2026-11-02 实测：
+   agent 甚至误诊成"有旧的阻塞意图"去删 intent 文件）。
+
+   人类友好的做法：**把这件事当成一个可点的动作**——
+     · 载入时就探测（daemon 给的 disk_revision/drift）；
+     · 提示写成"保存一次即可对齐"，按钮就是保存（保存走 CAS，会把当前磁盘内容设成新基线）；
+     · 保存按钮高亮，任何人随时能按；
+     · 任何"需要先保存"的报错都翻译成同一条提示，而不是把机器话丢给用户。
+   ============================================================ */
+var mcpAlignNeeded = false;
+function isNeedSaveError(e){ return !!(e && e.details && e.details.remedy === 'save'); }
+function mcpAppNoteDrift(payload){
+  if (payload && payload.drift){
+    mcpPromptAlign();
+  } else {
+    mcpClearAlign();
+  }
+}
+function mcpPromptAlign(){
+  mcpAlignNeeded = true;
+  var b = $('btnSave');
+  if (b){ b.classList.add('need-align'); b.title = '文件与「已发布版本」不一致：点这里保存一次即可对齐'; }
+  $('warnText').textContent = '这份文件与「已发布版本」不一致（可能有人直接改过工作区文件，AI 因此无法接手）。点右边按钮把**当前文件**采纳为新基线即可 —— 旧版本仍可从历史回滚。';
+  var act = $('warnAction');
+  act.style.display = ''; act.textContent = '对齐版本';
+  act.onclick = function(){ mcpAppAdoptBaseline(); };
+  $('warnBanner').classList.add('show');
+}
+function mcpClearAlign(){
+  if (!mcpAlignNeeded) return;
+  mcpAlignNeeded = false;
+  var b = $('btnSave');
+  if (b) b.classList.remove('need-align');
+  hideWarn();
+}
+/* 采纳现状为新基线（v3.12.2）：只让 daemon 把"现实"记下来（重扫 bundle + 追平 revision +
+   旧状态留快照），**不写任何业务文件**。做完之后认领/保存/导出都能继续。
+   为什么不能"再保存一次"：`_publish` 有第三方字节闸（目标字节既非旧 manifest 也非本次候选 →
+   RECOVERY_FAILED），漂移状态下保存必然撞闸——2026-11-02 实测。 */
+async function mcpAppAdoptBaseline(){
+  if (!mcpApp.ready || !mcpApp.sessionId){ toast('还没连上宿主，稍后再试'); return false; }
+  try{
+    var res = await mcpAppCall('rebaseline', {session_id:mcpApp.sessionId});
+    if (res && res.revision){ mcpApp.revision = res.revision; mcpApp.latestServerRevision = res.revision; }
+    mcpClearAlign();
+    toast(res && res.aligned ? '已对齐：当前文件成为新基线（旧版本仍可回滚）' : '本来就是对齐的，无需处理');
+    return true;
+  }catch(e){ toast('对齐失败：' + e.message); return false; }
+}
+
+/* ============================================================
+   自动保存（v3.12.3，**默认关**）——"把改动写回文件"的自动版
+
+   先分清两件事（别混）：
+     · **草稿**（`save_draft`）本来就是自动的、防抖写入的，与这个开关无关 —— 它保证"丢不了"；
+     · 本开关管的是**发布**（写回受管文件、推进 revision、产生一个历史版本）。
+
+   为什么要默认关：每次自动发布都会产一个版本快照，而且会与 agent 的发布**互抢 CAS 基线**
+   （用户一边改、AI 一边发布，双方都可能撞 REVISION_CONFLICT）。所以打开后仍受三条约束：
+     ① **停手** `AUTO_SAVE_IDLE_MS` 才动（防抖，不在打字中途写回）；
+     ② 两次写回至少间隔 `AUTO_SAVE_MIN_GAP_MS`（约束版本数量）；
+     ③ **AI 在途（pending/processing）时不写**、**漂移态不写**（交给横幅的「对齐版本」）、
+        正在编辑/保存中/换图中不写。任何一次失败都**自动关掉开关**并说明原因（不静默重试）。
+   两条常量是 var（测试用得上：把它们调小即可在无头里验证）。
+   ============================================================ */
+var AUTO_SAVE_IDLE_MS = 6000;      /* 停手多久才写回 */
+var AUTO_SAVE_MIN_GAP_MS = 5000;   /* 两次自动写回的最小间隔 */
+var autoSave = { on: false, timer: null, lastAt: 0, busy: false };
+function autoSaveUsable(){ var k = hostKindDetect(); return k === 'mcp-app' || k === 'bridge'; }
+function renderAutoSaveButton(){
+  var b = $('btnAutoSave'); if (!b) return;
+  if (!autoSaveUsable()){
+    b.disabled = true; b.textContent = '自动保存 · 不可用';
+    b.title = (hostKindDetect() === 'embedded') ? '嵌入态由宿主页面决定保存时机' : '裸静态态没有工作区可写回';
+    return;
+  }
+  b.disabled = false;
+  b.textContent = autoSave.on ? '自动保存 · 开' : '自动保存 · 关';
+  b.classList.toggle('on', !!autoSave.on);
+}
+function autoSaveIntentsInFlight(){
+  var list = bridge.intents || {};
+  return Object.keys(list).some(function(id){
+    var x = list[id]; return x && ['pending','processing','submitting','retrying','unconfirmed'].indexOf(x.status) >= 0;
+  });
+}
+function autoSaveArm(){
+  if (!autoSave.on || !autoSaveUsable()) return;
+  clearTimeout(autoSave.timer);
+  autoSave.timer = setTimeout(autoSaveFire, AUTO_SAVE_IDLE_MS);
+}
+function autoSaveTurnOff(why){
+  autoSave.on = false; clearTimeout(autoSave.timer); renderAutoSaveButton();
+  if (why) toast('自动保存已关闭：' + why);
+}
+async function autoSaveFire(){
+  if (!autoSave.on) return;
+  if (!state.loaded || !state.dirty) return;                 /* 没改动 → 不产版本 */
+  if (editEl || srcEdit){ autoSaveArm(); return; }           /* 还在输入 → 再等一拍 */
+  if (autoSave.busy || bridge.saveInFlight) return;
+  if (mcpAlignNeeded) return;                                /* 漂移态交给「对齐版本」，否则撞第三方字节闸 */
+  if (autoSaveIntentsInFlight()){ autoSaveArm(); return; }    /* AI 在途 → 让路 */
+  var now = Date.now();
+  if (now - autoSave.lastAt < AUTO_SAVE_MIN_GAP_MS){ autoSaveArm(); return; }
+  autoSave.busy = true;
+  try {
+    var ok = await saveDeck();
+    autoSave.lastAt = Date.now();
+    if (ok) toast('已自动保存');
+    else autoSaveTurnOff('这次没能写入工作区');
+  } catch(e){ autoSaveTurnOff(String((e && e.message) || e)); }
+  finally { autoSave.busy = false; }
+}
+$('btnAutoSave').addEventListener('click', function(){
+  if (!autoSaveUsable()) return;
+  autoSave.on = !autoSave.on;
+  renderAutoSaveButton();
+  if (autoSave.on){
+    toast('自动保存已打开：停手约 ' + Math.round(AUTO_SAVE_IDLE_MS / 1000) + ' 秒后写回文件（AI 处理请求时会让路）');
+    autoSaveArm();
+  } else {
+    clearTimeout(autoSave.timer);
+    toast('自动保存已关闭');
+  }
+});
+
+/* 「需要先保存才能继续」的统一出口：任何操作失败时都先问一句是不是这件事 */
+function mcpHandleSaveNeeded(e, fallbackPrefix){
+  if (isNeedSaveError(e)){
+    mcpPromptAlign();
+    toast('文件与「已发布版本」不一致：点横幅上的「保存并对齐」后重试');
+    return true;
+  }
+  if (fallbackPrefix) toast(fallbackPrefix + e.message);
+  return false;
+}
+
 async function mcpAppLoadDeck(path, revision, preserve){
   var rel = mcpAppPath(path), epoch = ++mcpApp.epoch;
   try {
@@ -4380,6 +4629,10 @@ async function mcpAppLoadDeck(path, revision, preserve){
     mcpApp.revision = payload.revision; mcpApp.latestServerRevision = payload.revision;
     state.deckPath = rel;
     mcpAppHydrateImages();
+    /* 漂移探测（v3.12.2）：daemon 在 read_deck 里顺手报了 disk_revision/drift。若文件与"已发布
+       版本"不一致（历史绕过 CAS 的直接写入），**现在**就告诉用户怎么自救——而不是等导出/批注
+       某个操作报一句机器话（503 工作副本校验失败），用户完全不知道要做什么。 */
+    mcpAppNoteDrift(payload);
     /* 水合完再探字体（F10）：只有水合之后 @font-face 的 src 才是 data:。`mcpAppHydrateCss()`
        在本调用点**没有被 await**，所以要显式接在它的 promise 后面，否则探针会跑在水合之前。 */
     mcpAppHydrateCss().then(function(){ mcpAppProbeFonts(); }).catch(function(){});
@@ -4558,10 +4811,12 @@ async function mcpAppPollOnce(){
       changed = true;
       if (bridgeAutoReloadRisk()){
         await mcpAppPersistDraft(true).catch(function(){});
-        showWarn('工作区已有新版本，当前输入已保护，未自动覆盖。','载入远端',function(){ mcpAppLoadDeck(st.resource_path, st.revision, true).then(hideWarn); });
+        markStale();
+        showWarn('工作区已有新版本，当前输入已保护，未自动覆盖。','载入远端',function(){ mcpAppLoadDeck(st.resource_path, st.revision, true).then(function(){ hideWarn(); clearStaleMark(); }); });
         mcpAppRenderState('working','远端版本待处理','当前输入已保护');
       } else {
         await mcpAppLoadDeck(st.resource_path, st.revision, true);
+        clearStaleMark();
       }
     }
     /* 空闲退避只在**真空闲**时累积：idlePolls 原先只增不减，一次 30 秒空闲就把轮询永久钉在
@@ -4652,6 +4907,14 @@ async function mcpAppSubmitIntent(type, payload){
   } catch(e){
     local.status = 'failed'; local.error = {message:e.message, code:e.code};
     bridgeRenderTasks();
+    /* v3.12.2：把"需要先保存"这类失败翻成用户能执行的一句话（并点亮横幅），再抛出去——
+       否则调用方 toast 出来的是「工作副本校验失败」这种机器话，用户无从下手。 */
+    if (isNeedSaveError(e)){
+      mcpPromptAlign();
+      var human = new Error('这份文件与「已发布版本」不一致：请点上方横幅的「保存并对齐」，然后重试');
+      human.code = e.code; human.details = e.details;
+      throw human;
+    }
     throw e;
   }
 }
@@ -4664,8 +4927,16 @@ var mcpAppHost = {
     /* v3.9.5 守卫：本地画布（见 mcpAppCanvasManaged）在轨 A 一律拒绝写入——
        mcpAppPath(null) 会回落到 resourcePath，等于用本地文件覆盖 agent 的受管 deck。 */
     if (!mcpAppCanvasManaged()){ mcpAppRefuseLocalCanvas('保存', text); return false; }
+    /* v3.12.2：漂移态下先对齐基线再保存——否则 CAS 基线对不上（记录值 ≠ 磁盘值）或撞第三方字节闸。
+       对齐是"采纳现状"，不丢用户正在改的内容（那份内容就在这次保存里）。 */
+    if (mcpAlignNeeded && !(await mcpAppAdoptBaseline())) return false;
     mcpAppRenderState('working','正在保存到工作区','');
     try {
+      /* v3.12.2：CAS 基线取"我已经看到的那份内容"。
+         正常情况 = 载入时的 revision（= daemon 记录的发布 revision，二者一致）；
+         **漂移对齐时** = daemon 在 read_deck 里回报的 `disk_revision`——因为 daemon 的 CAS 比的
+         是**磁盘** observe_revision，而漂移状态下磁盘 ≠ 记录，用记录值必然 REVISION_CONFLICT
+         （2026-11-02 实测：用户点"保存并对齐"直接撞冲突，救不了自己）。 */
       var body = {session_id:mcpApp.sessionId, path:mcpAppPath(state.deckPath), html:text,
                   base_revision:mcpApp.revision, init:false};
       if (!mcpApp.capabilities.git_ready){
@@ -4679,11 +4950,13 @@ var mcpAppHost = {
       if (ctx.saveGeneration === bridge.editGeneration) mcpApp.revision = res.revision;
       lastSaveHashes = ctx.saveHashes; setDirty(false); $('sbMsg').textContent=''; applySavedHashes();
       mcpAppRenderState('online','MCP Apps 已同步','');
+      mcpClearAlign();   /* v3.12.2：保存成功 = 漂移已对齐（横幅/高亮随之收掉） */
       toast('已保存并取得回执 ' + (res.receipt_id || res.revision || ''));
       if ($('histDrawer').classList.contains('open')) loadVersions();
       return true;
     } catch(e){
       mcpAppRenderState('error','受管保存失败', e.message);
+      if (mcpHandleSaveNeeded(e)) return false;
       showWarn('受管工作区保存失败：' + e.message + '。不会降级覆盖原目标。','下载副本（未发布）',function(){ bridgeDownloadHtml(text); });
       return false;
     }
@@ -4899,6 +5172,7 @@ $('warnClose').addEventListener('click', hideWarn);
    ============================================================ */
 function setDirty(d){
   if (d) bridge.editGeneration++;
+  if (d) autoSaveArm();     /* v3.12.3：变脏即重新计时（开关关着时是 no-op） */
   if (state.dirty === d){
     hostBridge.background();
     return;
@@ -5842,10 +6116,23 @@ async function sendAnnotations(opts){
   if (opts.skipUnchanged && !annoUnexported){ return false; }   /* 自动路径：清单没变就不重复发送 */
   var out=buildAnnoExport();
   try{
-    await bridgeSend('anno.submitted',out.payload,{type:'pptx-html:annotations',payload:out.payload},out.text);
+    var res = await bridgeSend('anno.submitted',out.payload,{type:'pptx-html:annotations',payload:out.payload},out.text);
     annoUnexported=false;bridge.annotationGeneration++;renderAnnoList();bridgeScheduleDraft();
+    /* v3.12.1（用户决策 A）：批注是「发出去的指令」，**投进受管会话后即离场**——清空清单 + 页面角标
+       + 重置编号，并说清去向（否则用户以为白写）。为什么要判 route：
+         · `bridge` / `mcp-app` = 进了 daemon 的 intent 队列，任务面板「请求记录」留着完整载荷可回看 → 清；
+         · `embedded`（postMessage）/ `copy`（裸静态复制）**不清**——那两条路没有回看处，清掉就是丢现场，
+           而且「复制」本来就不是「发送」。
+       审计/回归在 `tests/harness/aa_mcp_apps_check.py` 的 annotation 臂（真 View + 真 daemon）。 */
+    var route = res && res.route;
+    if (route === 'bridge' || route === 'mcp-app'){
+      var sentN = annotations.length;
+      annotations = []; annoSeq = 0;
+      bridge.annotationGeneration++; rebuildAnnoMarks(); renderAnnoList(); bridgeScheduleDraft();
+      toast('已发送 ' + sentN + ' 条批注 · 清单已清空（可在任务面板「请求记录」查看）');
+    }
     return true;
-  }catch(e){ toast('批注发送失败：'+e.message); return false; }
+  }catch(e){ toast('批注发送失败：'+e.message+'（批注保留在清单里，可重试）'); return false; }
 }
 $('btnSendAnno').addEventListener('click', async function(){
   if (!annotations.length) return;
@@ -6997,10 +7284,21 @@ function closeBrief(){
 /* 入口统一（§7.4 / §14.1）：从工作台点「需求脑暴」也走同一套视图切换，不留"浮层 / 视图"
    两种形态——原先这里直接 openBrief()，只开 520px 浮层、工作台仍在，与决议不符。 */
 $('btnBrief').addEventListener('click', launchEnterBrief);
-$('btnBriefClose').addEventListener('click', closeBrief);
+/* v3.12.0：脑暴资源（轨 A 的 brief 变体）里**不给"关闭"**——它整页只有脑暴，
+   关掉只会露出一个空工作台（说谎的控件）。宿主的卡片滚动即离场，需要重开就让 AI 再调
+   `open_brief`。轨 B / 嵌入态 / 静态态保持原行为（关掉回工作台，那里真有工作台）。 */
+var briefVariantOnly = (hostKindDetect() === 'mcp-app' && viewVariant() === 'brief');
+if (briefVariantOnly){
+  var briefCloseBtn = $('btnBriefClose');
+  if (briefCloseBtn) briefCloseBtn.hidden = true;
+} else {
+  $('btnBriefClose').addEventListener('click', closeBrief);
+}
 window.addEventListener('keydown', function(e){
   if (e.key === 'Escape' && $('briefOverlay').classList.contains('show')){
-    e.preventDefault(); closeBrief();
+    e.preventDefault();
+    if (briefVariantOnly){ toast('脑暴页在对话流里：需要收起就让它滚出视野，重开请让 AI 再调用 open_brief'); return; }
+    closeBrief();
   }
 });
 
@@ -7015,8 +7313,15 @@ window.addEventListener('keydown', function(e){
    ④ 嵌入态/裸静态态没有 session，恒为工作台，绝不参与隐藏。
    ============================================================ */
 var launch = { applied: null };
+/* 呈现变体（server 在资源里注入的编译期常量，见 docs/design/mcp-apps-standard-split.md）：
+   `brief` 资源只声明 inline 且**只**承载脑暴页——落点由变体决定，不再依赖 tool-input 的 view；
+   `editor` 资源是工作台。缺省（嵌入态/轨 B/裸静态态）恒为 `editor`，行为零变化。 */
+function viewVariant(){
+  return (window.__PPTX_VIEW_VARIANT__ === 'brief') ? 'brief' : 'editor';
+}
 function launchHint(){
-  /* 优先级：tool-input > tool-result > URL fragment（三处不冲突，每条轨只命中其一） */
+  /* 优先级：资源变体 > tool-input > tool-result > URL fragment（四者不冲突，每条轨只命中其一） */
+  if (hostKindDetect() === 'mcp-app' && viewVariant() === 'brief') return 'brief';
   if (mcpApp.inputView) return mcpApp.inputView;
   if (mcpApp.view) return mcpApp.view;
   return bridge.launchView || null;
@@ -7028,6 +7333,8 @@ function launchHasDeck(){
 function launchTargetFor(hint){
   var kind = hostKindDetect();
   if (kind !== 'mcp-app' && kind !== 'bridge') return null;   /* 嵌入态/裸静态态不参与 */
+  /* 脑暴资源恒落脑暴：它只声明 inline、不给工作台留位置（有 deck 时即"改版脑暴"场景） */
+  if (kind === 'mcp-app' && viewVariant() === 'brief') return 'brief';
   if (hint === 'brief') return 'brief';
   if (!launchHasDeck()) return 'brief';
   return (hint === 'annotate' || hint === 'export') ? hint : 'edit';
@@ -7063,6 +7370,12 @@ function launchOnDeckReady(){
   /* 首份 deck 到达（评审硬错误 #5：今天没有任何"deck 到达 → 摘脑暴"的路径）。
      只在用户**已经提交过简报**时才自动切回工作台——否则会抢走正在填的表单。 */
   if (document.body.getAttribute('data-launch') !== 'brief') return;
+  if (hostKindDetect() === 'mcp-app' && viewVariant() === 'brief'){
+    /* v3.12.0：脑暴是**独立资源**，它不会（也**不该**）变成工作台——编辑器由 agent 另调
+       `open_editor` 打开（宿主把 pip 侧栏给它）。这里只如实告知，不做"摘脑暴"的假动作。 */
+    if (briefWasSubmitted()) toast('deck 已生成：编辑器由 AI 另行打开');
+    return;
+  }
   if (!briefWasSubmitted()) return;
   closeBrief();
   toast('deck 已生成，已切换到编辑器');
@@ -8765,13 +9078,79 @@ async function bridgeHandleDeckChanged(data){
   if (bridgeAutoReloadRisk()){
     try{await bridgePersistDraft(true);}catch(e){return;}
     bridge.pendingRemoteChange=data;bridgeRememberEvent(data.__eventId||0);bridgeRenderState('working','远端版本待处理','当前输入已保护，点击“载入远端”决定覆盖当前画布');
+    markStale();
     showWarn('工作区已有新版本，当前输入已保护，未自动覆盖。','载入远端',function(){bridgeApplyPendingRemote();});return;
   }
   await bridgeLoadDeck(data.path,data.revision,true);
+  clearStaleMark();
 }
+/* ============================================================
+   统一刷新（v3.12.1）——设计 docs/design/refresh-and-sync.md §4.3 / §4.4
+
+   用户可见的"看看有没有新版本"入口。四态语义：轨 A / 轨 B 可用（都要过**风险门**，
+   绝不静默覆盖正在输入的东西）；嵌入态由宿主页面驱动、裸静态态没有会话 → 禁用并说明。
+   轮询（轨 A 2s→10s）与 SSE（轨 B）照旧，这里只是"用户主动催一次"，二者共用同一套
+   处置语义，不新造第二条刷新路径。
+   ============================================================ */
+function markStale(){ var b=$('btnRefresh'); if(!b) return; b.classList.add('stale'); b.textContent='刷新 · 有新版本'; }
+function clearStaleMark(){ var b=$('btnRefresh'); if(!b) return; b.classList.remove('stale'); b.textContent='刷新'; }
+function refreshUsable(){ var k=hostKindDetect(); return k==='mcp-app'||k==='bridge'; }
+function paintRefreshButton(){
+  var b=$('btnRefresh'); if(!b) return;
+  var k=hostKindDetect();
+  if(!refreshUsable()){
+    b.disabled=true;
+    b.title=(k==='embedded')?'嵌入态由宿主页面驱动刷新，这里不可用':'裸静态态没有会话，无需刷新';
+    clearStaleMark();
+  } else {
+    b.disabled=false;
+    b.title='拉取最新版本与交付物（有未落盘的修改时会先问，不会直接覆盖）';
+  }
+}
+async function refreshNow(){
+  var k=hostKindDetect();
+  if(!refreshUsable()){ toast(k==='embedded'?'嵌入态由宿主页面驱动刷新':'裸静态态没有会话，无需刷新'); return false; }
+  return (k==='mcp-app') ? await mcpAppRefreshNow() : await bridgeRefreshNow();
+}
+/* 轨 A：拉 status → 比对 → 同一套风险门（顺带按 export_revision 刷交付物） */
+async function mcpAppRefreshNow(){
+  if(!mcpApp.ready||!mcpApp.sessionId){ toast('还没连上宿主，稍后再试'); return false; }
+  var st=null;
+  try{ st=await mcpAppCall('get_status',{session_id:mcpApp.sessionId}); }
+  catch(e){ toast('刷新失败：'+(e&&e.message)); return false; }
+  mcpAppApplyStatus(st);
+  var pub=(st&&st.deck_path)?st.revision:null;
+  if(!pub||pub===mcpApp.revision){ clearStaleMark(); toast('已是最新版本'); return true; }
+  if(bridgeAutoReloadRisk()){
+    try{ await mcpAppPersistDraft(true); }catch(e){}
+    showWarn('工作区已有新版本，当前输入已保护，未自动覆盖。','载入远端',
+             function(){ mcpAppLoadDeck(st.resource_path,st.revision,true).then(hideWarn); });
+    markStale(); return false;
+  }
+  await mcpAppLoadDeck(st.resource_path,st.revision,true);
+  clearStaleMark(); toast('已载入最新版本 '+String(pub).slice(0,15));
+  return true;
+}
+/* 轨 B：同一套语义，走 loopback status + 既有载入路径 */
+async function bridgeRefreshNow(){
+  var st=null;
+  try{ st=await hostBridge.status(); }catch(e){ toast('刷新失败：'+(e&&e.message)); return false; }
+  var pub=(st&&st.revision)||null;
+  if(!pub||pub===bridge.loadedRevision){ clearStaleMark(); toast('已是最新版本'); return true; }
+  if(bridgeAutoReloadRisk()){
+    bridge.pendingRemoteChange={path:state.deckPath||(st&&st.deck_path)||null,revision:pub};
+    showWarn('工作区已有新版本，当前输入已保护，未自动覆盖。','载入远端',function(){bridgeApplyPendingRemote();});
+    markStale(); return false;
+  }
+  await bridgeLoadDeck(state.deckPath,pub,true);
+  clearStaleMark(); toast('已载入最新版本 '+String(pub).slice(0,15));
+  return true;
+}
+$('btnRefresh').addEventListener('click',function(){ refreshNow(); });
+
 async function bridgeApplyPendingRemote(){
   var data=bridge.pendingRemoteChange;if(!data)return;
-  try{await bridgePersistDraft(true);bridge.pendingRemoteChange=null;await bridgeLoadDeck(data.path,data.revision,true);hideWarn();}
+  try{await bridgePersistDraft(true);bridge.pendingRemoteChange=null;await bridgeLoadDeck(data.path,data.revision,true);hideWarn();clearStaleMark();}
   catch(e){toast('载入远端版本失败：'+e.message);}
 }
 async function bridgeForceExport(data){
@@ -9275,6 +9654,8 @@ window.addEventListener('message', async function(e){
    ============================================================ */
 bridgeParseLaunch();
 var hostKind = hostBridgeInit();   /* 四态判定：① pptxMcp ② 嵌入 ③ Bridge ④ 静态 */
+paintRefreshButton();              /* 统一刷新入口的可用性（嵌入/静态态禁用并说明） */
+renderAutoSaveButton();            /* 自动保存开关（默认关；嵌入/静态态不可用） */
 renderPanel();
 updateSaveButton();
 renderDirty();
@@ -9285,7 +9666,14 @@ renderDirty();
 });
 if(hostKind==='mcp-app'){
   /* 轨 A：编辑器在宿主 iframe 内运行，一切经 window.pptxMcp 门面（无 HTTP/SSE/凭证） */
+  /* 形态标记的**暂定值**：握手完成前门面还给不出 hostContext（安装在后），而规范里
+     inline 就是默认形态（apps.mdx:743）——先按默认落位，boot 与 hostContext 回调再校正为
+     真实形态（pip 宿主会在这里被改成 pip）。不设暂定值的话，首帧会命中"宽栏"默认 CSS。 */
+  document.body.setAttribute('data-display-mode','inline');
   mcpAppStart();
+  /* 脑暴资源（v3.12.0）：落点由**变体**决定，不等 tool-result —— 它只声明 inline、
+     只承载脑暴页，等上下文回来再落点会让用户先看到一个空工作台再被换成表单。 */
+  if (viewVariant() === 'brief') applyLaunch('brief');
 }else if(hostKind==='bridge'){
   bridgeInitialise();
 }else{

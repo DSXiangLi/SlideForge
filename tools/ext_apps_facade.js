@@ -8,13 +8,43 @@
 (function(){
   var App = __ext.App, PostMessageTransport = __ext.PostMessageTransport;
   var api = window.pptxMcp || (window.pptxMcp = {});
+  /* 呈现变体（server 在资源里注入的编译期常量）：`brief` = 需求脑暴页，`editor` = 编辑工作台。
+     两个资源共用这一份代码，**差异只在声明的能力与是否请求 pip**——形态必须挂载前确定。 */
+  var VARIANT = (window.__PPTX_VIEW_VARIANT__ === "brief") ? "brief" : "editor";
   /* 第二个参数是 **appCapabilities**（SDK 构造签名 `new App(appInfo, appCapabilities, options)`）。
-     此前只传了 appInfo → View 从未声明任何能力，宿主的 §15.3 交叉校验读不到
-     `availableDisplayModes`（只在日志里提示）。本编辑器两种形态都支持：
-     脑暴走 inline、其余视图走 pip（工具的 `_meta.ui.mode=pip` + `mode_inline_when`），
-     故两侧都要声明，否则工具声明 pip 而 View 不含 pip 会被宿主**降级为 inline 并记 error**。 */
-  var app = new App({ name: "pptx-html-editor", version: VIEW_VERSION },
-                    { availableDisplayModes: ["inline", "pip"] });
+     规范（`apps.mdx:781-789`）：View MUST 声明它支持的形态；宿主 MUST NOT 把 View 切到
+     未声明的形态。于是**声明集合就是形态边界**，不必也不该在工具元数据里声明形态
+     （标准的 `McpUiToolMeta` 没有该字段；见 docs/design/mcp-apps-standard-split.md）：
+       - 脑暴：只声明 `["inline"]` → 宿主不能把它塞进 pip/fullscreen，结果落信息流；
+       - 编辑器：声明 `["inline","pip"]`，**刻意不含 fullscreen** —— 需求是"同时看到对话与
+         编辑器"，全屏会挡住对话；不声明即由规范禁止宿主切过去。 */
+  var MODES = VARIANT === "brief" ? ["inline"] : ["inline", "pip"];
+  var app = new App({ name: "pptx-html-" + VARIANT, version: VIEW_VERSION },
+                    { availableDisplayModes: MODES });
+
+  /* 形态请求（标准 `ui/request-display-mode`，`apps.mdx:772`）：宿主有最终裁量权
+     （`docs/overview.md:201`），所以我们只请求、并按**返回的真实模式**布局。
+     幂等：已经是 pip、或宿主不支持 pip、或本变体只声明 inline → 一个请求都不发。
+     **必须有超时兜底**：这个 await 在 install 之前，而"宿主不实现该方法且不作答"
+     是完全可能的（规范只说 SHOULD 返回当前模式）——不兜底就永远等不到、页面永不启动。 */
+  var DISPLAY_REQUEST_TIMEOUT_MS = 2500;
+  async function settleDisplayMode(){
+    if (MODES.indexOf("pip") === -1) return;
+    var ctx = null;
+    try { ctx = app.getHostContext() || null; } catch(e){ ctx = null; }
+    var modes = (ctx && ctx.availableDisplayModes) || [];
+    if (modes.indexOf("pip") === -1) return;
+    if (ctx && ctx.displayMode === "pip") return;
+    try {
+      var res = await Promise.race([
+        app.requestDisplayMode({ mode: "pip" }),
+        new Promise(function(resolve){ setTimeout(function(){ resolve(null); }, DISPLAY_REQUEST_TIMEOUT_MS); })
+      ]);
+      api.__displayMode = (res && res.mode) || null;
+    } catch(e){
+      api.__displayMode = null;      /* 被拒 / 通道不可用：如实记为"没拿到"，布局走 inline 兜底 */
+    }
+  }
 
   /* 引导脚本早于本模块执行，因此这里必须**在 connect 之前**接上引导期注册的回调
      （SDK 规定 handler 要在 connect 前注册，否则可能漏掉通知；且对 onteardown 这类
@@ -209,6 +239,9 @@
          View 注入 JSON-RPC 消息——而 View 自己还会创建嵌套 deck iframe（见 editor.html）。
          见审计 F6 / 1022 的 A3。 */
       await app.connect(new PostMessageTransport(window.parent, window.parent));
+      /* 形态请求**早于 install/resolveReady**：宿主若为 inline→pip 需要重建 View，
+         此刻页面还没绘制，重建对用户不可见；等到页面画完再请求就会闪一下内联窄栏。 */
+      await settleDisplayMode();
       install(real());
       if (api.__resolveReady) api.__resolveReady(api.__hostContext);
     } catch(e){

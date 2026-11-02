@@ -1,9 +1,9 @@
 {
   "generated_by": "tools/build_ext_apps_bundle.py",
-  "view_version": "3.11.0",
+  "view_version": "3.12.4",
   "source": "/home/lixiang/Desktop/ext-apps/dist/src/app-with-deps.js",
   "source_sha256": "25b7c7caedf67954443cf8cb2b479d069930e60cf7c563a298c69c06a7351d76",
-  "bundle_sha256": "9239f2b283f72edf92e42693fe0d30cf7b20190b9b5e7c9588fd2aa1dfaae59a",
-  "bundle_bytes": 260123,
+  "bundle_sha256": "0b1bd24ead1d55c592ff7c0b0ac8d3b075463945eeea410e658509c83c66f983",
+  "bundle_bytes": 262339,
   "inject": "script-module"
 }

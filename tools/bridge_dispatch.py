@@ -50,6 +50,11 @@ OPERATIONS: dict[str, dict] = {
         "summary": "提交意图（同一 accept_intent 校验与入队）。intent_id 由 View 生成并在重试时复用，保证幂等。",
         "defaults": {"protocol_version": 2},
     },
+    "rebaseline": {
+        "method": "POST", "path": "/api/bridge/rebaseline",
+        "required": ("session_id",), "optional": (),
+        "summary": "采纳工作区现状为新基线（漂移自愈）：只记录现实 + 留旧快照可回滚，不写业务文件。",
+    },
     "save_draft": {
         "method": "POST", "path": "/api/bridge/draft",
         "required": ("session_id", "client_id", "html", "annotations", "base_revision"), "optional": (),
