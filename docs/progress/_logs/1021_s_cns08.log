@@ -1,3 +1,0 @@
-PASS cns08: real 54-page 10x cmb-retail completed 5 hash/open/attempt/publication/save/rollback/recovery samples
-PASS s_bridge_scale_check selected groups: cns08
-EXIT=0

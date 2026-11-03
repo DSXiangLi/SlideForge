@@ -1,3 +1,0 @@
-PASS perf03: bake-mix 50 and cmb-retail 30 persisted-event-to-editable samples
-PASS s_bridge_scale_check selected groups: perf03
-EXIT=0

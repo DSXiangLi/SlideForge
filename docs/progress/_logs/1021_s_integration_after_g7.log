@@ -1,2 +1,0 @@
-PASS integration: real bake-mix/cmb-retail Bridge orchestration, gates, CAS, asset, publication and editable UI
-PASS s_bridge_scale_check selected groups: integration

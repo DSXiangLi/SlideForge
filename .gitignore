@@ -17,7 +17,7 @@ tests/decks/*/prompts/
 # IDE
 .idea/
 
-# 业务内容基准 deck（招商银行×天弘基金真实材料，体积大且含内部数据，不入库；本地保留）
+# 业务内容基准 deck（客户真实材料，体积大且含内部数据，不入库；本地保留）
 tests/decks/cmb-retail/
 tests/decks/cmb-retail-v2/
 tests/decks/cmb-retail-v3/
@@ -33,6 +33,33 @@ AGENTS.md
 .pptx-html/
 tools/__pycache__/
 
-# pptx/ppt 原件一律不入库（招行等内部材料源头与导出件；当前版本库零跟踪）
+# pptx/ppt 原件一律不入库（客户材料源头与导出件；当前版本库零跟踪）
 *.pptx
 *.ppt
+
+# ── 对外发布（GitHub）边界 ──────────────────────────────────
+# 本地内部版技能：与公开版 skills/SlideForge/ 同源，但指向内部生图平台，
+# 只本地保留、不入库（对外版见 skills/SlideForge/，见 docs/design/public-skill-slideforge.md）
+skills/html-pptx/
+
+# 本机 MCP / 宿主配置（含机器绝对路径与本地 cwd，不入库）
+.kimi-code/
+
+# 生图密钥：只忽略真正的 .env；skills/SlideForge/.env.example 是模板，必须入库
+.env
+
+# Python 字节码缓存（全库）
+__pycache__/
+
+# 本地运行日志与派生产物（含机器绝对路径，不入库）
+docs/progress/_logs/
+mcp-test-5p/export/
+
+# ── 只发产品本体：技能 + 编辑器 + 桥 + 资产 ──────────────────
+# 仓库根 docs/：设计文档 / 研究 / 迭代实录 / 验收证据（含内部痕迹与客户信息，只本地保留）
+# 注意：忽略后，公开版 SKILL.md 与 README 里对 docs/ 的引用会指向仓库内不存在的文件
+#       ——需要时改为「本地设计文档，不随仓库发布」
+/docs/
+# 仓库根 tests/：开发侧验收 harness 与基准 deck（用户从不运行；根 README 的 Project Layout 需相应调整）
+# 两条都以 / 开头锚定仓库根，不会误伤技能目录内任何同名子目录
+/tests/

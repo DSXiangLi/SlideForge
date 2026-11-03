@@ -164,12 +164,12 @@ Covering render validation, chapter navigation, density metrics, content fingerp
 The product has exactly two parts: **one skill + one MCP bridge**. Every script needed for generation, editing, and export lives inside the skill — users never run any test scripts.
 
 The generation side is driven by an AI coding agent:
-- With the `skills/html-pptx/` skill loaded, the full workflow — from requirements briefing to dual-track export (including render checks, capacity gates, and every export script) — ships with the skill itself.
+- With the `skills/SlideForge/` skill loaded, the full workflow — from requirements briefing to dual-track export (including render checks, capacity gates, and every export script) — ships with the skill itself.
 - Connect the MCP service, and the agent pops up the web page whenever human input is needed.
 
 ### Install the Skill
 
-**Option 1 (recommended) — the [`npx skills`](https://github.com/vercel-labs/skills) installer**, which auto-detects your agent and drops the skill into the right folder (pick `html-pptx` when prompted):
+**Option 1 (recommended) — the [`npx skills`](https://github.com/vercel-labs/skills) installer**, which auto-detects your agent and drops the skill into the right folder (pick `SlideForge` when prompted):
 
 ```bash
 # Install into the current project
@@ -178,7 +178,7 @@ npx skills add DSXiangLi/pptx_fuse_design
 npx skills add DSXiangLi/pptx_fuse_design -g
 ```
 
-**Option 2 — manual**: copy (or symlink) `skills/html-pptx/` into your agent's skill directory; the entry point is `SKILL.md`:
+**Option 2 — manual**: copy (or symlink) `skills/SlideForge/` into your agent's skill directory; the entry point is `SKILL.md`:
 
 ```bash
 # Claude Code
@@ -186,6 +186,24 @@ cp -r skills/html-pptx ~/.claude/skills/
 # Kimi Code
 cp -r skills/html-pptx ~/.agents/skills/
 ```
+
+### Optional: image generation (official OpenAI API)
+
+The main flow — content → pages → render/capacity checks → export — needs **no credentials**. Only
+the two optional passes (AI illustration, full-page baking) call an image service, always through
+the skill's own provider (`skills/SlideForge/scripts/providers/openai_image.py`, stdlib-only)
+hitting the official OpenAI Images API.
+
+- `OPENAI_API_KEY` (required); `OPENAI_BASE_URL` for OpenAI-compatible endpoints;
+  `OPENAI_IMAGE_MODEL` defaults to `gpt-image-2`.
+- Or use a `.env` file — the first existing file wins, keys are not merged: `./.env` (the deck
+  directory when invoked through the adapter) → `<skill dir>/.env` → `~/.slideforge/.env`.
+  Template: `skills/SlideForge/.env.example`.
+- Keep the default model: the skill's own image gate requires page-level slots to be ≥2560×1440,
+  which the `gpt-image-1` family (1024×1024 / 1536×1024 / 1024×1536) cannot produce. The provider
+  fails loudly with guidance rather than upscaling, cropping, or silently degrading.
+- Verify the setup without network or billing:
+  `python3 skills/SlideForge/scripts/providers/openai_image.py --self-check`.
 
 ### Connect the MCP Bridge (what auto-launches the editor)
 
@@ -225,7 +243,7 @@ The skill's built-in acceptance and export scripts install on demand: render che
 ## Project Layout
 
 ```
-skills/html-pptx/     [Product] generation skill: workflow + skeleton + reference library + all generation/export scripts
+skills/SlideForge/     [Product] generation skill: workflow + skeleton + reference library + all generation/export scripts
 editor.html           [Product] single-file editor: edit / annotate / flip — a three-state workbench
 tools/                [Product] MCP bridge: edit.py entry + core + MCP proxy
 tests/                [Dev acceptance] regression harness and benchmark decks; not part of the product — users never run these

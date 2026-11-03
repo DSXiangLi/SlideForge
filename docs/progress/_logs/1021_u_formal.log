@@ -1,4 +1,0 @@
-PASS u_bridge_stability_check: formal PERF-04/05/06 fixed-sample acceptance
-report: /home/lixiang/Desktop/pptx-html-design/tests/harness/results/bridge-p4/report.json
-metrics: /home/lixiang/Desktop/pptx-html-design/tests/harness/results/bridge-p4/metrics.json
-EXIT=0

@@ -164,12 +164,12 @@ AI 生成的幻灯片之所以平庸，是因为它的默认审美会收敛到"�
 产品组成只有两个：**一个技能 + 一个 MCP 桥**。生成、编辑、导出所需的全部脚本都在技能内部，用户无需运行任何测试脚本。
 
 生成侧由 AI coding agent 驱动：
-- 加载 `skills/html-pptx/` 技能后，从需求脑暴到双轨导出的完整工作流（含渲染校验、容量门禁、双轨导出所需的全部脚本）由技能自带。
+- 加载 `skills/SlideForge/` 技能后，从需求脑暴到双轨导出的完整工作流（含渲染校验、容量门禁、双轨导出所需的全部脚本）由技能自带。
 - 接入MCP服务，Agent会在需要人工介入时弹出网页让你操作
 
 ### 安装技能
 
-**方式一（推荐）—— [`npx skills`](https://github.com/vercel-labs/skills) 安装器**，自动识别你的 agent 并装进对应目录（检测到多个技能时选择 `html-pptx`）：
+**方式一（推荐）—— [`npx skills`](https://github.com/vercel-labs/skills) 安装器**，自动识别你的 agent 并装进对应目录（检测到多个技能时选择 `SlideForge`）：
 
 ```bash
 # 装进当前项目
@@ -178,7 +178,7 @@ npx skills add DSXiangLi/pptx_fuse_design
 npx skills add DSXiangLi/pptx_fuse_design -g
 ```
 
-**方式二——手动**：把 `skills/html-pptx/` 复制（或软链）到你 agent 的技能目录，入口为 `SKILL.md`：
+**方式二——手动**：把 `skills/SlideForge/` 复制（或软链）到你 agent 的技能目录，入口为 `SKILL.md`：
 
 ```bash
 # Claude Code
@@ -186,6 +186,15 @@ cp -r skills/html-pptx ~/.claude/skills/
 # Kimi Code
 cp -r skills/html-pptx ~/.agents/skills/
 ```
+
+### 可选：生图能力（官方 OpenAI 接口）
+
+主流程（内容 → 页面 → 渲染/容量校验 → 导出）**不需要任何密钥**。只有两个可选 pass（AI 插画、整页烙入）会调生图服务，且一律经技能自带的 provider（`skills/SlideForge/scripts/providers/openai_image.py`，零第三方依赖）走官方 OpenAI Images API。
+
+- `OPENAI_API_KEY` 必填；`OPENAI_BASE_URL` 可指向兼容端点；`OPENAI_IMAGE_MODEL` 默认 `gpt-image-2`。
+- 也可以写 `.env`——只读第一个存在的文件、键不跨文件合并：`./.env`（经 adapter 调用时即 deck 目录）→ `<技能目录>/.env` → `~/.slideforge/.env`。模板：`skills/SlideForge/.env.example`。
+- 默认模型建议保持 `gpt-image-2`：技能自身的图片门禁要求页级槽位 ≥2560×1440，而 `gpt-image-1` 系（1024/1536 三档）给不出该尺寸；provider 遇到给不出的尺寸会**明确失败并给指引**，不放大、不裁剪、不静默降级。
+- 不联网、不计费自检：`python3 skills/SlideForge/scripts/providers/openai_image.py --self-check`。
 
 ### 接入 MCP 桥（编辑器自动唤起的关键）
 
@@ -226,7 +235,7 @@ claude mcp add pptx-html-bridge -- python3 /绝对路径/tools/edit.py --mcp
 ## 项目结构
 
 ```
-skills/html-pptx/     【产品】生成技能：工作流 + 骨架 + 规范库 + 全部生成/导出脚本
+skills/SlideForge/     【产品】生成技能：工作流 + 骨架 + 规范库 + 全部生成/导出脚本
 editor.html           【产品】单文件编辑器：编辑 / 批注 / 翻转三态工作台
 tools/                【产品】MCP 桥：edit.py 入口 + 核心 + MCP 代理
 tests/                【开发验收】回归 harness 与测试基准，非产品组成，用户使用无需运行
