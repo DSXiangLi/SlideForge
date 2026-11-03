@@ -130,8 +130,8 @@ def require_api_key(cfg):
     if not cfg["api_key"]:
         raise ProviderError(
             "未配置 OPENAI_API_KEY。任选一种方式：\n"
-            "  1. 导出环境变量 OPENAI_API_KEY=sk-...\n"
-            "  2. 在 deck 目录 / 技能目录 / ~/.slideforge/.env 写 OPENAI_API_KEY=sk-...\n"
+            "  1. 导出环境变量 OPENAI_API_KEY=<你的密钥>\n"
+            "  2. 在 deck 目录 / 技能目录 / ~/.slideforge/.env 写 OPENAI_API_KEY=<你的密钥>\n"
             "  3. 兼容端点另配 OPENAI_BASE_URL（默认 %s）" % DEFAULT_BASE_URL
         )
 
