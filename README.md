@@ -261,3 +261,4 @@ docs/                 design docs / research / iteration logs / acceptance evide
 
 The core pipeline (generate → edit → bridge → dual-track export) is fully green under automated acceptance. Manual items remain: visual inspection in real Office 365 / WPS, and eyeballing real paid image generation. See `docs/progress/1003_editor_agent_bridge_handover.md`.
 # SlideForge
+# SlideForge
