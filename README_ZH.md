@@ -178,14 +178,23 @@ npx skills add DSXiangLi/pptx_fuse_design
 npx skills add DSXiangLi/pptx_fuse_design -g
 ```
 
-**方式二——手动**：把 `skills/SlideForge/` 复制（或软链）到你 agent 的技能目录，入口为 `SKILL.md`：
+**方式二——手动**：把 `skills/SlideForge/` 复制（或软链）到你 agent 的技能目录，入口为 `SKILL.md`。常见 agent 的用户级技能目录：
+
+| Agent | 技能目录 |
+|---|---|
+| Claude Code | `~/.claude/skills/SlideForge/` |
+| Kimi Code | `~/.agents/skills/SlideForge/` |
+| WorkBuddy | `~/.workbuddy/skills/SlideForge/`（用户级）；或 `<项目根>/.workbuddy/skills/SlideForge/`（项目级，随项目共享） |
 
 ```bash
-# Claude Code
-cp -r skills/html-pptx ~/.claude/skills/
-# Kimi Code
-cp -r skills/html-pptx ~/.agents/skills/
+# 示例：Claude Code / Kimi Code（macOS · Linux）
+cp -r skills/SlideForge ~/.claude/skills/
+
+# 示例：WorkBuddy（Windows PowerShell）
+Copy-Item -Recurse skills\SlideForge "$env:USERPROFILE\.workbuddy\skills\"
 ```
+
+技能是纯静态文件（Markdown 规范库 + 骨架 + 脚本），没有任何安装脚本与运行时依赖：装完即用，删除目录即卸载。生成/导出脚本所需的可选依赖见下文「可选依赖」节。
 
 ### 可选：生图能力（官方 OpenAI 接口）
 
@@ -198,34 +207,77 @@ cp -r skills/html-pptx ~/.agents/skills/
 
 ### 接入 MCP 桥（编辑器自动唤起的关键）
 
-桥是一个 stdio MCP server，入口为 `tools/edit.py --mcp`。先装它唯一的依赖：
+桥是一个 stdio MCP server，服务名固定为 **`pptx-html-bridge`**，入口为 `tools/edit.py --mcp`。安装分三步：
+
+#### 第 1 步 · 准备 Python 环境
+
+唯一依赖是官方 MCP SDK（要求 Python ≥ 3.10）。**推荐装进独立 venv，不污染全局环境**：
 
 ```bash
-pip install "mcp>=1.28,<2"
+# macOS / Linux
+python3 -m venv .venv
+.venv/bin/pip install "mcp>=1.28,<2"
+
+# Windows（Git Bash / PowerShell）
+python -m venv .venv
+.venv\Scripts\python.exe -m pip install "mcp>=1.28,<2"
 ```
 
-然后注册到你的 agent——Claude Code 一行搞定：
+不介意装进全局也可以直接 `pip install "mcp>=1.28,<2"`——桥没有其他第三方依赖。
+
+装完自检（不启动服务、不联网、不计费）：
 
 ```bash
-claude mcp add pptx-html-bridge -- python3 /绝对路径/tools/edit.py --mcp
+python3 -c "import mcp; print('mcp ok')"
+python3 tools/edit.py --help        # 能打印 usage 即入口可用
 ```
 
-其他 agent（Codex / Kimi Code / Cursor …）在各自的 MCP 配置中加入等价条目：
+#### 第 2 步 · 注册到你的 agent
+
+**Claude Code** 一行搞定（`python3` 建议写第 1 步 venv 解释器的绝对路径，最稳）：
+
+```bash
+claude mcp add pptx-html-bridge -- /绝对路径/.venv/bin/python3 /绝对路径/tools/edit.py --mcp
+```
+
+**Codex / Kimi Code / Cursor 等通用条目**：在各自 MCP 配置的 `mcpServers` 中加入等价条目。`command` 建议写解释器绝对路径；Windows 下 JSON 路径用 `\\` 转义（或正斜杠）：
 
 ```json
 {
   "mcpServers": {
     "pptx-html-bridge": {
-      "command": "python3",
+      "command": "/绝对路径/.venv/bin/python3",
       "args": ["/绝对路径/tools/edit.py", "--mcp"]
     }
   }
 }
 ```
 
+**WorkBuddy**：编辑用户级配置 `~/.workbuddy/mcp.json`（注意文件名**没有**点前缀，不是 `.mcp.json`），把条目合并进已有的 `mcpServers`（不要覆盖其他 server）。Windows 示例：
+
+```json
+{
+  "mcpServers": {
+    "pptx-html-bridge": {
+      "command": "C:\\Users\\<你>\\.venv\\Scripts\\python.exe",
+      "args": ["C:\\Users\\<你>\\Desktop\\SlideForge\\tools\\edit.py", "--mcp"]
+    }
+  }
+}
+```
+
+写入配置后**不会自动生效**：打开 WorkBuddy 的连接器管理页（右上角入口），在自定义连接器列表中找到 `pptx-html-bridge` 点击 **Trust** 启用，然后重启会话。
+
 > **Kimi Code 注意：调大工具超时。** Kimi Code 默认在 60 秒处强制中断任何单次 MCP 工具调用（进度通知不会续期），这会杀掉桥的长等待 `await_intent`（最长一天），导致页面提交的请求无人认领。请在上方 server 条目中加入 `"toolTimeoutMs": 86500000`（或在 `config.toml` 设置 `[mcp] toolTimeoutMs`，或用环境变量 `KIMI_MCP_TOOL_TIMEOUT_MS`），然后重启会话。没有 60 秒限制的宿主不需要此项。
 
+#### 第 3 步 · 验证
+
 接入成功的标志：agent 恰好看到五个工具——`open_editor` / `await_intent` / `push_update` / `get_status` / `close_session`。
+
+- 宿主支持 **MCP Apps** 时，`open_editor(open_browser="auto")` 会把编辑器直接嵌进对话面板（轨 A，工具面额外多 `open_brief` 等 app 相关工具）；
+- 不支持时自动打开独立浏览器窗口（轨 B）。两条轨面向模型的五个工具与意图协议完全一致，行为无差别。
+
+桥不绑定工作目录：`open_editor` 按会话登记 deck 路径，页面、daemon 与 agent 生命周期相互独立，可以常驻后台。
 
 ### 可选依赖
 

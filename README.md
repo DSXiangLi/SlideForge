@@ -178,14 +178,23 @@ npx skills add DSXiangLi/pptx_fuse_design
 npx skills add DSXiangLi/pptx_fuse_design -g
 ```
 
-**Option 2 — manual**: copy (or symlink) `skills/SlideForge/` into your agent's skill directory; the entry point is `SKILL.md`:
+**Option 2 — manual**: copy (or symlink) `skills/SlideForge/` into your agent's skill directory; the entry point is `SKILL.md`. Common user-level skill directories:
+
+| Agent | Skill directory |
+|---|---|
+| Claude Code | `~/.claude/skills/SlideForge/` |
+| Kimi Code | `~/.agents/skills/SlideForge/` |
+| WorkBuddy | `~/.workbuddy/skills/SlideForge/` (user-level); or `<project root>/.workbuddy/skills/SlideForge/` (project-level, shared with the team) |
 
 ```bash
-# Claude Code
-cp -r skills/html-pptx ~/.claude/skills/
-# Kimi Code
-cp -r skills/html-pptx ~/.agents/skills/
+# Example: Claude Code / Kimi Code (macOS · Linux)
+cp -r skills/SlideForge ~/.claude/skills/
+
+# Example: WorkBuddy (Windows PowerShell)
+Copy-Item -Recurse skills\SlideForge "$env:USERPROFILE\.workbuddy\skills\"
 ```
+
+The skill is pure static files (Markdown reference library + skeleton + scripts) with no installer and no runtime dependencies: copy and it works, delete the directory to uninstall. Optional dependencies for the generation/export scripts are listed under "Optional Dependencies" below.
 
 ### Optional: image generation (official OpenAI API)
 
@@ -207,34 +216,77 @@ hitting the official OpenAI Images API.
 
 ### Connect the MCP Bridge (what auto-launches the editor)
 
-The bridge is a stdio MCP server with the entry point `tools/edit.py --mcp`. Install its only dependency first:
+The bridge is a stdio MCP server with the fixed name **`pptx-html-bridge`** and entry point `tools/edit.py --mcp`. Installation takes three steps:
+
+#### Step 1 · Prepare the Python environment
+
+Its only dependency is the official MCP SDK (requires Python ≥ 3.10). **A dedicated venv is recommended so your global environment stays clean**:
 
 ```bash
-pip install "mcp>=1.28,<2"
+# macOS / Linux
+python3 -m venv .venv
+.venv/bin/pip install "mcp>=1.28,<2"
+
+# Windows (Git Bash / PowerShell)
+python -m venv .venv
+.venv\Scripts\python.exe -m pip install "mcp>=1.28,<2"
 ```
 
-Then register it with your agent — one line for Claude Code:
+If you don't mind a global install, a plain `pip install "mcp>=1.28,<2"` works too — the bridge has no other third-party dependencies.
+
+Self-check (starts no server, no network, no billing):
 
 ```bash
-claude mcp add pptx-html-bridge -- python3 /absolute/path/tools/edit.py --mcp
+python3 -c "import mcp; print('mcp ok')"
+python3 tools/edit.py --help        # prints usage → the entry point works
 ```
 
-For other agents (Codex / Kimi Code / Cursor …), add the equivalent entry to their MCP configuration:
+#### Step 2 · Register with your agent
+
+**Claude Code**, one line (writing the absolute path of the Step-1 venv interpreter as `python3` is the most robust):
+
+```bash
+claude mcp add pptx-html-bridge -- /absolute/path/.venv/bin/python3 /absolute/path/tools/edit.py --mcp
+```
+
+**Codex / Kimi Code / Cursor and others**: add the equivalent entry to the `mcpServers` object of your agent's MCP configuration. Prefer an absolute interpreter path for `command`; on Windows escape JSON paths with `\\` (or use forward slashes):
 
 ```json
 {
   "mcpServers": {
     "pptx-html-bridge": {
-      "command": "python3",
+      "command": "/absolute/path/.venv/bin/python3",
       "args": ["/absolute/path/tools/edit.py", "--mcp"]
     }
   }
 }
 ```
 
+**WorkBuddy**: edit the user-level config `~/.workbuddy/mcp.json` (note the filename has **no** leading dot — it is not `.mcp.json`) and merge the entry into the existing `mcpServers` (don't overwrite other servers). Windows example:
+
+```json
+{
+  "mcpServers": {
+    "pptx-html-bridge": {
+      "command": "C:\\Users\\<you>\\.venv\\Scripts\\python.exe",
+      "args": ["C:\\Users\\<you>\\Desktop\\SlideForge\\tools\\edit.py", "--mcp"]
+    }
+  }
+}
+```
+
+Writing the config does **not** activate the server automatically: open WorkBuddy's connector management page (top-right entry), find `pptx-html-bridge` in the custom connectors list, click **Trust**, then restart the session.
+
 > **Kimi Code: raise the tool timeout.** Kimi Code force-times-out any single MCP tool call after 60 seconds by default (progress notifications do not extend it), which would kill the bridge's long `await_intent` wait — up to one day — and leave page-submitted requests unclaimed. Add `"toolTimeoutMs": 86500000` to the server entry above (or set `[mcp] toolTimeoutMs` in `config.toml`, or the `KIMI_MCP_TOOL_TIMEOUT_MS` env var), then restart the session. Hosts without a 60-second cap don't need this.
 
+#### Step 3 · Verify
+
 You know it works when the agent sees exactly five tools: `open_editor` / `await_intent` / `push_update` / `get_status` / `close_session`.
+
+- On hosts that support **MCP Apps**, `open_editor(open_browser="auto")` embeds the editor directly into the chat panel (track A, where the tool surface additionally exposes `open_brief` and app-related tools);
+- otherwise it opens a standalone browser window (track B). The five model-facing tools and the intent protocol are identical across both tracks.
+
+The bridge is not tied to a working directory: `open_editor` registers the deck path per session, and the page, the daemon, and the agent have independent lifecycles — the daemon can stay resident in the background.
 
 ### Optional Dependencies
 
@@ -260,5 +312,3 @@ docs/                 design docs / research / iteration logs / acceptance evide
 ## Current Status
 
 The core pipeline (generate → edit → bridge → dual-track export) is fully green under automated acceptance. Manual items remain: visual inspection in real Office 365 / WPS, and eyeballing real paid image generation. See `docs/progress/1003_editor_agent_bridge_handover.md`.
-# SlideForge
-# SlideForge
