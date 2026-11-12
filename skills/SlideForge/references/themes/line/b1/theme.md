@@ -83,6 +83,31 @@
 
 - **禁忌**：加号只许四角与内容区角点，禁撒在页面中部；网格点阵只许仪式页；母题件一律 `data-editable-skip`
 
+**G10 composition_program**
+
+- **定位**：主题从「可替换参数集」升级为「决定信息如何进入空间的程序」。本组为硬约束，写进页计划表头即整 deck 的构图契约；`signature_operator` 必须通过 DOM 结构测试——删掉它，页面的元素数量 / 分组 / 顺序 / 位置会变，否则退回重写。
+- **灵魂承载**：签名形状升级为信息容器（网格线作坐标、色块编号装数据）；形状由 CSS 承担（`data-editable-skip`），其内部承载文字仍是 `data-editable` 叶子节点——文字始终留在 DOM，不牺牲可编辑性，也不需整页生图。
+
+```yaml
+doctrine: 客观、去个人化；信息即形式，网格是理性秩序的可见化。
+signature_operator: 把整页压进 12 栏网格（栏界以 hairline 可见化），标题跨栏语义断行并倒挂字重，
+  其余信息沿栏吸附；把横向等权 KPI 重排成右侧纵向数据脊，只给一个数字一次 accent 面积事件。
+silhouette: 横竖双轴；矩形分区；重心左上象限；右上 ≥25% 主动负空间。
+info_grammar:
+  cover:    ≤4 文本元素；满版 IKB + 反白发丝巨字
+  claim:    左 7 栏巨字（200 字重、语义断行）+ 右 5 栏数据脊
+  analysis: 3–6 块灰档平涂模块严格对格，至多一个 accent 焦点块
+  data:     三项数字 → 纵向脊（非横排等权三格），仅一项用 accent 实色块承载
+invariants:
+  - 主轴 ∈ {0°, 90°}，斜向结构件面积 = 0
+  - 最大字号 / 最小字号 ≥ 8（低密度档）
+  - 墨水重心 x ≤ 0.45
+  - accent 实色面积 3–10%，且单页仅一处
+  - 最大留白矩形位于右上，面积 ≥ 25%
+forbidden_defaults: [三格等权 KPI, 居中 hero, 通栏长正文行 >70cqw, 卡片墙, 任何渐变]
+dna_events: {cover: 强, claim: 强, analysis: 中, data: 强, divider: 中, closing: 中}
+```
+
 **bake_brief**
 
 ```json

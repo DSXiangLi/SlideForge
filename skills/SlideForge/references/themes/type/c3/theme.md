@@ -80,6 +80,32 @@
 
 - **禁忌**：ASCII 框角件只许对角两枚，禁四角全标（过密即噪音）；光标块每页至多两处（句读不是撒布）；提示符前缀只许命令行语义的段落；辉光强度烧死不得加深——磷光晕散永不糊住字形边缘（可读性 > 氛围）；母题件一律 `data-editable-skip`
 
+**G10 composition_program**
+
+- **定位**：主题从「可替换参数集」升级为「决定信息如何进入空间的程序」。本组为硬约束，写进页计划表头即整 deck 的构图契约；`signature_operator` 必须通过 DOM 结构测试——删掉它，页面的元素数量 / 分组 / 顺序 / 位置会变，否则退回重写。
+- **灵魂承载**：签名形状升级为信息容器（ASCII 框装证据、提示符前缀装命令行标题、光标块装句读）；形状由 CSS 承担（`data-editable-skip`），其内部承载文字仍是 `data-editable` 叶子节点——文字始终留在 DOM，不牺牲可编辑性，也不需整页生图。
+
+```yaml
+doctrine: 机器纪律；页面是一次会话的输出，不是一张海报。
+signature_operator: 把内容编译成单向时间流——每块信息是一个同构描边窗口或一行 stdout，
+  按发生顺序自上而下；标题重构成命令行（提示符前缀 + 光标块），数字重构成 key:value 输出行。
+silhouette: 2–4 个等 gap 等 padding 的描边矩形；水平流；重心左上；暗场。
+info_grammar:
+  all:      顶部细标题栏（会话名/日期）→ 主窗口 → 侧窗口 → 底部 `> ` 总结行
+  claim:    主窗口 = `$ ` 前缀 + 重构标题 + 光标块 + 论点注释 + 说明
+  data:     侧窗口 = `stat --brief` 三行 key:value，末行高亮
+  analysis: 2–4 个同构窗口成阵（同 gap 同 padding）
+invariants:
+  - 全栈等宽（display/body/mono 同族）
+  - 窗口数 2–4，gap 与 padding 完全一致
+  - accent 面积 ≤5% 且只呈点状（光标/关键字/单数据点），不形成块面
+  - 扫描线周期 4px ±1px，全页均匀
+  - 存在 `$ ` 提示符前缀与实心光标块
+forbidden_defaults: [卡片墙, 圆角大卡, 渐变, 多色语法高亮, 居中 hero, 大绿底]
+dna_events: {cover: 强, claim: 弱, divider: 弱, analysis: 弱, data: 弱, closing: 弱}
+  # 终端世界的纪律就是形态恒定；只有封面用光标仪式做一次强形态
+```
+
 **bake_brief**
 
 ```json
