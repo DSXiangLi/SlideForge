@@ -408,15 +408,20 @@ class BridgeFastMCP(FastMCP):
 
         **但本探针只描述「桥侧工具面」，不描述「宿主会不会弹面板」**。宿主内独立
         面板是另一条通路（daemon 侧 MCP App catalog → openHostApp），其准入由宿主
-        自己的发现源决定，桥作为 stdio MCP 无法检测。实测有宿主只索引 connector
-        注册项与 bundled 内置 MCP，本地 `mcp.json` 手配的 stdio 不在其中：此时
-        `apps_tools_listed=true` 仍可能完全没有内嵌面板。故 `host_panel_admission`
-        恒为 `"host-owned"`，真正的实证只有运行时 `view_attached` / `await_intent.kind`。
+        自己的发现源决定，桥无法检测。发现源按**传输形态**过滤：
+        `ConnectorService.buildDesiredConfigs()` 读 `mcp.json` 并把条目注册为
+        `custom-mcp:<name>`，但 `McpAppsRemoteRuntime` 只 inspect 有 `url` 且无
+        `command` 的 remote 条目；stdio 形态被 `isRemoteConfig()` 判为 skipped，
+        本地手配的 stdio 桥因此不会被 catalog 收录（诊断日志 `catalogMiss` /
+        `catalogHit` 恒为 0 次）。把桥以 remote(`url`) 形态注册即可进入发现源——
+        这与 `PPTX_HTML_APPS_TOOLS=always` 无关。故 `host_panel_admission` 恒为
+        `"host-owned"`，真正的实证只有运行时 `view_attached` / `await_intent.kind`。
         """
         mode = (os.environ.get("PPTX_HTML_APPS_TOOLS") or "auto").strip().lower()
         probe: dict[str, object] = {
             "apps_tools_mode": mode,
             # 面板准入归宿主：能力协商/工具面全开都**不**构成宿主会弹面板的证据。
+            # 只有把配置从 stdio 改成 remote(url) 形态，宿主 catalog 才会发现本桥。
             # Agent 不得据 track=A / wake=notifyAgent / broadcast ok 向用户承诺内嵌视图。
             "host_panel_admission": "host-owned",
             "host_panel_evidence": "get_status.view_attached=true | await_intent.kind=mcp_app",

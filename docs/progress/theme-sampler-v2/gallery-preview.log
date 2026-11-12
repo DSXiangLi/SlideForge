@@ -1,0 +1,28 @@
+[
+ {
+  "src": "v2-b1.png",
+  "ok": true,
+  "w": 1920,
+  "h": 1081
+ },
+ {
+  "src": "v2-c3.png",
+  "ok": true,
+  "w": 1920,
+  "h": 1081
+ },
+ {
+  "src": "v2-e5.png",
+  "ok": true,
+  "w": 1920,
+  "h": 1081
+ },
+ {
+  "src": "v2-h1.png",
+  "ok": true,
+  "w": 1920,
+  "h": 1081
+ }
+]
+page errors: 0 
+screenshot ok

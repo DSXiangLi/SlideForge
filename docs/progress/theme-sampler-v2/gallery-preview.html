@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>README Theme Gallery · 替换后预览</title>
+<style>
+  :root{--bg:#faf9f6;--ink:#1a1a1a;--muted:#666;--line:#e3e0d8;--maxw:960px}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:16px/1.75 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:56px 32px 96px}
+  .tag{display:inline-block;font:600 12px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;
+       letter-spacing:.08em;color:#8a5a2b;background:#f3e9d9;border:1px solid #e6d3b3;
+       border-radius:999px;padding:5px 12px;margin-bottom:20px}
+  h1{font-size:30px;line-height:1.3;margin:0 0 8px;letter-spacing:-.01em}
+  h2{font-size:15px;font-weight:600;color:var(--muted);margin:44px 0 14px;
+     padding-bottom:8px;border-bottom:1px solid var(--line)}
+  p{margin:0 0 22px;color:#333}
+  code{font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;
+       background:#f0eee8;border:1px solid #e6e2d8;border-radius:4px;padding:1px 5px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  figure{margin:0;background:#fff;border:1px solid var(--line);border-radius:8px;
+         overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  figure img{display:block;width:100%;height:auto}
+  figcaption{padding:11px 14px;font-size:13px;color:#444;border-top:1px solid var(--line);
+             background:#fcfbf8}
+  figcaption b{color:var(--ink)}
+  .note{margin-top:24px;padding:14px 18px;border-left:3px solid #c9a227;
+        background:#fdfaf0;font-size:14px;color:#555;border-radius:0 6px 6px 0}
+  .note code{background:#f6f0dc}
+  .legend{margin-top:36px;padding-top:20px;border-top:1px solid var(--line);
+          font-size:13px;color:var(--muted)}
+  .legend b{color:#333}
+  @media(max-width:720px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="tag">README PREVIEW · Phase 5</span>
+  <h1>Theme Gallery: One Deck × 4 Composition Programs</h1>
+  <p>同一份业务内容（虚构茶饮品牌「山禾集」，数据均为虚构），交给四套写入了 G10
+    <code>composition_program</code> 构图契约的主题重新编译。每套主题对「信息如何进入空间」有不同主权，
+    因此差异是结构级的，不是换配色：B1 把整页压进可见的 12 栏网格、右侧竖起数据脊；C3 把内容打印成
+    终端窗口与 <code>key:value</code> 输出；E5 让标题骑上 −12° 对角力带；H1 以手卷方式竖排展开、
+    钤朱砂印收束。文字字号只由骨架 <code>.t-*</code> 角色类决定，可读性下限在设计层结构性锁定，
+    无需事后门禁。</p>
+
+  <h2>README.md / README_ZH.md · 2×2 表格实际渲染</h2>
+  <div class="grid">
+    <figure><img src="../../../assets/theme-sampler/v2-b1.png" onerror="this.onerror=null;this.src='./new-b1.png'" alt="B1 Swiss International">
+      <figcaption><b>B1 · 瑞士国际主义</b> · 12 栏网格 + 数据脊</figcaption></figure>
+    <figure><img src="../../../assets/theme-sampler/v2-c3.png" onerror="this.onerror=null;this.src='./new-c3.png'" alt="C3 Terminal Green">
+      <figcaption><b>C3 · 终端绿</b> · 终端窗口 + key:value</figcaption></figure>
+    <figure><img src="../../../assets/theme-sampler/v2-e5.png" onerror="this.onerror=null;this.src='./new-e5.png'" alt="E5 Constructivism">
+      <figcaption><b>E5 · 构成主义</b> · −12° 对角力带</figcaption></figure>
+    <figure><img src="../../../assets/theme-sampler/v2-h1.png" onerror="this.onerror=null;this.src='./new-h1.png'" alt="H1 Ink Scroll">
+      <figcaption><b>H1 · 氤氲手卷</b> · 竖排题字 + 朱砂印</figcaption></figure>
+  </div>
+
+  <div class="note">
+    早期的换皮样张（旧 <code>p01</code>–<code>p29</code> 一组）仍保留在
+    <code>assets/theme-sampler/</code>；以上四张是重编译版本。源 deck：<code>tests/decks/theme-sampler/</code>。
+  </div>
+
+  <div class="legend">
+    <b>替换说明</b> · 原 Gallery 为 3×4 共 12 张（<code>width=280</code>），全部来自 skeleton v7.4
+    的「换 token 换皮」渲染，版式骨架逐像素一致。现替换为 2×2 共 4 张（<code>width=416</code>），
+    为 G10 构图程序的结构级重编译。标题由「12 套主题」改为「4 套构图程序」，
+    文案不再声称「12 张最具区分度」，改为陈述四套主题各自的空间组织方式。
+    <br><br>
+    <b>生成来源</b> · <code>docs/progress/theme-sampler-v2/build.js</code>（生成器）→
+    <code>run.js</code>（Playwright 渲染 + 版面审计）→ <code>new-*.png</code>；
+    A/B 结论见 <code>docs/progress/phase4-sampler-v2-ab.md</code>。
+  </div>
+</div>
+</body>
+</html>

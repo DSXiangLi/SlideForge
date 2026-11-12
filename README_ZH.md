@@ -1,4 +1,4 @@
-# pptx-html-design
+# SlideForge
 
 **[English](README.md) | [中文](README_ZH.md)**
 
@@ -84,31 +84,17 @@ HTML、PPTX、Image，这不是三个独立的形态，而是不同条件下可�
 >
 > 两条容易踩的边界：编辑器改的是 **HTML 母版**而非 `.pptx` 二进制，改完需重新导出；「提交批注」「发送给 AI」「导出为 PPTX」是**只入队的意图按钮**，需 agent 认领后才会执行，而「复制…指令」只写剪贴板、不提交意图。
 
-## 主题样张：同一份内容 × 12 套主题
+## 主题样张：同一份内容 × 4 套构图程序
 
-以下截图来自 `tests/decks/theme-sampler/`（演示主体为虚构茶饮品牌「山禾集」，数据均为虚构）：同一份业务内容在不同主题下的真实渲染——主题之间是排版、材质与图形语言的系统差异，不只是换配色。此处精选区分度最高的 12 套（含 F 系光学两主题与 G 系色彩结构三主题），完整 28 套见 `assets/theme-sampler/`。
+同一份业务内容（虚构茶饮品牌「山禾集」，数据均为虚构），交给四套写入了 G10 `composition_program` 构图契约的主题重新编译。每套主题对「信息如何进入空间」有不同主权，因此差异是结构级的，不是换配色：B1 把整页压进可见的 12 栏网格、右侧竖起数据脊；C3 把内容打印成终端窗口与 `key:value` 输出；E5 让标题骑上 −12° 对角力带；H1 以手卷方式竖排展开、钤朱砂印收束。文字字号只由骨架 `.t-*` 角色类决定，可读性下限在设计层结构性锁定，无需事后门禁。
 
-| <img src="assets/theme-sampler/p05-c3.png" width="280"> | <img src="assets/theme-sampler/p11-e2.png" width="280"> | <img src="assets/theme-sampler/p12-e3.png" width="280"> |
-|---|---|---|
-| C3 · 终端绿 · 磷光绿 | E2 · 蓝图 | E3 · 装饰艺术 |
-| <img src="assets/theme-sampler/p03-c1.png" width="280"> | <img src="assets/theme-sampler/p16-e7.png" width="280"> | <img src="assets/theme-sampler/p15-e6.png" width="280"> |
-| C1 · 信号黑 · 信号橙 | E7 · 浮世绘 | E6 · 孟菲斯 · 糖果粉 |
-| <img src="assets/theme-sampler/p19-e10.png" width="280"> | <img src="assets/theme-sampler/p22-f1.png" width="280"> | <img src="assets/theme-sampler/p23-f2.png" width="280"> |
-| E10 · 星图 · 深夜蓝金 | F1 · 浮光玻璃 · 晨雾蓝 | F2 · 霓虹夜行 · 霓紫 |
-| <img src="assets/theme-sampler/p25-g1.png" width="280"> | <img src="assets/theme-sampler/p26-g2.png" width="280"> | <img src="assets/theme-sampler/p28-g4.png" width="280"> |
-| G1 · 翡翠年鉴 · 深翡翠 | G2 · 腮红荧光笔 | G4 · 靛墨黄页 · 黄页 |
+| <img src="assets/theme-sampler/v2-b1.png" width="416"> | <img src="assets/theme-sampler/v2-c3.png" width="416"> |
+|---|---|
+| B1 · 瑞士国际主义 · 12 栏网格 + 数据脊 | C3 · 终端绿 · 终端窗口 + key:value |
+| <img src="assets/theme-sampler/v2-e5.png" width="416"> | <img src="assets/theme-sampler/v2-h1.png" width="416"> |
+| E5 · 构成主义 · −12° 对角力带 | H1 · 氤氲手卷 · 竖排题字 + 朱砂印 |
 
-## 主题 DNA：同一份内容 × 4 套主题 × 2 种页面
-
-来自主题 DNA 试点：**完全相同的内容对象**（同一品牌、同一主张、同一份 5 项目录、同一组数据）交给 4 套写入了 G10 `composition_program` 构图契约的主题渲染。每套主题对「信息如何进入空间」有不同主权——变的是结构，不只是皮肤：B1 把整页压进可见的 12 栏网格；E5 让内容骑上 −12° 对角力带；C3 把一切装进终端窗口与 ASCII 框；H1 以手卷方式竖排展开、钤印收束。
-
-| <img src="assets/theme-dna/b1-toc.png" width="280"> | <img src="assets/theme-dna/e5-toc.png" width="280"> | <img src="assets/theme-dna/c3-toc.png" width="280"> | <img src="assets/theme-dna/h1-toc.png" width="280"> |
-|---|---|---|---|
-| B1 · 瑞士国际主义 · 目录 | E5 · 构成主义 · 目录 | C3 · 终端绿 · 目录 | H1 · 氤氲手卷 · 目录 |
-| <img src="assets/theme-dna/b1-low.png" width="280"> | <img src="assets/theme-dna/e5-low.png" width="280"> | <img src="assets/theme-dna/c3-low.png" width="280"> | <img src="assets/theme-dna/h1-low.png" width="280"> |
-| B1 · 主张页：左栏巨字 + 数据脊 | E5 · 主张页：力带承载标题 | C3 · 主张页：终端窗口输出论断 | H1 · 主张页：竖排题字 + 朱砂印 |
-
-> 试点覆盖 6 种页面类型（封面 / 目录 / 低密度主张 / 高密度分析 / 图表 / 收尾）× 4 主题 = 24 页，全部由同一份内容对象渲染；每套主题的 G10 契约见其 `theme.md`。
+> 早期的换皮样张（旧 `p01`–`p29` 一组）仍保留在 `assets/theme-sampler/`；以上四张是重编译版本。源 deck：`tests/decks/theme-sampler/`。
 
 ## 页面类型实拍
 

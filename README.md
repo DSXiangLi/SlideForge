@@ -1,4 +1,4 @@
-# pptx-html-design
+# SlideForge
 
 **[English](README.md) | [中文](README_ZH.md)**
 
@@ -84,31 +84,17 @@ The three clips above cover edit-in-place / lasso annotation / briefing / export
 >
 > Two boundaries worth knowing: the editor modifies the **HTML master**, not the `.pptx` binary, so a re-export is needed afterwards; "Submit annotation", "Send to AI" and "Export as PPTX" are **intent buttons that only enqueue** — an agent must claim them before anything runs — while "Copy … instruction" only writes to the clipboard and submits no intent.
 
-## Theme Gallery: One Deck × 12 Themes
+## Theme Gallery: One Deck × 4 Composition Programs
 
-Screenshots from `tests/decks/theme-sampler/` (demo content for "Shanhe Ji", a fictional tea brand; all data is fictional): the same business page rendered under different themes — themes differ systematically in layout, texture, and graphic language, not just color. The 12 most distinctive are shown here (including the two optical-axis F themes and three multi-hue G themes); all 28 live in `assets/theme-sampler/`.
+The same business page (demo content for "Shanhe Ji", a fictional tea brand; all data is fictional) rebuilt by four themes that each carry a written G10 `composition_program` contract. Each theme owns *how information enters the space*, so the difference is structural, not a palette swap: B1 presses the page into a visible 12-column grid with a vertical data spine; C3 prints it as terminal windows with `key:value` output; E5 carries the title on a −12° force band; H1 unrolls it as a handscroll with vertical titles and a cinnabar seal. Text sizes come from the skeleton's `.t-*` role classes, so readability floors hold by construction rather than by a post-hoc gate.
 
-| <img src="assets/theme-sampler/p05-c3.png" width="280"> | <img src="assets/theme-sampler/p11-e2.png" width="280"> | <img src="assets/theme-sampler/p12-e3.png" width="280"> |
-|---|---|---|
-| C3 · Terminal Green · Phosphor | E2 · Blueprint | E3 · Art Deco |
-| <img src="assets/theme-sampler/p03-c1.png" width="280"> | <img src="assets/theme-sampler/p16-e7.png" width="280"> | <img src="assets/theme-sampler/p15-e6.png" width="280"> |
-| C1 · Signal Black · Signal Orange | E7 · Ukiyo-e | E6 · Memphis · Candy Pink |
-| <img src="assets/theme-sampler/p19-e10.png" width="280"> | <img src="assets/theme-sampler/p22-f1.png" width="280"> | <img src="assets/theme-sampler/p23-f2.png" width="280"> |
-| E10 · Star Chart · Midnight Blue-Gold | F1 · Floating Glass · Morning Mist | F2 · Neon Night · Neon Violet |
-| <img src="assets/theme-sampler/p25-g1.png" width="280"> | <img src="assets/theme-sampler/p26-g2.png" width="280"> | <img src="assets/theme-sampler/p28-g4.png" width="280"> |
-| G1 · Emerald Annual · Deep Velvet | G2 · Blush Highlighter | G4 · Indigo Ink · Yellow Pages |
+| <img src="assets/theme-sampler/v2-b1.png" width="416"> | <img src="assets/theme-sampler/v2-c3.png" width="416"> |
+|---|---|
+| B1 · Swiss International · 12-column grid + data spine | C3 · Terminal Green · terminal windows + key:value |
+| <img src="assets/theme-sampler/v2-e5.png" width="416"> | <img src="assets/theme-sampler/v2-h1.png" width="416"> |
+| E5 · Constructivism · −12° force band | H1 · Ink Scroll · vertical titles + cinnabar seal |
 
-## Theme DNA: One Brief × 4 Themes × 2 Page Types
-
-From the theme-DNA pilot: the **exact same content object** (one brand, one claim, one 5-item TOC, one dataset) rendered by 4 themes that each carry a written G10 `composition_program` contract. Each theme owns *how information enters the space* — structure changes, not just skin: B1 presses the page into a visible 12-column grid; E5 rides the content on a −12° force band; C3 runs it through terminal windows with ASCII frames; H1 unrolls it as a handscroll with vertical titles and a cinnabar seal.
-
-| <img src="assets/theme-dna/b1-toc.png" width="280"> | <img src="assets/theme-dna/e5-toc.png" width="280"> | <img src="assets/theme-dna/c3-toc.png" width="280"> | <img src="assets/theme-dna/h1-toc.png" width="280"> |
-|---|---|---|---|
-| B1 · Swiss International · TOC | E5 · Constructivism · TOC | C3 · Terminal Green · TOC | H1 · Ink Scroll · TOC |
-| <img src="assets/theme-dna/b1-low.png" width="280"> | <img src="assets/theme-dna/e5-low.png" width="280"> | <img src="assets/theme-dna/c3-low.png" width="280"> | <img src="assets/theme-dna/h1-low.png" width="280"> |
-| B1 · Claim: giant left column + data spine | E5 · Claim: title carried by the force band | C3 · Claim: verdict printed in a terminal | H1 · Claim: vertical inscription + seal |
-
-> The pilot covers 6 page types (cover / TOC / low-density claim / high-density analysis / chart / closing) × 4 themes = 24 pages, all rendered from a single content object; each theme's G10 contract lives in its `theme.md`.
+> The earlier token-swap samples (the older `p01`–`p29` set) still live in `assets/theme-sampler/`; the four above are the recompiled versions. Source deck: `tests/decks/theme-sampler/`.
 
 ## Page Types in Action
 

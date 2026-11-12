@@ -1,0 +1,20 @@
+=== 回退后（assets 路径被阻断）===
+[
+ {
+  "src": "new-b1.png",
+  "ok": true
+ },
+ {
+  "src": "new-c3.png",
+  "ok": true
+ },
+ {
+  "src": "new-e5.png",
+  "ok": true
+ },
+ {
+  "src": "new-h1.png",
+  "ok": true
+ }
+]
+all ok: true  page errors: 0

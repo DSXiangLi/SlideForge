@@ -1,0 +1,43 @@
+[
+ {
+  "src": "../../../assets/theme-sampler/p02-b1.png",
+  "ok": true,
+  "w": 1920
+ },
+ {
+  "src": "new-b1.png",
+  "ok": true,
+  "w": 1920
+ },
+ {
+  "src": "../../../assets/theme-sampler/p05-c3.png",
+  "ok": true,
+  "w": 1920
+ },
+ {
+  "src": "new-c3.png",
+  "ok": true,
+  "w": 1920
+ },
+ {
+  "src": "../../../assets/theme-sampler/p14-e5.png",
+  "ok": true,
+  "w": 1920
+ },
+ {
+  "src": "new-e5.png",
+  "ok": true,
+  "w": 1920
+ },
+ {
+  "src": "../../../assets/theme-sampler/p16-e7.png",
+  "ok": true,
+  "w": 1920
+ },
+ {
+  "src": "new-h1.png",
+  "ok": true,
+  "w": 1920
+ }
+]
+screenshot ok

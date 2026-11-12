@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>A/B 对照 · 旧 sampler vs 4 套升级主题（同一内容）</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#12151b;color:#e6e9f0;font-family:"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif;padding:32px}
+h1{font-size:22px;font-weight:600;margin-bottom:6px}
+.sub{color:#8b93a3;font-size:13px;line-height:1.8;margin-bottom:26px}
+.row{margin-bottom:34px}
+.rh{display:flex;gap:20px;margin-bottom:10px;font-size:15px;letter-spacing:.04em}
+.rh span{width:calc(50% - 10px)}
+.rh .old{color:#9aa3b4}
+.rh .new{color:#7fd6a0}
+.rh b{font-weight:600;color:#dbe0ea}
+.pair{display:flex;gap:20px}
+.pair img{width:calc(50% - 10px);height:auto;border:1px solid #2a3040;border-radius:6px;display:block}
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;margin-left:8px;vertical-align:middle}
+.tag.o{background:#2a3040;color:#9aa3b4}
+.tag.n{background:#1d4733;color:#7fd6a0}
+.note{background:#1b202a;border-left:3px solid #4a90d9;padding:14px 18px;font-size:13px;line-height:1.9;color:#b9c2d2;margin-top:8px}
+</style>
+</head>
+<body>
+<h1>A/B 对照 · 旧 sampler（换皮） vs 升级主题（G10 构图重编译）</h1>
+<p class="sub">
+两侧内容<strong>完全相同</strong>：山禾集「1.1 · 整体特色及优势」—— 同一标题、两段正文、三个门店数据、经营理念/使命/愿景、同一脚注。<br>
+左 = README 当前展示体系 <code>assets/theme-sampler/</code>（skeleton v7.4，逐页换 token）；右 = 新版 sampler（skeleton v7.6 角色类 + G10 signature_operator 重编译）。<br>
+H1 为新增主题，旧 sampler 无对应页，故与 Gallery 中同属「东方/文化」向的 E7 浮世绘对照。
+</p>
+
+<div class="row">
+  <div class="rh"><span class="old">旧 · <b>B1 瑞士国际主义</b> <i class="tag o">p02-b1.png</i></span><span class="new">新 · <b>B1 瑞士国际主义</b> <i class="tag n">G10 12 栏网格</i></span></div>
+  <div class="pair"><img src="../../../assets/theme-sampler/p02-b1.png"><img src="new-b1.png"></div>
+</div>
+
+<div class="row">
+  <div class="rh"><span class="old">旧 · <b>C3 终端绿</b> <i class="tag o">p05-c3.png</i></span><span class="new">新 · <b>C3 终端绿</b> <i class="tag n">G10 stdout 时间流</i></span></div>
+  <div class="pair"><img src="../../../assets/theme-sampler/p05-c3.png"><img src="new-c3.png"></div>
+</div>
+
+<div class="row">
+  <div class="rh"><span class="old">旧 · <b>E5 构成主义</b> <i class="tag o">p14-e5.png</i></span><span class="new">新 · <b>E5 构成主义</b> <i class="tag n">G10 −12° 力带</i></span></div>
+  <div class="pair"><img src="../../../assets/theme-sampler/p14-e5.png"><img src="new-e5.png"></div>
+</div>
+
+<div class="row">
+  <div class="rh"><span class="old">Gallery 现役 · <b>E7 浮世绘</b> <i class="tag o">p16-e7.png</i></span><span class="new">新候选 · <b>H1 氤氲手卷</b> <i class="tag n">G10 竖排题跋</i></span></div>
+  <div class="pair"><img src="../../../assets/theme-sampler/p16-e7.png"><img src="new-h1.png"></div>
+</div>
+
+<div class="note">
+<strong>读图要点</strong>：旧版四页共享同一版式骨架（大标题 → 两段正文 → 横向等权三格 KPI → 三条列表），差异主要来自配色、字体与少量装饰；<br>
+新版按各自 G10 契约<strong>重排信息结构</strong>：B1 把三格 KPI 压成右侧纵向数据脊并只给一个数字一次 accent 面积事件；C3 编译成命令行 + 描边窗口 + key:value 输出行；E5 用 −12° 力带承载标题、文字沿力线阶梯对抗；H1 竖排主标题 + 自右向左题跋分列 + 汉数题跋 + 朱印。<br>
+字号一律由 <code>.t-*</code> 角色类决定（含 max() 下限），主题仅覆盖令牌；正文级不降透明度，避免灰化弱读。
+</div>
+</body>
+</html>
