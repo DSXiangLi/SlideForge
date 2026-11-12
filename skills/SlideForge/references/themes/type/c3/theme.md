@@ -95,6 +95,12 @@ info_grammar:
   claim:    主窗口 = `$ ` 前缀 + 重构标题 + 光标块 + 论点注释 + 说明
   data:     侧窗口 = `stat --brief` 三行 key:value，末行高亮
   analysis: 2–4 个同构窗口成阵（同 gap 同 padding）
+type_scale:            # 三级层级（480px 预览基准，单位 cqw）；任何文本不得低于 floor
+  floor:   1.5         # ≈7.2px，唯一硬下限（真实 deck ~2.7x 后 ≈19px）
+  display: 2.6         # 会话标题栏 / 高亮数字（等宽同族，靠明暗建层级）
+  heading: 2.2         # 窗口内条目标题
+  body:    1.8         # key:value / 说明 / 命令输出（opacity ≥ .85，禁灰化弱读）
+  rule: 标题:正文 ≈ 1.2–1.5:1；全栈等宽不靠字重差；禁层级倒挂与灰化弱读
 invariants:
   - 全栈等宽（display/body/mono 同族）
   - 窗口数 2–4，gap 与 padding 完全一致
