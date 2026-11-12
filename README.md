@@ -72,6 +72,18 @@ You never launch the editor by hand: over MCP, the agent **automatically pops up
 
 > Note: the editor itself is a single zero-dependency `editor.html` and also works standalone — open any generated deck directly, edit, and save back to the file. That is the fallback path, not the main flow.
 
+### Two more: view switching and version history
+
+The three clips above cover edit-in-place / lasso annotation / briefing / export QA. These two add the other core capabilities without duplicating them: the editor's main switch, and version protection after a save. Both are real Playwright recordings of the same deck (960 × 540 / 10 fps, with captions and button highlights):
+
+| <img src="assets/editor/editor-views-switch.gif" width="280"> | <img src="assets/editor/editor-version-history.gif" width="280"> |
+|---|---|
+| Three views: **Edit / Annotate / Delivery** share one HTML master; `#viewSeg` on top is the main switch | Version history: every save creates a git version; refresh the list, roll back any entry (an automatic `pre-rollback` is kept first) |
+
+> The remaining controls (style bar, intent buttons in the annotation list, artifact downloads, design-intent panel) are already shown in the three clips above and are not repeated here. Text-level guidance for the style bar and annotation intents lives in the generation skill's `SKILL.md`.
+>
+> Two boundaries worth knowing: the editor modifies the **HTML master**, not the `.pptx` binary, so a re-export is needed afterwards; "Submit annotation", "Send to AI" and "Export as PPTX" are **intent buttons that only enqueue** — an agent must claim them before anything runs — while "Copy … instruction" only writes to the clipboard and submits no intent.
+
 ## Theme Gallery: One Deck × 12 Themes
 
 Screenshots from `tests/decks/theme-sampler/` (demo content for "Shanhe Ji", a fictional tea brand; all data is fictional): the same business page rendered under different themes — themes differ systematically in layout, texture, and graphic language, not just color. The 12 most distinctive are shown here (including the two optical-axis F themes and three multi-hue G themes); all 28 live in `assets/theme-sampler/`.
@@ -85,6 +97,18 @@ Screenshots from `tests/decks/theme-sampler/` (demo content for "Shanhe Ji", a f
 | E10 · Star Chart · Midnight Blue-Gold | F1 · Floating Glass · Morning Mist | F2 · Neon Night · Neon Violet |
 | <img src="assets/theme-sampler/p25-g1.png" width="280"> | <img src="assets/theme-sampler/p26-g2.png" width="280"> | <img src="assets/theme-sampler/p28-g4.png" width="280"> |
 | G1 · Emerald Annual · Deep Velvet | G2 · Blush Highlighter | G4 · Indigo Ink · Yellow Pages |
+
+## Theme DNA: One Brief × 4 Themes × 2 Page Types
+
+From the theme-DNA pilot: the **exact same content object** (one brand, one claim, one 5-item TOC, one dataset) rendered by 4 themes that each carry a written G10 `composition_program` contract. Each theme owns *how information enters the space* — structure changes, not just skin: B1 presses the page into a visible 12-column grid; E5 rides the content on a −12° force band; C3 runs it through terminal windows with ASCII frames; H1 unrolls it as a handscroll with vertical titles and a cinnabar seal.
+
+| <img src="assets/theme-dna/b1-toc.png" width="280"> | <img src="assets/theme-dna/e5-toc.png" width="280"> | <img src="assets/theme-dna/c3-toc.png" width="280"> | <img src="assets/theme-dna/h1-toc.png" width="280"> |
+|---|---|---|---|
+| B1 · Swiss International · TOC | E5 · Constructivism · TOC | C3 · Terminal Green · TOC | H1 · Ink Scroll · TOC |
+| <img src="assets/theme-dna/b1-low.png" width="280"> | <img src="assets/theme-dna/e5-low.png" width="280"> | <img src="assets/theme-dna/c3-low.png" width="280"> | <img src="assets/theme-dna/h1-low.png" width="280"> |
+| B1 · Claim: giant left column + data spine | E5 · Claim: title carried by the force band | C3 · Claim: verdict printed in a terminal | H1 · Claim: vertical inscription + seal |
+
+> The pilot covers 6 page types (cover / TOC / low-density claim / high-density analysis / chart / closing) × 4 themes = 24 pages, all rendered from a single content object; each theme's G10 contract lives in its `theme.md`.
 
 ## Page Types in Action
 

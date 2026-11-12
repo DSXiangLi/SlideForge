@@ -72,6 +72,18 @@ HTML、PPTX、Image，这不是三个独立的形态，而是不同条件下可�
 
 > 备注：编辑器本身是单文件、零依赖的 `editor.html`，脱离 agent 也可独立使用——直接打开任意生成的 deck 即可编辑，保存即写回文件本身。这是降级路径，不是主流程。
 
+### 补齐两块：工作视图与版本保护
+
+上面三张录屏覆盖了「就地编辑 / 框选批注 / 需求脑暴 / 导出对比」。下面两张补齐另外两块同样核心、且不与上面重复的能力：编辑器的主开关，以及保存写回后的版本保护。均为同一份 deck 的 Playwright 真实录制（960 × 540 / 10 fps，带讲解字幕与按钮高亮）：
+
+| <img src="assets/editor/editor-views-switch.gif" width="280"> | <img src="assets/editor/editor-version-history.gif" width="280"> |
+|---|---|
+| 三视图切换：**编辑 / 批注 / 交付** 共用同一份 HTML 母版，顶部 `#viewSeg` 是主开关 | 版本历史：每次保存生成一个 git 版本，可刷新列表、逐条回滚（回滚前自动留 `pre-rollback`） |
+
+> 其余操作（样式栏、批注清单里的意图按钮、交付物下载、设计意图面板）已由上面三张录屏体现，此处不重复收录。样式栏与批注意图机制的文字说明见生成技能 `SKILL.md` 的「核心 editorial 功能告知清单」。
+>
+> 两条容易踩的边界：编辑器改的是 **HTML 母版**而非 `.pptx` 二进制，改完需重新导出；「提交批注」「发送给 AI」「导出为 PPTX」是**只入队的意图按钮**，需 agent 认领后才会执行，而「复制…指令」只写剪贴板、不提交意图。
+
 ## 主题样张：同一份内容 × 12 套主题
 
 以下截图来自 `tests/decks/theme-sampler/`（演示主体为虚构茶饮品牌「山禾集」，数据均为虚构）：同一份业务内容在不同主题下的真实渲染——主题之间是排版、材质与图形语言的系统差异，不只是换配色。此处精选区分度最高的 12 套（含 F 系光学两主题与 G 系色彩结构三主题），完整 28 套见 `assets/theme-sampler/`。
@@ -85,6 +97,18 @@ HTML、PPTX、Image，这不是三个独立的形态，而是不同条件下可�
 | E10 · 星图 · 深夜蓝金 | F1 · 浮光玻璃 · 晨雾蓝 | F2 · 霓虹夜行 · 霓紫 |
 | <img src="assets/theme-sampler/p25-g1.png" width="280"> | <img src="assets/theme-sampler/p26-g2.png" width="280"> | <img src="assets/theme-sampler/p28-g4.png" width="280"> |
 | G1 · 翡翠年鉴 · 深翡翠 | G2 · 腮红荧光笔 | G4 · 靛墨黄页 · 黄页 |
+
+## 主题 DNA：同一份内容 × 4 套主题 × 2 种页面
+
+来自主题 DNA 试点：**完全相同的内容对象**（同一品牌、同一主张、同一份 5 项目录、同一组数据）交给 4 套写入了 G10 `composition_program` 构图契约的主题渲染。每套主题对「信息如何进入空间」有不同主权——变的是结构，不只是皮肤：B1 把整页压进可见的 12 栏网格；E5 让内容骑上 −12° 对角力带；C3 把一切装进终端窗口与 ASCII 框；H1 以手卷方式竖排展开、钤印收束。
+
+| <img src="assets/theme-dna/b1-toc.png" width="280"> | <img src="assets/theme-dna/e5-toc.png" width="280"> | <img src="assets/theme-dna/c3-toc.png" width="280"> | <img src="assets/theme-dna/h1-toc.png" width="280"> |
+|---|---|---|---|
+| B1 · 瑞士国际主义 · 目录 | E5 · 构成主义 · 目录 | C3 · 终端绿 · 目录 | H1 · 氤氲手卷 · 目录 |
+| <img src="assets/theme-dna/b1-low.png" width="280"> | <img src="assets/theme-dna/e5-low.png" width="280"> | <img src="assets/theme-dna/c3-low.png" width="280"> | <img src="assets/theme-dna/h1-low.png" width="280"> |
+| B1 · 主张页：左栏巨字 + 数据脊 | E5 · 主张页：力带承载标题 | C3 · 主张页：终端窗口输出论断 | H1 · 主张页：竖排题字 + 朱砂印 |
+
+> 试点覆盖 6 种页面类型（封面 / 目录 / 低密度主张 / 高密度分析 / 图表 / 收尾）× 4 主题 = 24 页，全部由同一份内容对象渲染；每套主题的 G10 契约见其 `theme.md`。
 
 ## 页面类型实拍
 
