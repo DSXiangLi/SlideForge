@@ -1,0 +1,13 @@
+Collecting playwright
+  Downloading playwright-1.65.0-py3-none-win_amd64.whl.metadata (3.3 kB)
+Collecting greenlet<4.0.0,>=3.1.1 (from playwright)
+  Using cached greenlet-3.5.6-cp313-cp313-win_amd64.whl.metadata (3.9 kB)
+Downloading playwright-1.65.0-py3-none-win_amd64.whl (42.7 MB)
+   ---------------------------------------- 42.7/42.7 MB 553.2 kB/s  0:01:43
+Using cached greenlet-3.5.6-cp313-cp313-win_amd64.whl (324 kB)
+Installing collected packages: greenlet, playwright
+
+Successfully installed greenlet-3.5.6 playwright-1.65.0
+
+[notice] A new release of pip is available: 26.1.2 -> 26.3
+[notice] To update, run: python.exe -m pip install --upgrade pip

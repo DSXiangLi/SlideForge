@@ -1,0 +1,293 @@
+PER_IMAGE_KEYS [
+  'file',
+  'polarity',
+  'cx',
+  'cy',
+  'dark_ratio',
+  'edge_dominant',
+  'edge_anisotropy',
+  'sim_to_mean'
+]
+TOP_PAIRS [[0.9244,"p24-f3.png","p26-g2.png"],[0.903,"p08-d2.png","p12-e3.png"],[0.8506,"p05-c3.png","p15-e6.png"],[0.8328,"p01-a1.png","p02-b1.png"],[0.8218,"p11-e2.png","p16-e7.png"],[0.8107,"p21-e12.png","p26-g2.png"],[0.8077,"p02-b1.png","p11-e2.png"],[0.7923,"p28-g4.png","p29-g5.png"]]
+[
+ {
+  "file": "p01-a1.png",
+  "polarity": "light",
+  "cx": 0.3281,
+  "cy": 0.4288,
+  "dark_ratio": 0.0145,
+  "edge_dominant": "horizontal",
+  "edge_anisotropy": 0.462,
+  "sim_to_mean": 0.798
+ },
+ {
+  "file": "p02-b1.png",
+  "polarity": "light",
+  "cx": 0.319,
+  "cy": 0.4227,
+  "dark_ratio": 0.0113,
+  "edge_dominant": "horizontal",
+  "edge_anisotropy": 0.4655,
+  "sim_to_mean": 0.8376
+ },
+ {
+  "file": "p03-c1.png",
+  "polarity": "dark",
+  "cx": 0.3479,
+  "cy": 0.4547,
+  "dark_ratio": 0.0206,
+  "edge_dominant": "horizontal",
+  "edge_anisotropy": 0.4425,
+  "sim_to_mean": 0.6545
+ },
+ {
+  "file": "p04-c2.png",
+  "polarity": "dark",
+  "cx": 0.3903,
+  "cy": 0.428,
+  "dark_ratio": 0.0065,
+  "edge_dominant": "horizontal",
+  "edge_anisotropy": 0.509,
+  "sim_to_mean": 0.6985
+ },
+ {
+  "file": "p05-c3.png",
+  "polarity": "dark",
+  "cx": 0.3541,
+  "cy": 0.4459,
+  "dark_ratio": 0.0074,
+  "edge_dominant": "horizontal",
+  "edge_anisotropy": 0.5455,
+  "sim_to_mean": 0.7909
+ },
+ {
+  "file": "p06-c4.png",
+  "polarity": "light",
+  "cx": 0.4977,
+  "cy": 0.4141,
+  "dark_ratio": 0.0111,
+  "edge_dominant": "horizontal",
+  "edge_anisotropy": 0.4813,
+  "sim_to_mean": 0.4632
+ },
+ {
+  "file": "p07-d1.png",
+  "polarity": "light",
+  "cx": 0.4801,
+  "cy": 0.4481,
+  "dark_ratio": 0.0082,
+  "edge_dominant": "horizontal",
+  "edge_anisotropy": 0.4965,
+  "sim_to_mean": 0.4803
+ },
+ {
+  "file": "p08-d2.png",
+  "polarity": "dark",
+  "cx": 0.4952,
+  "cy": 0.3924,
+  "dark_ratio": 0.0088,
+  "edge_dominant": "horizontal",
+  "edge_anisotropy": 0.4676,
+  "sim_to_mean": 0.4625
+ },
+ {
+  "file": "p09-d3.png",
+  "polarity": "light",
+  "cx": 0.4718,
+  "cy": 0.4715,
+  "dark_ratio": 0.0043,
+  "edge_dominant": "horizontal",
+  "edge_anisotropy": 0.5007,
+  "sim_to_mean": 0.3846
+ },
+ {
+  "file": "p10-e1.png",
+  "polarity": "light",
+  "cx": 0.3943,
+  "cy": 0.5819,
+  "dark_ratio": 0.0324,
+  "edge_dominant": "horizontal",
+  "edge_anisotropy": 0.5749,
+  "sim_to_mean": 0.3155
+ },
+ {
+  "file": "p11-e2.png",
+  "polarity": "dark",
+  "cx": 0.374,
+  "cy": 0.4463,
+  "dark_ratio": 0.0131,
+  "edge_dominant": "horizontal",
+  "edge_anisotropy": 0.482,
+  "sim_to_mean": 0.7907
+ },
+ {
+  "file": "p12-e3.png",
+  "polarity": "dark",
+  "cx": 0.5046,
+  "cy": 0.4085,
+  "dark_ratio": 0.011,
+  "edge_dominant": "horizontal",
+  "edge_anisotropy": 0.4482,
+  "sim_to_mean": 0.3973
+ },
+ {
+  "file": "p13-e4.png",
+  "polarity": "light",
+  "cx": 0.7249,
+  "cy": 0.4356,
+  "dark_ratio": 0.0497,
+  "edge_dominant": "horizontal",
+  "edge_anisotropy": 0.5362,
+  "sim_to_mean": 0.0111
+ },
+ {
+  "file": "p14-e5.png",
+  "polarity": "light",
+  "cx": 0.5234,
+  "cy": 0.2527,
+  "dark_ratio": 0.161,
+  "edge_dominant": "horizontal",
+  "edge_anisotropy": 0.6166,
+  "sim_to_mean": 0.3252
+ },
+ {
+  "file": "p15-e6.png",
+  "polarity": "light",
+  "cx": 0.3844,
+  "cy": 0.4674,
+  "dark_ratio": 0.015,
+  "edge_dominant": "horizontal",
+  "edge_anisotropy": 0.6089,
+  "sim_to_mean": 0.7988
+ },
+ {
+  "file": "p16-e7.png",
+  "polarity": "light",
+  "cx": 0.368,
+  "cy": 0.4516,
+  "dark_ratio": 0.0114,
+  "edge_dominant": "horizontal",
+  "edge_anisotropy": 0.4853,
+  "sim_to_mean": 0.754
+ },
+ {
+  "file": "p17-e8.png",
+  "polarity": "light",
+  "cx": 0.3921,
+  "cy": 0.4517,
+  "dark_ratio": 0.0192,
+  "edge_dominant": "horizontal",
+  "edge_anisotropy": 0.5587,
+  "sim_to_mean": 0.4512
+ },
+ {
+  "file": "p18-e9.png",
+  "polarity": "light",
+  "cx": 0.3983,
+  "cy": 0.5749,
+  "dark_ratio": 0.0096,
+  "edge_dominant": "horizontal",
+  "edge_anisotropy": 0.6078,
+  "sim_to_mean": 0.2313
+ },
+ {
+  "file": "p19-e10.png",
+  "polarity": "dark",
+  "cx": 0.3213,
+  "cy": 0.4199,
+  "dark_ratio": 0.0063,
+  "edge_dominant": "horizontal",
+  "edge_anisotropy": 0.5042,
+  "sim_to_mean": 0.778
+ },
+ {
+  "file": "p20-e11.png",
+  "polarity": "light",
+  "cx": 0.4521,
+  "cy": 0.4026,
+  "dark_ratio": 0.0507,
+  "edge_dominant": "horizontal",
+  "edge_anisotropy": 0.6071,
+  "sim_to_mean": 0.3957
+ },
+ {
+  "file": "p21-e12.png",
+  "polarity": "light",
+  "cx": 0.3653,
+  "cy": 0.4548,
+  "dark_ratio": 0.0157,
+  "edge_dominant": "horizontal",
+  "edge_anisotropy": 0.6015,
+  "sim_to_mean": 0.8046
+ },
+ {
+  "file": "p22-f1.png",
+  "polarity": "light",
+  "cx": 0.4952,
+  "cy": 0.4402,
+  "dark_ratio": 0.0056,
+  "edge_dominant": "horizontal",
+  "edge_anisotropy": 0.5199,
+  "sim_to_mean": 0.542
+ },
+ {
+  "file": "p23-f2.png",
+  "polarity": "dark",
+  "cx": 0.3643,
+  "cy": 0.4794,
+  "dark_ratio": 0.0014,
+  "edge_dominant": "horizontal",
+  "edge_anisotropy": 0.5835,
+  "sim_to_mean": 0.6209
+ },
+ {
+  "file": "p24-f3.png",
+  "polarity": "dark",
+  "cx": 0.3808,
+  "cy": 0.474,
+  "dark_ratio": 0.0049,
+  "edge_dominant": "horizontal",
+  "edge_anisotropy": 0.5198,
+  "sim_to_mean": 0.8251
+ },
+ {
+  "file": "p25-g1.png",
+  "polarity": "dark",
+  "cx": 0.4537,
+  "cy": 0.5175,
+  "dark_ratio": 0.2823,
+  "edge_dominant": "horizontal",
+  "edge_anisotropy": 0.6403,
+  "sim_to_mean": 0.5033
+ },
+ {
+  "file": "p26-g2.png",
+  "polarity": "light",
+  "cx": 0.3724,
+  "cy": 0.4524,
+  "dark_ratio": 0.0098,
+  "edge_dominant": "horizontal",
+  "edge_anisotropy": 0.5095,
+  "sim_to_mean": 0.8706
+ },
+ {
+  "file": "p28-g4.png",
+  "polarity": "light",
+  "cx": 0.3842,
+  "cy": 0.5498,
+  "dark_ratio": 0.0545,
+  "edge_dominant": "horizontal",
+  "edge_anisotropy": 0.5825,
+  "sim_to_mean": 0.5107
+ },
+ {
+  "file": "p29-g5.png",
+  "polarity": "light",
+  "cx": 0.2963,
+  "cy": 0.5726,
+  "dark_ratio": 0.0495,
+  "edge_dominant": "horizontal",
+  "edge_anisotropy": 0.5935,
+  "sim_to_mean": 0.4324
+ }
+]

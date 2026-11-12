@@ -1,0 +1,28 @@
+p26-g2.png | 0.476 | 0.924 | p24-f3.png | 2 | 0.8706 | horizontal | p24-f3:0.92 / p21-e12:0.81
+p02-b1.png | 0.457 | 0.833 | p01-a1.png | 2 | 0.8376 | horizontal | p01-a1:0.83 / p11-e2:0.81
+p24-f3.png | 0.45 | 0.924 | p26-g2.png | 1 | 0.8251 | horizontal | p26-g2:0.92
+p21-e12.png | 0.438 | 0.811 | p26-g2.png | 1 | 0.8046 | horizontal | p26-g2:0.81
+p01-a1.png | 0.434 | 0.833 | p02-b1.png | 1 | 0.798 | horizontal | p02-b1:0.83
+p15-e6.png | 0.434 | 0.851 | p05-c3.png | 1 | 0.7988 | horizontal | p05-c3:0.85
+p05-c3.png | 0.429 | 0.851 | p15-e6.png | 1 | 0.7909 | horizontal | p15-e6:0.85
+p11-e2.png | 0.429 | 0.822 | p16-e7.png | 2 | 0.7907 | horizontal | p16-e7:0.82 / p02-b1:0.81
+p19-e10.png | 0.422 | 0.73 | p05-c3.png | 0 | 0.778 | horizontal | 
+p16-e7.png | 0.408 | 0.822 | p11-e2.png | 1 | 0.754 | horizontal | p11-e2:0.82
+p04-c2.png | 0.375 | 0.603 | p05-c3.png | 0 | 0.6985 | horizontal | 
+p03-c1.png | 0.349 | 0.73 | p01-a1.png | 0 | 0.6545 | horizontal | 
+p23-f2.png | 0.329 | 0.727 | p26-g2.png | 0 | 0.6209 | horizontal | 
+p22-f1.png | 0.283 | 0.598 | p26-g2.png | 0 | 0.542 | horizontal | 
+p28-g4.png | 0.264 | 0.792 | p29-g5.png | 0 | 0.5107 | horizontal | 
+p25-g1.png | 0.26 | 0.65 | p24-f3.png | 0 | 0.5033 | horizontal | 
+p07-d1.png | 0.246 | 0.668 | p06-c4.png | 0 | 0.4803 | horizontal | 
+p06-c4.png | 0.236 | 0.791 | p08-d2.png | 0 | 0.4632 | horizontal | 
+p08-d2.png | 0.236 | 0.903 | p12-e3.png | 1 | 0.4625 | horizontal | p12-e3:0.90
+p17-e8.png | 0.229 | 0.585 | p09-d3.png | 0 | 0.4512 | horizontal | 
+p29-g5.png | 0.218 | 0.792 | p28-g4.png | 0 | 0.4324 | horizontal | 
+p12-e3.png | 0.197 | 0.903 | p08-d2.png | 1 | 0.3973 | horizontal | p08-d2:0.90
+p20-e11.png | 0.196 | 0.365 | p21-e12.png | 0 | 0.3957 | horizontal | 
+p09-d3.png | 0.19 | 0.585 | p17-e8.png | 0 | 0.3846 | horizontal | 
+p14-e5.png | 0.155 | 0.359 | p20-e11.png | 0 | 0.3252 | horizontal | 
+p10-e1.png | 0.149 | 0.412 | p05-c3.png | 0 | 0.3155 | horizontal | 
+p18-e9.png | 0.1 | 0.323 | p20-e11.png | 0 | 0.2313 | horizontal | 
+p13-e4.png | -0.03 | 0.219 | p14-e5.png | 0 | 0.0111 | horizontal | 

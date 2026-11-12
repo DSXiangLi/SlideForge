@@ -1,0 +1,51 @@
+=== PER-PAGE STATS ===
+B1 cover   pol=light dark=0.055 cx=0.639 cy=0.619 edom=horizontal es_aniso=0.518
+B1 toc     pol=light dark=0.006 cx=0.443 cy=0.563 edom=vertical  es_aniso=0.459
+B1 low     pol=light dark=0.024 cx=0.447 cy=0.330 edom=horizontal es_aniso=0.489
+B1 high    pol=light dark=0.127 cx=0.492 cy=0.424 edom=horizontal es_aniso=0.475
+B1 chart   pol=light dark=0.057 cx=0.626 cy=0.619 edom=vertical  es_aniso=0.452
+B1 closing pol=dark  dark=0.026 cx=0.298 cy=0.434 edom=horizontal es_aniso=0.604
+E5 cover   pol=dark  dark=0.050 cx=0.546 cy=0.517 edom=horizontal es_aniso=0.644
+E5 toc     pol=light dark=0.199 cx=0.436 cy=0.652 edom=horizontal es_aniso=0.739
+E5 low     pol=light dark=0.218 cx=0.486 cy=0.487 edom=horizontal es_aniso=0.771
+E5 high    pol=light dark=0.338 cx=0.405 cy=0.453 edom=horizontal es_aniso=0.742
+E5 chart   pol=light dark=0.248 cx=0.463 cy=0.485 edom=horizontal es_aniso=0.614
+E5 closing pol=light dark=0.091 cx=0.507 cy=0.383 edom=horizontal es_aniso=0.567
+C3 cover   pol=dark  dark=0.012 cx=0.417 cy=0.394 edom=horizontal es_aniso=0.711
+C3 toc     pol=dark  dark=0.000 cx=0.466 cy=0.431 edom=horizontal es_aniso=0.587
+C3 low     pol=dark  dark=0.005 cx=0.448 cy=0.406 edom=horizontal es_aniso=0.477
+C3 high    pol=dark  dark=0.000 cx=0.494 cy=0.417 edom=horizontal es_aniso=0.441
+C3 chart   pol=dark  dark=0.101 cx=0.545 cy=0.595 edom=horizontal es_aniso=0.485
+C3 closing pol=dark  dark=0.007 cx=0.416 cy=0.410 edom=horizontal es_aniso=0.625
+H1 cover   pol=light dark=0.020 cx=0.587 cy=0.511 edom=horizontal es_aniso=0.475
+H1 toc     pol=light dark=0.004 cx=0.498 cy=0.484 edom=horizontal es_aniso=0.553
+H1 low     pol=light dark=0.014 cx=0.566 cy=0.521 edom=horizontal es_aniso=0.460
+H1 high    pol=light dark=0.006 cx=0.484 cy=0.473 edom=horizontal es_aniso=0.500
+H1 chart   pol=light dark=0.047 cx=0.651 cy=0.501 edom=horizontal es_aniso=0.482
+H1 closing pol=light dark=0.015 cx=0.561 cy=0.520 edom=horizontal es_aniso=0.463
+
+=== TOP 12 CROSS-THEME PAIRS (skeleton corr) ===
+  0.775  b1/toc  <->  h1/toc
+  0.732  b1/chart  <->  c3/chart
+  0.731  b1/toc  <->  h1/high
+  0.726  b1/low  <->  h1/high
+  0.723  b1/closing  <->  e5/high
+  0.690  b1/low  <->  h1/toc
+  0.687  b1/low  <->  c3/toc
+  0.658  b1/toc  <->  h1/low
+  0.657  c3/toc  <->  h1/high
+  0.625  c3/toc  <->  h1/toc
+  0.620  b1/low  <->  c3/low
+  0.616  b1/low  <->  c3/cover
+
+=== TOP 8 WITHIN-THEME PAIRS (skeleton corr) ===
+  B1: 0.49(toc-low)  0.42(cover-toc)  0.32(high-closing)  0.17(cover-low)
+  E5: 0.94(low-chart)  0.76(high-chart)  0.65(low-high)  0.42(high-closing)
+  C3: 0.88(low-closing)  0.83(cover-closing)  0.71(toc-low)  0.70(cover-low)
+  H1: 0.97(low-closing)  0.97(toc-high)  0.90(cover-low)  0.88(cover-closing)
+
+=== BOTTOM 4 WITHIN-THEME PAIRS (most different) ===
+  B1: -0.30(chart-closing)  -0.21(low-chart)  -0.20(toc-high)
+  E5: -0.23(toc-high)  -0.23(toc-closing)  -0.18(cover-toc)
+  C3: -0.48(toc-chart)  -0.47(chart-closing)  -0.45(cover-chart)
+  H1: 0.35(high-chart)  0.40(toc-chart)  0.64(chart-closing)

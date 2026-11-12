@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>审美巅峰诊断 · B1 瑞士国际主义 · SlideForge</title>
+<style>
+:root{
+  --paper:#FAFAF8; --paper-tint:#F0F0EE; --ink:#0A0A0A; --accent:#002FA7;
+  --page:#EDECE7; --hair:rgba(10,10,10,.16); --soft:rgba(10,10,10,.48);
+  --sans:"Helvetica Neue",Helvetica,Arial,"PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
+  --mono:"SF Mono","JetBrains Mono",Consolas,"Liberation Mono",monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--page);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+::selection{background:var(--accent);color:#fff}
+
+/* ---------- page frame ---------- */
+.wrap{max-width:1440px;margin:0 auto;padding:0 clamp(24px,5vw,88px) 140px}
+.mono{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase}
+.rule{height:1px;background:var(--hair);border:0;margin:0}
+
+/* ---------- masthead ---------- */
+.mast{position:relative;padding:56px 0 0}
+.mast-top{display:flex;justify-content:space-between;align-items:baseline;gap:24px;padding-bottom:18px;border-bottom:1px solid var(--ink)}
+.mast-tag{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.16em}
+.mast-tag b{color:var(--accent)}
+.mast-hero{position:relative;padding:64px 0 56px}
+.mast-hero h1{margin:0;font-size:clamp(62px,10.2vw,150px);line-height:.92;font-weight:600;letter-spacing:-.055em}
+.mast-hero h1 .thin{font-weight:200;letter-spacing:-.04em}
+.mast-hero h1 .blue{color:var(--accent)}
+.mast-sq{position:absolute;right:0;top:64px;width:clamp(70px,10vw,148px);aspect-ratio:1;background:var(--accent)}
+.mast-sq span{position:absolute;left:12px;bottom:10px;color:#fff;font-family:var(--mono);font-size:11px;letter-spacing:.12em}
+.mast-lede{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,6vw,96px);padding:0 0 44px}
+.mast-lede p{margin:0;font-size:17px;line-height:1.85;max-width:52ch}
+.mast-lede .k{color:var(--soft)}
+.mast-lede strong{font-weight:700;border-bottom:2px solid var(--accent)}
+.meta-grid{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--ink);border-bottom:1px solid var(--hair)}
+.meta-grid div{padding:18px 16px 22px 0;border-right:1px solid var(--hair)}
+.meta-grid div:last-child{border-right:0}
+.meta-grid dt{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--soft);margin:0 0 10px}
+.meta-grid dd{margin:0;font-size:15px;font-weight:600;line-height:1.5}
+
+/* ---------- sections ---------- */
+section{padding-top:110px}
+.sec-head{display:grid;grid-template-columns:100px 1fr;gap:24px;align-items:start;border-top:1px solid var(--ink);padding-top:20px;margin-bottom:56px}
+.sec-no{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--accent)}
+.sec-head h2{margin:0;font-size:clamp(30px,3.6vw,50px);line-height:1.15;font-weight:600;letter-spacing:-.035em}
+.sec-head .sub{margin:16px 0 0;font-size:16px;line-height:1.8;color:var(--soft);max-width:76ch}
+.body-p{font-size:17px;line-height:1.9;max-width:78ch;margin:0 0 24px}
+.body-p em{font-style:normal;font-weight:700}
+
+/* ---------- definition / axes ---------- */
+.def-statement{border-left:6px solid var(--accent);padding:6px 0 6px 28px;margin:0 0 52px;font-size:clamp(22px,2.5vw,34px);line-height:1.55;font-weight:600;letter-spacing:-.02em;max-width:36ch}
+.axes{border-top:1px solid var(--ink)}
+.axis{display:grid;grid-template-columns:190px minmax(0,1fr) 300px;gap:28px;align-items:center;padding:22px 0;border-bottom:1px solid var(--hair)}
+.axis-n{font-family:var(--mono);font-size:10px;color:var(--soft);letter-spacing:.1em;margin-bottom:6px}
+.axis-name{font-size:19px;font-weight:700;letter-spacing:-.01em}
+.axis-desc{font-size:14px;line-height:1.75;color:var(--soft)}
+.bars{display:flex;flex-direction:column;gap:9px}
+.barrow{display:grid;grid-template-columns:52px 1fr 26px;gap:10px;align-items:center}
+.barrow span{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--soft)}
+.barrow .track{height:9px;background:rgba(10,10,10,.09);position:relative}
+.barrow .fill{position:absolute;left:0;top:0;bottom:0}
+.barrow .now{background:var(--ink)}
+.barrow .peak{background:var(--accent)}
+.barrow b{font-family:var(--mono);font-size:11px;text-align:right}
+.axis.win{background:rgba(0,47,167,.045)}
+.note{margin-top:28px;padding:20px 24px;background:var(--paper);border:1px solid var(--hair);font-size:15px;line-height:1.8}
+.note .tag{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--accent);font-weight:700;display:block;margin-bottom:8px}
+
+/* ---------- stack diagram ---------- */
+.stack{display:grid;grid-template-columns:repeat(2,1fr);gap:2px;background:var(--hair);border:1px solid var(--hair)}
+.stack .cell{background:var(--paper);padding:28px 30px;min-height:150px}
+.stack .cell h4{margin:0 0 12px;font-size:18px;font-weight:700}
+.stack .cell p{margin:0;font-size:14px;line-height:1.8;color:var(--soft)}
+.stack .cell .idx{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--soft);display:block;margin-bottom:14px}
+.stack .cell.have{border-left:4px solid var(--ink)}
+.stack .cell.miss{border-left:4px solid var(--accent);background:rgba(0,47,167,.035)}
+.gate-list{margin:36px 0 0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.gate-list li{border-top:1px solid var(--ink);padding-top:16px;font-size:14px;line-height:1.75}
+.gate-list b{display:block;font-size:17px;margin-bottom:6px}
+.gate-list .no{font-family:var(--mono);font-size:10px;color:var(--accent);letter-spacing:.12em}
+
+/* ---------- compare ---------- */
+.why{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;margin-bottom:56px}
+.why div{border-top:1px solid var(--ink);padding-top:18px}
+.why .n{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.14em;font-weight:700}
+.why h4{margin:12px 0 8px;font-size:19px;font-weight:700}
+.why p{margin:0;font-size:14px;line-height:1.8;color:var(--soft)}
+
+.cmp-shell{background:var(--paper);border:1px solid var(--hair);padding:20px}
+.cmp-top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.cmp-top .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.12em;font-weight:700}
+.cmp-top .lbl .b{color:var(--accent)}
+.presets{display:flex;gap:6px}
+.presets button{font-family:var(--mono);font-size:11px;letter-spacing:.08em;padding:8px 14px;border:1px solid var(--hair);background:transparent;color:var(--ink);cursor:pointer}
+.presets button:hover{border-color:var(--accent);color:var(--accent)}
+.stage{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;background:var(--paper);--pos:50%}
+.stage .slide{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto}
+.layer-after{z-index:1}
+.layer-before{z-index:2;clip-path:inset(0 calc(100% - var(--pos)) 0 0)}
+.divider{position:absolute;z-index:4;left:var(--pos);top:0;bottom:0;width:2px;background:var(--accent);pointer-events:none;transform:translateX(-1px)}
+.divider::after{content:"";position:absolute;left:50%;top:50%;width:26px;height:26px;background:var(--accent);border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 0 5px var(--paper)}
+.stamp{position:absolute;z-index:5;font-family:var(--mono);font-size:10px;letter-spacing:.12em;font-weight:700;padding:7px 10px;pointer-events:none}
+.stamp.l{left:14px;top:14px;background:var(--ink);color:#fff}
+.stamp.r{right:14px;top:14px;background:var(--accent);color:#fff}
+.cmp-range{width:100%;margin:20px 0 6px;accent-color:var(--accent);cursor:ew-resize}
+.cmp-hint{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--soft)}
+
+/* ---------- SLIDE RENDERER (100cqw = slide width) ---------- */
+.slide{container-type:inline-size;background:var(--paper);color:var(--ink);overflow:hidden;font-family:var(--sans)}
+.slide .el{position:absolute}
+.slide .hairline{height:1px;background:var(--hair)}
+.slide .gridline{position:absolute;top:0;bottom:0;width:1px;background:rgba(10,10,10,.055)}
+.cross{position:absolute;width:1.5cqw;height:1.5cqw;opacity:.5}
+.cross::before,.cross::after{content:"";position:absolute;background:var(--ink)}
+.cross::before{left:50%;top:0;bottom:0;width:1px}
+.cross::after{top:50%;left:0;right:0;height:1px}
+
+/* === BEFORE : faithful reconstruction of assets/theme-sampler/p02-b1.png === */
+.before .bx{left:6.6cqw;top:8.8cqw;width:2.7cqw;height:2.7cqw;background:var(--accent);color:#fff;font-family:var(--mono);font-size:1cqw;font-weight:700;display:flex;align-items:center;justify-content:center}
+.before .kicker{left:10.2cqw;top:9.3cqw;font-size:1.15cqw;font-weight:600;letter-spacing:.04em;color:#333}
+.before h1{left:6.6cqw;top:11.8cqw;margin:0;font-size:5.6cqw;line-height:1.25;font-weight:400;letter-spacing:0}
+.before .para{left:6.6cqw;top:18.9cqw;width:87cqw;font-size:1.22cqw;line-height:1.7;color:#3a3a3a}
+.before .para p{margin:0 0 .6cqw}
+.before .stats{left:6.6cqw;top:30.6cqw;width:87cqw;display:grid;grid-template-columns:repeat(3,1fr)}
+.before .stats .cell{border-right:1px solid rgba(10,10,10,.18);padding:0 0 0 1.4cqw}
+.before .stats .cell:first-child{padding-left:0}
+.before .stats .cell:last-child{border-right:0}
+.before .stats .num{font-size:3.7cqw;font-weight:300;line-height:1.2}
+.before .stats .cap{font-size:1.05cqw;color:#666;margin-top:.5cqw}
+.before .tag{left:6.6cqw;top:37.4cqw;font-size:1.05cqw;color:#8a8a8a}
+.before .sep{left:6.6cqw;top:38.9cqw;width:87cqw}
+.before .bullets{left:6.6cqw;top:39.9cqw;width:87cqw}
+.before .bullets div{font-size:1.25cqw;font-weight:500;padding:.55cqw 0;border-bottom:1px solid rgba(10,10,10,.12)}
+.before .fn{left:6.6cqw;top:48.9cqw;font-size:.98cqw;color:#a0a0a0}
+.before .foot{left:6.6cqw;top:53.6cqw;width:87cqw;display:flex;justify-content:space-between;font-size:.95cqw;color:#777}
+.before .footbar{left:6.6cqw;top:52.9cqw;width:87cqw}
+
+/* === AFTER : the direction === */
+.after .mono-l{font-family:var(--mono);font-size:1.05cqw;font-weight:600;letter-spacing:.13em}
+.after .kicker{left:4.6cqw;top:4.6cqw;display:flex;align-items:center;gap:1.2cqw}
+.after .kicker .sq{width:2.6cqw;height:2.6cqw;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:1.05cqw;font-weight:700}
+.after .top-right{right:4.6cqw;top:5.2cqw;text-align:right;color:#666}
+.after .blue-field{right:0;top:0;width:22cqw;height:19.5cqw;background:var(--accent)}
+.after .blue-field .bf-lbl{position:absolute;left:2cqw;bottom:1.8cqw;color:#fff;font-family:var(--mono);font-size:1cqw;letter-spacing:.16em}
+.after .blue-field .bf-cross{position:absolute;right:2cqw;top:2cqw;width:1.6cqw;height:1.6cqw;opacity:.85}
+.after .blue-field .bf-cross::before,.after .blue-field .bf-cross::after{content:"";position:absolute;background:#fff}
+.after .blue-field .bf-cross::before{left:50%;top:0;bottom:0;width:1px}
+.after .blue-field .bf-cross::after{top:50%;left:0;right:0;height:1px}
+.after h1{left:4.3cqw;top:8.6cqw;margin:0;font-size:12.4cqw;line-height:.98;font-weight:200;letter-spacing:-.01em}
+.after h1 span{display:block}
+.after h1 .l2{margin-left:0}
+.after .void{left:4.6cqw;top:34.2cqw;width:21.5cqw;height:1px;background:var(--ink)}
+.after .paras{left:4.6cqw;top:36.6cqw;width:66cqw;display:grid;grid-template-columns:1fr 1fr;gap:3.4cqw}
+.after .paras p{margin:0;font-size:1.16cqw;line-height:1.72;color:#2e2e2e}
+.after .paras .eyebrow{font-family:var(--mono);font-size:.92cqw;letter-spacing:.13em;color:#8a8a8a;margin-bottom:1cqw;display:block}
+.after .spine{right:4.6cqw;top:23.5cqw;width:20.5cqw}
+.after .spine .item{border-top:1px solid var(--ink);padding:1.3cqw 0 1.15cqw;display:flex;justify-content:space-between;align-items:baseline}
+.after .spine .num{font-size:3.35cqw;font-weight:300;line-height:1;letter-spacing:-.02em}
+.after .spine .num.hero{color:var(--accent);font-weight:400}
+.after .spine .idx{font-family:var(--mono);font-size:.95cqw;color:#8a8a8a}
+.after .spine .cap{font-size:1cqw;color:#666;margin-top:.55cqw;line-height:1.4}
+.after .spine .item:last-child{border-bottom:1px solid var(--ink)}
+.after .bullets{left:4.6cqw;top:47.4cqw;width:66cqw;display:grid;grid-template-columns:repeat(3,1fr);gap:2.4cqw}
+.after .bullets div{border-top:1px solid var(--ink);padding-top:.9cqw;font-size:1.05cqw;line-height:1.5;font-weight:600}
+.after .bullets i{font-style:normal;font-family:var(--mono);font-size:.85cqw;color:#8a8a8a;display:block;margin-bottom:.45cqw;letter-spacing:.1em}
+.after .fn{left:4.6cqw;top:52.1cqw;font-family:var(--mono);font-size:.85cqw;color:#a0a0a0;letter-spacing:.02em}
+.after .foot{left:4.6cqw;top:53.6cqw;width:90.8cqw;display:flex;justify-content:space-between;font-family:var(--mono);font-size:.9cqw;letter-spacing:.09em;color:#666;border-top:1px solid var(--hair);padding-top:.9cqw}
+.after .reg{left:1.5cqw;top:2cqw;width:1.4cqw;height:1.4cqw}
+
+/* === CEILING : IKB full-bleed cover === */
+.ceiling{background:var(--accent);color:#fff}
+.ceiling .gridline{background:rgba(255,255,255,.09)}
+.ceiling .mono-l{font-family:var(--mono);font-size:1.05cqw;font-weight:600;letter-spacing:.16em}
+.ceiling .t-l{left:4.6cqw;top:5cqw}
+.ceiling .t-r{right:4.6cqw;top:5cqw}
+.ceiling h1{position:absolute;left:4cqw;bottom:12cqw;margin:0;font-size:16.5cqw;line-height:.9;font-weight:200;letter-spacing:-.01em;color:#fff}
+.ceiling h1 span{display:block}
+.ceiling h1 .outline{color:transparent;-webkit-text-stroke:.16cqw #fff}
+.ceiling .sub{left:4.6cqw;bottom:6.6cqw;font-size:1.7cqw;font-weight:500}
+.ceiling .band{left:0;bottom:0;width:100%;height:3.2cqw;background:var(--ink)}
+.ceiling .band .t{position:absolute;left:4.6cqw;top:.95cqw;color:#fff}
+.ceiling .band .r{position:absolute;right:4.6cqw;top:.95cqw;color:#fff}
+.ceiling .rule-v{left:73cqw;top:0;bottom:3.2cqw;width:1px;background:rgba(255,255,255,.22)}
+.ceiling .num{left:75.5cqw;top:14cqw;font-family:var(--mono);font-size:1.05cqw;letter-spacing:.14em;color:rgba(255,255,255,.72)}
+.ceiling .big-sq{left:75.5cqw;top:20cqw;width:18cqw;height:18cqw;border:.18cqw solid rgba(255,255,255,.8)}
+.ceiling .big-sq::after{content:"";position:absolute;left:50%;top:-3cqw;bottom:-3cqw;width:1px;background:rgba(255,255,255,.55)}
+
+/* ---------- annotation markers ---------- */
+.mark{position:absolute;z-index:6;width:2.9cqw;height:2.9cqw;border-radius:50%;background:var(--accent);color:#fff;font-family:var(--mono);font-size:1.25cqw;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 .35cqw var(--paper)}
+.m1{left:63cqw;top:10.7cqw}.m2{left:44cqw;top:18.6cqw}.m3{left:27cqw;top:31.2cqw}.m4{left:88cqw;top:49.5cqw}
+.faults{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;margin-top:28px}
+.fault{border-top:2px solid var(--accent);padding-top:14px}
+.fault .n{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent)}
+.fault h5{margin:8px 0 8px;font-size:16px;font-weight:700}
+.fault p{margin:0;font-size:13px;line-height:1.75;color:var(--soft)}
+
+/* ---------- moves table ---------- */
+.moves{border-top:1px solid var(--ink)}
+.mv{display:grid;grid-template-columns:44px 1.15fr 1.5fr 1fr;gap:24px;padding:22px 0;border-bottom:1px solid var(--hair);align-items:start}
+.mv .n{font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:700}
+.mv h5{margin:0 0 6px;font-size:17px;font-weight:700}
+.mv p{margin:0;font-size:14px;line-height:1.75;color:var(--soft)}
+.mv .layer{font-family:var(--mono);font-size:11px;letter-spacing:.05em;line-height:1.7}
+.mv .layer b{display:inline-block;background:var(--ink);color:#fff;padding:2px 7px;margin-bottom:6px;font-size:10px;letter-spacing:.1em}
+
+/* ---------- findings & confirm ---------- */
+.findings{list-style:none;margin:0;padding:0;columns:2;column-gap:48px}
+.findings li{break-inside:avoid;border-left:2px solid var(--hair);padding:0 0 16px 16px;margin-bottom:16px;font-size:14px;line-height:1.8;color:var(--soft)}
+.findings b{color:var(--ink)}
+.confirm{background:var(--paper);border:1px solid var(--hair);padding:clamp(28px,4vw,56px);margin-top:56px}
+.confirm h3{margin:0 0 8px;font-size:clamp(26px,3vw,40px);font-weight:600;letter-spacing:-.03em}
+.confirm .q{display:grid;grid-template-columns:34px 1fr;gap:14px;padding:18px 0;border-bottom:1px solid var(--hair);font-size:16px;line-height:1.75}
+.confirm .q:last-of-type{border-bottom:0}
+.confirm .q .i{font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:700;padding-top:5px}
+.foot-end{margin-top:90px;border-top:1px solid var(--ink);padding-top:18px;display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--soft)}
+
+@media(max-width:1000px){
+  .axis{grid-template-columns:1fr;gap:12px}
+  .mast-lede,.why,.faults,.stack,.gate-list{grid-template-columns:1fr}
+  .meta-grid{grid-template-columns:repeat(2,1fr)}
+  .mv{grid-template-columns:32px 1fr;gap:12px}
+  .findings{columns:1}
+  .sec-head{grid-template-columns:1fr;gap:8px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ============ MASTHEAD ============ -->
+<header class="mast">
+  <div class="mast-top">
+    <div class="mast-tag">SLIDEFORGE / <b>AESTHETIC AUDIT</b> / 2026.11</div>
+    <div class="mast-tag">诊断对象：skills/SlideForge · 30 套主题</div>
+  </div>
+  <div class="mast-hero">
+    <h1>审美巅峰<br><span class="thin">还差<span class="blue">一层</span></span></h1>
+    <div class="mast-sq"><span>FIG. 01<br>B1 / IKB</span></div>
+  </div>
+  <div class="mast-lede">
+    <p>这个项目的工程完成度非常高：决策前置、token 系统、容量数学、双轨导出、55 项验收。它把「AI 做 PPT 会垮」这件事解决得相当彻底。</p>
+    <p class="k">但 <strong>55 项验收没有一项在测「好不好看」</strong>。全部是负向约束——不溢出、不重叠、不小于 18px、不串味。一个页面可以在满分通过所有门禁的同时，依然只是一份<strong>排版过的 Word 文档</strong>。这就是 30 套主题共享的天花板。</p>
+  </div>
+  <dl class="meta-grid">
+    <div><dt>分析范围</dt><dd>SKILL.md / themes/index.md / typography.md / components.md / 28 张样张 / 主题 demo</dd></div>
+    <div><dt>选定主题</dt><dd>B1 瑞士国际主义（line/b1）</dd></div>
+    <div><dt>核心结论</dt><dd>设计系统 = 词汇表，不是美术指导</dd></div>
+    <div><dt>本次改动</dt><dd>0 个主题文件 — 仅诊断稿</dd></div>
+  </dl>
+</header>
+
+<!-- ============ 01 DEFINITION ============ -->
+<section id="definition">
+  <div class="sec-head">
+    <div class="sec-no">01 / DEF</div>
+    <div>
+      <h2>我说的「审美巅峰」是什么</h2>
+      <p class="sub">先把它变成可证伪的判据，避免我们各说各的「高级感」。这不是玄学，是八条可以逐页打分的轴——而且它们是<strong>相乘</strong>关系：任何一条接近 0，整页就塌回文档。</p>
+    </div>
+  </div>
+
+  <blockquote class="def-statement">一页幻灯片不是「把内容排好看」，而是用一个不可转述的视觉决定，让观众在读到文字之前就接收到论点。</blockquote>
+
+  <p class="body-p">人类顶级幻灯片（Müller-Brockmann 的海报、Pentagram 的品牌册、Apple keynote、日本展陈图录）之所以被记住，不是因为配色准、字体对、留白够，而是因为<em>每一页都有一个只有这一页成立的视觉构造</em>：一个尺度极端、一次出血的裁切、一块反常的负空间、一种真实的材料。信息只是搭在这套构造上的乘客。</p>
+  <p class="body-p">当前项目优化的是「<em>信息如何安全、一致、可编辑地落到画布上</em>」。这是工程问题，而且解得很好。审美问题问的是「<em>这一页凭什么值得被看</em>」。两者不在同一层，所以把主题从 29 套加到 59 套，天花板不会动。</p>
+
+  <div class="axes">
+    <div class="axis"><div><div class="axis-n">AXIS 01</div><div class="axis-name">视觉论点</div></div><div class="axis-desc">能否用一句话说出这页的「视觉决定」，而不是这页的文字内容。说不出＝它在排版，不在设计。</div><div class="bars"><div class="barrow"><span>现状</span><div class="track"><i class="fill now" style="width:20%"></i></div><b>2</b></div><div class="barrow"><span>巅峰</span><div class="track"><i class="fill peak" style="width:90%"></i></div><b>9</b></div></div></div>
+    <div class="axis"><div><div class="axis-n">AXIS 02</div><div class="axis-name">构图张力</div></div><div class="axis-desc">非对称、出血/裁切、元素咬合、负空间作为主动形状。全部元素待在安全边距内＝零张力。</div><div class="bars"><div class="barrow"><span>现状</span><div class="track"><i class="fill now" style="width:30%"></i></div><b>3</b></div><div class="barrow"><span>巅峰</span><div class="track"><i class="fill peak" style="width:90%"></i></div><b>9</b></div></div></div>
+    <div class="axis"><div><div class="axis-n">AXIS 03</div><div class="axis-name">尺度落差</div></div><div class="axis-desc">巨字与微字同页共存形成的物理压强。规范写 ≥8:1，实测样张普遍落在 4–5:1。</div><div class="bars"><div class="barrow"><span>现状</span><div class="track"><i class="fill now" style="width:30%"></i></div><b>3</b></div><div class="barrow"><span>巅峰</span><div class="track"><i class="fill peak" style="width:95%"></i></div><b>9</b></div></div></div>
+    <div class="axis"><div><div class="axis-n">AXIS 04</div><div class="axis-name">材质可信度</div></div><div class="axis-desc">要么诚实的平版印刷（纸白＋实地油墨），要么真实的摄影/材料。CSS 模糊渐变是两者都不算。</div><div class="bars"><div class="barrow"><span>现状</span><div class="track"><i class="fill now" style="width:40%"></i></div><b>4</b></div><div class="barrow"><span>巅峰</span><div class="track"><i class="fill peak" style="width:85%"></i></div><b>8</b></div></div></div>
+    <div class="axis"><div><div class="axis-n">AXIS 05</div><div class="axis-name">字排工艺</div></div><div class="axis-desc">基线栅格、中西文光学补偿、语义断行、标点悬挂、ragged-right 控制——不是选一款字体就完事。</div><div class="bars"><div class="barrow"><span>现状</span><div class="track"><i class="fill now" style="width:50%"></i></div><b>5</b></div><div class="barrow"><span>巅峰</span><div class="track"><i class="fill peak" style="width:90%"></i></div><b>9</b></div></div></div>
+    <div class="axis"><div><div class="axis-n">AXIS 06</div><div class="axis-name">图像与证据</div></div><div class="axis-desc">顶级页面常由图/标本/实物主导，或让文字本身成为图。样张 28 页全部是纯文字＋角标。</div><div class="bars"><div class="barrow"><span>现状</span><div class="track"><i class="fill now" style="width:15%"></i></div><b>1</b></div><div class="barrow"><span>巅峰</span><div class="track"><i class="fill peak" style="width:80%"></i></div><b>8</b></div></div></div>
+    <div class="axis"><div><div class="axis-n">AXIS 07</div><div class="axis-name">全篇节奏</div></div><div class="axis-desc">疏/密、明/暗、满版/网格、静/响的序列起伏。有明暗规则，但样张是 28 页同一呼吸。</div><div class="bars"><div class="barrow"><span>现状</span><div class="track"><i class="fill now" style="width:40%"></i></div><b>4</b></div><div class="barrow"><span>巅峰</span><div class="track"><i class="fill peak" style="width:85%"></i></div><b>8</b></div></div></div>
+    <div class="axis win"><div><div class="axis-n">AXIS 08 · 项目强项</div><div class="axis-name">工程可靠性</div></div><div class="axis-desc">可编辑、不溢出、跨机不漂移、双轨导出、版本可回滚。这一项项目已经超过"巅峰"所需，而且正是它把前七项压住了。</div><div class="bars"><div class="barrow"><span>现状</span><div class="track"><i class="fill now" style="width:100%"></i></div><b>10</b></div><div class="barrow"><span>巅峰</span><div class="track"><i class="fill peak" style="width:70%"></i></div><b>7</b></div></div></div>
+  </div>
+
+  <div class="note"><span class="tag">所以，我们的定义可能分歧在哪</span>如果你我心里的「审美巅峰」指的是<strong>更精致的配色、更丰富的装饰、更统一的品牌感</strong>，那当前项目其实已经接近了——它的问题只是「不够惊艳」。但如果指的是<strong>每页有不可复制的视觉构造、有尺度与留白的冒险、有材料与光的真实</strong>，那当前项目完全不在这条赛道上，需要动的不是主题库，是构图决策层与验收标准。下面的对比是按后者做的。</div>
+</section>
+
+<!-- ============ 02 DESIGN LOGIC ============ -->
+<section id="logic">
+  <div class="sec-head">
+    <div class="sec-no">02 / LOGIC</div>
+    <div>
+      <h2>当前设计思路：它其实在优化另一件事</h2>
+      <p class="sub">把 SKILL.md、themes/index.md、typography.md、components.md 拆开看，整个体系是一条非常清晰的「约束链」，五层里前三层做得很扎实，缺的是后两层。</p>
+    </div>
+  </div>
+
+  <div class="stack">
+    <div class="cell have"><span class="idx">LAYER 1 · 已具备 / 很强</span><h4>决策前置</h4><p>主题只选不改、密度双档冻结、页计划表先于代码、呈现发散三案。用策展库对抗 AI 收敛到「紫蓝渐变＋卡片墙」。诊断：这是<strong>反平庸</strong>的，不是<strong>制造卓越</strong>的——它能挡住最差解，够不到最优解。</p></div>
+    <div class="cell have"><span class="idx">LAYER 2 · 已具备 / 很强</span><h4>Token 系统</h4><p>G0–G9 七层表达力栈：色彩、字排、质感、容器、动效、构图亲和、装饰母题；主题两两分化 ≥3 层。诊断：这是极高质量的<strong>风格词汇表</strong>，但词汇表只保证不串味，不保证造句漂亮。</p></div>
+    <div class="cell have"><span class="idx">LAYER 3 · 已具备 / 极强</span><h4>数学门禁</h4><p>容量预算 → Playwright 实测 → PPT 度量预认证 → 导出重开认证。零溢出、零重叠、字号下限、字体子集内嵌。诊断：55 项验收全部是<strong>负向约束</strong>，没有任何一项测量对比度、重心、留白形状、网格吸附、节奏。</p></div>
+    <div class="cell miss"><span class="idx">LAYER 4 · 缺失</span><h4>美术指导 / 构图语法</h4><p>components.md §11 已经写出六谱系（宣言 / 数据英雄 / 网格矩阵 / 轴与节点 / 图文证据 / 裂屏对开），但它是<strong>召回清单</strong>不是<strong>生成约束</strong>：没有"这页必须选哪个谱系、为什么"的强制决策，也没有可测量的验收。于是实际产物稳定回落到最省事的那个谱系。</p></div>
+    <div class="cell miss"><span class="idx">LAYER 5 · 缺失</span><h4>审美验收</h4><p>没有「实现的字号对比 ≥ 规范声明」「单一视觉重心的面积占比」「元素对栅格的吸附误差」「装饰母题的可辨识度」「连续 N 页的节奏方差」这类正向指标。结果：所有主题都能通过验收，也都不够好。</p></div>
+    <div class="cell"><span class="idx">结构性代价</span><h4>约束的合力方向</h4><p>固定 1920×1080、正文 ≥18px、文字必须在 DOM 可编辑、图片只走槽位、系统字体栈、禁止响应式、所有元素不许相碰——每一条单独看都对，合起来把解空间压向「安全边距内的整齐文本块」。天花板是<strong>被可靠性设计出来的</strong>。</p></div>
+  </div>
+
+  <ul class="gate-list">
+    <li><span class="no">EVIDENCE A</span><b>28 张样张 = 1 个版式 × 28 张皮</b>标题、两段正文、三格数字、三条 bullet、页脚，位置几乎完全重合。README 写「主题之间是排版、材质与图形语言的系统差异」，实际主要差异在色板与几个角标。</li>
+    <li><span class="no">EVIDENCE B</span><b>规范写了，产物没执行</b>B1 的 G2 要求主标题:正文 ≥8:1、巨字字重 200–300；bake_brief 明写「禁居中对称」「单一 accent 焦点」「封面至多 4 个文本元素」。而 p02-b1 实测对比约 4.5:1、字重约 400、重心居中偏上、accent 只是一个 2.7% 宽的小方块。</li>
+    <li><span class="no">EVIDENCE C</span><b>"unforgettable" 写在文档里，没写在页面上</b>每个主题都有 unforgettable 字段（B1 是「加号角标＋网格点阵」），但角标是 14px / opacity .55 的四角细十字，投影后基本看不见。签名成了元数据，不是视觉事件。</li>
+  </ul>
+</section>
+
+<!-- ============ 03 COMPARE ============ -->
+<section id="compare">
+  <div class="sec-head">
+    <div class="sec-no">03 / B1</div>
+    <div>
+      <h2>选 B1 瑞士国际主义，因为它是唯一能自证的样本</h2>
+      <p class="sub">不用换主题库、不用联网字体、不用生图、不用烙入——只用现有 token 和纯文字，就能把「巅峰」做出来。如果这样都做得到，说明差距不是工具限制，是决策限制。</p>
+    </div>
+  </div>
+
+  <div class="why">
+    <div><span class="n">REASON 01</span><h4>参照物没有争议</h4><p>它的「世界参考」写的就是 1960s Müller-Brockmann 海报＋瑞士铁路 signage。这是平面设计史上被公认的巅峰样本，不需要我先说服你某种风格好看。</p></div>
+    <div><span class="n">REASON 02</span><h4>规范已经把答案写好了</h4><p>b1/theme.md 的 bake_brief 里逐条写着：倒挂字重、≥8:1、语义断行左对齐、网格对齐即装饰、单一焦点、禁居中对称、封面 ≤4 文本元素。不是在发明新方向，是把项目自己写的东西落到页面上。</p></div>
+    <div><span class="n">REASON 03</span><h4>纯 CSS 可达，不与工程约束冲突</h4><p>瑞士风的全部语言是：巨字、栅格、hairline、实地色块、负空间。全部是活文字＋纯色，可编辑、可导出、不溢出。这一页能同时满足 55 项门禁和审美巅峰。</p></div>
+  </div>
+
+  <div class="cmp-shell">
+    <div class="cmp-top">
+      <div class="lbl"><span>现状 p02-b1</span> <span style="color:#999">← 拖动 →</span> <span class="b">优化方向</span> · 同一份内容，一个字没删</div>
+      <div class="presets">
+        <button type="button" onclick="setPos(100)">全部现状</button>
+        <button type="button" onclick="setPos(50)">50 / 50</button>
+        <button type="button" onclick="setPos(0)">全部优化</button>
+      </div>
+    </div>
+
+    <div class="stage" id="cmp" style="--pos:50%">
+
+      <!-- ============ AFTER (base layer) ============ -->
+      <div class="slide after layer-after">
+        <i class="gridline" style="left:4.6cqw"></i><i class="gridline" style="left:32cqw"></i>
+        <i class="gridline" style="left:62cqw"></i><i class="gridline" style="left:75cqw"></i>
+        <i class="gridline" style="left:95.4cqw"></i>
+
+        <div class="el kicker"><span class="sq">01</span><span class="mono-l">1.1 &nbsp;/&nbsp; 整体特色及优势</span></div>
+        <div class="el top-right mono-l">SHANHEJI · OPERATIONS BRIEF<br>2026 / VOL. 01</div>
+
+        <div class="el blue-field">
+          <span class="bf-cross"></span>
+          <span class="bf-lbl">FIG. 01 / SCALE</span>
+        </div>
+
+        <h1 class="el"><span>一杯好茶</span><span class="l2">山野作答</span></h1>
+        <div class="el void"></div>
+
+        <div class="el paras">
+          <div><span class="eyebrow">A / POSITIONING</span><p>山禾集深耕新式茶饮行业，同时通过全资子公司山禾供应链管理有限公司协同布局上游茶园直采业务。通过多年不懈努力，山禾集秉持"当季鲜茶，日常相伴"的经营理念，建立起从茶园到门店的全链路品控流程，持续为消费者创造价值。</p></div>
+          <div><span class="eyebrow">B / FOOTPRINT</span><p>近年来山禾集门店网络稳步扩张，行业排名持续提升。2019 年，山禾集全国门店总数突破八千家，跻身行业头部梯队。截至 2026 年 6 月 30 日，全国门店总数 8,637 家，其中标准门店 8,428 家，城市旗舰店总数 361 家。</p></div>
+        </div>
+
+        <div class="el spine">
+          <div class="item"><span class="num hero">8,637<span style="font-size:1.4cqw;font-weight:600"> 家</span></span><span class="idx">01</span></div>
+          <div style="font-size:1cqw;color:#666;margin:-.5cqw 0 1.1cqw">山禾集（含直营和子公司）全国门店总数</div>
+          <div class="item"><span class="num">2.8<span style="font-size:1.4cqw;font-weight:600"> 亿杯</span></span><span class="idx">02</span></div>
+          <div style="font-size:1cqw;color:#666;margin:-.5cqw 0 1.1cqw">成立以来累计为超过 6.8 亿会员用户售出茶饮</div>
+          <div class="item"><span class="num">361<span style="font-size:1.4cqw;font-weight:600"> 家</span></span><span class="idx">03</span></div>
+          <div style="font-size:1cqw;color:#666;margin-top:-.3cqw">城市旗舰店总数</div>
+        </div>
+
+        <div class="el bullets">
+          <div><i>01 / 理念</i>经营理念：当季鲜茶，日常相伴。</div>
+          <div><i>02 / 使命</i>使命：为大众提供新鲜、健康、平价的日常茶饮。</div>
+          <div><i>03 / 愿景</i>愿景：成为持续领先的新式茶饮品牌。</div>
+        </div>
+
+        <div class="el fn">* 注：山禾集为虚构演示品牌，文中数据均为虚构，仅用于主样式对比展示。</div>
+        <div class="el cross reg" style="opacity:.45"></div>
+        <div class="el foot"><span>山禾集 · 经营情况汇报</span><span>B1 / SWISS INTERNATIONAL · 克莱因蓝</span><span>02 / 21</span></div>
+      </div>
+
+      <!-- ============ BEFORE (clipped layer) ============ -->
+      <div class="slide before layer-before" id="beforeLayer">
+        <div class="cross" style="left:6.6cqw;top:5.1cqw"></div>
+        <div class="cross" style="right:6.6cqw;top:5.1cqw"></div>
+        <div class="cross" style="left:6.6cqw;bottom:5.1cqw"></div>
+        <div class="cross" style="right:6.6cqw;bottom:5.1cqw"></div>
+        <div class="el bx">1.1</div>
+        <div class="el kicker">1.1 &nbsp;·&nbsp; 整体特色及优势</div>
+        <h1 class="el">一杯好茶 山野作答</h1>
+        <div class="el para">
+          <p>山禾集深耕新式茶饮行业，同时通过全资子公司山禾供应链管理有限公司协同布局上游茶园直采业务。通过多年不懈努力，山禾集秉持"当季鲜茶，日常相伴"的经营理念，建立起从茶园到门店的全链路品控流程，持续为消费者创造价值，赢得了广大茶饮爱好者的喜爱。</p>
+          <p>近年来山禾集门店网络稳步扩张，行业排名持续提升。2019 年，山禾集全国门店总数突破八千家，跻身行业头部梯队。截至 2026 年 6 月 30 日，山禾集全国门店总数 8,637 家（含直营门店 1,653 家，子公司山禾供应链合作门店 432 家），其中标准门店 8,428 家，位于行业前列；城市旗舰店总数 361 家。成立以来累计为超过 6.8 亿会员用户售出茶饮 2.8 亿杯。</p>
+        </div>
+        <div class="el stats">
+          <div class="cell"><div class="num">8,637家</div><div class="cap">山禾集（含直营和子公司山禾供应链）全国门店总数</div></div>
+          <div class="cell"><div class="num">2.8亿杯</div><div class="cap">成立以来累计为超过 6.8 亿会员用户售出茶饮</div></div>
+          <div class="cell"><div class="num">361家</div><div class="cap">城市旗舰店总数</div></div>
+        </div>
+        <div class="el tag">行业前列</div>
+        <div class="hairline el sep"></div>
+        <div class="el bullets">
+          <div>经营理念：当季鲜茶，日常相伴。</div>
+          <div>使命：为大众提供新鲜、健康、平价的日常茶饮。</div>
+          <div>愿景：成为持续领先的新式茶饮品牌。</div>
+        </div>
+        <div class="el fn">* 注：山禾集为虚构演示品牌，文中数据均为虚构，仅用于主样式对比展示。</div>
+        <div class="hairline el footbar"></div>
+        <div class="el foot"><span>山禾集 · 经营情况汇报</span><span>B1 · 瑞士国际主义 · 克莱因蓝</span><span>02 / 21</span></div>
+
+        <!-- problem markers -->
+        <div class="mark m1">1</div><div class="mark m2">2</div><div class="mark m3">3</div><div class="mark m4">4</div>
+      </div>
+
+      <div class="divider" id="divider"></div>
+    </div>
+
+    <input class="cmp-range" type="range" min="0" max="100" value="50" id="rng" oninput="setPos(this.value)" aria-label="对比滑块">
+    <div class="cmp-hint"><span>← 现状</span><span>同一个 16:9 画布 · 同一套 G1 token（#FAFAF8 / #0A0A0A / #002FA7）· 同一份逐字文案</span><span>优化 →</span></div>
+  </div>
+
+  <div class="faults">
+    <div class="fault"><span class="n">① 标题</span><h5>巨字没有巨到成为图形</h5><p>规范写 ≥8:1、200 字重，实际约 5.6cqw / 400 字重，对比约 4.5:1。标题只是「大一点的字」，不是画面主体。右页改成 12.4cqw / 200 字重、语义断行两行、贴左栅格。</p></div>
+    <div class="fault"><span class="n">② 段落</span><h5>满宽长行＝文档，不是版面</h5><p>87cqw 通栏排两段，读者的眼睛没有落点，页面重心被均匀摊平。右页压成两栏窄文本块，让右侧 20cqw 的负空间成为主动形状。</p></div>
+    <div class="fault"><span class="n">③ 数字</span><h5>三个等权 KPI＝没有 KPI</h5><p>三格等宽并排、字号相同、权重相同，等于告诉观众「这三个都不重要」。右页改成右侧纵向数据脊，8,637 拿唯一 accent 并放大，其余退为刻度。</p></div>
+    <div class="fault"><span class="n">④ 签名</span><h5>accent 是贴纸不是事件</h5><p>2.7cqw 的蓝色小方块＋四角 14px 十字，投影后几乎消失。「一眼瑞士」的 unforgettable 落在了 Markdown 里。右页把 IKB 变成 22×19.5cqw 的出血实色块（≈7.6% 面积，仍在 10% 预算内），四角十字减成一个套准记号。</p></div>
+  </div>
+</section>
+
+<!-- ============ 04 CEILING ============ -->
+<section id="ceiling">
+  <div class="sec-head">
+    <div class="sec-no">04 / CEILING</div>
+    <div>
+      <h2>上限方向：让 G1 写好的「满屏特权」真的发生</h2>
+      <p class="sub">B1 的 G1 已经声明：满屏 IKB 是封面/收束特权，首尾做色彩闭环。但 28 张样张里没有一张在执行它。下面是同一套 token 的封面页——不是换主题，是把主题里已经写死的规则用出来。</p>
+    </div>
+  </div>
+  <div class="cmp-shell">
+    <div class="cmp-top"><div class="lbl">COVER / 满版 IKB ＋ 反白发丝巨字 ＋ 填充词 × 描边词混排</div><div class="lbl">G1 首尾闭环 · 01 / 21</div></div>
+    <div class="stage" style="--pos:0%">
+      <div class="slide ceiling layer-after" style="position:relative;width:100%;aspect-ratio:16/9;height:auto">
+        <i class="gridline" style="left:4.6cqw"></i><i class="gridline" style="left:73cqw"></i><i class="gridline" style="left:95.4cqw"></i>
+        <div class="el t-l mono-l">SHANHEJI / 山禾集</div>
+        <div class="el t-r mono-l">OPERATIONS BRIEF &nbsp;·&nbsp; 2026</div>
+        <div class="el rule-v"></div>
+        <div class="el num">SERIES 01<br>———————<br>SWISS / IKB</div>
+        <div class="el big-sq"></div>
+        <h1 class="el"><span>一杯好茶</span><span class="outline">山野作答</span></h1>
+        <div class="el sub">从茶园到门店，把一杯茶做成一条可追溯的链路</div>
+        <div class="el band"><span class="t mono-l">01 / 整体特色及优势</span><span class="r mono-l">SCROLL ↓ &nbsp; 02 / 21</span></div>
+      </div>
+      <div class="stamp r" style="background:var(--ink)">COVER / 上限</div>
+    </div>
+  </div>
+  <div class="note" style="margin-top:24px"><span class="tag">为什么这张重要</span>它证明巅峰不需要「AI 整页烙入」这条外挂路径。纯 HTML、活文字、可编辑、可导出、零图片——只靠<strong>尺度、栅格、单一色场、负空间</strong>四个决定，观感就能跳一个量级。项目 README 把「向上够得着惊艳」押在生图上，其实是把美术指导的责任外包给了模型。</div>
+</section>
+
+<!-- ============ 05 MOVES ============ -->
+<section id="moves">
+  <div class="sec-head">
+    <div class="sec-no">05 / MOVES</div>
+    <div>
+      <h2>准备往哪个方向优化</h2>
+      <p class="sub">六步，从「不动一行主题库」到「必须改验收标准」。前四步是生成侧的构图决策，后两步才是体系改动。</p>
+    </div>
+  </div>
+  <div class="moves">
+    <div class="mv"><span class="n">01</span><div><h5>巨字化＋语义断行</h5><p>标题从 ~5.6cqw / 400 提到 12–16cqw / 200，按语义切成 2 行左对齐块，允许贴近甚至裁出边界；字阶落差做到 ≥10:1。</p></div><div>从「大标题」到「标题即画面」。同时把正文压到 1.1cqw 形成微字标注层，让 8:1 的规范真正可测。</div><div class="layer"><b>生成侧</b>Step 1 页计划 / Step 4 落码<br>typography.md §1 §5</div></div>
+    <div class="mv"><span class="n">02</span><div><h5>强制 12 栏栅格吸附</h5><p>每个元素的 x / width 必须落在栏线上（当前是凭感觉给 6.6cqw 这种任意值）。栅格只在封面可见成极淡参考线，网格对齐本身即装饰。</p></div><div>把「秩序」从形容词变成坐标。可机检：元素左边缘与最近栏线的偏差 = 0。</div><div class="layer"><b>生成侧</b>components.md §11 / 新栅格 token</div></div>
+    <div class="mv"><span class="n">03</span><div><h5>非对称 + 主动负空间</h5><p>主内容压左 7 栏，右侧留一个完整安静的矩形给数据脊；禁止居中对称、禁止元素均匀铺满。留白要有形状、有边界、有意图。</p></div><div>制造张力。当前所有元素都在 87cqw 的安全盒里等距分布，这正是「整齐但没有设计」的根因。</div><div class="layer"><b>生成侧</b>谱系强制决策（非召回）</div></div>
+    <div class="mv"><span class="n">04</span><div><h5>accent 从贴纸升级为面积事件</h5><p>单一焦点，≥5% 画面面积、可出血；其余所有 accent 退为黑色 micro 标注。四角十字减到 1 个套准记号，点阵只留在仪式页。</p></div><div>让 unforgettable 真的被看见。面积仍守 G1 的 ≤10% 内容页预算，不违反「只选不改」。</div><div class="layer"><b>生成侧</b>G1 预算 + G9 母题落码</div></div>
+    <div class="mv"><span class="n">05</span><div><h5>谱系从清单变成硬决策</h5><p>页计划表增加「本页谱系 + 视觉论点一句话 + 拒绝的另两个方案」三列，且生成后由脚本核对：连续 3 页同谱系、或全部页面落在同一谱系 → 不通过。</p></div><div>§11 六谱系已经写好了，缺的是「必须选、必须写理由、必须可验收」。这是最能撬动 30 套主题整体水位的一步。</div><div class="layer"><b>规范层</b>components.md §11 / SKILL.md Step 1</div></div>
+    <div class="mv"><span class="n">06</span><div><h5>补一组正向审美门禁</h5><p>新增可计算的指标：实现字号对比 ≥ 声明值、单一视觉重心面积占比、栅格吸附误差、accent 面积、连续 N 页的明暗/密度/谱系方差。</p></div><div>从「不犯错」升级到「必须好」。否则所有优化都会在下一次生成里被 AI 的省力偏好拉回默认解。</div><div class="layer"><b>脚本层</b>新 check-aesthetics.py / 验收链</div></div>
+  </div>
+</section>
+
+<!-- ============ 06 FINDINGS + CONFIRM ============ -->
+<section id="confirm">
+  <div class="sec-head">
+    <div class="sec-no">06 / SYNC</div>
+    <div>
+      <h2>先对齐，再动手</h2>
+      <p class="sub">这一页是诊断稿，没有改任何 theme.md / 骨架 / 脚本。在动主题库之前，需要你确认我们对「巅峰」的定义是不是同一件事。</p>
+    </div>
+  </div>
+
+  <ul class="findings">
+    <li><b>顺手发现 ① 文档漂移</b>：README 写「29 套主题」，index.md 分类表合计 30，磁盘上 theme.md 恰好 30 个；`assets/theme-sampler/` 只有 28 张（缺 p27）。规格、文档、产物三处对不上，本身也是「规范没被验收」的缩影。</li>
+    <li><b>顺手发现 ② 默认值与主题立场相反</b>：`skeleton.html` 的默认示例 h1 是 `font-size:120px; font-weight:700`，而 B1 / 瑞士系声明巨字必须 200–300 细体、倒挂字重。生成侧拿骨架起步时，第一眼看到的是反例。</li>
+    <li><b>顺手发现 ③ 主题文件残段</b>：`references/themes/line/b1/theme.md` 末尾挂着「## C 系 · 深色与个性（源自 frontend-slides）」，与 B1 无关，疑似早期合集复制残留。</li>
+    <li><b>顺手发现 ④ 反 AI-slop 的自我矛盾</b>：README 明确嘲讽「紫蓝渐变＋卡片墙」，但 F1 浮光玻璃样张就是模糊紫蓝渐变＋三张圆角卡片。策展库能挡住 AI 即兴，挡不住策展本身落入同一种默认值。</li>
+  </ul>
+
+  <div class="confirm">
+    <div class="mono" style="color:var(--accent);margin-bottom:20px">THREE QUESTIONS / 三个判断题</div>
+    <h3>这三条，你同意几条？</h3>
+    <div class="q"><span class="i">Q1</span><span><b>巅峰 ≠ 更精致</b>。不是把配色、圆角、动效再打磨一轮，而是每页要有一个不可转述的视觉构造（尺度极端 / 出血 / 反常留白 / 单一色场）。</span></div>
+    <div class="q"><span class="i">Q2</span><span><b>差距在构图决策层，不在主题库</b>。所以优先级是「强制谱系决策 + 栅格 + 审美门禁」，而不是再新增主题或调色板。</span></div>
+    <div class="q"><span class="i">Q3</span><span><b>不牺牲可编辑性</b>。目标是在纯 HTML 活文字、可导出 PPTX 的约束内做到，不靠整页生图把文字烧进图片里。</span></div>
+    <p style="margin:28px 0 0;font-size:15px;line-height:1.8;color:var(--soft)">三条全同意 → 我下一步就把 B1 按上面六步做成一套真实的 3–5 页样张，并把第 05/06 步写成可执行的规范与校验脚本。<br>如果其中某条与你想象的不一样（比如你其实想要更「商业精致」或更「图像主导」的巅峰），告诉我哪条偏了，我换一个主题重做方向稿。</p>
+  </div>
+
+  <div class="foot-end"><span>SLIDEFORGE / AESTHETIC AUDIT — B1 SWISS INTERNATIONAL</span><span>DIAGNOSTIC DRAFT · NO SOURCE FILES MODIFIED</span></div>
+</section>
+
+</div>
+<script>
+function setPos(v){
+  v = Number(v);
+  var s=document.getElementById('cmp');
+  s.style.setProperty('--pos', v+'%');
+  var r=document.getElementById('rng');
+  if(r && Number(r.value)!==v) r.value=v;
+  var d=document.getElementById('divider');
+  if(d) d.style.opacity = (v>1 && v<99) ? '1' : '0';
+}
+setPos(50);
+</script>
+</body>
+</html>

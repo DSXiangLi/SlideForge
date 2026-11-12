@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>DNA Pilot · 4 主题 × 6 页面类型</title>
+<style>
+  :root{
+    --b1-paper:#fafaf8; --b1-ink:#0a0a0a; --b1-accent:#002FA7;
+    --e5-paper:#eadfc4; --e5-ink:#171310; --e5-accent:#9E1B1E;
+    --c3-paper:#0d1117; --c3-ink:#e6edf3; --c3-accent:#39d353;
+    --h1-paper:#faf7f3; --h1-ink:#241f2b; --h1-accent:#9c3b34; --h1-gold:#c9a86a;
+    --h1-2:#8d7aa8; --h1-3:#6f84a6;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#20242b;color:#cfd3da;font-family:-apple-system,Segoe UI,Roboto,sans-serif;padding:28px 22px 60px}
+  h1.page-title{font-weight:600;font-size:20px;letter-spacing:.02em;margin-bottom:4px}
+  p.sub{font-size:12px;color:#8a90a0;margin-bottom:22px;line-height:1.6}
+  .grid{display:grid;grid-template-columns:repeat(4,480px);gap:18px 18px;justify-content:center}
+  .card{background:#11141a;border:1px solid #2a2f3a;border-radius:10px;overflow:hidden;display:flex;flex-direction:column}
+  .card .cap{font-size:11px;letter-spacing:.06em;color:#7f8696;padding:8px 10px;border-bottom:1px solid #232835;display:flex;justify-content:space-between}
+  .card .cap b{color:#aab0c0;font-weight:600}
+  .slide{position:relative;width:480px;height:270px;overflow:hidden;container-type:size;background:var(--paper)}
+  .slide [style*="left:"],.slide [style*="right:"]{position:absolute}
+  .slide .flow{position:absolute;left:0;top:0;width:100%;height:100%}
+  .swiss{font-family:"Helvetica Neue","PingFang SC","Noto Sans SC",sans-serif}
+  .con{font-family:"Arial Black","PingFang SC","Noto Sans SC",sans-serif}
+  .term{font-family:"SF Mono","JetBrains Mono",Menlo,monospace}
+  .scroll{font-family:"Noto Serif SC","Songti SC","STSong",serif}
+  .c-ink{color:var(--ink)} .c-acc{color:var(--accent)} .c-paper{color:var(--paper)}
+  .bg-paper{background:var(--paper)} .bg-ink{background:var(--ink)} .bg-acc{background:var(--accent)}
+</style>
+</head>
+<body>
+<h1 class="page-title">G10 试点 · 同一内容经 4 个主题的「构图程序」编译</h1>
+<p class="sub">24 张页面 = 4 主题（B1 瑞士 / E5 构成 / C3 终端 / H1 手卷）× 6 页面类型（封面 / 目录 / 低密度主张 / 高密度分析 / 图表 / 收尾）。签名结构件进入 DOM，遮色缩略仍可分辨主题。</p>
+<div class="grid" id="grid"></div>
+
+<script>
+/* ---------- 单一内容对象（所有主题共用） ---------- */
+const D = {
+  brand:"NEURAL FORGE", title:"当模型开始做梦",
+  subtitle:"生成式系统的认知边界与工程实践", date:"2026.11",
+  toc:[
+    {n:"01",t:"认知边界",d:"模型何时在想象，何时在检索"},
+    {n:"02",t:"工程约束",d:"把不确定封装进可交付"},
+    {n:"03",t:"尺度落差",d:"从 token 到世界观的跃迁"},
+    {n:"04",t:"可靠性",d:"在幻觉与事实之间设闸"},
+    {n:"05",t:"演化路线",d:"我们将把模型带向哪里"},
+  ],
+  claim:{ head:"模型不生产事实，\n它生产似真", note:"似真度每升一个量级，验证成本就翻一倍。", stat:{num:"8,637",cap:"已拦截的似真却错误的断言"} },
+  analysis:{ head:"三道必须人工设闸的裂缝", mods:[
+    {h:"检索失准",b:"模型在知识边界外仍给出高置信答案，需要检索回退与置信标注。"},
+    {h:"归因断裂",b:"生成与引用脱钩，必须强制证据链可见才能进入交付。"},
+    {h:"偏好泄漏",b:"训练语料的价值倾斜会被放大，需要约束与审计。"},
+  ], tags:["检索回退","证据链强制","偏好审计","置信标注"] },
+  chart:{ head:"似真度 vs 验证成本", unit:"相对指数", series:[
+    {c:"’22",v:18},{c:"’23",v:34},{c:"’24",v:57},{c:"’25",v:79},{c:"’26",v:93}
+  ], take:"验证成本增速长期高于似真度增速。" },
+  closing:{ head:"把想象\n关进工程的笼子", note:"交付可信，而非交付惊艳。", meta:"NEURAL FORGE · 2026" }
+};
+
+/* ---------- 工具 ---------- */
+function el(html){return html;}
+function lines(s){return s.split("\n");}
+
+/* =================== B1 瑞士国际主义 =================== */
+const B1 = {
+  theme:"b1", cls:"swiss", vars:()=>"--paper:var(--b1-paper);--ink:var(--b1-ink);--accent:var(--b1-accent)",
+  chrome(){
+    let g="";
+    for(let i=1;i<12;i++){const x=i*(100/12);g+=`<div style="left:${x}cqw;top:0;bottom:0;width:1px;background:color-mix(in srgb,var(--ink) 11%,transparent)"></div>`;}
+    g+=`<div style="left:0;right:0;top:7.4cqh;height:1px;background:color-mix(in srgb,var(--ink) 9%,transparent)"></div>`;
+    [[0,0],[100,0],[0,100],[100,100]].forEach(([x,y])=>{
+      const px = x===0 ? 'left:0' : 'right:0';
+      const py = y===0 ? 'top:0' : 'bottom:0';
+      g+=`<div style="${px};${py};width:14px;height:14px;opacity:.5">
+        <div style="left:50%;top:0;bottom:0;width:1px;background:var(--ink)"></div>
+        <div style="top:50%;left:0;right:0;height:1px;background:var(--ink)"></div></div>`;
+    });
+    return g;
+  },
+  cover(){return `
+    <div style="left:6.6cqw;top:3.4cqh;font-family:var(--font-mono,monospace);font-size:1.5cqw;letter-spacing:.16em;color:var(--ink)">${D.brand} · ${D.date}</div>
+    <div style="left:6.6cqw;top:30cqh;font-weight:200;font-size:9.2cqw;line-height:1.02;color:var(--ink)">${D.title}</div>
+    <div style="left:6.6cqw;top:78cqh;font-size:1.5cqw;color:var(--ink);opacity:.7">${D.subtitle}</div>
+    <div style="left:80cqw;top:70cqh;width:14cqw;height:14cqw;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-family:monospace;font-size:3.4cqw;font-weight:600">00</div>`;
+  },
+  toc(){let s=`<div style="left:6.6cqw;top:5cqh;font-size:1.5cqw;font-weight:600;letter-spacing:.18em;color:var(--ink)">CONTENTS</div>`;
+    D.toc.forEach((it,i)=>{const y=20+i*14.5;
+      s+=`<div style="left:6.6cqw;top:${y}cqh;font-weight:200;font-size:5.4cqw;color:var(--ink)">${it.n}</div>
+          <div style="left:24cqw;top:${y+1}cqh;font-size:2.1cqw;font-weight:500;color:var(--ink)">${it.t}</div>
+          <div style="left:24cqw;top:${y+6.6}cqh;font-size:1.5cqw;color:var(--ink);opacity:.6">${it.d}</div>
+          <div style="left:6.6cqw;top:${y+11.4}cqh;width:87cqw;height:1px;background:color-mix(in srgb,var(--ink) 14%,transparent)"></div>`;});
+    return s;
+  },
+  low(){return `
+    <div style="left:6.6cqw;top:6cqh;font-weight:200;font-size:7.2cqw;line-height:1.05;color:var(--ink);white-space:pre-line">${D.claim.head}</div>
+    <div style="left:6.6cqw;top:84cqh;font-size:1.5cqw;color:var(--ink);opacity:.7">${D.claim.note}</div>
+    <div style="left:66cqw;top:18cqh;width:27cqw;height:54cqh;border-left:1px solid color-mix(in srgb,var(--ink) 30%,transparent);padding-left:1.4cqw">
+      <div style="font-size:8.4cqw;font-weight:200;color:var(--accent);line-height:1">${D.claim.stat.num}</div>
+      <div style="font-size:1.5cqw;color:var(--ink);opacity:.65;margin-top:1cqh;line-height:1.4">${D.claim.stat.cap}</div>
+    </div>`;
+  },
+  high(){let s=`<div style="left:6.6cqw;top:5cqh;font-size:2cqw;font-weight:600;color:var(--ink)">${D.analysis.head}</div>`;
+    const w=27.2,x0=6.6,gap=1.7;
+    D.analysis.mods.forEach((m,i)=>{const x=x0+i*(w+gap);
+      const acc=i===1?'background:var(--accent);color:#fff':'background:var(--paper-tint,#f0f0ee);color:var(--ink)';
+      s+=`<div style="left:${x}cqw;top:18cqh;width:${w}cqw;height:48cqh;${acc};padding:1.8cqw">
+        <div style="font-size:1.7cqw;font-weight:600;margin-bottom:.8cqh">${m.h}</div>
+        <div style="font-size:1.5cqw;line-height:1.5;opacity:.82">${m.b}</div></div>`;});
+    s+=`<div style="left:6.6cqw;top:74cqh;font-size:1.5cqw;color:var(--ink);opacity:.7">${D.analysis.tags.join("　·　")}</div>`;
+    return s;
+  },
+  chart(){const max=100,base=84,h=46,w=12,gap=2.4,x0=10;
+    let s=`<div style="left:6.6cqw;top:5cqh;font-size:2cqw;font-weight:600;color:var(--ink)">${D.chart.head}</div>
+      <div style="left:6.6cqw;top:${base+1.6}cqh;width:74cqw;height:1px;background:color-mix(in srgb,var(--ink) 40%,transparent)"></div>`;
+    D.chart.series.forEach((p,i)=>{const x=x0+i*(w+gap);const bh=p.v/100*h;const acc=i===D.chart.series.length-1?'background:var(--accent)':'background:color-mix(in srgb,var(--ink) 22%,transparent)';
+      s+=`<div style="left:${x}cqw;top:${base-bh}cqh;width:${w}cqw;height:${bh}cqh;${acc}"></div>
+          <div style="left:${x}cqw;top:${base+2.8}cqh;font-size:1.5cqw;color:var(--ink);opacity:.7">${p.c}</div>
+          <div style="left:${x}cqw;top:${base-bh-3}cqh;font-size:1.5cqw;font-weight:600;color:${i===D.chart.series.length-1?'var(--accent)':'var(--ink)'}">${p.v}</div>`;});
+    s+=`<div style="right:6cqw;top:18cqh;width:24cqw;height:50cqh;border-left:1px solid color-mix(in srgb,var(--ink) 30%,transparent);padding-left:1.4cqw">
+      <div style="font-size:7cqw;font-weight:200;color:var(--ink);line-height:1">${D.chart.series[4].v}</div>
+      <div style="font-size:1.5cqw;color:var(--ink);opacity:.65;margin-top:1cqh;line-height:1.4">${D.chart.unit}<br>${D.chart.take}</div></div>`;
+    return s;
+  },
+  closing(){return `
+    <div style="left:0;top:0;right:0;bottom:0;background:var(--accent)"></div>
+    <div style="left:6.6cqw;top:24cqh;font-weight:200;font-size:8cqw;line-height:1.04;color:#fff;white-space:pre-line">${D.closing.head}</div>
+    <div style="left:6.6cqw;top:84cqh;font-size:1.5cqw;color:#fff;opacity:.85">${D.closing.note}</div>
+    <div style="right:6.6cqw;top:84cqh;font-size:1.5cqw;color:#fff;opacity:.7">${D.closing.meta}</div>`;
+  }
+};
+
+/* =================== E5 构成主义 =================== */
+const E5 = {
+  theme:"e5", cls:"con", vars:()=>"--paper:var(--e5-paper);--ink:var(--e5-ink);--accent:var(--e5-accent)",
+  chrome(pg){return `
+    <div style="left:-12cqw;top:${pg==='toc'?72:42}cqh;width:132cqw;height:17cqh;background:var(--accent);transform:rotate(-12deg)"></div>
+    <div style="left:-2cqw;top:14cqh;width:0;height:0;border-top:22cqh solid var(--ink);border-right:22cqw solid transparent"></div>
+    <div style="left:0;top:0;right:0;bottom:0;background:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E&quot;);opacity:.5"></div>`;
+  },
+  cover(){return `
+    <div style="left:0;top:0;right:0;bottom:0;background:var(--accent)"></div>
+    <div style="left:-12cqw;top:42cqh;width:132cqw;height:17cqh;background:var(--accent);transform:rotate(-12deg)"></div>
+    <div style="left:0;top:0;right:0;bottom:0;background:var(--ink);clip-path:polygon(0 0,46% 0,0 100%)"></div>
+    <div style="left:5cqw;top:30cqh;font-size:9cqw;font-weight:900;color:var(--paper);line-height:1;text-transform:uppercase">${D.title}</div>
+    <div style="left:5cqw;top:74cqh;font-size:1.7cqw;color:var(--paper);letter-spacing:.1em">${D.subtitle}</div>
+    <div style="right:6cqw;top:84cqh;font-size:1.5cqw;color:var(--paper);opacity:.85">${D.brand} · ${D.date}</div>`;
+  },
+  toc(){let s=`<div style="left:5cqw;top:5cqh;font-size:1.7cqw;font-weight:900;letter-spacing:.2em;color:var(--ink)">目录 / INDEX</div>`;
+    D.toc.forEach((it,i)=>{const x=5, y=18+i*10;
+      s+=`<div style="left:${x}cqw;top:${y}cqh;font-size:3cqw;font-weight:900;color:var(--accent)">${it.n}</div>
+          <div style="left:${x+12}cqw;top:${y+0.3}cqh;font-size:2.4cqw;font-weight:800;color:var(--ink)">${it.t}</div>
+          <div style="left:${x+12}cqw;top:${y+5.4}cqh;font-size:1.8cqw;color:var(--ink);opacity:.85">${it.d}</div>`;});
+    return s;
+  },
+  low(){return `
+    <div style="left:-12cqw;top:40cqh;width:132cqw;height:22cqh;background:var(--accent);transform:rotate(-12deg)"></div>
+    <div style="left:-12cqw;top:40cqh;width:132cqw;height:22cqh;transform:rotate(-12deg);display:flex;align-items:center;padding-left:14cqw">
+      <div style="font-size:4.2cqw;font-weight:900;color:var(--paper);white-space:pre-line;line-height:1.12">${D.claim.head}</div></div>
+    <div style="right:6cqw;top:8cqh;width:38cqw;font-size:1.8cqw;font-weight:700;color:var(--ink);text-align:right;line-height:1.5">${D.claim.note}</div>
+    <div style="left:6cqw;top:88cqh;font-size:3.6cqw;font-weight:900;color:var(--ink)">${D.claim.stat.num}</div>`;
+  },
+  high(){let s=`<div style="left:5cqw;top:6cqh;font-size:2.2cqw;font-weight:900;color:var(--ink)">${D.analysis.head}</div>`;
+    D.analysis.mods.forEach((m,i)=>{const x=4+i*1.4,y=26+i*15;
+      const acc=i===2?'background:var(--accent);color:var(--paper)':'background:var(--ink);color:var(--paper)';
+      s+=`<div style="left:${x}cqw;top:${y}cqh;width:60cqw;${acc};padding:1.6cqw">
+        <div style="font-size:1.8cqw;font-weight:900;margin-bottom:.6cqh">${m.h}</div>
+        <div style="font-size:1.5cqw;line-height:1.45">${m.b}</div></div>`;});
+    s+=`<div style="left:70cqw;top:80cqh;font-size:1.5cqw;font-weight:700;color:var(--accent);text-align:right;line-height:1.5">${D.analysis.tags.join("<br>")}</div>`;
+    return s;
+  },
+  chart(){const max=100,base=70,h=46,x0=8,step=13;
+    let s=`<div style="left:5cqw;top:6cqh;font-size:2.2cqw;font-weight:900;color:var(--ink)">${D.chart.head}</div>`;
+    D.chart.series.forEach((p,i)=>{const x=x0+i*step;const bh=p.v/100*h;const acc=i===D.chart.series.length-1?'background:var(--accent)':'background:var(--ink)';
+      s+=`<div style="left:${x}cqw;top:${base-bh}cqh;width:9cqw;height:${bh}cqh;transform:rotate(-12deg);transform-origin:bottom left;${acc}"></div>`;});
+    const last=D.chart.series.length-1;
+    s+=`<div style="right:5cqw;top:16cqh;width:26cqw;font-size:8cqw;font-weight:900;color:var(--accent);line-height:.9;text-align:right">${D.chart.series[last].v}</div>
+        <div style="left:5cqw;top:90cqh;width:60cqw;font-size:1.5cqw;font-weight:700;color:var(--ink);line-height:1.4">${D.chart.take}</div>`;
+    return s;
+  },
+  closing(){return `
+    <div style="left:0;top:0;right:0;bottom:0;background:var(--paper)"></div>
+    <div style="right:-2cqw;top:0;width:0;height:0;border-bottom:30cqh solid var(--accent);border-left:30cqw solid transparent"></div>
+    <div style="left:5cqw;top:24cqh;font-size:8cqw;font-weight:900;color:var(--ink);white-space:pre-line;line-height:1.02">${D.closing.head}</div>
+    <div style="left:5cqw;top:78cqh;font-size:1.6cqw;font-weight:700;color:var(--accent)">${D.closing.note}</div>
+    <div style="right:6cqw;top:88cqh;font-size:1.5cqw;color:var(--ink);opacity:.8">${D.closing.meta}</div>`;
+  }
+};
+
+/* =================== C3 终端绿 =================== */
+const C3 = {
+  theme:"c3", cls:"term", vars:()=>"--paper:var(--c3-paper);--ink:var(--c3-ink);--accent:var(--c3-accent)",
+  chrome(){return `<div style="left:0;top:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,color-mix(in srgb,var(--ink) 5%,transparent) 0 1px,transparent 1px 4px)"></div>`;},
+  win(t,x,y,w,h,body){return `<div style="left:${x}cqw;top:${y}cqh;width:${w}cqw;height:${h}cqh;border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);box-shadow:0 0 22px -4px color-mix(in srgb,var(--accent) 45%,transparent)">
+    <div style="left:0;top:0;width:100%;height:3cqh;background:color-mix(in srgb,var(--accent) 14%,transparent);border-bottom:1px solid color-mix(in srgb,var(--accent) 30%,transparent);font-size:1.5cqw;color:var(--accent);padding:0 .8cqw;display:flex;align-items:center">${t}</div>
+    <div style="left:.8cqw;top:4.4cqh;right:.8cqw;bottom:1cqh;color:var(--ink);font-size:1.5cqw;line-height:1.5">${body}</div></div>`;},
+  cover(){return `
+    ${this.win("session: boot",5,8,90,80,
+      `<div style="color:var(--accent);font-size:1.5cqw">$ ./neural_forge --start</div>
+       <div style="opacity:.6;font-size:1.5cqw;margin:.4cqh 0">[ok] loading cognitive boundary module</div>
+       <div style="font-size:6.2cqw;color:var(--ink);font-weight:600;margin:.6cqh 0;white-space:pre-line">${D.title}</div>
+       <div style="opacity:.7;font-size:1.5cqw">${D.subtitle}</div>
+       <div style="margin-top:1cqh;color:var(--accent);font-size:1.5cqw">${D.brand} · ${D.date}<span style="display:inline-block;width:.55em;height:1em;background:var(--accent);box-shadow:0 0 10px var(--accent);margin-left:.2em"></span></div>`)}`;
+  },
+  toc(){let items='<div style="font-size:2cqw;line-height:2.2;margin-top:1cqh">'+D.toc.map((it,i)=>`<div style="opacity:.85"><span style="color:var(--accent)">${i===D.toc.length-1?'└':'├'}─</span> ${it.n}  <span style="color:var(--ink)">${it.t}</span>  <span style="opacity:.55">${it.d}</span></div>`).join("")+'</div>';
+    return this.win("$ ls ./chapters",5,6,90,86,items);},
+  low(){return `
+    ${this.win("$ claim",5,8,58,80,
+      `<div style="color:var(--accent);font-size:1.5cqw">$ state --belief</div>
+       <div style="font-size:4.4cqw;color:var(--ink);font-weight:600;margin:.6cqh 0;white-space:pre-line;line-height:1.08">${D.claim.head}</div>
+       <div style="opacity:.7;font-size:1.5cqw;margin-top:1cqh">${D.claim.note}</div>
+       <div style="margin-top:1cqh;color:var(--accent);font-size:1.5cqw">></div>`)}
+    ${this.win("stat --brief",66,8,28,80,
+      `<div style="opacity:.6;font-size:1.5cqw">intercepted</div>
+       <div style="font-size:4cqw;color:var(--accent);font-weight:600">${D.claim.stat.num}</div>
+       <div style="opacity:.6;font-size:1.5cqw;margin-top:.6cqh;line-height:1.4">${D.claim.stat.cap}</div>`)}`;
+  },
+  high(){let s="";const w=28.5,gap=2.2,x0=5,y=8,h=78;
+    D.analysis.mods.forEach((m,i)=>{const x=x0+i*(w+gap);
+      s+=this.win(`module.${i+1}`,x,y,w,h,`<div style="color:var(--accent);font-size:1.5cqw;font-weight:600">${m.h}</div><div style="opacity:.85;font-size:1.5cqw;margin-top:.8cqh;line-height:1.5">${m.b}</div>`);});
+    return s;
+  },
+  chart(){const max=100,h=48,base=64,x0=6,w=12,gap=2.2;
+    let bars=D.chart.series.map((p,i)=>{const x=x0+i*(w+gap);const bh=p.v/100*h;const acc=i===D.chart.series.length-1?'background:var(--accent)':'background:color-mix(in srgb,var(--ink) 70%,transparent)';
+      return `<div style="left:${x}cqw;top:${base-bh}cqh;width:${w}cqw;height:${bh}cqh;${acc}"></div>
+        <div style="left:${x}cqw;top:${base+1.4}cqh;font-size:1.5cqw;color:var(--ink);opacity:.7">${p.c}</div>
+        <div style="left:${x}cqw;top:${base-bh-3}cqh;font-size:1.5cqw;color:${i===D.chart.series.length-1?'var(--accent)':'var(--ink)'}">${p.v}</div>`;}).join("");
+    return this.win("stat --trend",5,6,90,86,
+      `<div style="color:var(--accent);font-size:1.5cqw">$ plot --metric plausibility</div>
+       <div style="position:absolute;left:1cqw;top:5cqh;right:1cqw;bottom:2cqh">${bars}
+       <div style="position:absolute;left:6cqw;top:${base+4}cqh;width:80cqw;height:1px;background:color-mix(in srgb,var(--ink) 30%,transparent)"></div>
+       <div style="position:absolute;left:1cqw;top:${base+9}cqh;font-size:1.5cqw;color:var(--accent)">↑ ${D.chart.take}</div></div>`);
+  },
+  closing(){return `
+    ${this.win("session: exit",5,8,90,80,
+      `<div style="color:var(--accent);font-size:1.5cqw">$ ./neural_forge --close</div>
+       <div style="font-size:5cqw;color:var(--ink);font-weight:600;margin:1cqh 0;white-space:pre-line;line-height:1.05">${D.closing.head}</div>
+       <div style="opacity:.7;font-size:1.5cqw">${D.closing.note}</div>
+       <div style="margin-top:1.4cqh;color:var(--accent);font-size:1.5cqw">> ${D.closing.meta}<span style="display:inline-block;width:.55em;height:1em;background:var(--accent);box-shadow:0 0 10px var(--accent);margin-left:.2em"></span></div>`)}`;
+  }
+};
+
+/* =================== H1 氤氲手卷 =================== */
+const H1 = {
+  theme:"h1", cls:"scroll", vars:()=>"--paper:var(--h1-paper);--ink:var(--h1-ink);--accent:var(--h1-accent);--hl-1:var(--h1-gold);--accent-2:var(--h1-2);--accent-3:var(--h1-3)",
+  chrome(){return `
+    <div style="left:0;right:0;top:0;height:2.4cqh;background:linear-gradient(90deg,var(--hl-1),color-mix(in srgb,var(--hl-1) 45%,var(--paper)),var(--hl-1))"></div>
+    <div style="left:0;right:0;bottom:0;height:2.4cqh;background:linear-gradient(90deg,var(--hl-1),color-mix(in srgb,var(--hl-1) 45%,var(--paper)),var(--hl-1))"></div>
+    <div style="left:4cqw;top:6cqh;width:30cqw;height:30cqw;border-radius:50%;background:color-mix(in srgb,var(--accent-2) 26%,transparent);filter:blur(40px)"></div>
+    <div style="right:6cqw;bottom:8cqh;width:26cqw;height:26cqw;border-radius:50%;background:color-mix(in srgb,var(--accent-3) 24%,transparent);filter:blur(40px)"></div>`;
+  },
+  seal(t,x,y,s){return `<div style="left:${x}cqw;top:${y}cqh;width:${s}cqw;height:${s}cqw;border:2px solid var(--accent);border-radius:6px;color:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'STKaiti','KaiTi',serif;font-size:${s*0.6}cqw;transform:rotate(-6deg);background:color-mix(in srgb,var(--accent) 5%,transparent)">${t}</div>`;},
+  cover(){return `
+    <div style="left:0;right:0;top:0;height:2.4cqh;background:linear-gradient(90deg,var(--hl-1),color-mix(in srgb,var(--hl-1) 45%,var(--paper)),var(--hl-1))"></div>
+    <div style="left:0;right:0;bottom:0;height:2.4cqh;background:linear-gradient(90deg,var(--hl-1),color-mix(in srgb,var(--hl-1) 45%,var(--paper)),var(--hl-1))"></div>
+    <div style="right:6cqw;top:10cqh;font-family:'STKaiti','KaiTi',serif;font-size:40cqw;color:color-mix(in srgb,var(--ink) 5%,transparent);line-height:1">夢</div>
+    <div style="right:8cqw;top:6cqh;writing-mode:vertical-rl;font-size:4.8cqw;font-weight:700;color:var(--ink);letter-spacing:.02em;height:90cqh">${D.title}</div>
+    <div style="right:31cqw;top:28cqh;writing-mode:vertical-rl;font-size:1.5cqw;color:var(--ink);opacity:.6;height:60cqh">${D.subtitle}</div>
+    <div style="left:6cqw;top:78cqh;font-size:1.5cqw;color:var(--ink);opacity:.7;letter-spacing:.1em">${D.brand} · ${D.date}</div>
+    ${this.seal("印",12,18,9)}`;
+  },
+  toc(){let s=`<div style="left:6cqw;top:5cqh;font-size:1.6cqw;letter-spacing:.2em;color:var(--accent-2)">展卷 · 目录</div>`;
+    const x0=[66,50,34,18,4]; // 自右向左递推
+    D.toc.slice().reverse().forEach((it,i)=>{const x=x0[i];const y=20;
+      s+=`<div style="left:${x}cqw;top:${y}cqh;width:14cqw;height:50cqh;border-left:1px solid color-mix(in srgb,var(--ink) 18%,transparent);padding-left:1cqw">
+        <div style="font-family:'STKaiti','KaiTi',serif;font-size:2.9cqw;color:var(--accent-2)">${it.n}</div>
+        <div style="font-size:2.1cqw;font-weight:700;color:var(--ink);margin-top:.6cqh">${it.t}</div>
+        <div style="font-size:1.8cqw;color:var(--ink);opacity:.8;margin-top:1.2cqh;line-height:1.55">${it.d}</div></div>`;});
+    return s;
+  },
+  low(){return `
+    <div style="right:8cqw;top:12cqh;writing-mode:vertical-rl;font-size:4.1cqw;font-weight:700;color:var(--ink);height:86cqh;white-space:pre-line;line-height:1.15">${D.claim.head}</div>
+    <div style="left:6cqw;top:20cqh;width:36cqw;font-size:1.8cqw;color:var(--ink);opacity:.85;line-height:1.6">${D.claim.note}</div>
+    <div style="left:6cqw;top:44cqh;font-family:'STKaiti','KaiTi',serif;font-size:5cqw;color:var(--accent)">${D.claim.stat.num}</div>
+    <div style="left:6cqw;top:62cqh;font-size:1.8cqw;color:var(--ink);opacity:.8;line-height:1.5;width:30cqw">${D.claim.stat.cap}</div>
+    ${this.seal("真",12,72,7)}`;
+  },
+  high(){const x0=[60,38,16];const hs=["论点","说明","数字"];
+    let s=`<div style="left:6cqw;top:5cqh;font-size:1.9cqw;font-weight:700;color:var(--ink)">${D.analysis.head}</div>`;
+    D.analysis.mods.forEach((m,i)=>{const x=x0[i];
+      s+=`<div style="left:${x}cqw;top:18cqh;width:20cqw;height:60cqh;border-left:3px solid ${i===1?'var(--accent)':'var(--hl-1)'};padding-left:1cqw">
+        <div style="font-family:'STKaiti','KaiTi',serif;font-size:1.5cqw;color:var(--accent-2)">${hs[i]}</div>
+        <div style="font-size:1.7cqw;font-weight:700;color:var(--ink);margin-top:.4cqh">${m.h}</div>
+        <div style="font-size:1.5cqw;color:var(--ink);opacity:.7;margin-top:.8cqh;line-height:1.55">${m.b}</div></div>`;});
+    s+=`<div style="left:6cqw;top:84cqh;font-size:1.5cqw;color:var(--ink);opacity:.6">${D.analysis.tags.join("　·　")}</div>`;
+    return s;
+  },
+  chart(){const max=100,h=50,base=70,x0=30,w=10,gap=4;
+    let bars=D.chart.series.map((p,i)=>{const x=x0+i*(w+gap);const bh=p.v/100*h;const acc=i===D.chart.series.length-1?'background:var(--accent)':'background:color-mix(in srgb,var(--ink) 35%,transparent)';
+      return `<div style="left:${x}cqw;top:${base-bh}cqh;width:${w}cqw;height:${bh}cqh;${acc}"></div>
+        <div style="left:${x}cqw;top:${base+1.6}cqh;font-size:1.5cqw;color:var(--ink);opacity:.7">${p.c}</div>
+        <div style="left:${x}cqw;top:${base-bh-3.2}cqh;font-size:1.5cqw;color:${i===D.chart.series.length-1?'var(--accent)':'var(--ink)'}">${p.v}</div>`;}).join("");
+    const numCn=["十八","卅四","五七","七九","九三"];
+    return `
+    <div style="left:6cqw;top:5cqh;font-size:1.9cqw;font-weight:700;color:var(--ink)">${D.chart.head}</div>
+    <div style="left:6cqw;top:18cqh;width:18cqw;font-size:1.5cqw;color:var(--ink);opacity:.7;line-height:1.6">${D.chart.unit}<br><br>${D.chart.take}</div>
+    ${bars}
+    <div style="left:30cqw;top:${base+6}cqh;width:60cqw;height:1px;background:color-mix(in srgb,var(--ink) 25%,transparent)"></div>
+    <div style="left:6cqw;top:62cqh;font-family:'STKaiti','KaiTi',serif;font-size:2.4cqw;color:var(--accent-2)">丙午年 · 指数 ${numCn[4]}</div>`;
+  },
+  closing(){return `
+    <div style="left:0;right:0;top:0;height:2.4cqh;background:linear-gradient(90deg,var(--hl-1),color-mix(in srgb,var(--hl-1) 45%,var(--paper)),var(--hl-1))"></div>
+    <div style="left:0;right:0;bottom:0;height:2.4cqh;background:linear-gradient(90deg,var(--hl-1),color-mix(in srgb,var(--hl-1) 45%,var(--paper)),var(--hl-1))"></div>
+    <div style="right:10cqw;top:14cqh;writing-mode:vertical-rl;font-size:4.6cqw;font-weight:700;color:var(--ink);height:84cqh;white-space:pre-line;line-height:1.2">${D.closing.head}</div>
+    <div style="left:6cqw;top:30cqh;width:34cqw;font-size:1.5cqw;color:var(--ink);opacity:.75;line-height:1.6">${D.closing.note}</div>
+    <div style="left:6cqw;top:50cqh;font-size:1.5cqw;color:var(--ink);opacity:.6;letter-spacing:.1em">${D.closing.meta}</div>
+    ${this.seal("押",12,70,9)}`;
+  }
+};
+
+const THEMES=[B1,E5,C3,H1];
+const PAGES=["cover","toc","low","high","chart","closing"];
+const PAGE_CN={cover:"封面",toc:"目录",low:"低密度·主张",high:"高密度·分析",chart:"图表",closing:"收尾"};
+
+const grid=document.getElementById("grid");
+THEMES.forEach(T=>{
+  PAGES.forEach(P=>{
+    const card=document.createElement("div"); card.className="card";
+    card.innerHTML=`<div class="cap"><span>${T.theme.toUpperCase()}</span><b>${PAGE_CN[P]}</b></div>
+      <div class="slide ${T.cls}" data-theme="${T.theme}" data-page="${P}" style="${T.vars()}">
+        <div class="flow">${T.chrome(P)}</div>
+        <div class="flow">${T[P](P)}</div>
+      </div>`;
+    grid.appendChild(card);
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,230 @@
+{
+  "n_pages": 24,
+  "themes": [
+    "b1",
+    "e5",
+    "c3",
+    "h1"
+  ],
+  "pages": [
+    "cover",
+    "toc",
+    "low",
+    "high",
+    "chart",
+    "closing"
+  ],
+  "check1_cross_theme_separable": {
+    "skeleton_corr_max": 0.7561,
+    "skeleton_corr_mean": 0.0617,
+    "skin_corr_max": 0.6383,
+    "pct_pairs_above_080": 0.0,
+    "cross_same_role_max": 0.7561,
+    "cross_same_role_mean": 0.2004,
+    "cross_diff_role_max": 0.7327,
+    "cross_diff_role_mean": 0.0339,
+    "top_collisions": [
+      {
+        "corr": 0.756,
+        "a": "b1/toc",
+        "b": "h1/toc"
+      },
+      {
+        "corr": 0.734,
+        "a": "b1/chart",
+        "b": "c3/chart"
+      },
+      {
+        "corr": 0.733,
+        "a": "b1/closing",
+        "b": "e5/high"
+      },
+      {
+        "corr": 0.722,
+        "a": "b1/low",
+        "b": "h1/high"
+      },
+      {
+        "corr": 0.716,
+        "a": "b1/toc",
+        "b": "h1/high"
+      },
+      {
+        "corr": 0.697,
+        "a": "b1/toc",
+        "b": "h1/low"
+      },
+      {
+        "corr": 0.684,
+        "a": "b1/low",
+        "b": "h1/toc"
+      },
+      {
+        "corr": 0.672,
+        "a": "b1/toc",
+        "b": "h1/cover"
+      },
+      {
+        "corr": 0.664,
+        "a": "b1/low",
+        "b": "c3/toc"
+      },
+      {
+        "corr": 0.651,
+        "a": "c3/toc",
+        "b": "h1/high"
+      },
+      {
+        "corr": 0.63,
+        "a": "b1/low",
+        "b": "c3/high"
+      },
+      {
+        "corr": 0.628,
+        "a": "c3/toc",
+        "b": "h1/toc"
+      }
+    ],
+    "pass": false
+  },
+  "check2_within_theme_cluster": {
+    "b1": {
+      "mean": 0.0287,
+      "min": -0.2937,
+      "max": 0.4793,
+      "in_band_055_085": false
+    },
+    "e5": {
+      "mean": 0.1897,
+      "min": -0.3505,
+      "max": 0.9395,
+      "in_band_055_085": false
+    },
+    "c3": {
+      "mean": 0.2902,
+      "min": -0.6458,
+      "max": 0.8791,
+      "in_band_055_085": false
+    },
+    "h1": {
+      "mean": 0.7561,
+      "min": 0.3469,
+      "max": 0.9744,
+      "in_band_055_085": true
+    }
+  },
+  "check3_per_page_type": {
+    "cover": {
+      "mean": 0.1335,
+      "max": 0.5364,
+      "pass_le_035": false
+    },
+    "toc": {
+      "mean": 0.3975,
+      "max": 0.7561,
+      "pass_le_035": false
+    },
+    "low": {
+      "mean": 0.1121,
+      "max": 0.6042,
+      "pass_le_035": false
+    },
+    "high": {
+      "mean": -0.0181,
+      "max": 0.5593,
+      "pass_le_035": false
+    },
+    "chart": {
+      "mean": 0.2868,
+      "max": 0.7336,
+      "pass_le_035": false
+    },
+    "closing": {
+      "mean": 0.2906,
+      "max": 0.5849,
+      "pass_le_035": false
+    }
+  },
+  "check4_invariants": {
+    "b1": {
+      "diag_energy_max": 0.2265,
+      "diag_zero_ok": false,
+      "dominant_counts": {
+        "horizontal": 4,
+        "vertical": 2
+      }
+    },
+    "e5": {
+      "diag_energy_min": 0.1345,
+      "diag_ge_25_ok": false,
+      "dominant_counts": {
+        "horizontal": 6
+      }
+    },
+    "c3": {
+      "diag_energy": [
+        0.1657,
+        0.1684,
+        0.2218,
+        0.2086,
+        0.2305,
+        0.2013
+      ],
+      "dominant_counts": {
+        "horizontal": 6
+      }
+    },
+    "h1": {
+      "vertical_count": 0,
+      "total": 6,
+      "vertical_ok": false
+    }
+  },
+  "rhythm": {
+    "b1": {
+      "note": "无强/弱分化样本（仅有 强/中）"
+    },
+    "e5": {
+      "strong_weak_mean": 0.5487,
+      "weak_weak_mean": null
+    },
+    "c3": {
+      "strong_weak_mean": 0.4401,
+      "weak_weak_mean": 0.2152
+    },
+    "h1": {
+      "strong_weak_mean": 0.7043,
+      "weak_weak_mean": 0.3469
+    }
+  },
+  "centroid_dispersion": {
+    "b1": {
+      "cx_std": 0.1153,
+      "cy_std": 0.1068
+    },
+    "e5": {
+      "cx_std": 0.0445,
+      "cy_std": 0.0916
+    },
+    "c3": {
+      "cx_std": 0.045,
+      "cy_std": 0.0687
+    },
+    "h1": {
+      "cx_std": 0.0538,
+      "cy_std": 0.0118
+    }
+  },
+  "summary": {
+    "check1_pass": false,
+    "check2_all_in_band": false,
+    "check3_all_types_pass": false,
+    "check4_ok": false
+  },
+  "measurement_caveats": [
+    "指纹骨架层 s 仅 10×6=60 格、强模糊后只保留「哪重哪空」——被页面角色(封面/图表/目录)的功能结构主导，同角色跨主题页天然趋同，这是方法局限不是主题缺陷。",
+    "edge_struct 方向只用 4 个 22.5° 分箱：E5 的 −12° 力带长边近水平会被计入 horizontal；H1 细竖排标题被上下金轴(水平)的粗边压制，二者都读不出真实签名方向，invariants 的方向项须改在 DOM 几何层校验。",
+    "本批 24 张为最新无头渲染(经 npmmirror 镜像装好 Chromium 后重渲)，已包含字号下限(1.5cqw)、H1 竖排断列修复与 E5 目录对齐；结论与上一轮一致。",
+    "原始 4 页演示(不同角色各一)的「类间可分」是在 apple-vs-orange 下成立的；本 24 页同角色对照才是 DNA 的真正试金石，目前仅 H1 通过。"
+  ]
+}

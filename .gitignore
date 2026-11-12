@@ -68,3 +68,12 @@ docs/progress/_logs/
 # 仓库根 tests/：开发侧验收 harness 与基准 deck（用户从不运行；根 README 的 Project Layout 需相应调整）
 # 两条都以 / 开头锚定仓库根，不会误伤技能目录内任何同名子目录
 /tests/
+
+# ── 主题 DNA 研究资产：analysis/ 整目录只做本地提交 ─────────────
+# 用户决策（2026-11-12）：G10 规范草案、_fingerprint.py、check-dna.py、
+# dna-pilot.html 及诊断/pilot 截图是「审美巅峰」判据的原始依据，整目录纳入
+# 本地版本库，避免换机或干净克隆后丢失；显式放行，防止将来新增的根目录
+# 通配忽略规则误伤（同 /docs/* + !/docs/progress/ 的白名单思路）。
+# 注意：目录内脚本/日志含本机绝对路径与内部研究痕迹，按项目约定**只提交
+# 本地、不推送公开远端**；若将来要 push，需先复核并清理这些文件。
+!/analysis/

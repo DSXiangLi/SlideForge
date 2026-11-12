@@ -1,0 +1,8 @@
+[1] font-size<cqw 下限 1.5cqw：扫描 93 处，已提升 0 处
+[2] 1   right:8cqw;top:30cqh;writing-mode:vertical-rl;font
+[2] 1   right:8cqw;top:20cqh;writing-mode:vertical-rl;font
+[2] 1   font-size:5cqw;font-weight:700;color:var(--ink);he
+[2] 1   top:${pg==='toc'?64:42}cqh
+[2] 1   const x=4+i*1.6, y=20+i*11;
+
+写入完成。

@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>主题的灵魂在哪里丢失 · SlideForge 深层诊断</title>
+<style>
+:root{
+  --bg:#f6f5f1; --panel:#ffffff; --ink:#17181b; --soft:#4c5057; --muted:#81858c;
+  --line:#e3e1da; --line2:#d2cfc6; --blue:#002FA7; --red:#a5322c; --green:#1c7a45;
+  --mono:"SF Mono","JetBrains Mono","Consolas","Menlo",monospace;
+  --sans:"PingFang SC","Microsoft YaHei","Noto Sans SC","Helvetica Neue",sans-serif;
+  --serif:"Songti SC","SimSun","Noto Serif SC",serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;line-height:1.75}
+.wrap{max-width:1180px;margin:0 auto;padding:64px 40px 120px}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+h1{font-size:42px;line-height:1.28;font-weight:600;letter-spacing:-.02em;max-width:900px}
+h1 em{font-style:normal;color:var(--blue)}
+.lede{font-size:17px;color:var(--soft);max-width:820px;margin-top:22px}
+h2{font-size:25px;font-weight:600;letter-spacing:-.01em;margin:0 0 8px}
+.sec{margin-top:88px}
+.sec-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--line2);padding-bottom:16px;margin-bottom:30px}
+.sec-num{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.1em;flex:none}
+.sec-sub{font-size:14px;color:var(--muted);margin-left:auto;text-align:right;max-width:420px}
+p{margin:0 0 14px;font-size:15px;color:var(--soft)}
+strong{color:var(--ink);font-weight:600}
+code{font-family:var(--mono);font-size:.88em;background:#eeece6;padding:1px 5px;border-radius:3px;color:#333}
+
+/* 断层图 */
+.channels{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:26px}
+.src{background:var(--ink);color:#f5f4f0;border-radius:10px;padding:18px 22px;margin-bottom:14px}
+.src b{font-size:15px;font-weight:600;display:block;margin-bottom:6px}
+.src span{font-size:13px;opacity:.62;line-height:1.6}
+.ch{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px 20px 22px;position:relative}
+.ch::before{content:"";position:absolute;top:-15px;left:28px;width:1px;height:15px;background:var(--line2)}
+.ch .tag{font-family:var(--mono);font-size:10px;letter-spacing:.12em;padding:3px 8px;border-radius:4px;display:inline-block;margin-bottom:12px}
+.ch h3{font-size:16px;font-weight:600;margin-bottom:8px;line-height:1.4}
+.ch p{font-size:13px;line-height:1.7;margin:0}
+.ch .dest{font-family:var(--mono);font-size:11px;margin-top:14px;padding-top:12px;border-top:1px dashed var(--line2);color:var(--muted)}
+.ch.live{border-color:#b9c6e0;background:#fbfcff}
+.ch.live .tag{background:#e8ecf7;color:var(--blue)}
+.ch.dead .tag{background:#f6e7e5;color:var(--red)}
+.ch.dead{border-color:#eddad7}
+.ch .lost{color:var(--red);font-weight:600}
+.verdict{margin-top:22px;background:#fff8f6;border-left:3px solid var(--red);padding:18px 22px;border-radius:0 8px 8px 0;font-size:15px;color:var(--soft)}
+.verdict b{color:var(--ink)}
+
+/* 证据 */
+.evid{display:grid;grid-template-columns:1.05fr .95fr;gap:30px;align-items:start}
+.face{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px}
+.face img{width:100%;display:block;border-radius:4px;filter:contrast(1.25)}
+.face figcaption{font-size:12px;color:var(--muted);margin-top:12px;line-height:1.6}
+.metrics{display:flex;flex-direction:column;gap:14px}
+.metric{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+.metric .row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:9px}
+.metric .k{font-size:13px;color:var(--soft)}
+.metric .v{font-family:var(--mono);font-size:19px;font-weight:600;color:var(--ink)}
+.bar{height:7px;background:#eceae4;border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--blue);border-radius:4px}
+.bar i.warn{background:var(--red)}
+.metric small{display:block;font-size:11.5px;color:var(--muted);margin-top:9px;line-height:1.55}
+.kv{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px}
+.kv div{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:13px 15px}
+.kv b{display:block;font-family:var(--mono);font-size:18px;font-weight:600;color:var(--red)}
+.kv span{font-size:11.5px;color:var(--muted);line-height:1.5;display:block;margin-top:4px}
+.callout{margin-top:24px;font-size:14px;color:var(--soft);background:#fff;border:1px solid var(--line);border-radius:10px;padding:20px 22px}
+.callout b{color:var(--ink)}
+
+/* 盲测 */
+.controls{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin-bottom:22px;padding:14px 16px;background:var(--panel);border:1px solid var(--line);border-radius:10px}
+button{font-family:inherit;font-size:13px;padding:8px 15px;border:1px solid var(--line2);background:#fff;color:var(--soft);border-radius:6px;cursor:pointer;transition:.15s}
+button:hover{border-color:var(--blue);color:var(--blue)}
+button.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+button.primary:hover{background:var(--blue);border-color:var(--blue);color:#fff}
+button.on{background:#e8ecf7;border-color:#9fb2dd;color:var(--blue)}
+.hint{font-size:12px;color:var(--muted);margin-left:auto}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
+.card{min-width:0}
+.card .cap{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:8px}
+.card .cap b{font-size:13px;font-weight:600}
+.card .cap span{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.slide{width:100%;aspect-ratio:16/9;container-type:inline-size;position:relative;overflow:hidden;border-radius:3px;box-shadow:0 3px 18px rgba(20,20,25,.11);font-size:12px}
+.slide *{box-sizing:border-box}
+.slide .abs{position:absolute}
+.slide .mono{font-family:var(--mono)}
+.dna-note{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.55;min-height:34px}
+body.hide-names .cap b,body.hide-names .dna-note{visibility:hidden}
+body.grayscale .slide{filter:grayscale(1)}
+body.thumb .grid{grid-template-columns:repeat(4,1fr);gap:12px}
+body.thumb .card .cap b,body.thumb .dna-note{display:none}
+body.thumb .slide{box-shadow:0 2px 10px rgba(20,20,25,.14)}
+body.thumb .controls{margin-bottom:16px}
+
+/* ---- B1 瑞士 · 算子：网格吸附 + 倒挂尺度 ---- */
+.s-b1{background:#fafaf8;color:#0a0a0a;font-family:var(--sans)}
+.s-b1 .gridlines{position:absolute;inset:0;background-image:repeating-linear-gradient(90deg,rgba(10,10,10,.055) 0 1px,transparent 1px 8.333cqw);pointer-events:none}
+.s-b1 .rk{left:6.25cqw;top:5.2cqw;font-size:1.02cqw;letter-spacing:.14em;font-family:var(--mono)}
+.s-b1 h3{position:absolute;left:6.25cqw;top:9cqw;width:62cqw;font-size:9.1cqw;line-height:1.03;font-weight:200;letter-spacing:-.035em}
+.s-b1 h3 span{display:block}
+.s-b1 .hair{left:6.25cqw;top:29.4cqw;width:50cqw;height:1px;background:rgba(10,10,10,.42)}
+.s-b1 .claim{left:6.25cqw;top:31.6cqw;width:46cqw;font-size:1.68cqw;font-weight:600;line-height:1.5}
+.s-b1 .body{left:6.25cqw;top:36.4cqw;width:43cqw;font-size:1.05cqw;line-height:1.85;color:#3c3c3c}
+.s-b1 .spine{position:absolute;left:73.5cqw;top:9cqw;width:20cqw;border-left:1px solid rgba(10,10,10,.3);padding-left:2cqw}
+.s-b1 .spine .item{padding:0 0 2.6cqw;margin-bottom:2.6cqw;border-bottom:1px solid rgba(10,10,10,.14)}
+.s-b1 .spine .item:last-child{border:0}
+.s-b1 .spine .n{font-size:3.5cqw;font-weight:200;line-height:1;letter-spacing:-.04em}
+.s-b1 .spine .l{font-size:.92cqw;font-family:var(--mono);letter-spacing:.08em;color:#5a5a5a;margin-top:.6cqw}
+.s-b1 .focus{position:absolute;left:73.5cqw;top:38.6cqw;width:20cqw;height:12.6cqw;background:#002FA7;color:#fff;padding:1.4cqw 1.8cqw}
+.s-b1 .focus .n{font-size:6.2cqw;font-weight:200;line-height:.95}
+.s-b1 .focus .l{font-size:.92cqw;font-family:var(--mono);letter-spacing:.12em;margin-top:.4cqw;opacity:.9}
+.s-b1 .foot{left:11cqw;bottom:2.4cqw;font-size:1.02cqw;font-family:var(--mono);letter-spacing:.14em;color:#5f5f5f}
+.s-b1 .cross{width:1.1cqw;height:1.1cqw;opacity:.5}
+.s-b1 .cross::before,.s-b1 .cross::after{content:"";position:absolute;background:#0a0a0a}
+.s-b1 .cross::before{left:50%;top:0;bottom:0;width:1px}
+.s-b1 .cross::after{top:50%;left:0;right:0;height:1px}
+
+/* ---- E5 构成主义 · 算子：−12° 力线劈开版面 ---- */
+.s-e5{background:#eadfc4;color:#171310;font-family:var(--sans)}
+.s-e5 .grain{position:absolute;inset:0;background-image:radial-gradient(rgba(23,19,16,.13) .5px,transparent .6px);background-size:4px 4px;opacity:.55}
+.s-e5 .kick{left:5.5cqw;top:4.4cqw;font-family:var(--mono);font-size:1.05cqw;letter-spacing:.14em}
+.s-e5 .diag{position:absolute;left:-12cqw;top:19cqw;width:126cqw;height:13.2cqw;background:#9E1B1E;transform:rotate(-12deg);display:flex;align-items:center;padding-left:17cqw;box-shadow:0 1.1cqw 0 rgba(23,19,16,.2)}
+.s-e5 .diag b{font-size:5.1cqw;font-weight:900;letter-spacing:.01em;color:#eadfc4;line-height:1;white-space:nowrap}
+.s-e5 .claim{right:6cqw;top:5.2cqw;width:34cqw;text-align:right;font-size:1.62cqw;font-weight:800;line-height:1.42}
+.s-e5 .bar{position:absolute;right:6cqw;top:12.6cqw;width:9cqw;height:1.15cqw;background:#171310}
+.s-e5 .steps{position:absolute;left:6cqw;top:36cqw}
+.s-e5 .step{display:flex;align-items:baseline;gap:1.4cqw;margin-bottom:1.35cqw}
+.s-e5 .step:nth-child(2){margin-left:6cqw}
+.s-e5 .step:nth-child(3){margin-left:12cqw}
+.s-e5 .step .b{width:3.4cqw;height:.85cqw;background:#171310;flex:none;transform:translateY(-.32cqw)}
+.s-e5 .step .n{font-size:3.5cqw;font-weight:900;line-height:1}
+.s-e5 .step .l{font-family:var(--mono);font-size:.95cqw;letter-spacing:.06em;color:#4a3d2e}
+.s-e5 .step.hot .n{color:#9E1B1E}
+.s-e5 .step.hot .b{background:#9E1B1E}
+.s-e5 .wedge{position:absolute;right:0;bottom:0;width:33cqw;height:30cqw;background:#171310;clip-path:polygon(100% 0,100% 100%,0 100%)}
+.s-e5 .wedge span{position:absolute;right:3cqw;bottom:3cqw;color:#eadfc4;font-size:5.6cqw;font-weight:900;line-height:1}
+.s-e5 .foot{left:6cqw;bottom:2.4cqw;width:58cqw;font-family:var(--mono);font-size:.98cqw;line-height:1.6;letter-spacing:.06em;color:#5b4c38}
+
+/* ---- C3 终端绿 · 算子：内容 = 一次会话输出流 ---- */
+.s-c3{background:#0d1117;color:#e6edf3;font-family:var(--mono)}
+.s-c3 .scan{position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(230,237,243,.045) 0 1px,transparent 1px 4px);pointer-events:none}
+.s-c3 .titlebar{position:absolute;left:5cqw;right:5cqw;top:3.4cqw;height:2.6cqw;border:1px solid rgba(57,211,83,.42);display:flex;align-items:center;justify-content:space-between;padding:0 1cqw;font-size:.92cqw;letter-spacing:.09em;color:rgba(230,237,243,.68)}
+.s-c3 .win{position:absolute;top:8.4cqw;height:38cqw;border:1px solid rgba(57,211,83,.45);box-shadow:inset 0 0 1.6cqw rgba(57,211,83,.07)}
+.s-c3 .win::before,.s-c3 .win::after{content:"+";position:absolute;color:#39d353;font-size:1.3cqw;line-height:1}
+.s-c3 .win::before{top:-.7cqw;left:-.45cqw}
+.s-c3 .win::after{bottom:-.9cqw;right:-.45cqw;opacity:0}
+.s-c3 .win-main{left:5cqw;width:62cqw;padding:2.6cqw 2.8cqw}
+.s-c3 .win-side{left:70cqw;width:25cqw;padding:2.2cqw 1.8cqw}
+.s-c3 .win-side::after{opacity:1}
+.s-c3 .win-side::before{opacity:0}
+.s-c3 .wh{font-size:.86cqw;letter-spacing:.1em;color:rgba(230,237,243,.42);border-bottom:1px solid rgba(57,211,83,.25);padding-bottom:.8cqw;margin-bottom:2.2cqw}
+.s-c3 .prompt{font-size:3.5cqw;font-weight:600;line-height:1.24;letter-spacing:-.02em}
+.s-c3 .prompt .p{color:#39d353}
+.s-c3 .caret{display:inline-block;width:.5em;height:.92em;background:#39d353;margin-left:.1em;vertical-align:-.1em;box-shadow:0 0 .8cqw rgba(57,211,83,.8)}
+.s-c3 .claim{margin-top:2.4cqw;font-size:1.25cqw;color:#e6edf3}
+.s-c3 .body{margin-top:1.6cqw;font-size:1.02cqw;line-height:1.9;color:rgba(230,237,243,.62);max-width:52cqw}
+.s-c3 .stat{display:flex;justify-content:space-between;align-items:baseline;padding:1.35cqw 0;border-bottom:1px dashed rgba(57,211,83,.22);font-size:1.05cqw}
+.s-c3 .stat span{color:rgba(230,237,243,.62)}
+.s-c3 .stat b{font-size:2.2cqw;font-weight:600}
+.s-c3 .stat.hot b{color:#39d353}
+.s-c3 .out{position:absolute;left:5cqw;top:49cqw;font-size:1.05cqw;color:rgba(230,237,243,.72)}
+.s-c3 .out b{color:#39d353}
+
+/* ---- H1 氤氲手卷 · 算子：从右向左展开，题跋即层级 ---- */
+.s-h1{background:#faf7f3;color:#241f2b;font-family:var(--serif)}
+.s-h1 .mist{position:absolute;inset:0;background:radial-gradient(42% 46% at 12% 8%,rgba(141,122,168,.26),transparent 70%),radial-gradient(38% 42% at 88% 22%,rgba(111,132,166,.22),transparent 72%),radial-gradient(44% 40% at 20% 96%,rgba(187,147,171,.2),transparent 70%),radial-gradient(34% 36% at 86% 92%,rgba(127,155,147,.18),transparent 72%)}
+.s-h1 .rod{position:absolute;left:0;right:0;height:1.1cqw;background:linear-gradient(90deg,#c9a86a,rgba(201,168,106,.42),#c9a86a);box-shadow:0 .5cqw 1.4cqw rgba(36,31,43,.18)}
+.s-h1 .rod.t{top:0}.s-h1 .rod.b{bottom:0}
+.s-h1 .capd{position:absolute;width:1.4cqw;height:1.4cqw;border-radius:50%;background:radial-gradient(circle at 34% 30%,#efe0b8,#c9a86a 62%,#8d7340)}
+.s-h1 .capd.a{left:0;top:0}.s-h1 .capd.b{right:0;top:0}.s-h1 .capd.c{left:0;bottom:0}.s-h1 .capd.d{right:0;bottom:0}
+.s-h1 .vtitle{position:absolute;right:9cqw;top:5.2cqw;writing-mode:vertical-rl;font-size:6.1cqw;font-weight:800;line-height:1.16;letter-spacing:.06em;height:43cqw}
+.s-h1 .vtitle .thin{font-size:2.1cqw;font-weight:400;color:#6b5f7a;letter-spacing:.3em;margin-left:1.4cqw}
+.s-h1 .brush{position:absolute;right:21cqw;top:6cqw;width:.18cqw;height:41cqw;background:linear-gradient(180deg,transparent,rgba(141,122,168,.7),rgba(111,132,166,.6),transparent)}
+.s-h1 .seal{position:absolute;left:8cqw;top:6.2cqw;width:5.4cqw;height:5.4cqw;border:.22cqw solid #9c3b34;border-radius:.6cqw;color:#9c3b34;display:flex;align-items:center;justify-content:center;font-size:3cqw;font-weight:700;transform:rotate(-6deg);background:rgba(156,59,52,.05)}
+.s-h1 .col{position:absolute;writing-mode:vertical-rl;height:30cqw;line-height:1.9;font-size:1.28cqw;color:#4a4155;top:14cqw}
+.s-h1 .col.c1{left:52cqw}
+.s-h1 .col.c2{left:44cqw;color:#6a6079}
+.s-h1 .col.c3{left:36cqw;top:16cqw;height:26cqw;font-size:1.12cqw;color:#7a7189;line-height:2.1}
+.s-h1 .col b{color:#241f2b;font-weight:700;font-size:2.1cqw}
+.s-h1 .col em{font-style:normal;color:#9c3b34;font-weight:700}
+.s-h1 .colophon{position:absolute;left:8cqw;bottom:5cqw;font-family:var(--mono);font-size:.9cqw;letter-spacing:.16em;color:#8a8091}
+.s-h1 .footline{position:absolute;left:8cqw;right:8cqw;bottom:4.2cqw;height:1px;background:linear-gradient(90deg,transparent,rgba(141,122,168,.6),rgba(111,132,166,.5),transparent)}
+
+/* 解码卡片 */
+.decode{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:8px}
+.dcard{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:22px}
+.dcard .t{display:flex;align-items:baseline;gap:10px;margin-bottom:14px}
+.dcard .t b{font-size:16px;font-weight:600}
+.dcard .t span{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.dcard dl{margin:0}
+.dcard dt{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-top:14px}
+.dcard dd{font-size:14px;color:var(--soft);line-height:1.7;margin-top:4px}
+.dcard dd.op{color:var(--ink);font-weight:600}
+.dcard ul{margin:6px 0 0 16px}
+.dcard li{font-size:13px;color:var(--soft);margin-bottom:4px;line-height:1.6}
+
+/* 规范 */
+.schema{background:var(--ink);color:#e9e8e3;border-radius:10px;padding:24px 26px;font-family:var(--mono);font-size:12.5px;line-height:1.95;overflow-x:auto;white-space:pre}
+.schema .c{color:#8fa4c8}.schema .k{color:#e0c07a}.schema .v{color:#b6d7b0}
+.cols{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px}
+.colbox{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px}
+.colbox h3{font-size:14px;font-weight:600;margin-bottom:10px}
+.colbox p,.colbox li{font-size:12.5px;line-height:1.65;color:var(--soft)}
+.colbox ul{margin-left:15px}
+.timeline{margin-top:24px;border-left:2px solid var(--line2);padding-left:22px}
+.timeline .step{position:relative;margin-bottom:20px}
+.timeline .step::before{content:"";position:absolute;left:-28px;top:7px;width:9px;height:9px;border-radius:50%;background:var(--blue)}
+.timeline .step b{font-size:14px;font-weight:600;display:block;margin-bottom:3px}
+.timeline .step span{font-size:13px;color:var(--soft)}
+.foot{margin-top:80px;padding-top:22px;border-top:1px solid var(--line2);font-size:12px;color:var(--muted);line-height:1.8}
+@media(max-width:900px){
+  .wrap{padding:40px 20px 80px}.evid,.decode,.cols,.channels{grid-template-columns:1fr}
+  .grid{grid-template-columns:1fr}body.thumb .grid{grid-template-columns:repeat(2,1fr)}
+  h1{font-size:31px}.sec-sub{display:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow">SlideForge · 深层审美诊断 / Round 2</div>
+  <h1>问题不在构图，也不在配色。<br>是<em>主题从来没有权力决定信息如何进入空间</em>。</h1>
+  <p class="lede">上一轮把版式从「排版过的 Word」改成了有构图决策的页面，但那只解决了「好不好看」。这一轮要处理你说的「没有灵魂」：为什么 30 个主题、30 份写得相当精彩的世界参考，渲染出来却是同一张脸；以及怎么把灵魂真正编译进 HTML，而不是写在 Markdown 里。</p>
+
+  <!-- ============ 01 ============ -->
+  <section class="sec">
+    <div class="sec-head"><span class="sec-num">01</span><h2>灵魂在哪里丢失的</h2><span class="sec-sub">按 theme.md 与 SKILL.md 的实际消费链路追踪</span></div>
+    <p>先说结论：<strong>项目并不缺灵魂，缺的是灵魂的传输通道。</strong><code>b1/theme.md</code> 写了「1960 年代瑞士海报、加号角标、倒挂字重、禁居中对称」，<code>e5/theme.md</code> 写了「−12° 对角力线劈开版面、红楔、阶梯错排」，<code>c3</code> 写了「整页是一次终端会话的输出流」，<code>h1</code> 写了「从右向左展开的手卷与题跋」。这些描述本身已经是美术指导级别的东西。问题是它们去了哪里。</p>
+
+    <div class="src"><b>theme.md · 一个主题的完整定义（G0–G9 + bake_brief）</b><span>七层表达力栈、世界参考、unforgettable、分化声明、layout_blueprints、rendering_constraints……全部在此，写得很细。</span></div>
+    <div class="channels">
+      <div class="ch dead">
+        <span class="tag">通道 A · 给人读</span>
+        <h3>G0 世界参考 / unforgettable / 分化声明</h3>
+        <p><code>SKILL.md · Step 2</code> 原文：「G0 的『世界参考』与『unforgettable』是<strong>向用户解释主题气质</strong>的最好语言」。它是选型话术，不是生成侧指令。</p>
+        <div class="dest">→ 消费方：人与选型面板 · <span class="lost">不进 HTML 产物</span></div>
+      </div>
+      <div class="ch dead">
+        <span class="tag">通道 B · 给生图模型读</span>
+        <h3>bake_brief · layout_blueprints / 主导隐喻 / 标题重构</h3>
+        <p><code>index.md §47</code> 原文：「整页生图风格圣经（七层栈的<strong>生图翻译层</strong>，<span class="lost">不进 HTML 产物</span>）」。只被 <code>compile-bake-prompts.py</code> 消费，即只在「烙入」整页生图时生效。</p>
+        <div class="dest">→ 消费方：Step 5.6 烙入 pass · <span class="lost">纯 HTML 产物拿不到</span></div>
+      </div>
+      <div class="ch live">
+        <span class="tag">通道 C · 唯一进 HTML 的</span>
+        <h3>G1 色值 · G2 字体 · G3 质感 · G9 母题 CSS · G5 动效</h3>
+        <p>填进 <code>SLOT: theme tokens</code> 与 <code>SLOT: theme css</code>。而 G9 母题被 <code>index.md §73</code> 定义为「<strong>在产物中是装饰</strong>」，一律 <code>data-editable-skip</code>——不承载信息。</p>
+        <div class="dest">→ 消费方：<code>SLOT: slides</code> 的 DOM 仍由通用最优解决定</div>
+      </div>
+    </div>
+    <div class="verdict"><b>所以断层是结构性的：</b>能定义身份的字段（世界观、签名动作、页角色蓝图）全部走 A/B 两条不进产物的通道；唯一进产物的 C 通道是一组<strong>可替换的形容词</strong>——色值、字体、纹理、贴纸、缓动。而 <code>skeleton.html</code> 的 <code>SLOT: slides</code> 明确写着「生成侧逐页决定」，主题对「信息如何被摆进空间」<strong>没有任何主权</strong>。于是 30 个主题共享同一副骨架，差异只落在皮肤层。</div>
+
+    <p style="margin-top:24px">更关键的是制度层：<code>sync-themes.mjs</code> 第 41–43 行把「两个主题是否不同」定义为 <code>L1–L7 七层中至少 3 层实质分化（规范化<strong>文本比较</strong>）</code>。也就是说，系统在 <strong>Markdown 元数据</strong>里判定 30 个主题两两分化合格，从来没有渲染过一帧画面来确认「看起来不同」。<code>components.md §11</code> 的六构图谱系有硬规则（连续 3 页同谱系违规），但它管的是 <strong>deck 级节奏</strong>，与主题身份无关——构图决策层是主题无关的。</p>
+  </section>
+
+  <!-- ============ 02 ============ -->
+  <section class="sec">
+    <div class="sec-head"><span class="sec-num">02</span><h2>把颜色拿掉之后</h2><span class="sec-sub">28 张 theme-sampler 样张的真实像素测量</span></div>
+    <p>对 <code>assets/theme-sampler/</code> 全部 28 张样张做灰度化、暗底极性归一、强模糊抹掉文字笔画，只保留「哪里重、哪里空」的 10×6 块密度向量（<strong>骨架层</strong>），再与未模糊的 32×18 精细向量（<strong>皮肤层</strong>）分别算两两结构相关。脚本与原始数据留在 <code>analysis/_fingerprint.py</code> / <code>_fingerprint.json</code>。</p>
+    <div class="evid">
+      <figure class="face">
+        <img src="DNA-平均脸.png" alt="28 张主题样张灰度叠加的平均脸">
+        <figcaption><b>28 个主题的平均脸。</b>不是示意图，是 28 张真实样张逐像素等权叠加。标题、两段正文、三格 KPI、三条项目符号、页脚——所有主题的元素位置几乎完全重合，叠出来仍是一张清晰可读的普通 PPT。如果每个主题有自己的空间算子，这张图应该是一团糊掉的灰。</figcaption>
+      </figure>
+      <div class="metrics">
+        <div class="metric">
+          <div class="row"><span class="k">骨架层两两结构相关（均值）</span><span class="v">0.459</span></div>
+          <div class="bar"><i class="warn" style="width:45.9%"></i></div>
+          <small>抹掉细节后，大块面分布仍高度同构；皮肤层相关仅 0.299 —— <b>差异主要落在装饰细节，不是结构</b>。</small>
+        </div>
+        <div class="metric">
+          <div class="row"><span class="k">与「平均脸」的结构相关（均值 / 最高）</span><span class="v">0.569 / 0.871</span></div>
+          <div class="bar"><i class="warn" style="width:56.9%"></i></div>
+          <small>每一张都不同程度地像那张平均脸。最高 0.871 意味着几乎就是平均脸本身。</small>
+        </div>
+        <div class="metric">
+          <div class="row"><span class="k">结构边缘主方向 = 水平</span><span class="v">28 / 28</span></div>
+          <div class="bar"><i class="warn" style="width:100%"></i></div>
+          <small>强模糊抹掉文字笔画后，28 张的大块面结构仍全部水平主导（各向异性 0.36–0.81），0 个垂直或对角主结构。<b>声明「−12° 对角切割」的 p14-e5 是 0.794 的水平主导</b>——签名动作没有形成任何大面积结构件。</small>
+        </div>
+        <div class="kv">
+          <div><b>0.416 ± 0.087</b><span>墨水重心 X（归一化 0–1）：全部挤在画面中部偏左，几乎没有非对称冒险</span></div>
+          <div><b>0.455 ± 0.064</b><span>墨水重心 Y：纵向离散度只有画布高度的 6.4%，页页同一重心</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="callout"><b>这解释了「没有灵魂」的准确含义。</b>人眼识别身份靠的是低频轮廓与空间关系（剪影、主轴、重心、留白形状），不是局部色值与角标。现在所有主题的低频特征几乎一致，人被告知「这是瑞士国际主义」才认得出瑞士——<strong>识别依赖标签，不依赖画面</strong>。而「想传递的视觉信息」更谈不上：瑞士的客观理性、构成主义的动员力、终端的机器纪律、手卷的时间展开，这些主张必须由空间关系承载，色板承载不了。</div>
+  </section>
+
+  <!-- ============ 03 ============ -->
+  <section class="sec">
+    <div class="sec-head"><span class="sec-num">03</span><h2>盲测：同一份内容，四副骨架</h2><span class="sec-sub">灰度 + 缩略 + 隐藏主题名，仍能一眼分辨才叫 DNA</span></div>
+    <p>下面四张页面<strong>文案逐字相同</strong>（章节号、主标题、论点句、说明、三个数字 30/55/0、署名），同样只用 HTML 活文字 + CSS，没有整页生图、没有牺牲可编辑性。差别只有一个：每个主题按自己的<strong>空间算子</strong>重新编译了信息结构。请点「进入盲测」——四张并排缩到缩略图、去掉全部颜色与名字，看轮廓是否还能区分。</p>
+
+    <div class="controls">
+      <button class="primary" id="btnBlind">进入盲测</button>
+      <button id="btnNames">隐藏名称</button>
+      <button id="btnGray">灰度</button>
+      <button id="btnThumb">缩略</button>
+      <span class="hint">盲测 = 隐藏名称 + 灰度 + 缩略，三项同时开启</span>
+    </div>
+
+    <div class="grid">
+
+      <div class="card">
+        <div class="cap"><b>B1 瑞士国际主义</b><span>算子 · 网格吸附 / 倒挂尺度</span></div>
+        <div class="slide s-b1">
+          <div class="gridlines"></div>
+          <div class="abs rk mono">04 / SYSTEM</div>
+          <h3><span>约束是</span><span>质量的来源</span></h3>
+          <div class="abs hair"></div>
+          <div class="abs claim">把决策前置，把自由留给内容。</div>
+          <div class="abs body">决策前置之后，三十套主题在同一套 token 上生长。差异本应来自构图法则，而不是色值；网格不是隐藏的脚手架，它就是这页要说的那句话。</div>
+          <div class="spine">
+            <div class="item"><div class="n">30</div><div class="l">THEMES / 主题数</div></div>
+            <div class="item"><div class="n">55</div><div class="l">CHECKS / 验收项</div></div>
+          </div>
+          <div class="focus"><div class="n">0</div><div class="l">AESTHETIC / 审美项</div></div>
+          <div class="abs foot">SLIDEFORGE · 2026</div>
+          <div class="abs cross" style="right:3cqw;top:3cqw"></div>
+          <div class="abs cross" style="left:3cqw;bottom:3cqw"></div>
+        </div>
+        <div class="dna-note">12 栏网格可见化 · 巨字细体语义断行 · 右侧纵向数据脊 · 唯一 IKB 实色块承载「0」· 重心左上、右侧主动负空间</div>
+      </div>
+
+      <div class="card">
+        <div class="cap"><b>E5 构成主义</b><span>算子 · −12° 力线劈开版面</span></div>
+        <div class="slide s-e5">
+          <div class="grain"></div>
+          <div class="abs kick">04 / СИСТЕМА · 2026</div>
+          <div class="abs claim">把决策前置，<br>把自由留给内容。</div>
+          <div class="abs bar"></div>
+          <div class="diag"><b>约束是质量的来源</b></div>
+          <div class="steps">
+            <div class="step"><span class="b"></span><span class="n">30</span><span class="l">THEMES</span></div>
+            <div class="step"><span class="b"></span><span class="n">55</span><span class="l">CHECKS</span></div>
+            <div class="step hot"><span class="b"></span><span class="n">0</span><span class="l">AESTHETIC — 这是要改的那个</span></div>
+          </div>
+          <div class="wedge"><span>0</span></div>
+          <div class="abs foot">决策前置之后，三十套主题在同一套 token 上生长；差异本应来自构图法则，而不是色值。</div>
+        </div>
+        <div class="dna-note">对角带是<strong>装着标题的信息容器</strong>，不是角标 · 三数字阶梯错排沿力线爬升 · 红楔从页缘楔入 · 主结构方向 −12°</div>
+      </div>
+
+      <div class="card">
+        <div class="cap"><b>C3 终端绿</b><span>算子 · 内容 = 一次会话的输出流</span></div>
+        <div class="slide s-c3">
+          <div class="scan"></div>
+          <div class="titlebar"><span>session: design-system / 04</span><span>2026 · tty1</span></div>
+          <div class="win win-main">
+            <div class="wh">~/slideforge $ cat manifest.md</div>
+            <div class="prompt"><span class="p">$ </span>约束是<br>质量的来源<span class="caret"></span></div>
+            <div class="claim">// 把决策前置，把自由留给内容。</div>
+            <div class="body">决策前置之后，三十套主题在同一套 token 上生长。差异本应来自构图法则，而不是色值。</div>
+          </div>
+          <div class="win win-side">
+            <div class="wh">$ stat --brief</div>
+            <div class="stat"><span>themes</span><b>30</b></div>
+            <div class="stat"><span>checks</span><b>55</b></div>
+            <div class="stat hot"><span>aesthetic</span><b>0</b></div>
+          </div>
+          <div class="out"><b>&gt;</b> SLIDEFORGE · 2026 — 视觉论点写在结构里，不写在色板里</div>
+        </div>
+        <div class="dna-note">等宽全栈 · 两个同构描边窗口（同 gap 同 padding）· 标题是命令行 + 光标 · 数字是 stdout 键值行 · 绿只点状出现</div>
+      </div>
+
+      <div class="card">
+        <div class="cap"><b>H1 氤氲手卷</b><span>算子 · 自右向左展开，题跋即层级</span></div>
+        <div class="slide s-h1">
+          <div class="mist"></div>
+          <div class="rod t"></div><div class="rod b"></div>
+          <div class="capd a"></div><div class="capd b"></div><div class="capd c"></div><div class="capd d"></div>
+          <div class="brush"></div>
+          <div class="vtitle">约束是质量的来源<span class="thin">CONSTRAINT AS FORM</span></div>
+          <div class="seal">审</div>
+          <div class="col c1"><b>把决策前置，把自由留给内容。</b></div>
+          <div class="col c2">决策前置之后，三十套主题在同一套 token 上生长；差异本应来自构图法则，而不是色值。</div>
+          <div class="col c3">主题三十 · 验收五十五 · <em>审美〇</em></div>
+          <div class="footline"></div>
+          <div class="colophon">SLIDEFORGE · 2026 · 卷四</div>
+        </div>
+        <div class="dna-note">上下金轴定界 · 竖排题字 + 三列题跋（不是横排 KPI 格）· 朱印是唯一句读 · 雾色只作气氛 · 主轴纵向、重心右上</div>
+      </div>
+
+    </div>
+
+    <div class="evid" style="margin-top:26px">
+      <figure class="face">
+        <img src="DNA-平均脸.png" alt="28 张现状样张的平均脸">
+        <figcaption><b>现状 · 28 个主题的平均脸</b>：叠加之后仍是一张清晰可读的 PPT。元素位置逐页对齐，说明它们共用一副骨架。</figcaption>
+      </figure>
+      <figure class="face">
+        <img src="DNA-演示平均脸.png" alt="四张 DNA 演示页的平均脸">
+        <figcaption><b>反证 · 四张演示页的平均脸</b>：同样逐像素叠加，结果是一团互相冲突的残影——四副骨架真的不同，抹不出一张共同的脸。</figcaption>
+      </figure>
+    </div>
+    <figure class="face" style="margin-top:16px">
+      <img src="DNA-盲测对照.png" alt="灰度缩略盲测对照">
+      <figcaption><b>盲测态实拍</b>：去掉颜色与主题名、缩到缩略图之后，仍能凭轮廓分辨——左起：网格矩形（B1）／ 对角带 + 楔形（E5）／ 双描边窗口（C3）／ 竖排卷轴（H1）。这是「一眼看出 DNA」最朴素的可操作定义。</figcaption>
+    </figure>
+    <div class="callout" id="demoStats"><b>用同一套指纹脚本复测（真实数据，不是估计）：</b>四张演示页的骨架层两两结构相关均值 <strong>0.459 → 0.055</strong>（下降 88%），最高配对 <strong>0.990 → 0.384</strong>；皮肤层 <strong>0.299 → 0.040</strong>。现状样张里有 <strong>23.3%</strong> 的配对骨架相关超过 0.8，演示页里是 <strong>0%</strong>。结构边缘主方向也从「28/28 全水平」里分出了竖排主结构（H1）。<br><br>结论：DNA 可以被编码，而且代价很低——<strong>没有整页生图、没有改骨架框架层、文字全部留在 DOM 可编辑</strong>。缺的从来不是表现力，是主题对空间的主权。</div>
+  </section>
+
+  <!-- ============ 04 ============ -->
+  <section class="sec">
+    <div class="sec-head"><span class="sec-num">04</span><h2>更深一层的思路：从「参数包」到「构图程序」</h2><span class="sec-sub">主题必须升级为一个编译器，而不是一套皮肤</span></div>
+    <p>上一轮我提的是「谱系从召回清单变成硬决策 + 正向审美门禁」，那仍在<strong>构图决策层</strong>——它让页面变好看，但构图法则是全局最优解，所有主题共用，所以依旧不产生身份。这一层要动的是<strong>主题的本体</strong>：主题不再只是 <code>SLOT: theme tokens</code> 的一组值，而是一段声明「信息 → 空间」映射的程序。</p>
+    <div class="decode">
+      <div class="dcard">
+        <div class="t"><b>① 把 unforgettable 从名词改成动词</b><span>现状：物件</span></div>
+        <dl>
+          <dt>现在</dt><dd>「加号角标」「对角切割」「闪烁光标」「朱砂印章」——都是<strong>贴纸</strong>。贴纸可以撒在任何版式上，所以不改变剪影。</dd>
+          <dt>改成</dt><dd class="op">签名算子 = 动词 + 受力对象 + 覆盖范围。例如 E5：「用一条 −12° 力线把版面劈成两个互相推挤的三角，所有文字沿该力线或与之对抗」。</dd>
+          <dt>硬要求</dt><dd>算子必须<strong>决定 DOM 结构</strong>（元素数量、分组、顺序、位置），不只是 CSS 外观。做不到就不是算子。</dd>
+        </dl>
+      </div>
+      <div class="dcard">
+        <div class="t"><b>② 灵魂必须承载信息</b><span>现状：装饰</span></div>
+        <dl>
+          <dt>现在</dt><dd><code>index.md §73</code>：母题件「在产物中是<strong>装饰</strong>」，一律 <code>data-editable-skip</code>。不装内容的东西永远只是壁纸——每页贴同一个，反而最没有灵魂。</dd>
+          <dt>改成</dt><dd class="op">标志性形状升级为<strong>信息容器</strong>：E5 的对角带装标题、C3 的 ASCII 框装证据、B1 的网格线是数据坐标、H1 的题跋列装论点。</dd>
+          <dt>副产品</dt><dd>文字仍在 DOM 可编辑，形状是 CSS/HTML 结构——不牺牲项目最看重的工程可靠性。</dd>
+        </dl>
+      </div>
+      <div class="dcard">
+        <div class="t"><b>③ 主题要有叙事姿态，不只是外观</b><span>现状：每页同款</span></div>
+        <dl>
+          <dt>现在</dt><dd>项目只有「首尾<strong>色彩</strong>闭环」；身份在每一页以相同强度出现，于是变成背景纹样。</dd>
+          <dt>改成</dt><dd class="op">每个主题声明一张 <strong>DNA 事件表</strong>：哪些页角色触发算子的强形态，哪些页只用弱形态。构成主义只在转折/宣言页全面劈开，数据页让网格登场——灵魂靠<strong>节奏</strong>被感知，不靠重复。</dd>
+        </dl>
+      </div>
+      <div class="dcard">
+        <div class="t"><b>④ 把「分化」从文本层搬到像素层</b><span>现状：元数据比较</span></div>
+        <dl>
+          <dt>现在</dt><dd><code>sync-themes.mjs</code> 比的是 Markdown 字段规范化文本。字段不同 ≠ 画面不同。</dd>
+          <dt>改成</dt><dd class="op">新增盲测门禁：每主题渲染若干页 → 灰度化 + 缩略 + 去标签 → 计算低频指纹向量，要求跨主题距离 ≥ 阈值、同主题跨页保留节奏方差。</dd>
+          <dt>验收口径</dt><dd>「遮住名字，人或模型仍能归类」才算有 DNA。这是唯一直接对应你那句「一眼看出」的可执行判据。</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 05 ============ -->
+  <section class="sec">
+    <div class="sec-head"><span class="sec-num">05</span><h2>落地：新增 G10 构图程序字段组</h2><span class="sec-sub">完整规范草案见 G10-主题DNA规范草案.md</span></div>
+    <p>不改骨架框架层 CSS/JS（逐字复制的纪律不动），不改导出双轨，不引入整页生图。改的是 <code>theme.md</code> 的 Schema、<code>Step 2</code> 的冻结内容、<code>Step 4</code> 的页计划表，以及新增一个像素指纹校验脚本。</p>
+    <div class="schema"><span class="c"># theme.md 新增必填字段组（G10）</span>
+<span class="k">G10 composition_program</span>
+  <span class="k">doctrine</span>: <span class="v">一句话世界观 → 这个主题要替内容主张什么（不是"看起来怎样"）</span>
+  <span class="k">signature_operator</span>: <span class="v">动词短语；必须能改 DOM 结构，不能只改 CSS 外观</span>
+  <span class="k">silhouette</span>: <span class="v">主分割方向 / 块面形状 / 重心象限 / 最大留白矩形位置</span>
+  <span class="k">info_grammar</span>: <span class="v">页角色 → (内容单元 → DOM 结构) 的映射规则，至少 cover / claim / analysis</span>
+  <span class="k">invariants</span>: <span class="v">3–5 条可机器验收的空间不变量：主轴角度、重心象限、尺度比、块面积占比、留白比</span>
+  <span class="k">forbidden_defaults</span>: <span class="v">本主题禁止落回的通用版式（B1 禁三格等权 KPI、C3 禁卡片墙…）</span>
+  <span class="k">dna_events</span>: <span class="v">页角色 → 算子强度（强/弱/无），全 deck 的节奏表</span></div>
+    <div class="cols">
+      <div class="colbox"><h3>与现有架构的冲突（必须显式处理）</h3><ul><li><strong>「主题只选不改」</strong>：不冲突，反而强化——程序是策展预设的一部分，生成侧只能执行不能即兴。</li><li><strong>「构图由内容决定」</strong>：改为「内容决定<em>信息</em>，主题决定<em>信息如何进入空间</em>」，两者分工，不是覆盖。</li><li><strong>G8 亲和/禁忌</strong>：从「可选召回清单」升级为 G10 的 <code>forbidden_defaults</code> 硬约束。</li><li><strong>G9 装饰纪律</strong>：把「承载信息的签名件」从 <code>data-editable-skip</code> 里分出来，形状留装饰、文字留可编辑。</li><li><strong>55 项负向门禁</strong>：保留全部，另加一组正向审美门禁，两者叠加不互替。</li></ul></div>
+      <div class="colbox"><h3>指纹向量（可机器测量的「一眼」）</h3><ul><li>主轴方向直方图（横 / 竖 / ±对角 / 放射）</li><li>墨水质量重心与离散度</li><li>最大留白矩形的面积与象限</li><li>大面积实色块的 bounding box 与形状</li><li>最大/最小字号比、尺度落差</li><li>重复周期（网格 / 扫描线 / 分栏）</li><li>色面积向量（accent / ink / paper 占比）</li><li>强模糊后的低频块密度向量</li></ul></div>
+      <div class="colbox"><h3>盲测门禁（新增脚本）</h3><ul><li>每主题按 G10 渲染 3 页，灰度 + 缩略 + 去标签</li><li>跨主题指纹距离 ≥ 阈值；同主题跨页节奏方差 ≥ 阈值</li><li>分类准确率（人或 VLM）≥ 阈值才允许入库</li><li>与 <code>sync-themes.mjs</code> 的文本分化校验<strong>并存</strong>，不互相替代</li><li>失败时指名「哪两个主题在像素层撞脸」，而不是笼统报「分化不足」</li></ul></div>
+    </div>
+    <div class="timeline">
+      <div class="step"><b>第 0 步 · 已在本轮完成</b><span>像素证据（28 张样张骨架/皮肤分层测量 + 平均脸）、断层定位、4 主题同内容视觉反证。</span></div>
+      <div class="step"><b>第 1 步 · 先做 4 个试点</b><span>为 B1 / E5 / C3 / H1 写完整 G10，做成 3–5 页真实 deck 样张，跑盲测，确认「一眼可辨」成立再铺量。</span></div>
+      <div class="step"><b>第 2 步 · 打通消费链路</b><span>把 <code>bake_brief.layout_blueprints</code> 与 G10 合并为单一信息源，让 HTML 产物与烙入生图共用同一份构图契约——这正是目前 A/B/C 三条通道分裂的解法。</span></div>
+      <div class="step"><b>第 3 步 · 补门禁与校验器</b><span>新增 <code>check-dna.py</code>；页计划表加「本页算子强度 + 视觉论点 + 被否掉的两案」；<code>sync-themes.mjs</code> 增 G10 schema 校验。</span></div>
+      <div class="step"><b>第 4 步 · 30 主题铺量</b><span>按「世界参考 → 签名算子 → invariants」逐主题补写；凡写不出算子的主题，说明它其实只是别人的配色变体，合并掉比留着好。</span></div>
+    </div>
+  </section>
+
+  <div class="foot">
+    本轮结论：<strong>「更精致」和「有灵魂」是两件事。</strong>精致靠约束链与工程门禁（项目已经做到极致）；灵魂靠主题对空间的主权——一个不可替换、承载信息、随叙事起伏的视觉动作。项目把这份主权写在了两处不进 HTML 的地方，所以画面里只剩皮肤。<br>
+    本轮未在技能库内改动任何 theme.md / 骨架 / 脚本；新增文件均在 <code>analysis/</code> 下，含可交互诊断页、真实渲染截图、像素测量脚本与数据、G10 规范草案。
+  </div>
+</div>
+
+<script>
+(function(){
+  var b=document.body;
+  var blind=document.getElementById('btnBlind');
+  var names=document.getElementById('btnNames');
+  var gray=document.getElementById('btnGray');
+  var thumb=document.getElementById('btnThumb');
+  function sync(){
+    names.classList.toggle('on',b.classList.contains('hide-names'));
+    gray.classList.toggle('on',b.classList.contains('grayscale'));
+    thumb.classList.toggle('on',b.classList.contains('thumb'));
+    var all=b.classList.contains('hide-names')&&b.classList.contains('grayscale')&&b.classList.contains('thumb');
+    blind.textContent=all?'退出盲测':'进入盲测';
+  }
+  blind.addEventListener('click',function(){
+    var all=b.classList.contains('hide-names')&&b.classList.contains('grayscale')&&b.classList.contains('thumb');
+    ['hide-names','grayscale','thumb'].forEach(function(c){ b.classList.toggle(c,!all); });
+    sync();
+  });
+  names.addEventListener('click',function(){b.classList.toggle('hide-names');sync();});
+  gray.addEventListener('click',function(){b.classList.toggle('grayscale');sync();});
+  thumb.addEventListener('click',function(){b.classList.toggle('thumb');sync();});
+  sync();
+})();
+</script>
+</body>
+</html>
