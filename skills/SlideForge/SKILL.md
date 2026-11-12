@@ -1,12 +1,81 @@
 ---
 name: SlideForge
-description: 生成、转换、优化并导出 16:9 网页版 PPT/PPTX（HTML slides/deck/演示文稿/汇报/路演/发布会）。用户提到 PPT/PPTX、slides、deck、演示文稿，或把资料/现有 PPTX/HTML 变成幻灯片时使用；Bridge 五工具可见时 editor-first。
-whenToUse: 用户要从零制作或修改任何 PPT/PPTX/slides/deck/演示文稿，转换现有 PPTX，优化已有 HTML 幻灯片，或最终导出 PPTX/PDF 时使用；Bridge 五工具齐备时必须 editor-first。
+description: 生成、转换、优化并导出 16:9 网页版 PPT/PPTX（HTML slides/deck/演示文稿/汇报/路演/发布会）。用户提到 PPT/PPTX、slides、deck、演示文稿，或把资料/现有 PPTX/HTML 变成幻灯片时使用；Bridge 五工具可见时 editor-first，HTML 落盘后第一动作必须 open_editor(view=edit) 让用户编辑；开工先判轨 A/轨 B，轨 B 的页面提交只入队、需回对话认领。
+whenToUse: 用户要从零制作或修改任何 PPT/PPTX/slides/deck/演示文稿，转换现有 PPTX，优化已有 HTML 幻灯片，或最终导出 PPTX/PDF 时使用；Bridge 五工具齐备时必须 editor-first，且开工必须先判轨 A/轨 B（轨 B 的页面提交只入队、需回对话认领）。
 ---
 
 # SlideForge · HTML 幻灯片生成技能
 
 把内容变成一份**可以用浏览器直接演示、可以被编辑器直接修改**的 HTML 幻灯片。
+
+## §0 开工门控【硬规则 · 每次调用先读这一屏】
+
+**一句话**：任何 PPT 任务，HTML 落盘并通过校验后的**第一个动作**永远是 `open_editor(view="edit")`；没做这一步就不算完成。
+
+| 判据 | 唯一动作 |
+|---|---|
+| 五工具齐备：`open_editor` / `await_intent` / `push_update` / `get_status` / `close_session` | 走 Editor-first，别无他路 |
+| 五工具不齐 | **停止**：告知探测结果，不生成、不交付、不降级 |
+| 已有 deck | `open_editor(deck_path=<绝对路径>, view="edit")` |
+| 从零创建 | `open_editor(deck_path=null, view="brief")` → `brief.submitted` → 生成 → **立刻切** `view="edit"` |
+
+**判轨（门控第一步 · 先于任何 `open_editor`）**：五工具齐备只说明「可以走 Editor-first」，**不说明宿主会不会主动叫醒 Agent**。开工必须先判 `track`，把结论写进自检行：
+
+| 探测 | 结论 | 提交后的叫醒方式 |
+|---|---|---|
+| 工具列表除五工具外还可见 `open_brief` / `get_revision` / `attach_view` / `submit_intent` 等 | **轨 A 通道已开放**（标准声明或运维开关） | 内嵌视图提交后由 `window.pptxMcp.notifyAgent` 敲门，用户在面板点确认即可叫醒 Agent |
+| 工具列表**恰好只有五个**，`open_brief` / `get_revision` / `attach_view` / `submit_intent` 均不可见 | **轨 B**：独立浏览器页（WorkBuddy 等宿主默认落这一轨） | **没有敲门机制**：页面提交 = 只入队，Agent 不会自动开始，必须用户回到对话说「继续」 |
+| **`open_editor` 回执 `track` / `wake` / `wake_hint`（最终判据）** | `track="A"` + `wake="notifyAgent"` = 轨 A 通道开放；`track="B"` + `wake="chat"` = 轨 B | `wake_hint` 就是给用户看的指引原文，交付回复照它写；**`track` 由 `apps_tools_listed()` 决定，不是 `apps_declared()`** |
+| `open_editor` 回执 `mode_hint` / `capability_probe` | `mode_hint` 只表达「宿主有无按规范声明」；`capability_probe.reason` 直接写明「为何没走轨 A」 | `mode_hint=unknown` + `track="A"` 是**兼容模式**（宿主实现了 MCP Apps 却不声明扩展 + 开了 `always`），不是矛盾；`declared_extensions` 是握手原始证据 |
+| **`get_status` 回执 `capability_probe`（零副作用首选探针）** | `apps_tools_mode=always` → 桥侧轨 A 工具面已开；`auto` + `apps_declared=false` → 轨 B | 只读、不注册 consumer、不开编辑器。**改完 `mcp.json` 的 env 后先调它确认重连是否生效**（`=always` 才算生效），别用有副作用的 `open_editor` 去猜，也别只看工具列表 |
+| `capability_probe.host_panel_admission="host-owned"` / `host_panel_evidence` | **宿主内面板准入归宿主**，桥无法检测；`track=A` / `wake=notifyAgent` / `broadcast ok` 都不构成「会弹面板」的证据 | 面板准入是宿主侧 catalog 的独立闸门，与桥的能力协商、工具面、资源体积全无关；唯一实证是 `view_attached=true` 或 `await_intent.kind=mcp_app`（见「为何宿主内不弹面板」） |
+| `wake_confirmed` / `get_status.view_attached` / `await_intent.kind="mcp_app"` | **运行时实证**：View 真的挂载过才算真轨 A | 静态回执恒 `wake_confirmed=false`；没有实证就仍按轨 B 口径给「回对话说『继续』」的指引 |
+
+**为何轨 A 没被直接打开（能力协商 ≠ 实现能力）**：框架与宿主**都支持 mcp-app**——宿主 renderer 内置 `ui/initialize` / `ui/message` / `ui/resourceUri` / `text/html;profile=mcp-app`，桥侧注册了 `ui://` 资源、`_meta.ui.resourceUri`、`attach_view` 与 `notifyAgent`。卡住的是**声明**这一环：
+
+- 标准路径要求宿主在 MCP `initialize` 的 `capabilities.extensions` 里声明 `io.modelcontextprotocol/ui` 且 `mimeTypes` 含 `text/html;profile=mcp-app`。部分宿主（本机实测 WorkBuddy）实现了协议却**不声明该键**；`apps_declared()` 按规范只认声明 → `False`。
+- 这个 `False` 被用在三处：① `list_tools()` 把工具面冻结到恰好五个（实测 `auto` → 5 / `always` → 17）；② `_open()` 把 `open_browser="auto"` 退化成 `True`，**跳过 8 秒存在性窗口、立即弹独立浏览器**；③ `mode_hint=unknown`。
+- **更精确的机制（2026-11-12 实测）**：`auto` 下 `open_editor` 的 `_meta.ui.resourceUri` 与两个 `ui://` 资源**本来就已注册且可读**（737419 B、`text/html;profile=mcp-app`）；宿主 CLI 的 `broadcastMcpUiForToolCall` 只判断 `toolCallId + sessionId`，**完全不检查 `capabilities.extensions`**（该串在宿主主 bundle 出现 0 次）。但这条 CLI 广播属于**通路 ①（内联 widget／历史回放 stash）**，不等于宿主内面板——见下方「为何宿主内不弹面板」。真正让轨 A 半残的是工具面冻结：View 里的 `attach_view` / `submit_intent` 等 app-only 工具不可见，挂载后既无法完成 `view_attached` 实证、也无法提交意图；再叠加 `auto` 立即弹独立浏览器，用户看到的就是轨 B。不要说成「宿主不支持 mcp-app」或「轨 A 完全没被尝试」。
+- 框架为这类宿主留了官方兼容开关 `PPTX_HTML_APPS_TOOLS=always`（`bridge_mcp.py` 类注释明写「`always` 供能渲染 widget 却不声明扩展的宿主使用，本机实测宿主属此类」）：打开后工具面全开、且 `auto` 才给存在性窗口。**默认值是 `auto`**，所以默认静默降级到轨 B。本机 `mcp.json` 已于 2026-11-12 补上该 env，但**已建立的 MCP 连接不会热重载**——实测改完立即调真实 `open_editor`，回执仍是 `apps_tools_mode=auto` / `track="B"`；必须**重连 MCP** 才切到轨 A。
+- 因此准确表述是「**轨 A 通道被能力协商关掉**」，不是「框架不支持 mcp-app」，也不是「宿主不支持」。判轨先看 `capability_probe.reason`，再看运行时 `view_attached`；两层别混。**注意：`capability_probe` / `track` 只描述桥侧工具面，不能推断宿主会不会弹面板**——面板准入是下面这条独立的宿主侧闸门。
+- **打开轨 A 的代价与验证**：在 `mcp.json` 的 `pptx-html-bridge` 加 `"env": {"PPTX_HTML_APPS_TOOLS": "always"}` 并**重连 MCP** 才生效；工具面 5 → 17，`open_editor(view="brief")` 会改要求 `open_brief`，`open_browser="auto"` 先等 View 8 秒。**必须先确认宿主真的渲染了内嵌视图**（`get_status.view_attached=true` 或 `await_intent` 回执 `kind="mcp_app"`）；若 View 没起来、浏览器又被存在性窗口挡住，把开关调回 `auto` 即可回退。未实证前不要向用户承诺「提交会自动叫醒 AI」。重连是否生效，用只读 `get_status.capability_probe.apps_tools_mode=always` 判定。
+- **端到端实测（2026-11-12，隔离工作区 + 独立 MCP client）**：`always` 下工具面 17（`attach_view` / `submit_intent` 可见）、`read_resource(ui://pptx-html-bridge/editor.html)` 返回 `text/html;profile=mcp-app` 737419 B、`open_browser="auto"` 解析保持 `"auto"`（存在性窗口恢复）；`attach_view` 返回 `view_attached=true` / `track="mcp-app"`，随后 `get_status` 为 `view_attached=true` / `ui_signal_ever=true`；`submit_intent` 返回 `accepted=true` / `seq=1` / `status=pending` / `agent_state=offline`。**轨 A 下 intent 依然是 pending**——轨 A 与轨 B 的唯一差别是「内嵌 View 能经宿主 `ui/message` 敲门叫醒 Agent 来 `await_intent`」，不是「提交即自动执行」。宿主 webview 渲染与敲门只能由 IDE 发起，独立 MCP client 代验不了；重连后的验收口径是 `capability_probe.apps_tools_mode=always` **且** `view_attached=true`。
+**为何宿主内不弹面板（两条通路 + catalog 准入，2026-11-12 全链路取证）**：宿主**不是不允许弹窗**——它有两条互不相干、共用「mcp-app」这个名字的通路，之前的误判就来自把两者混成一条：
+
+| | 通路 ① CLI 内联 widget | 通路 ② 宿主内独立面板 |
+|---|---|---|
+| 实现位置 | Agent CLI `cli/dist/codebuddy.js`：`broadcastMcpUiForToolCall` | daemon `app.asar`：`McpAppsHost` + `McpAppCatalog` + `openHostApp` |
+| 准入条件 | 只看工具 `_meta.ui.resourceUri`（或 tool definition fallback），**不查 catalog** | 必须先进 `McpAppCatalog`；`openHostApp` 查不到就是 `catalogMiss` → 不弹 |
+| 日志特征 | `[McpUi] fallback hit` → `broadcast ok ... pendingStashed=true`（把 `mcpUi` 载荷 stash 给 renderer 内联卡片／历史回放） | `~/.workbuddy/logs/mcp-apps-diag.log`：`catalog.refresh liveApps=[...]`、`rpc.appsChanged.push`、`openHostApp.unknownApp` |
+| 体积约束 | CLI `MCP_UI_HTML_MAX_BYTES=262144` 只决定广播载荷带不带 `html`（828 KB → 省略，renderer 异步 `readResource`；另有 64 KB 历史投影上限） | 与资源体积**无关** |
+
+- **catalog 只索引宿主自己的两个发现源**：`McpAppsRemoteRuntime`（connectorService 注册的 remote MCP，configId 形如 `custom-mcp:*`）和 `BuiltinLocalMcpAppDiscovery`（**只扫描 bundled `workbuddy-builtin/mcps` 受信任一级目录**）。用户在 `~/.workbuddy/mcp.json` 手配、由 Agent CLI 按会话持有的本地 stdio MCP **不在任何发现源里**（宿主源码注释明写「本地 stdio 只通过并列 source 贡献 tools/list 快照，不获得 daemon 长期运行时所有权」）。实测 `catalog.refresh scanned=67 acceptedCount=2 liveApps=["ardot/open_design","ardot/create_design"]`，诊断日志里 `pptx` 出现 **0 次**、`openHostApp.unknownApp` 4520 次全是内置工具名 —— **桥从未进过 catalog**，所以 `openHostApp` 永远查不到、面板永远不弹。
+- **不是 meta 写错**：宿主 `extractToolUiMetadata()` 同时认嵌套 `_meta.ui.resourceUri` 与扁平 `ui/resourceUri`，桥两个都给了（实测 17 工具的 meta 全部合规）。`rejectedWithMeta` 里唯一一条是 ardot 自己的 `get_editor_token`（`missing_ui_resourceUri`）。缺的是**被宿主发现**，不是字段。
+- **「之前似乎弹出过来」是对的，但弹的不是本桥**：宿主确实会弹 MCP App 面板，目前 catalog 里只有 **ardot 画布**（`ui://ardot-remote/editor.html`，日志中出现 2972 次）。它带宿主私有扩展 `_meta.workbuddy.ui.launchSurface:"panel"`，宿主还为它写了产品特判 `hostDefaultSurface:"panel"` / `fallbackTitle:"Ardot 画布"` / `shouldMaterializeArdotMcpApp`。`resolveMcpAppSurface()` 默认是 `"inline"`，桥按 MCP Apps 规范「零自定义协议字段」刻意不声明 `launchSurface`，所以即便将来进了 catalog 默认也只给 inline。此外 `present_files` 对本地 `.html` 打开的**实时预览面板**是第三条路（宿主内置预览，不是 MCP App），也容易被记成「弹过」。
+- **结论**：这是**宿主侧产品准入策略**（只把受信任/已注册的 App 做成可弹面板），桥侧改代码修不了；`PPTX_HTML_APPS_TOOLS=always` 只放开桥的工具面，与 catalog 无关；256 KB 只影响通路 ① 的 `html` 预取。要真让本桥在宿主内弹面板，需宿主侧把该 stdio MCP 纳入 catalog 发现源（或改由 connectorService 注册），并声明 `workbuddy.ui.launchSurface:"panel"`。
+- **对 Agent 的硬约束**：`track=A` / `wake=notifyAgent` / `broadcast ok` **都不能**推断「面板会弹」。唯一实证是 `get_status.view_attached=true` 或 `await_intent` 回执 `kind="mcp_app"`；没有实证一律按轨 B 铁律交付。
+- **决策规则（WorkBuddy 宿主）**：轨 A 在此宿主上实测未跑通，且**根因是宿主侧 catalog 不收录本地 stdio MCP，桥侧无法修复**。`always` 只带来工具面 5→17、`open_browser="auto"` 每次多等 8 秒、`view="brief"` 语义改变，最后仍回退轨 B —— 属**净负担，应删掉 `mcp.json` 的 env 并重连回退 `auto`**。只有拿到 `get_status.view_attached=true`（或 `await_intent` 回执 `kind="mcp_app"`）才允许按轨 A 口径承诺敲门，否则一律按**轨 B 铁律**交付。诊断顺序：`capability_probe`（桥侧工具面）→ 宿主 `mcp-apps-diag.log` 的 `catalog.refresh liveApps`（宿主侧准入）→ `view_attached`（运行时实证）；**「广播成功」≠「面板已渲染」，「工具面全开」≠「catalog 已收录」**。
+
+**轨 B 铁律（违反即「批注提交了但没执行」）**：轨 B 下 `anno.submitted` / `convert.requested` / `illustrate.requested` 等提交后 `status=pending`、`agent_state=offline`，意图**只进队列、不触发任何 Agent 动作**。这不是故障、不是断连、不是 daemon 端口漂移——MCP 协议没有「从服务端唤醒模型回合」的通知，敲门是轨 A 独有的 `ui` 能力。唯一认领路径是：用户回聊天说一声（「继续」/「我提交了批注」）→ 新回合 `await_intent` → 才进入 §3 的工作流映射。**交付回复必须原样写出这句指引**，禁止说「提交后 AI 会自动处理 / 已发送给 AI / 正在执行」。演示或自动化测试留下的 pending 意图用 `/api/intent/cancel` 清掉，别污染真实会话。
+
+**六条禁止**（违反即返工）：
+1. `present_files` 只给 PPTX / 预览图等**文件卡片**，永远不传编辑器路径或本地 HTML。编辑器由 `open_editor(open_browser="auto")` 自己打开，链接**直接写在聊天回复里**。
+2. 以「需求已明确 / 无需脑暴 / 任务含技能库改造」为由降级直出。
+3. 跳过 `open_editor` 直接交付文件。
+4. 把 `.pptx-html/jobs/.../attempt-N/work/` 副本路径喂给 `open_editor`。
+5. 一次留下多个编辑器标签页。重开前先让用户关掉旧页；`get_status` 里出现 ≥2 个 `online=true`，或在线 client 的 `revision` 落后于 session `revision` 时，先收敛到单页再让用户保存（见 §Editor-first 9）。
+6. 在轨 B 把「提交批注 / 导出 / 发送给 AI」说成「AI 已收到、会自动执行」，或交付时不写「提交只入队，请回对话说『继续』让我认领」这句指引（见上方**轨 B 铁律**）。
+
+**自检行**（每回合开工前输出一行，便于一眼核对）：
+`[gate] bridge=5/5 · track=A|B · wake=notifyAgent|chat · entry=editor-first · deck=existing|new · view=brief|edit · tabs=1 · html_done → open_editor(edit)`
+（`track=B` 时 `wake` 必须是 `chat`；两者对不上说明判轨错了，回到上表重判。`track=A` 也要看 `capability_probe.reason` 与运行时 `view_attached`，静态回执的 `wake_confirmed` 恒为 `false`，别把「通道开放」当成「已敲门」。）
+
+**收尾 5 项**（`push_update(complete)` 后同回合做完，详见 §Editor-first 6）：① `get_status` 得 `phase=editing`；② `page_online=true` 且**恰好一个** `clients[].online=true`（多页先收敛，见第 5 条禁止）；③ `deck_path` 非空且不含 `.pptx-html`；④ `revision` 非空；⑤ 回复里给**当次** `url` + 六组功能告知清单（§Editor-first 6 第 6 项）；**轨 B 还必须附「提交只入队 → 回对话说『继续』→ 我 `await_intent` 认领」这句认领指引**，缺了这句就会出现「批注发布了却没执行」。
+
+**混合任务不豁免**：修改主题库 / 脚本 / 技能自身与产出 deck 是两条独立轨道，前者不解除本门控。
+**导出须经会话发布**：离线跑 `export-pptx.py` 不会登记资源（`export_stale=true`），交付视图下载区需 `convert.requested` 认领 + `complete`（见 §Editor-first 7）。
+
+---
 
 ## 产物形态
 
@@ -55,20 +124,27 @@ AI 的默认审美会收敛到平庸：居中 hero、紫蓝渐变、卡片墙。
 
 ### Editor-first：编辑器↔Agent 桥协作
 
-先检查当前宿主暴露的 MCP 工具。**当且仅当恰好可见 `pptx-html-bridge` 的五个工具 `open_editor`、`await_intent`、`push_update`、`get_status`、`close_session` 时，本节是默认且强制的第一入口**（**轨 A 判据**：同一工具面上还额外可见 `open_brief` 与若干 `visibility:["app"]` 的工具——那种情况下脑暴改走 `open_brief`，其余规则不变）：用户无需额外选择“协作模式”。桥负责可视化需求收集、可靠接收、隔离副本和发布，不替代本技能的设计判断、生成、插画、烙入或导出。
+先检查当前宿主暴露的 MCP 工具，**并按 §0 判轨表先判 `track`（门控第一步，不要跳过）**。**当且仅当恰好可见 `pptx-html-bridge` 的五个工具 `open_editor`、`await_intent`、`push_update`、`get_status`、`close_session` 时，本节是默认且强制的第一入口**（**轨 A 判据**：同一工具面上还额外可见 `open_brief` 与若干 `visibility:["app"]` 的工具——那种情况下脑暴改走 `open_brief`，其余规则不变；**恰好只有五个 = 轨 B**，提交只入队，见 §0 轨 B 铁律）：用户无需额外选择“协作模式”。桥负责可视化需求收集、可靠接收、隔离副本和发布，不替代本技能的设计判断、生成、插画、烙入或导出。
 
-只有两种情况可以降级到下方非 Bridge 原工作流：用户明确拒绝使用编辑器，或经实际工具列表/调用错误确认五工具确实不可用。降级必须可观测：在回复中明确说明原因和采用的替代流程；不得因方便、猜测不可用或用户未主动提编辑器而静默降级。
+**五工具不齐就停止**：经实际工具列表或调用错误确认五工具缺失时，明确告知用户探测结果并停止，**不生成、不交付、不降级**。用户明确拒绝使用编辑器时同样先说明后停止。本技能**不再提供非 Bridge 降级工作流**，也不存在「需求已明确 / 无需脑暴 / 任务含技能库改造 / 只是导出个文件」这类降级理由；任何绕过 Editor-first 的直出都视为违规返工。
 
 #### 1. 首次交互、打开与等待
 
 - **从零创建**：首个人机交互必须直接打开脑暴页——**轨 B** 调 `open_editor(deck_path=null, output_path="index.html", view="brief", open_browser="auto")`；**轨 A** 调 `open_brief(deck_path=null, output_path="index.html", open_browser="auto")`（轨 A 的 `open_editor` **不接受** `view="brief"`：脑暴是独立资源，传了会回 `INVALID_ARGUMENT` 并指向 `open_brief`）（动态脑暴时可附加可选参数 `brief_options`，见下）；`output_path` 应是已授权 workdir 内合理、无冲突的相对 HTML 路径，必要时按任务语义改名。`brief_options` 为可选：先消化对话上下文（指令/素材/附件自读）做缺口盘点，信息足够就按 `references/briefing.md` v2 的维度池 + 实例化规则生成定制 options 随调用注入（schema 见该文档「brief.options JSON」节，非法会被 daemon 拒收且会话保持原值）；信息不足先在聊天补问再打开；无法定制则不传参，页面回落静态问卷。此时不创建空 HTML，等待 `brief.submitted` 后才在服务分配的副本生成。**禁止用 AskUserQuestion 替代 Step 0.5，禁止在调用前先聊天脑暴或先索要主题、受众、风格（缺口补问是例外：只问无法推断的，且发生在打开编辑器之前）。**
 - **已有 deck**：首个人机交互先把 workdir 内可信 HTML 的**绝对路径**传给 `open_editor(deck_path=..., view="edit"|"annotate"|"export", open_browser="auto")`，再由页面收集修改意图。不要从 payload 的 `deck` 字段另选文件；session 登记的路径才是任务边界。
+  - **【硬规则】`deck_path` 绝不能指向 `.pptx-html/` 内部目录（尤其 `.pptx-html/jobs/<intent>/attempt-N/work/` 的 attempt 副本）**：`register_session` 会把它登记成 `target_path`，而编辑器保存走 `/api/save` → `normalize_rel(path)` 对含 `.pptx-html` 的路径一律抛 `PATH_DENIED 内部目录不可访问`，页面随即显示「受管工作区保存失败：内部目录不可访问。不会降级覆盖原目标」（后半句是前端**故意拒绝**降级为非受管直写、只提供「下载副本」的安全设计，不是二次故障）。attempt 副本只能经 `push_update(action="complete")` 发布到正式目标后再打开；把副本路径直接喂给 `open_editor` 等于让成品永远无法保存。
 - **`view` 决定页面打开后直接落在哪**：页面打开即按 `view` 落位，不需要用户再点任何按钮。`view="brief"` 对**已有 deck 的会话同样合法**——用来做"改版脑暴"（回访需求对齐、换主题/受众/密度），落点是脑暴视图（工作台隐藏），Esc/关闭回工作台。`view` 缺省时页面按有无 deck 自判：无 deck 恒落脑暴，有 deck 落编辑（**轨 A 不用 `view` 选脑暴**：脑暴资源恒落脑暴视图、编辑器资源恒落工作台）。注意这是**一次性启动意图**、不落库：会话已有在线页面时由 daemon 投递一次 `view-hint`；页面刷新后按缺省规则自判，需要重新指定就再调一次 `open_editor`（同会话复用，不会重开会话）。
-- `open_editor` 只登记/恢复任务，不等于 Agent 正在等待。**Bridge 首次打开后的当前 Agent 回合，必须且只能调用一次 `await_intent(session_id, timeout_sec=86400)`，给用户完整一天在页面中脑暴和提交；同一 Agent 回合最多调用一次 `await_intent`。任何 `kind="timeout"` 后必须立即向用户说明页面仍可用并结束回合，严禁同回合再次 await；只有用户发来新的聊天消息要求继续等待时，才在新回合再次 `await_intent`。** 协议允许 1–86400 秒；首次调用固定 86400，后续恢复或用户显式要求可使用该范围内的有界等待。timeout 不是失败，也不代表以后不会有请求。不要实现无限轮询，也不要用 `progress` 冒充常驻等待。
+- **等待策略（唯一口径，本节之外不再有第二套说法）**：
+  - **从零创建、等待 `brief.submitted`**：`await_intent(session_id, timeout_sec=86400)`，给用户完整一天在脑暴页提交；同一 Agent 回合**至多一次**。`kind="timeout"` 后立即说明页面仍可用并结束回合，严禁同回合再次 await。
+  - **轨 A / `kind="mcp_app"`**：视图已内嵌宿主，**不阻塞**，一句话告知用户并结束回合；用户在内嵌编辑器提交后会主动叫醒。
+  - **轨 B 交付收尾**：**不阻塞**（长等待会吃掉给出链接和指引的回合）。给当次 `url` + 六组告知清单，把 `await_intent` 留到用户提交 intent 或明确要求常驻在线时。`agent_state=offline` 属预期，必须在回复中如实说明（`offline` ≠ 断连，就地编辑与保存不受影响）。**「留到用户提交 intent」不是自动发生的**：轨 B 页面无法叫醒 Agent，必须用户先回到聊天说一句，才有新回合可认领；交付时要把这句话写成可执行指令，而不是含糊的「有需要再找我」。
+  - **用户说「继续 / 在线等我」或有 pending intent**：新回合 `await_intent`，按 1–86400 秒有界等待；用户说"我已在编辑器里提交了"却没收到时，用 `timeout_sec=1` 兜底查一次。
+  - **用户问「我在编辑器里提交了批注，为什么没开始执行」**：按 §0 **轨 B 铁律**回答，标准四句：① 宿主未声明 MCP Apps UI 扩展 → 只有五个工具 → 落在轨 B 独立浏览器页；② 轨 B 没有 `notifyAgent` 敲门，提交只把意图写成 `pending`，保存是可靠的、不会丢；③ `agent_state=offline` 表示当前没有 Agent 挂 `await_intent`，MCP 协议不支持服务端主动唤起模型回合；④ 请回对话说「继续」，我 `await_intent` 认领后立刻执行。**不要**把这道题误判成 daemon 重启 / 端口漂移 / 保存失败 / 固定端口问题（端口变化是每次工具调用重启 daemon 的**表象**，不是这条链路的根因），也不要未经确认就擅自执行 pending 意图——用户可能只是在测试链路。
+  协议允许 1–86400 秒；timeout 不是失败。不要无限轮询，不要用 `progress` 冒充常驻等待，两条轨都严禁用短 `timeout_sec` 探测后声称「已恢复在线」。
 - **`open_browser="auto"`（推荐显式传）**：宿主可能**把编辑器直接嵌进对话面板**（MCP Apps 轨）。`"auto"` 会先给宿主内嵌视图一个**存在性窗口**（默认 8s，`PPTX_HTML_VIEW_WAIT_SEC` 可配、设 0 即老行为），窗口内没有内嵌视图信号才打开独立浏览器页。显式传它比依赖默认值更能表达意图；无论哪条轨，**编辑器都是同一个**，五个工具与 intent 类型完全一致。
-- **`await_intent` 可能返回 `kind="mcp_app"`**（视图已嵌入宿主）：这不是 timeout 也不是 intent，而是"**不要阻塞**"的信号 —— 立即用一句话告知用户"编辑器已在对话面板内打开，请在其中操作"，然后结束本回合；用户在内嵌编辑器提交后，编辑器会主动发一条消息（需用户在面板点确认）把你叫醒。**兜底**：若用户说"我已在编辑器里提交了"而你没收到请求，用 `await_intent(session_id, timeout_sec=1)` 主动查一次（这条轮询路径零时延，不会被存在性窗口拖慢）。
+- **轨 A 叫醒机制**：内嵌编辑器提交 intent 后会主动发一条消息（需用户在面板点确认）把 Agent 叫醒；等待与兜底策略以 §1 决策表为准。
 - **宿主沙箱不合规时的处置**：若编辑器回执"宿主沙箱不符合规范"（嵌套渲染文档不可访问），说明该宿主未按 MCP Apps 规范使用 `sandbox="allow-scripts allow-same-origin"`。如实转述并给两条路：请宿主维护方补齐该属性，或**改用独立浏览器窗口（轨 B）继续工作**——不要把它描述成"只读模式"，也不要因此改走聊天脑暴。
-- **app-only 工具对模型不可见**：轨 A 的 15 个工具里，9 个是 `visibility:["app"]`（编辑器经宿主代理调用），其余 6 个面向模型（比轨 B 多一个 `open_brief`）。你不应、也不需要直接调用 app-only 的那 9 个。若宿主不支持 MCP Apps，工具列表会保持恰好五个。
+- **app-only 工具对模型不可见**：轨 A 工具面共 **17 个**（实测 `PPTX_HTML_APPS_TOOLS=always`）：10 个是 `visibility:["app"]`（编辑器经宿主代理调用），其余 7 个面向模型（`open_editor` / `open_brief` / `await_intent` / `push_update` / `get_revision` / `get_status` / `close_session`），比轨 B 多 `open_brief` 与 `get_revision`。你不应、也不需要直接调用 app-only 的那 10 个。若宿主不支持 MCP Apps，工具列表会保持恰好五个。
 - 页面、daemon 与 Agent 生命周期独立：页面和 daemon 可以继续驻留，Agent 是否继续重挂由当前用户意图决定；页面关闭不撤销已接收请求，Agent 结束也不应关闭页面或 daemon。需要用户在页面查看、审批或继续填写时，完成当前 intent 并结束本次等待；**不得持有 processing lease 等聊天，也不得为了等待下一次页面操作而常驻轮询**。用户提交新 intent 后再重新 `await_intent`。
 
 #### 2. 认领后的唯一写入边界【硬规则】
@@ -158,6 +234,72 @@ python3 tools/bridge_core.py revision <work_path>
 - 可确定的执行失败用 `push_update(action="fail")` 留下原因和副本；网络结果未知时不要凭猜测补发 complete/fail，先查状态。成功 complete 的重复调用只用于读取原 receipt，不把旧 receipt 当当前磁盘版本。
 - 用户说“继续优化”时继续有界 `await_intent`；用户明确结束协作时调用 `close_session`。close 会暂停本 consumer、把其未完 attempt 置 interrupted，但不会关闭页面、daemon、删除 pending/草稿/文件；之后要继续必须先对同一目标重新 `open_editor`，再 await。仅仅暂时不等待，不等于应该 close。
 
+#### 6. 交付收尾：发布 → 打开编辑器 → 明确指引【硬规则】
+
+「导出 HTML/PPTX 文件」不等于「任务完成」。从零生成或改版在 `push_update(action="complete")` 成功后，**同一 Agent 回合内**按 §0 收尾 5 项做完，缺一不可：
+
+1. **发布到正式目标**：`complete` 会把 attempt 副本发布到 `session.target_path`（workdir 内的正式 HTML）。用 `get_status` 确认 `phase="editing"`、`deck_path` 非空且**不含** `.pptx-html`、`revision` 非 null。**禁止**用 `cp`/`Copy-Item` 之类把 attempt 副本手工复制出去冒充交付——那只产生孤立文件，bridge 会话仍停在 `briefing`/`deck_path=null`，编辑器无正式目标可保存。
+2. **立刻打开 editorial 编辑器【本技能的第一交付动作】**：随即调用 `open_editor(deck_path=<正式 target_path 绝对路径>, view="edit", open_browser="auto")`，把页面落到可就地改字换图的编辑视图。生成在 `view="brief"` 打开时，脑暴提交后页面**不会**自动跳到编辑视图；**不显式切一次，用户就只看到脑暴页/空白工作台**——这正是「做完 HTML 第一时间让用户编辑」的落点，不可省略、不可延后。若已有在线页面，`open_editor` 会投递一次性 `view-hint`，同会话复用、不重开会话。
+3. **接上在线态并完成交付指引**：`open_editor` 只登记 consumer，`agent_state` 仍是 `offline`——编辑器桥栏会原样渲染成文字 `Bridge offline`，**这是「当前无 Agent 在等待意图」的状态标签，不是网络断连**（`get_status` 的 `page_online`/clients.online 可同时为 true）。按 §1 等待策略分流：轨 A 不阻塞、一句话告知；轨 B 不阻塞、把当次 `url` **直接写进聊天回复** + 给出第 6 项六组告知清单，并如实说明 `offline` 属预期。两条轨都**严禁**用短 `timeout_sec` 探测后声称「已恢复在线」（见下方诊断顺序）。交付指引**不能只写一句「编辑器已打开」**。
+
+4. **链接只能用当次 `open_editor` 返回的 `url`，禁止复用历史链接**：daemon 每次重启会换端口（当前值在 `<workdir>/.pptx-html/serve.json` 的 `port`/`origin`，同时含 `instance_id`/`management_token`）。旧 URL 的端口与 `#brt=` 浏览器凭据会一并失效：旧端口直接 `ERR_CONNECTION_REFUSED` → 页面报 `Bridge 连接失败`；新端口配旧 token → 401/403 → `Bridge 凭证失效`；daemon.log 同时刷 `409 RECOVERY_REQUIRED: consumer 不是有效 owner`。因此每次交付或恢复都要重新 `open_editor`，把它返回的 `url` **原样写进聊天回复**；不要从聊天记录翻旧地址、不要猜端口、不要把旧 `#hash` 拼到新端口上。用户说「一直链接失败」时，第一动作是核对端口，而不是解释状态语义。**单链接不变量（v3.13 起）**：同一会话已有在线页面时 `open_editor` 会复用最后一次签发的 URL、不再新签 token，因此反复重新登记不会累积多条链接；被取代的旧页收到 `410 SUPERSEDED` 后自动停跳并提示关闭。仍禁止从聊天记录翻旧地址——daemon 重启后端口变化会让已存 URL 自动失效，回落为签发新 URL。
+5. **`present_files` 不参与编辑器交付**：编辑器由 `open_editor(open_browser="auto")` 自己打开浏览器页面，链接**直接写在聊天回复里**；`present_files` 只用于 PPTX / 预览图等**文件卡片**，永远不传编辑器路径或本地 HTML。本地 HTML 若作为「离线快照 / 下载件」附带，必须明确标注**不可在线编辑**——它没有 `#brt=...&session=...` 凭据，`bridge.enabled=false`，所有 `/api/*` 落空，桥栏必然异常。
+
+6. **交付回复必须附「核心 editorial 功能告知清单」【硬规则】**：打开编辑器 ≠ 告诉用户能做什么。每次交付（含重新打开、补发链接）都要在聊天回复里覆盖以下六组，短句可扫读，不要倒整篇帮助文档：
+   - **入口与地址**：给出当次 `open_editor` 返回的 `url`；提醒关掉旧标签页、端口会变、别复用历史链接。
+   - **三个视图**（顶栏 `编辑 / 批注 / 交付`）：编辑＝就地改字换图；批注＝框选页面写意见后点「提交批注」（v3.9.7 起**提交即入队**，自动写入 `anno.submitted` intent，不必再点「发送给 AI」；**入队 ≠ AI 已开始执行**，轨 B 下见下一组）；交付＝交付物清单 + 对比检查（并排 / 滑动分割 / 差异高亮）。另有 `view="brief"` 用于改版脑暴（换主题、受众、密度）。
+   - **就地编辑与保存**：所有可见文字带 `data-editable`，双击即改；选中图片后点「替换图片」或再点一次上传；`保存 (⌘S)` 写回 **HTML 母版**并生成一个 git 版本；「自动保存」默认关，AI 处理请求期间不写回以免抢版本。
+   - **版本与回滚**：「历史」面板列每次保存的版本，回滚前自动提交 pre-rollback 可反悔；回滚只还原 deck 文件本身，`assets/` 图片需手动替换。
+   - **AI 协作按钮的边界（轨 B 必读）**：**会提交意图**的是「提交批注」（v3.9.7 起自动入队）、「发送给 AI」（批注清单底部 / 设计面板的显式补发）、「导出为 PPTX」。**轨 B 下点完这三个按钮，请求只是可靠地存进队列（`pending`），AI 不会自动开始**——这既不是「长时间无进展」也不是故障，而是没有敲门通道时的设计行为（见 §0 **轨 B 铁律**）。交付时必须给用户一句可执行指引：**「提交后请回到对话说一声『继续』，我会 `await_intent` 认领并执行」**；页面自 v3.13 起也会按 `/api/intent` 回执的 `agent_state` 显示「已排队 · 等待 AI 认领」，两者口径必须一致。**「复制批注指令」「复制修改指令」不提交意图**，只把文本复制到剪贴板供手动粘贴到任意 AI 对话（`editor.html` 明确写「预览/复制不会提交」）。桥栏 `Bridge offline` 只表示当前无 Agent 在等意图，不是断连。演示/自动化点过「提交批注」会留下 pending 意图，收尾需用 `/api/intent/cancel` 取消，别污染真实会话。
+   - **交付物与关键边界**：交付视图可下载 `deck.pptx`（可编辑轨）、`deck-vector.pptx` + `deck.pdf`（保真轨）与逐页参考图；**编辑器改的是 HTML 母版，不是 .pptx 二进制**，改动需重新导出才进入 PPTX；保存失败时先按 §Editor-first 9 区分 `REVISION_CONFLICT` / `SUPERSEDED` / `PATH_DENIED` 三类，不要一律去排查目标路径（第 1 节那条只针对 `.pptx-html` 的 `PATH_DENIED`）。
+
+**连接失败诊断顺序**：①读 `<workdir>/.pptx-html/serve.json` 取当前 `port`；②对比用户手上 URL 的端口与 token 是否同属一个 daemon 实例；③用 `get_status` 区分 `page_online` / `clients[].online`（浏览器有没有连上 daemon）与 `agent_state`（有没有 Agent 在等意图）——前者为 false 才是真断连，后者 `offline` 只是无人监听，桥栏按 `editor.html` 的 `bridgeRenderState(..., 'Bridge '+agent_state, ...)` 原样渲染成文字；④重新 `open_editor` 后以 `page_online=true` + 新 `clients[].online=true` 确认页面已挂载。注意 `await_intent` 用短 `timeout_sec`（如 1 秒）做「状态探测」会让 waiting lease 立刻过期、`agent_state` 秒退回 `offline`，不能据此声称「已恢复在线」；要常驻在线就用默认长等待。
+
+**收尾一致性**：等待策略以 §1 决策表为唯一口径（每回合至多一次 `await_intent`）；`kind="mcp_app"` 不阻塞。禁止把「复制文件 + 文件卡片」当作 editor-first 交付的替代品。五工具不齐或用户明确拒绝编辑器时按 §1 停止并说明，**不降级、不直出**。
+
+#### 7. 页面「导出」按钮：意图链路与产物门禁【硬规则】
+
+用户说「点了导出 PPTX 没反应」，先分清 `editor.html` 的 `convertDeck()`（8868 行起）三条静默路径：
+- `if(converting||!state.loaded)return` —— deck 未加载时**完全静默**，连 toast 都没有；
+- `hostKindDetect()!=='static'`（Bridge 常态）→ `bridgeSend('convert.requested', …)` **只把意图塞进队列**，toast 仅显示「导出请求已提交」。若 `agent_state=offline`、没有 Agent 挂 `await_intent`，intent 永远停在 `pending`，用户就觉得没反应；轨 A 有 `notifyAgent` 敲门可叫醒 Agent，轨 B 没有——按 §0 **轨 B 铁律**在回复里给出「回对话说『继续』」的指引，不要让用户等一个不会自己开始的动作（v3.13 起提交回执带 `agent_state`，前端会如实显示「已排队 · 等待 AI 认领」）；
+- 静态态且 `state.backend.convert`（即 `capabilities.local_convert`）为 false 时，只 `copyText()` 复制一条命令，同样不导出。
+
+**按钮不是本地转换器，而是一个待认领的意图**。诊断与处理顺序：
+1. `get_status` 读 `intents`/`pending_count`；有 `convert.requested` pending 就 `await_intent` 认领，拿 daemon 分配的 `work_path`、`intent_id`、`attempt`、`base_revision`。用户可能已在页面改过并保存，`base_revision` 才是最新版，**不要在旧工作副本上导**。
+2. 在 `work_path` 上真实执行 `export-pptx.py <work_path> --force --track both`，再取 `revision`。转换不改源，`candidate_revision` 必须等于 `base_revision`；`complete.validation` 只填真实 `export` check，并带 `export_source_revision=candidate_revision`。
+3. `push_update(action="complete")` 发布成功后 `export_stale=false`、`export_revision` 非空、事件推送让页面刷新出下载区。未发布时页面 `GET /deck/export/manifest.json` 会一直 403「静态资源未登记」，下载按钮拿不到文件。
+
+**无 LibreOffice / pdftocairo 的机器**：`export-pptx-editable.py` 按「诚实降级，不伪造」不写 `export/native/`，但 `bridge_core._validate_export` 强制 `export/native/page-*.png` 数量 ≥ HTML 页数（取 `class="slide"` / `data-slide-id=` 计数的最大值），`complete` 会报 `422 INVALID_ARTIFACT native 参考页图不完整`。补齐方式：复用 `export-pptx.py` 的 `render_deck()`（同一套 playwright 真值渲染，dsf=2 → 3840×2160）逐页写入 `export/native/page-NN.png`，并如实标注来源是 **HTML 真值渲染**、不是 LO 参考渲染。补完再跑一次 `revision` 确认仍等于 `base_revision`（`export/` 产物不进 revision 计算）。
+
+#### 8. 本机环境前置检查（Windows / 托管运行时）
+
+首次跑校验、导出，或录制/转码教学视频前先确认这几项，否则容易把「环境未就绪」误判成「产品坏了」：
+
+- **playwright 版本必须与已装浏览器匹配**：浏览器二进制在 `%LOCALAPPDATA%\ms-playwright\`（可用 `.links` 反查所属安装），Python 侧 `playwright` 包版本要与 `playwright-core` 对齐；本机实测为 `playwright==1.63.0` ↔ `chromium_headless_shell-1243`。不匹配时 `check-render.py` / `export-pptx.py` 会报「缺浏览器」，这是环境未就绪而非 deck 渲染失败。包装进托管 venv（`~/.workbuddy/binaries/python/envs/default`），不要全局 `pip install`。
+- **主题字体栈可能不可解析**：`Songti SC` / `PingFang SC` / `SF Mono` 等在 Windows 上常缺失，导出器会诚实回退到保守度量（`Consolas` / `Microsoft YaHei` / `SimSun`）并加强余量，版式安全但字体不精确。交付时如实说明；要精确还原需本机装对应字体，或换一套已安装的主题字体栈后重导。
+- **无 soffice / pdftocairo** 时的降级与 native 页图补齐见第 7 节，不要当成导出失败。
+- daemon 端口不固定，以 `<workdir>/.pptx-html/serve.json` 的 `port` 为准（见第 6 节第 4 条）；`curl` 直连 `GET /editor.html` 会因缺少浏览器 Fetch Metadata 返回 403 `ORIGIN_DENIED`，别据此判定服务不可达。
+- **`#brt` 会绑定首个 `client_id`，自动化/多标签页不能只复用链接**：heartbeat 在 token 首次使用时把 `client_id` 写入 `browser_tokens`（`bridge_core.py:2221`），此后不同 `client_id` 一律 `403 UNAUTHORIZED browser token 已绑定另一 client`。用 Playwright 录制教学视频、或多开 context 时，用 `add_init_script` 预置 `sessionStorage['pptx-html:bridge-client:<sid>'] = <已绑定 client_id>`；该值可由带 token 的 `/api/bridge/heartbeat` 逐个试探 `get_status.clients[].client_id`（返回 200 的即绑定值）得到，或从 DB `browser_tokens` 表读。重新 `open_editor` 签发新 token 也可行，但会撤销旧 token、打断用户已开的标签页，非必要不用。
+- **录制教学视频的约束**：不点保存、不改 deck 母版（收尾核对 `deck/index.html` 的 revision 与录制前一致）。**例外（v3.9.7 起）**：演示批注时点 `#annoSubmit`「提交批注」＝提交即入队，会自动产生一条 `anno.submitted` intent（不必再点「发送给 AI」；**入队不代表 AI 会自动执行**，轨 B 见 §0 轨 B 铁律），因此录制**不是零意图**流程。收尾必须先用 `/api/bridge/status` 找到**带演示文案**的那条、`POST /api/intent/cancel` 取消（按 note 精确匹配，不误伤真实批注），再发一次 `dirty=false / active_edit=false / draft_pending=false` 的干净 heartbeat 重置共享 client 状态；`editorial-tutorial/record.py` 已内置 `cleanup_demo_intents()` + `clean_heartbeat()`，重录也安全。
+- **视频转 GIF / MP4（本机实测）**：Playwright 自带 `ffmpeg-1011` 是精简构建——只有 `libvpx`(VP8)/`png` 编码器与 `scale` 滤镜，**没有** gif 编码器/muxer、`palettegen`/`paletteuse`/`fps` 滤镜、`rawvideo`/`image2pipe` muxer；既不能直接产出 GIF/MP4，也无法走内存管道，`image2` PNG 序列是它唯一的多帧输出方式。解法：`pip install imageio-ffmpeg` 到托管 venv，`imageio_ffmpeg.get_ffmpeg_exe()` 返回完整 ffmpeg（9.0.2，含 gif/libx264/palettegen/paletteuse/fps），单命令 split 调色板法转 GIF 且**不产生中间文件**：`-filter_complex "[0:v]fps=10,scale=W:H:flags=lanczos,split[a][b];[a]palettegen=max_colors=128:stats_mode=full[p];[b][p]paletteuse=dither=none" -loop 0`。若改用 Pillow 拼 GIF，**不要传 `disposal=2`**：它会禁用帧差优化（实测同一段 960×540/10fps 从 3.65 MB 涨到 17.72 MB）。要 MP4 也用这个完整 ffmpeg，不必装系统级工具。参考实现见 `editorial-tutorial/webm2gif.py`。
+
+#### 9. 保存冲突诊断与恢复【硬规则】
+
+页面报「受管工作区保存失败…下载副本（未发布）」或「此页面已被新页面取代」时，**先判性质再给动作**，禁止让用户重改内容。
+
+| 现象 | 判据 | 唯一动作 |
+|---|---|---|
+| `REVISION_CONFLICT` + `already_committed=true` | `publications` 已有 `status=COMMITTED`、`new_revision==current`、`base_revision==页面基线` | **明确告诉用户「改动已保存」**；前端自动取新基线重放一次。不要说「保存失败」、不要让用户下载副本 |
+| `REVISION_CONFLICT` + `already_committed=false` | 正式目标被其他写入推进 | 前端自动 rebase 重放；仍失败才提示下载副本，并重新 `open_editor` 给当次 URL |
+| `无 code` / 网络错误 / `Bridge 连接失败` | `page_online=false`、页面 URL 端口 ≠ `serve.json` 当前端口、日志无新 `/api/save` | **改动确实未落盘**：第一动作是让用户点「下载副本（未发布）」救回本页内存中的改动，再重新 `open_editor` 给当次 URL。禁止说「版本已更新」 |
+| `401/403/RECOVERY_REQUIRED` | 旧标签页 token 不再是有效 owner | 同 `SUPERSEDED`：关旧页、换当次链接，旧页自动停跳 |
+| `410 SUPERSEDED` | 旧标签页被新页面取代 | 关掉旧页、改用当次 `open_editor` 返回的 URL；旧页会自动停跳并显示取代提示 |
+| `PATH_DENIED 内部目录不可访问` | `deck_path` 含 `.pptx-html` | 只有这一类才回去排查目标路径（见第 1 节） |
+
+**取证顺序**：① `get_status` 读 `page_online` / `revision` / `clients[].revision`，并核对**页面 URL 端口是否等于 `serve.json` 当前端口**；② 查 `<workdir>/.pptx-html/bridge.sqlite3` 的 `publications` 与 `snapshots`，确认是否已有成功提交；③ 对比快照文本差异，确认用户改动是否落盘；④ 才决定动作。**禁止默认「改动已保存」**：只有查到当次新的 `status=COMMITTED` 事务、且 `new_revision==磁盘 revision` 才能这么说；查不到就是真没保存，第一动作永远是让用户点「下载副本」保住内存里的改动。
+
+**v3.13 起 daemon/前端已自助处理**：`open_editor` 单链接不变量 + `_latest_token_digest` 判 `SUPERSEDED` + 冲突回执带 `already_committed`/`suggestion=rebase-and-retry` + 前端 `bridgeSaveCatch` 按错误类型分流（断连 / 凭证失效 / 重复提交 / 真冲突）。**daemon 是独立进程，重启会换端口且不会通知已打开的页面**：`serve.json` 端口变化时既有页面必然离线，必须重新 `open_editor` 给当次 URL。前端对无 `code` 的网络错误须如实提示「服务已断开」，不得伪装成版本冲突；自动重放失败也须按真实原因分流，禁止静默吞异常。
+
 ### Step 0 · 明确输入
 
 两种入口，先确认是哪一种：
@@ -170,11 +312,11 @@ python3 tools/bridge_core.py revision <work_path>
 
 ### Step 0.5 · 需求脑暴
 
-【默认】动笔前先做需求对齐——按 `references/briefing.md` v2 的维度池（场景/受众/内容来源与切分/页数预算/视觉风格/字体/动效与明暗/封面与交付 + 自由补充）与用户快速对齐。每组有缺省，用户没答就走缺省不追问；非 Bridge 降级流程追问至多两轮。Bridge 五工具可见时，本步只能由脑暴页完成（轨 B：`open_editor(view="brief")`；轨 A：`open_brief`），禁止 AskUserQuestion 或聊天脑暴替代，流程为：**消化对话上下文（指令/素材/附件自读）→ 缺口盘点（不足先在聊天补问，够了再开编辑器）→ 按 briefing.md v2 生成 `brief.options`（每题 2–4 选项、必含推荐项+一句话理由、缺省锚定原缺省语义、不暴露推理；素材驱动条件组 x-data/x-brand/x-fidelity 按触发规则判定）→ 注入（轨 B `open_editor(view="brief", brief_options=...)` / 轨 A `open_brief(brief_options=...)`）→ await `brief.submitted`**。收到 `brief.submitted` 即视为本步已冻结，所有空项采用缺省值，直接进入下一步。风格明显不合理时（合规报告配糖果风之类）回谏一次——回谏前移到 options 生成时执行（推荐项即回谏结果），不把 Step 1/2 退回聊天二次确认。第⑧组插画模式是三态：纯 HTML（缺省）/ AI 插画（Step 5.5）/ 混合烙入（Step 5.6）；选混合烙入时条件追问"哪些页适合做整页视觉"，缺省按"封面+各章节扉页+收束页"，清单随简报冻结（`bake_intent`）。
+【默认】动笔前先做需求对齐——按 `references/briefing.md` v2 的维度池（场景/受众/内容来源与切分/页数预算/视觉风格/字体/动效与明暗/封面与交付 + 自由补充）与用户快速对齐。每组有缺省，用户没答就走缺省不追问。本步只能由脑暴页完成（轨 B：`open_editor(view="brief")`；轨 A：`open_brief`），禁止 AskUserQuestion 或聊天脑暴替代，流程为：**消化对话上下文（指令/素材/附件自读）→ 缺口盘点（不足先在聊天补问，够了再开编辑器）→ 按 briefing.md v2 生成 `brief.options`（每题 2–4 选项、必含推荐项+一句话理由、缺省锚定原缺省语义、不暴露推理；素材驱动条件组 x-data/x-brand/x-fidelity 按触发规则判定）→ 注入（轨 B `open_editor(view="brief", brief_options=...)` / 轨 A `open_brief(brief_options=...)`）→ await `brief.submitted`**。收到 `brief.submitted` 即视为本步已冻结，所有空项采用缺省值，直接进入下一步。风格明显不合理时（合规报告配糖果风之类）回谏一次——回谏前移到 options 生成时执行（推荐项即回谏结果），不把 Step 1/2 退回聊天二次确认。第⑧组插画模式是三态：纯 HTML（缺省）/ AI 插画（Step 5.5）/ 混合烙入（Step 5.6）；选混合烙入时条件追问"哪些页适合做整页视觉"，缺省按"封面+各章节扉页+收束页"，清单随简报冻结（`bake_intent`）。
 
 ### Step 1 · 页计划表
 
-不动手写代码。非 Bridge 降级流程先输出页计划表与用户确认；Bridge 模式依据已冻结的 `brief.submitted` 在 attempt 内完成页计划，不在聊天二次确认：
+不动手写代码。依据已冻结的 `brief.submitted` 在 attempt 内完成页计划，不在聊天二次确认：
 
 | 页 | 叙事角色 | 这一页的一句话 | 内容清单（估算字数/条目数） | 明/暗 | 呈现发散（关键页必填） |
 |---|---|---|---|---|---|
@@ -184,13 +326,13 @@ python3 tools/bridge_core.py revision <work_path>
 
 **呈现发散步**（想象层，H 期）【默认·关键页强制】：封面、数据英雄、对比、流程等关键页，在本列先写 **3 个不同轴上的呈现方案**（每案必须命名差异轴：尺度 / 隐喻 / 维度 / 动静 / 材质）再选定——查询 `references/motifs.md`（内容关系 → 视觉隐喻库）。普通页豁免。发散文案留在计划表，不进产物。反例纪律：对比不要只有左右分栏、增长不要只有上升柱图、数字不要只有 count-up、流程不要只有箭头——收敛到默认解可以，但要能说清为什么其他隐喻不合适。**简报声明了烙入清单（`bake_intent`）的页，本步即按烙入构图约束设计**【硬规则】：理想文字量 = 大标题 + 一行副题 + 一行标注（选页把关标准见 `references/bake-prompts.md`），把 Step 5.6 的"事后补救"变成前置预留；清单内页面在计划表标注「烙入」。
 
-**密度决策在本步冻结**【硬规则】：非 Bridge 流程与用户确认这份 deck 是**低密度（演讲主导）**还是**高密度（阅读主导）**；Bridge 模式读取 `brief.submitted` 的选择，未填则采用 briefing 缺省，不在聊天二问。只有两档，内容混合时向更近的一档靠拢。密度决定单页信息量、字阶和页数策略，规则见 `references/typography.md` §5。先定密度再排页：低密度宁可加页，高密度用结构化版式承载（文本容器分型见 `components.md` §13——高密度页的要点必须装进容器型，裸排列表即违规）。
+**密度决策在本步冻结**【硬规则】：读取 `brief.submitted` 已冻结的**低密度（演讲主导）**或**高密度（阅读主导）**，未填则采用 briefing 缺省，不在聊天二问、不在聊天让用户重选。只有两档，内容混合时向更近的一档靠拢。密度决定单页信息量、字阶和页数策略，规则见 `references/typography.md` §5。先定密度再排页：低密度宁可加页，高密度用结构化版式承载（文本容器分型见 `components.md` §13——高密度页的要点必须装进容器型，裸排列表即违规）。
 
 **章节结构**（skeleton v7 起）：按叙事弧给章节页标 `data-chapter`（章节页 `.slide` 同时带 `id`，与 `data-slide-id` 同值）；高密度档的封面【默认】必须承载目录——`<a class="nav-link" href="#id">` 章节链接（原生可点可 Tab，骨架另支持数字键 1–9 直跳）。低密度短 deck 可省略。
 
 ### Step 2 · 冻结主题
 
-非 Bridge 流程从 `references/themes/index.md` 中推荐 2–3 套候选让用户选（说明各自气质与 focus——focus 即该主题设计感的来源：配色 / 质感 / 字排 / 形态 / 装饰，能渲染预览就渲染预览）。Bridge 模式使用 `brief.submitted` 已冻结的主题/变体；未选择时采用 briefing 缺省，禁止回到聊天再次确认。主题库是**两级架构**（G 期起）：**重主题**（七层表达力栈 L1–L7，Schema 化 G0–G9 字段组——色彩/字排/质感/装饰母题/容器风格/动效签名/构图倾向）+ **配色变体**（每主题 ≥3 套，同一世界的不同光线/材质演绎）——选定主题后**同时冻结变体**（默认基底配色）。G0 的「世界参考」与「unforgettable」是向用户解释主题气质的最好语言。索引文件含设计专业分类（色法/线法/空间/质感/光线/字法），选定分类后读取 `themes/<分类>/<id>/theme.md` 获取完整定义，主题目录内 `demo-*.png` 可直接展示该主题视觉效果。
+使用 `brief.submitted` 已冻结的主题/变体；未选择时采用 briefing 缺省，禁止回到聊天再次确认（候选主题由脑暴页按 `references/themes/index.md` 的分类与 focus 呈现，focus 即设计感来源：配色 / 质感 / 字排 / 形态 / 装饰）。主题库是**两级架构**（G 期起）：**重主题**（七层表达力栈 L1–L7，Schema 化 G0–G9 字段组——色彩/字排/质感/装饰母题/容器风格/动效签名/构图倾向）+ **配色变体**（每主题 ≥3 套，同一世界的不同光线/材质演绎）——选定主题后**同时冻结变体**（默认基底配色）。G0 的「世界参考」与「unforgettable」是向用户解释主题气质的最好语言。索引文件含设计专业分类（色法/线法/空间/质感/光线/字法），选定分类后读取 `themes/<分类>/<id>/theme.md` 获取完整定义，主题目录内 `demo-*.png` 可直接展示该主题视觉效果。
 【硬规则】主题**只选不改**：选定后整套 token（基底 + 变体覆盖合并）复制进骨架的 `SLOT: theme tokens`，主题 G9 的 css 块**逐字**复制进骨架的 `SLOT: theme css`（骨架 v6 起；无母题的主题该槽位留空）。不混搭、不改色值、不自定义 hex；装饰母题只用本主题 G9 词汇，禁跨主题借用。用户坚持自定义时，委婉说明策展预设的意义，仍坚持则在交付说明中记录。
 **材料合成**：主题 G3 声明了 `css_recipes` 时，质感层与母题件的落码按 `references/compositing.md`（材料合成词汇表）对应配方的 CSS 实现与密度/导出纪律执行——配方是"用 CSS 模拟物理材料"的完整实现，参数可微调但材料语义不变。
 

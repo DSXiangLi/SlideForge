@@ -72,7 +72,7 @@
 
 ```css
 /* B1 瑞士国际主义 · 装饰母题 + 缓动签名 */
-:root{--ease-out:cubic-bezier(.2,.9,.25,1)}
+:root{--ease-out:cubic-bezier(.2,.9,.25,1);--t-display:176px;--t-body:35px}
 .mt-cross{position:absolute;width:14px;height:14px;pointer-events:none;opacity:.55}
 .mt-cross::before,.mt-cross::after{content:"";position:absolute;background:var(--ink)}
 .mt-cross::before{left:50%;top:0;bottom:0;width:1px;margin-left:-.5px}
@@ -98,12 +98,13 @@ info_grammar:
   claim:    左 7 栏巨字（200 字重、语义断行）+ 右 5 栏数据脊
   analysis: 3–6 块灰档平涂模块严格对格，至多一个 accent 焦点块
   data:     三项数字 → 纵向脊（非横排等权三格），仅一项用 accent 实色块承载
-type_scale:            # 三级层级（480px 预览基准，单位 cqw）；任何文本不得低于 floor
-  floor:   1.5         # ≈7.2px，唯一硬下限（真实 deck ~2.7x 后 ≈19px）
-  display: 12.0        # 网格巨字（封面倒挂字重）；与标题拉开 ≥5 倍
-  heading: 2.2         # 栏内小标题
-  body:    1.8         # 说明 / 轴标 / 注脚（opacity ≥ .8，禁灰化弱读）
+type_scale:            # 角色令牌源（px@1920×1080 画布基准）；下限由骨架 .t-* 的 max() 结构性锁定，不可被令牌突破
+  # —— 本主题差异化的令牌覆盖（注入 G9 css 的 :root，单位 px@1920）——
+  --t-display: 176px   # 封面/宣言巨字（瑞士倒挂字重，超出 typography §1 上限以契合海报传统）；与正文 ≥5:1
+  --t-body:    35px    # ≈1.8cqw@480 换算基准；说明 / 轴标 / 注脚（opacity ≥ .8，禁灰化弱读）
+  # heading/subhead/caption/meta 未覆盖 → 继承骨架默认（64 / 40 / 18 / 15px）
   rule: 标题:正文 ≈ 1.2–1.5:1，巨字:正文 ≥ 8:1（低密度）；禁层级倒挂与灰化弱读
+  floor_note: 正文级下限 18px、meta 14px、caption 16px 由骨架 max() 保证，设计层规避，无需后拦截门禁
 invariants:
   - 主轴 ∈ {0°, 90°}，斜向结构件面积 = 0
   - 最大字号 / 最小字号 ≥ 8（低密度档）

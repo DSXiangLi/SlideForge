@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* sync-themes.mjs —— 主题数据多文件同步 + Schema 校验
  *
- * 数据源：<当前技能目录>/references/themes/<分类>/<id>/theme.md（29 套七层
+ * 数据源：<当前技能目录>/references/themes/<分类>/<id>/theme.md（30 套七层
  *         重主题 + 配色变体，Schema 化 G0–G9 字段组，唯一事实源；Schema 规范
  *         见 docs/design/theme-schema.md 与 docs/design/theme-expression-stack.md）
  *         索引文件 themes/index.md 含分类框架与全局规则（不参与解析）。
@@ -17,7 +17,7 @@
  *   /*__MOTION_JSON_BEGIN__*\/ ... /*__MOTION_JSON_END__*\/
  *
  * 校验项：
- *   1. 主题数 == 28、id 唯一；
+ *   1. 主题数 == 30、id 唯一；
  *   2. G0（id/气质/适用/focus/世界参考/unforgettable/分化声明）、G1（6 色
  *      token 全为合法 hex + accent 预算声明）、G2（3 字体栈 + 字重倾向 +
  *      字号对比 + 字重映射 + 标题修饰）字段齐全；
@@ -51,15 +51,22 @@
  * 用法：node skills/SlideForge/scripts/sync-themes.mjs
  * 校验失败打印可读错误并以非零退出。零依赖，Node ≥ 20。
  */
-import { readFileSync, writeFileSync, readdirSync, statSync } from 'node:fs';
+import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const THEMES_DIR = join(ROOT, 'skills/SlideForge/references/themes');
-const EDITOR = join(ROOT, 'editor.html');
+/* editor.html 只存在于完整仓库布局（含可视化编辑器）中。用户级技能安装
+ * （~/.workbuddy/skills/SlideForge）没有它：此时脚本退化为纯 Schema 校验器，
+ * 只报告主题数据是否合法，不写回面板卡片。切勿因此跳过校验。 */
+const EDITOR = [
+  join(ROOT, 'editor.html'),
+  join(ROOT, 'skills/SlideForge/editor.html'),
+  join(ROOT, 'skills/SlideForge/assets/editor.html')
+].find(p => existsSync(p)) || null;
 const COMPOSITING = join(ROOT, 'skills/SlideForge/references/compositing.md');
-const EXPECTED_COUNT = 29;  /* 587621b 删 G3 后 28 套 + D4 黄铜年代（材料合成试点任务 B） */
+const EXPECTED_COUNT = 30;  /* 29 套既有 + H1 氤氲手卷（从外部风格样本抽象入库） */
 const COLOR_TOKENS = ['--paper', '--paper-tint', '--ink', '--ink-tint', '--accent', '--accent-on'];
 const FONT_TOKENS = ['--font-display', '--font-body', '--font-mono'];
 const TEXTURE_TOKENS = ['--texture-type', '--texture-layer', '--texture-scope'];
@@ -145,7 +152,7 @@ for (const { path: fpath, catDir, tidDir } of findThemeFiles()) {
   const fileId = `${catDir}/${tidDir}`;
   allMdByFile[fileId] = md;
   const lines = md.split('\n');
-  const h = /^#\s+([A-G]\d+)\s+(.+?)\s*$/.exec(lines[0] || '');
+  const h = /^#\s+([A-H]\d+)\s+(.+?)\s*$/.exec(lines[0] || '');
   if (!h) { err(`主题文件 ${fileId}/theme.md 首行不是合法标题（# A1 名称 格式）`); continue; }
   segments.push({ hid: h[1], heading: h[2], lines: lines.slice(1), fileId, catDir, tidDir });
 }
@@ -321,7 +328,7 @@ for (const t of themes) {
   /* 分化声明：格式 与 <id> 分化于 Lx/Ly/Lz（≥3 层），二阶段逐层核验 */
   {
     const d = t.g0['分化声明'] || '';
-    const m = /与\s*([a-gA-G]\d+)\s*分化于\s*([L\d\/、,，\s]+)/.exec(d);
+    const m = /与\s*([a-hA-H]\d+)\s*分化于\s*([L\d\/、,，\s]+)/.exec(d);
     if (!m) err(`${t.id}: 分化声明格式应为「与 <id> 分化于 Lx/Ly/Lz：说明」，实为：${d.slice(0, 40)}…`);
     else {
       const layers = [...new Set(m[2].match(/L[1-7]/g) || [])];
@@ -551,7 +558,7 @@ function buildOption(t) {
     group_label: GROUP_META[primary].short + '主导',
     visual: { ...visualOf(tokens), font_display: fd, font_body: fb },
     tokens,
-    theme_css: t.css.G9 ? t.css.G9.trim() : '',
+    theme_css: t.css.G9 ? t.css.G9.trim().replace(/\r\n/g, '\n') : '',  // 统一 LF：Windows 下 theme.md 可能是 CRLF，写进 editor.html 会产生纯换行符噪音 diff
     demos,
     variants: t.variants.map((v, i) => {
       const vt = parseTokens(v.css);
@@ -596,6 +603,12 @@ const BEGIN = '/*__THEMES_JSON_BEGIN__*/';
 const END = '/*__THEMES_JSON_END__*/';
 const MBEGIN = '/*__MOTION_JSON_BEGIN__*/';
 const MEND = '/*__MOTION_JSON_END__*/';
+
+if (!EDITOR) {
+  console.log(`[sync-themes] Schema 校验通过：${options.length} 套主题（${options.map(o => o.id).join(', ')}）`);
+  console.log('[sync-themes] 未找到 editor.html（用户级技能安装），仅校验模式：跳过面板卡片写回');
+  process.exit(0);
+}
 
 let src = readFileSync(EDITOR, 'utf8');
 let next = writeMarkedBlock(src, BEGIN, END, options, 'THEMES_JSON');

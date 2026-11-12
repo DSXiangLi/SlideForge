@@ -70,7 +70,7 @@
 
 ```css
 /* E5 构成主义 · 装饰母题 + 缓动签名 */
-:root{--ease-out:cubic-bezier(.8,0,.2,1)}
+:root{--ease-out:cubic-bezier(.8,0,.2,1);--t-display:128px;--t-body:35px}
 .mt-con-diag{position:absolute;left:-15%;width:130%;height:14vh;pointer-events:none;transform:rotate(-12deg);background:var(--accent)}
 .mt-con-diag--ink{background:var(--ink)}
 .mt-con-diag--print{box-shadow:0 10px 0 color-mix(in srgb,var(--ink) 25%,transparent)}
@@ -97,12 +97,13 @@ info_grammar:
   data:     三项数字 → 沿力线阶梯错排（margin 逐级递增），末项用 accent 且带结论短句
   analysis: 说明文压到页缘注脚，不设独立正文块
   cover:    满版红 + 反白口号，楔形块从页缘楔入
-type_scale:            # 三级层级（480px 预览基准，单位 cqw）；任何文本不得低于 floor
-  floor:   1.5         # ≈7.2px，唯一硬下限（真实 deck ~2.7x 后 ≈19px）
-  display: 3.0         # 序号 / 结论数字（对角带内或楔形块承载，与标题拉开 ≥1.3 倍）
-  heading: 2.2         # 条目标题 / 对抗论点句
-  body:    1.8         # 页缘注脚 / 说明（opacity ≥ .8，禁灰化弱读）
+type_scale:            # 角色令牌源（px@1920×1080 画布基准）；下限由骨架 .t-* 的 max() 结构性锁定，不可被令牌突破
+  # —— 本主题差异化的令牌覆盖（注入 G9 css 的 :root，单位 px@1920）——
+  --t-display: 128px   # 构成主义"巨字宣言"封面/口号（极粗 800–900 字重承载压强）；与正文 ≥4:1
+  --t-body:    35px    # ≈1.8cqw@480 换算基准；页缘注脚 / 说明（opacity ≥ .8，禁灰化弱读）
+  # heading/subhead/caption/meta 未覆盖 → 继承骨架默认（64 / 40 / 18 / 15px）
   rule: 序号:标题 ≥ 1.3:1 且 标题:正文 ≈ 1.2–1.5:1（禁层级倒挂：数字压过标题、说明又小又灰）
+  floor_note: 正文级下限 18px、meta 14px、caption 16px 由骨架 max() 保证，设计层规避，无需后拦截门禁
 invariants:
   - 存在 ≥1 条 −12°±3° 的大面积色带，面积 ≥ 12%
   - 带内至少 1 个可编辑文本节点（承载主标题）

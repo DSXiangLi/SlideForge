@@ -378,9 +378,10 @@
     由 sync-themes.mjs 从 Schema 化 themes.md（16 套）生成。
   - v1.6（编辑器 v2，docs/design/editor-v2.md）：
     1. 文字样式编辑：选中 data-editable 文字元素后顶栏出现样式控件组
-       （字体/字号/字色/对齐），只写白名单四属性 inline style
-       （font-family/font-size/color/text-align），随保存序列化保留——
-       契约"样式覆盖"节；粒度是整个元素，不做选区级富文本；
+       （字体/字号角色/字色/对齐）；字号**不再**走白名单 inline style，改由
+       "字号角色"下拉切换骨架 `.t-*` 类（与 typography.md §8 / 契约"样式覆盖"节一致）；
+       其余三属性（font-family/color/text-align）仍写白名单 inline style，随保存序列化保留；
+       粒度是整个元素，不做选区级富文本；
     2. PPT 式目录侧栏：克隆 section 进 Shadow DOM（deck CSS 注入、:root→:host、
        强制动效终态）+ IntersectionObserver 懒渲染 + 点击导航 + 当前页高亮；
        编辑后按需失效重克隆（导航件不是监视器，不做实时同步）；
@@ -742,17 +743,13 @@
     border-radius:999px;background:var(--bar);max-width:132px;
   }
   .st-size{display:flex;align-items:center;border:1px solid var(--border);border-radius:999px;overflow:hidden}
-  .st-size button{border:0;border-radius:0;padding:4px 10px}
-  .st-size button:hover{transform:none;box-shadow:none}
-  .st-size input{width:52px;border:0;padding:4px 2px;font:inherit;font-size:12px;text-align:center;outline:none;background:transparent}
-  .st-size input.warn{color:var(--warn-text);background:var(--warn-bg)}
+  .st-size select{border:0;background:transparent;font:inherit;font-size:12px;padding:4px 8px;outline:none;max-width:120px}
   .st-swatches{display:flex;gap:4px;align-items:center}
   .st-swatch{width:18px;height:18px;border-radius:50%;border:1px solid rgba(0,0,0,.18);padding:0;cursor:pointer}
   .st-swatch:hover{transform:scale(1.12);box-shadow:none}
   .st-color{width:26px;height:24px;padding:0;border:1px solid var(--border);border-radius:8px;background:none;cursor:pointer}
   .st-align{padding:2px}
   .st-align button{padding:4px 10px}
-  .st-warn{color:var(--warn-text);font-size:11px}
 
   /* ── 版本历史面板（v1.6 §3，复用 drawer 形态） ────────────── */
   .ver-item{
@@ -1080,17 +1077,23 @@
   <div class="spacer"></div>
   <div class="stylebar" id="styleBar">
     <select id="stFont" title="字体（作用于整个选中文字元素）"></select>
-    <div class="st-size" title="字号（画布坐标 px；低于 18px 警告但不禁止）">
-      <button id="stSizeDec" tabindex="-1">−</button>
-      <input id="stSize" type="number" min="1" step="2">
-      <button id="stSizeInc" tabindex="-1">＋</button>
+    <div class="st-size" title="字号角色（由骨架 .t-* 承载，下限结构性锁定，不再支持裸写 px）">
+      <select id="stRole" aria-label="字号角色">
+        <option value="">默认</option>
+        <option value="t-display">巨·封面</option>
+        <option value="t-heading">大·章节</option>
+        <option value="t-subhead">中·小节</option>
+        <option value="t-body">正文</option>
+        <option value="t-caption">注·图注</option>
+        <option value="t-meta">标·标签</option>
+        <option value="t-vertical">竖·竖排</option>
+      </select>
     </div>
     <div class="st-swatches" id="stSwatches" title="主题色板"></div>
     <input type="color" id="stColor" class="st-color" title="自定义字色">
     <div class="seg st-align" id="stAlign" title="对齐">
       <button data-align="left">左</button><button data-align="center">中</button><button data-align="right">右</button><button data-align="justify">齐</button>
     </div>
-    <span class="st-warn" id="stSizeWarn" hidden>低于 18px</span>
   </div>
   <button id="btnReplaceImg" disabled title="替换当前选中图片（等价手势：选中图片后再点击一次）">替换图片</button>
   <button id="btnHistory" disabled title="未检测到伴随服务：运行 python3 tools/edit.py 启动后可获得 git 版本记录">历史</button>
@@ -3732,6 +3735,128 @@ var PANEL_DATA = {
             ]
           },
           {
+            "id": "h1",
+            "label": "氤氲手卷",
+            "series": "H",
+            "vibe": "雾紫氤氲里徐徐展开的宣纸手卷，宋体厚重、毛笔字飘忽，一点朱砂压住整页",
+            "description": "人文与科技对话、思辨型主题、品牌叙事、文化教育、需要柔和仪式感的开场与收束；雾紫氤氲里徐徐展开的宣纸手卷，宋体厚重、毛笔字飘忽，一点朱砂压住整页",
+            "focus": [
+              "G3",
+              "G9"
+            ],
+            "focus_label": "质感 + 装饰",
+            "group": "texture",
+            "group_label": "质感主导",
+            "visual": {
+              "paper": "#faf7f3",
+              "ink": "#241f2b",
+              "accent": "#9c3b34",
+              "font_display": "serif",
+              "font_body": "serif"
+            },
+            "tokens": {
+              "--paper": "#faf7f3",
+              "--paper-tint": "#e8e0e7",
+              "--ink": "#241f2b",
+              "--ink-tint": "#544b60",
+              "--accent": "#9c3b34",
+              "--accent-on": "#faf7f3",
+              "--accent-2": "#8d7aa8",
+              "--accent-2-on": "#faf7f3",
+              "--accent-3": "#6f84a6",
+              "--accent-3-on": "#faf7f3",
+              "--palette-1": "#8d7aa8",
+              "--palette-1-on": "#faf7f3",
+              "--palette-2": "#6f84a6",
+              "--palette-2-on": "#faf7f3",
+              "--palette-3": "#bb93ab",
+              "--palette-3-on": "#241f2b",
+              "--palette-4": "#7f9b93",
+              "--palette-4-on": "#241f2b",
+              "--hl-1": "#c9a86a",
+              "--hl-1-on": "#241f2b",
+              "--font-display": "\"Noto Serif SC\",\"Source Han Serif SC\",\"Songti SC\",\"STSong\",\"SimSun\",serif",
+              "--font-body": "\"Noto Serif SC\",\"Source Han Serif SC\",\"Songti SC\",\"STSong\",\"SimSun\",serif",
+              "--font-mono": "\"Cormorant Garamond\",Georgia,\"Times New Roman\",serif",
+              "--texture-type": "aura",
+              "--texture-layer": "radial-gradient(46% 50% at 10% 6%, color-mix(in srgb, var(--accent-2) 30%, transparent), transparent 70%), radial-gradient(40% 44% at 88% 24%, color-mix(in srgb, var(--accent-3) 28%, transparent), transparent 72%), radial-gradient(48% 42% at 18% 94%, color-mix(in srgb, var(--palette-3) 26%, transparent), transparent 70%), radial-gradient(36% 38% at 84% 90%, color-mix(in srgb, var(--palette-4) 22%, transparent), transparent 72%)",
+              "--texture-scope": "all"
+            },
+            "theme_css": "/* H1 氤氲手卷 · 装饰母题 */\n:root{--ease-out:cubic-bezier(.2,.7,.3,1)}\n.mt-scroll-rod{position:absolute;left:0;right:0;height:20px;background:linear-gradient(90deg,var(--hl-1),color-mix(in srgb,var(--hl-1) 45%,var(--paper)),var(--hl-1));box-shadow:0 8px 22px -8px color-mix(in srgb,var(--ink) 45%,transparent)}\n.mt-scroll-cap{position:absolute;width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--hl-1) 55%,var(--paper)),var(--hl-1) 65%,color-mix(in srgb,var(--hl-1) 55%,var(--ink)))}\n.mt-scroll-seal{display:flex;align-items:center;justify-content:center;border:2px solid var(--accent);border-radius:8px;color:var(--accent);font-family:\"Ma Shan Zheng\",\"STKaiti\",\"KaiTi\",cursive;transform:rotate(-6deg);background:color-mix(in srgb,var(--accent) 5%,transparent)}\n.mt-scroll-watermark{position:absolute;font-family:\"Ma Shan Zheng\",\"STKaiti\",\"KaiTi\",cursive;line-height:1;color:color-mix(in srgb,var(--ink) 4%,transparent);pointer-events:none;user-select:none}\n.mt-scroll-mist{position:absolute;border-radius:50%;filter:blur(70px);mix-blend-mode:multiply;pointer-events:none;opacity:.55}\n.mt-scroll-grain{position:absolute;inset:0;pointer-events:none;opacity:.05;mix-blend-mode:overlay;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")}\n.mt-scroll-brush{height:2px;background:linear-gradient(90deg,transparent,var(--accent-2),var(--accent-3),var(--hl-1),transparent);opacity:.65}\n.mt-scroll-numeral{font-family:\"Ma Shan Zheng\",\"STKaiti\",\"KaiTi\",cursive;color:transparent;-webkit-text-stroke:1.5px var(--accent-2);opacity:.45;line-height:1}",
+            "demos": [
+              "demo-01.png",
+              "demo-02.png"
+            ],
+            "variants": [
+              {
+                "id": "h1-v1",
+                "label": "青绿",
+                "vibe": "雾气偏青，草木与书卷气——自然、教育、博物、长期主义叙事",
+                "accent_note": "朱砂仍 ≤5%，雾色向青绿一侧轮转，金轴略收暗",
+                "tokens": {
+                  "--paper": "#f7f7f2",
+                  "--paper-tint": "#e2e9e4",
+                  "--ink": "#1f2b2c",
+                  "--ink-tint": "#4c5f5d",
+                  "--accent": "#9c3b34",
+                  "--accent-on": "#f7f7f2",
+                  "--accent-2": "#5d8a86",
+                  "--accent-2-on": "#f7f7f2",
+                  "--accent-3": "#6f84a6",
+                  "--accent-3-on": "#f7f7f2",
+                  "--palette-1": "#5d8a86",
+                  "--palette-1-on": "#f7f7f2",
+                  "--palette-2": "#6f84a6",
+                  "--palette-2-on": "#f7f7f2",
+                  "--palette-3": "#a8bfa8",
+                  "--palette-3-on": "#1f2b2c",
+                  "--palette-4": "#7f9b93",
+                  "--palette-4-on": "#1f2b2c",
+                  "--hl-1": "#b99a5b",
+                  "--hl-1-on": "#1f2b2c"
+                },
+                "visual": {
+                  "paper": "#f7f7f2",
+                  "ink": "#1f2b2c",
+                  "accent": "#9c3b34"
+                }
+              },
+              {
+                "id": "h1-v2",
+                "label": "夜卷",
+                "vibe": "墨底展卷，纸色反白，朱印与金轴在暗处微亮——晚场演讲、影像叙事、收束页",
+                "accent_note": "朱砂提亮后仍 ≤5%，四雾色亮度上调以在暗底可见，叠加不透明度下调至 ≤22%",
+                "tokens": {
+                  "--paper": "#241f2b",
+                  "--paper-tint": "#322b3c",
+                  "--ink": "#f3ede6",
+                  "--ink-tint": "#cfc4d3",
+                  "--accent": "#c4625a",
+                  "--accent-on": "#241f2b",
+                  "--accent-2": "#a996c4",
+                  "--accent-2-on": "#241f2b",
+                  "--accent-3": "#8fa8cc",
+                  "--accent-3-on": "#241f2b",
+                  "--palette-1": "#a996c4",
+                  "--palette-1-on": "#241f2b",
+                  "--palette-2": "#8fa8cc",
+                  "--palette-2-on": "#241f2b",
+                  "--palette-3": "#d8aec8",
+                  "--palette-3-on": "#241f2b",
+                  "--palette-4": "#9cc0b6",
+                  "--palette-4-on": "#241f2b",
+                  "--hl-1": "#e0c384",
+                  "--hl-1-on": "#241f2b"
+                },
+                "visual": {
+                  "paper": "#241f2b",
+                  "ink": "#f3ede6",
+                  "accent": "#c4625a"
+                }
+              }
+            ]
+          },
+          {
             "id": "c3",
             "label": "终端绿",
             "series": "C",
@@ -4185,9 +4310,7 @@ var bridgeHost = {
         }
         if($('histDrawer').classList.contains('open'))loadVersions();return true;
       }catch(e){
-        bridgeRenderState('error','受管保存失败',e.message);
-        showWarn('受管工作区保存失败：'+e.message+'。不会降级覆盖原目标。','下载副本（未发布）',function(){bridgeDownloadHtml(text);});
-        return false;
+        return await bridgeSaveCatch(e,text);
       }finally{bridge.saveInFlight=false;bridgeScheduleDraft();}
     };
     return operation();
@@ -4218,7 +4341,15 @@ var bridgeHost = {
     }
   },
   intent: async function(type, payload, embeddedMessage, fallbackText){
-    var j=await bridgeSubmitIntent(type,payload);toast('请求已记录 · seq '+j.seq);return {route:'bridge',result:j};
+    var j=await bridgeSubmitIntent(type,payload);
+    /* 轨 B 没有 notifyAgent 敲门：提交只是入队，agent_state=offline 时没有 Agent 挂
+       await_intent，intent 会一直停在 pending。旧文案「请求已记录」会让人误以为 AI
+       已开始执行——这里按服务端回执如实分流，并给出用户能执行的下一步。 */
+    var st=(j&&j.agent_state)||'offline';
+    var claimed=(st==='waiting'||st==='working');
+    toast(claimed ? '请求已记录 · seq '+j.seq
+                  : '已排队 · seq '+j.seq+'；请求已保存不会丢失，但 AI 当前不在线，请在对话里说一声「继续」让我认领后才会执行');
+    return {route:'bridge',result:j};
   },
   /* P3.1（2026-10-28）：恢复族收敛进策略面——调用方（任务面板 / 简报区按钮）只认
      `hostBridge.recover`，不再直接点名 `bridge*` 函数。轨 B 这里就是既有 HTTP 通道。 */
@@ -5190,6 +5321,63 @@ function toast(msg){
   toast._t = setTimeout(function(){ t.classList.remove('show'); }, 2600);
 }
 
+/* 保存冲突自愈（2026-11-11）：SUPERSEDED 旧页停跳 / 基线过期自动重放，不再把恢复成本丢给用户 */
+function bridgeCurrentHtml(){ var d=doc(); return d ? d.documentElement.outerHTML : ''; }
+function bridgeSuperseded(e){
+  bridge.stopped=true; bridge.connected=false;
+  if(bridge.heartbeatTimer)clearInterval(bridge.heartbeatTimer);
+  if(bridge.sseAbort)bridge.sseAbort.abort();
+  bridgeRenderState('error','页面会话已失效','服务重启、端口变化或已被新页面取代，请改用最新链接');
+  showWarn('这个页面的会话已失效（服务重启、端口变化或已被新页面取代），后续保存不会再写入。改动仍在本页内存里：先点「下载副本」保存，再让我重新打开编辑器。','下载副本（未发布）',function(){bridgeDownloadHtml(bridgeCurrentHtml());});
+}
+function bridgeDisconnectedHint(){
+  return '编辑器与本地服务已断开（服务可能重启、端口已变）。你的改动还在本页内存里：先点「下载副本」保存，再让我重新打开编辑器。';
+}
+function bridgeSaveFallback(kind,msg,text){
+  bridgeRenderState('error',kind,msg);
+  showWarn(msg,'下载副本（未发布）',function(){bridgeDownloadHtml(text);});
+  return false;
+}
+async function bridgeRebaseSave(text){
+  var gen=bridge.editGeneration;
+  var st=await bridgeFetch('/api/bridge/status',{method:'POST',body:JSON.stringify({session_id:bridge.sessionId})});
+  var cur=st&&st.revision;
+  if(!cur)throw new Error('服务未返回当前版本，无法自动重放');
+  var res=await bridgeFetch('/api/save',{method:'POST',body:JSON.stringify({session_id:bridge.sessionId,path:state.deckPath,html:text,base_revision:cur})});
+  bridge.loadedRevision=res.revision;bridge.latestServerRevision=res.revision;
+  if(bridge.editGeneration===gen){setDirty(false);$('sbMsg').textContent='';}
+  toast('已保存（自动同步了新基线）');
+  return res;
+}
+async function bridgeSaveCatch(e,text){
+  /* 网络断连 / daemon 重启换端口：bridgeFetch 抛的是无 code 的原始 Error。
+     必须如实说「服务断开」，不能伪装成「服务器版本已更新」。 */
+  if(!e||!e.code)return bridgeSaveFallback('服务未连接',bridgeDisconnectedHint(),text);
+  if(e.code==='SUPERSEDED'||e.code==='RECOVERY_REQUIRED'||e.status===401||e.status===403){
+    bridgeSuperseded(e);return false;
+  }
+  if(e.code==='REVISION_CONFLICT'&&e.details&&e.details.suggestion==='rebase-and-retry'){
+    try{
+      var res=await bridgeRebaseSave(text);
+      if(res)return true;
+    }catch(e2){
+      /* 重放失败按真实原因分流，禁止静默吞掉后代以版本冲突文案 */
+      if(e2&&(e2.code==='SUPERSEDED'||e2.code==='RECOVERY_REQUIRED'||e2.status===401||e2.status===403)){
+        bridgeSuperseded(e2);return false;
+      }
+      if(!e2||!e2.code)return bridgeSaveFallback('服务未连接',bridgeDisconnectedHint(),text);
+      e=e2;
+    }
+  }
+  if(e.details&&e.details.already_committed){
+    bridgeRenderState('online','已保存','这次改动已写入，重复提交被安全锁拦下');
+    toast('改动已保存（重复提交已忽略）');
+    return true;
+  }
+  var msg='服务器上的版本已被更新，保存被安全锁拦下以保护内容，不会悄悄覆盖。'
+        + (e.message?'（服务端：'+e.message+'）':'');
+  return bridgeSaveFallback('保存未完成',msg,text);
+}
 function showWarn(msg, actionLabel, actionFn){
   $('warnText').textContent = msg;
   var act = $('warnAction');
@@ -7693,7 +7881,6 @@ $('btnBriefTasks').addEventListener('click',function(){
 var FONT_TOKENS = [ ['--font-display', '标题字体'], ['--font-body', '正文字体'], ['--font-mono', '等宽字体'] ];
 var COLOR_TOKENS = ['--paper', '--paper-tint', '--ink', '--ink-tint', '--accent', '--accent-on'];
 var SYSTEM_FONTS = [ ['serif', 'Serif（衬线）'], ['sans-serif', 'Sans（无衬线）'], ['monospace', 'Monospace（等宽）'] ];
-var FONT_SIZE_MIN = 18;   /* 与 SKILL.md 字号红线对齐：低于则警告不禁止（编辑是用户主权） */
 var deckFonts = [];       // [{label, css(var 引用), raw(解析值)}]
 var deckColors = [];      // [{token, css(var 引用), raw(解析值)}]
 
@@ -7727,11 +7914,10 @@ function updateStyleBar(){
   if (!el) return;
   populateFontSelect(el);
   var cs = frame.contentWindow.getComputedStyle(el);
-  var fs = parseFloat(cs.fontSize);
-  if (!isNaN(fs)){
-    $('stSize').value = Math.round(fs);
-    $('stSizeWarn').hidden = fs >= FONT_SIZE_MIN;
-  }
+  /* 字号角色：反映元素已挂的 .t-* 角色（无则"默认"）；不再读取/写入裸 px */
+  var ROLES = ['t-display','t-heading','t-subhead','t-body','t-caption','t-meta','t-vertical'];
+  var role = ROLES.filter(function(c){ return el.classList.contains(c); })[0] || '';
+  $('stRole').value = role;
   /* color input 只接受 #rrggbb：computed 值恰是解析后的 rgb()，需转换 */
   $('stColor').value = rgbToHex(cs.color) || '#000000';
   var ta = cs.textAlign;
@@ -7803,25 +7989,19 @@ function applyStyleProp(prop, value){
   invalidateThumbOf(el);
   updateStyleBar();
 }
-function applyFontSize(v){
+/* 字号角色：切换 .t-* 类，禁止裸写 font-size（与 typography.md §8 / editing-contract 白名单一致） */
+var ROLE_CLASSES = ['t-display','t-heading','t-subhead','t-body','t-caption','t-meta','t-vertical'];
+function applyRole(role){
   var el = styleTarget();
-  if (!el || isNaN(v) || v < 1) return;
-  el.style.setProperty('font-size', Math.round(v) + 'px');
+  if (!el) return;
+  ROLE_CLASSES.forEach(function(c){ el.classList.toggle(c, c === role); });
+  el.style.removeProperty('font-size');   /* 迁移：清掉任何裸写 px，交回角色系统 */
   setDirty(true);
-  $('stSizeWarn').hidden = v >= FONT_SIZE_MIN;
-  $('stSize').classList.toggle('warn', v < FONT_SIZE_MIN);
   invalidateThumbOf(el);
-}
-function stepFontSize(delta){
-  var cur = parseFloat($('stSize').value) || FONT_SIZE_MIN;
-  var v = Math.max(1, cur + delta);
-  $('stSize').value = v;
-  applyFontSize(v);
+  updateStyleBar();
 }
 $('stFont').addEventListener('change', function(){ applyStyleProp('font-family', this.value); });
-$('stSize').addEventListener('change', function(){ applyFontSize(parseFloat(this.value)); });
-$('stSizeDec').addEventListener('click', function(){ stepFontSize(-2); });
-$('stSizeInc').addEventListener('click', function(){ stepFontSize(2); });
+$('stRole').addEventListener('change', function(){ applyRole(this.value); });
 $('stColor').addEventListener('input', function(){ applyStyleProp('color', this.value); });
 $('stAlign').addEventListener('click', function(e){
   var b = e.target.closest('button[data-align]');
@@ -8996,6 +9176,8 @@ async function bridgeHeartbeat(){
   try {
     await bridgeFetch('/api/bridge/heartbeat', {method:'POST',body:JSON.stringify(bridgeHeartbeatBody())});
     bridge.bound = true; bridge.connected = true;
+  } catch(e){
+    if(e&&e.code==='SUPERSEDED')bridgeSuperseded(e);
   } finally { bridge.heartbeatInFlight = false; }
 }
 function bridgeOpenDb(){
@@ -9397,7 +9579,15 @@ async function bridgeSubmitIntent(type,payload){
   }
   if(!j){local.status='unconfirmed';bridgeRefreshBriefSummary();bridgeRenderTasks();bridgeScheduleDraft();throw lastError||new Error('提交结果未知');}
   bridgeMergeIntent({id:id,seq:j.seq,type:type,status:j.status,attempt:1,base_revision:body.base_revision});
-  bridge.formDirty=false;bridgeRenderState('working','请求已记录','seq '+j.seq+' · '+type);return j;
+  bridge.formDirty=false;
+  /* 桥栏同样不能把「仅入队」画成 working（紫点＝AI 处理中）。offline 时保持 online 绿点，
+     文案明确「已排队 · 等待 AI 认领」，避免用户以为请求已被消费。 */
+  var ast=(j&&j.agent_state)||'offline';
+  var aclaimed=(ast==='waiting'||ast==='working');
+  bridgeRenderState(aclaimed?'working':'online',
+                    aclaimed?'请求已记录':'已排队 · 等待 AI 认领',
+                    'seq '+j.seq+' · '+type+(aclaimed?'':' · 请在对话里说「继续」'));
+  return j;
 }
 async function bridgeResendIntent(item){
   if(!item.request)return;

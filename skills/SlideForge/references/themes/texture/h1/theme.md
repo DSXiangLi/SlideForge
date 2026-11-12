@@ -79,7 +79,7 @@
 
 ```css
 /* H1 氤氲手卷 · 装饰母题 */
-:root{--ease-out:cubic-bezier(.2,.7,.3,1)}
+:root{--ease-out:cubic-bezier(.2,.7,.3,1);--t-display:92px;--t-body:35px;--t-vertical:118px}
 .mt-scroll-rod{position:absolute;left:0;right:0;height:20px;background:linear-gradient(90deg,var(--hl-1),color-mix(in srgb,var(--hl-1) 45%,var(--paper)),var(--hl-1));box-shadow:0 8px 22px -8px color-mix(in srgb,var(--ink) 45%,transparent)}
 .mt-scroll-cap{position:absolute;width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--hl-1) 55%,var(--paper)),var(--hl-1) 65%,color-mix(in srgb,var(--hl-1) 55%,var(--ink)))}
 .mt-scroll-seal{display:flex;align-items:center;justify-content:center;border:2px solid var(--accent);border-radius:8px;color:var(--accent);font-family:"Ma Shan Zheng","STKaiti","KaiTi",cursive;transform:rotate(-6deg);background:color-mix(in srgb,var(--accent) 5%,transparent)}
@@ -106,13 +106,14 @@ info_grammar:
   analysis: 三列题跋（论点 / 说明 / 数字汉数），自右向左递推
   cover:    展卷强形态：淡墨巨字水印 + 一枚朱印
   closing:  朱印回押，与封面闭环
-type_scale:            # 三级层级（480px 预览基准，单位 cqw）；任何文本不得低于 floor
-  floor:   1.5         # ≈7.2px，唯一硬下限（真实 deck ~2.7x 后 ≈19px）
-  display: 2.9         # 汉数题跋数字（非 KPI 格）；与标题拉开 ≥1.3 倍
-  heading: 2.1         # 题跋列小标题
-  body:    1.8         # 说明 / 图注（opacity ≥ .8，禁灰化弱读）
-  vertical_title: 6.0  # 竖排主标题专属下限（writing-mode:vertical-rl，实测字距 ≈1.4×字号）
+type_scale:            # 角色令牌源（px@1920×1080 画布基准）；下限由骨架 .t-* 的 max() 结构性锁定，不可被令牌突破
+  # —— 本主题差异化的令牌覆盖（注入 G9 css 的 :root，单位 px@1920）——
+  --t-display: 92px    # 横向题跋数字 / 非竖排标题；竖排主标题由 --t-vertical 承载（见下）
+  --t-body:    35px    # ≈1.8cqw@480 换算基准；说明 / 图注（opacity ≥ .8，禁灰化弱读）
+  --t-vertical: 118px  # 竖排主标题专属（writing-mode:vertical-rl），本主题签名形态，高于横向 display
+  # heading/subhead/caption/meta 未覆盖 → 继承骨架默认（64 / 40 / 18 / 15px）
   rule: 序号:标题 ≥ 1.3:1 且 标题:正文 ≈ 1.2–1.5:1（禁层级倒挂；竖排标题须整列可容不强制断列）
+  floor_note: 正文级下限 18px、meta 14px、caption 16px 由骨架 max() 保证，设计层规避，无需后拦截门禁
 invariants:
   - 主标题 `writing-mode: vertical-rl` 且字号 ≥6cqw
   - 结构边缘主方向 = vertical

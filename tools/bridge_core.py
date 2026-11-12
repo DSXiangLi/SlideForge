@@ -7,7 +7,6 @@ import base64
 import binascii
 import contextlib
 import datetime as dt
-import fcntl
 import hashlib
 import hmac
 import html as _html
@@ -38,6 +37,45 @@ from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
 
 PROTOCOL_VERSION = 2
+
+# ---------------------------------------------------------------- platform shims
+# POSIX 侧用 dir_fd + O_NOFOLLOW 做内核级路径约束；Windows 没有这两样，
+# 改用「逐段拒绝 reparse point + 解析后回查包含关系」的用户态约束。
+IS_WINDOWS = os.name == "nt"
+
+try:  # POSIX only
+    import fcntl  # type: ignore
+except ImportError:  # pragma: no cover - Windows
+    fcntl = None  # type: ignore
+    import msvcrt  # type: ignore
+
+_O_NOFOLLOW = getattr(os, "O_NOFOLLOW", 0)
+_O_DIRECTORY = getattr(os, "O_DIRECTORY", 0)
+_O_BINARY = getattr(os, "O_BINARY", 0)
+_FILE_ATTRIBUTE_REPARSE_POINT = 0x400
+STRICT_DIR_FD = bool(
+    not IS_WINDOWS
+    and _O_NOFOLLOW
+    and os.open in os.supports_dir_fd
+    and os.rename in os.supports_dir_fd
+)
+
+
+def _current_uid():
+    getuid = getattr(os, "getuid", None)
+    return getuid() if getuid else 0
+
+
+def _fsync_dir(path):
+    """目录 fsync：Windows 不能以目录 fd 打开，直接跳过（os.replace 已保证可见性）。"""
+    if IS_WINDOWS:
+        return
+    fd = os.open(path, _O_DIRECTORY)
+    try:
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+
 CONTROL_BODY_MAX = 2 * 1024 * 1024
 INTENT_PAYLOAD_MAX = 1024 * 1024
 INTENT_INLINE_MAX = 16 * 1024
@@ -401,6 +439,175 @@ class SecureRoot:
         except FileNotFoundError:return False
 
 
+class _WindowsSecureRoot:
+    """Windows 版路径约束：没有 dir_fd / O_NOFOLLOW，用逐段 reparse point 拒绝
+    + 解析后回查包含关系来等价实现「只能访问 root 下普通文件」的语义。
+
+    与 POSIX 版的对外方法集完全一致（close/read/hash/copy_out/
+    atomic_replace_from/unlink/exists/open_read），上层无感知。
+    """
+
+    def __init__(self, root: Path):
+        self.root = Path(root).resolve(strict=True)
+        if not self.root.is_dir():
+            raise BridgeError(503, "STORAGE_UNAVAILABLE", "工作目录不存在")
+        self.fd = None  # 仅为 API 对齐，Windows 不持有目录 fd
+        st = self.root.stat()
+        self.identity = (st.st_dev, st.st_ino)
+
+    def close(self):
+        self.fd = None
+
+    @staticmethod
+    def _parts(rel):
+        value = str(rel)
+        if not value or "\x00" in value or "\\" in value:
+            raise BridgeError(403, "PATH_DENIED", "非法安全路径")
+        path = PurePosixPath(value)
+        if path.is_absolute() or any(part in ("", ".", "..") for part in path.parts):
+            raise BridgeError(403, "PATH_DENIED", "非法安全路径")
+        return path.parts
+
+    @staticmethod
+    def _is_reparse(p: Path) -> bool:
+        """符号链接、目录联接（junction）与其它 reparse point 一律视为不安全。"""
+        try:
+            if p.is_symlink():
+                return True
+        except OSError:
+            return True
+        is_junction = getattr(os.path, "isjunction", None)
+        if is_junction is not None:
+            try:
+                if is_junction(p):
+                    return True
+            except OSError:
+                return True
+        try:
+            st = p.lstat()
+        except FileNotFoundError:
+            return False
+        except OSError:
+            return True
+        return bool(getattr(st, "st_file_attributes", 0) & _FILE_ATTRIBUTE_REPARSE_POINT)
+
+    def _resolve(self, rel, create=False):
+        parts = self._parts(rel)
+        cur = self.root
+        for part in parts[:-1]:
+            cur = cur / part
+            if create:
+                with contextlib.suppress(FileExistsError):
+                    cur.mkdir(mode=0o700)
+            if not cur.exists():
+                raise FileNotFoundError(str(cur))
+            if self._is_reparse(cur) or not cur.is_dir():
+                raise BridgeError(403, "PATH_DENIED", "拒绝链接目录或非目录路径")
+        target = cur / parts[-1]
+        try:
+            real_parent = cur.resolve(strict=True)
+        except OSError:
+            raise BridgeError(403, "PATH_DENIED", "路径不可解析")
+        if real_parent != self.root and self.root not in real_parent.parents:
+            raise BridgeError(403, "PATH_DENIED", "路径越界")
+        if (target.exists() or target.is_symlink()) and self._is_reparse(target):
+            raise BridgeError(403, "PATH_DENIED", "拒绝符号链接、联接或硬链接路径")
+        return target
+
+    def open_read(self, rel):
+        path = self._resolve(rel)
+        fd = os.open(path, os.O_RDONLY | _O_BINARY)
+        try:
+            st = os.fstat(fd)
+            if not stat.S_ISREG(st.st_mode) or st.st_nlink != 1:
+                raise BridgeError(403, "PATH_DENIED", "拒绝非普通文件、符号链接或硬链接")
+        except BaseException:
+            os.close(fd)
+            raise
+        return fd, st
+
+    def hash(self, rel):
+        fd, st = self.open_read(rel)
+        h = hashlib.sha256()
+        try:
+            while True:
+                chunk = os.read(fd, 1024 * 1024)
+                if not chunk:
+                    break
+                h.update(chunk)
+        finally:
+            os.close(fd)
+        return h.hexdigest(), st.st_size
+
+    def read(self, rel):
+        fd, _st = self.open_read(rel)
+        parts = []
+        try:
+            while True:
+                chunk = os.read(fd, 1024 * 1024)
+                if not chunk:
+                    break
+                parts.append(chunk)
+        finally:
+            os.close(fd)
+        return b"".join(parts)
+
+    def copy_out(self, rel, destination):
+        source, _st = self.open_read(rel)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            with destination.open("wb") as out:
+                while True:
+                    chunk = os.read(source, 1024 * 1024)
+                    if not chunk:
+                        break
+                    out.write(chunk)
+        finally:
+            os.close(source)
+
+    def atomic_replace_from(self, rel, source):
+        target = self._resolve(rel, create=True)
+        tmp = target.parent / (".bridge-" + secrets.token_hex(12))
+        src = os.open(source, os.O_RDONLY | _O_BINARY)
+        try:
+            sst = os.fstat(src)
+            if not stat.S_ISREG(sst.st_mode) or sst.st_nlink != 1:
+                raise BridgeError(403, "PATH_DENIED", "候选文件不是安全普通文件")
+            out = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_EXCL | _O_BINARY, 0o600)
+            try:
+                while True:
+                    chunk = os.read(src, 1024 * 1024)
+                    if not chunk:
+                        break
+                    os.write(out, chunk)
+                os.fsync(out)
+            finally:
+                os.close(out)
+        finally:
+            os.close(src)
+        try:
+            os.replace(tmp, target)
+        finally:
+            with contextlib.suppress(FileNotFoundError):
+                os.unlink(tmp)
+
+    def unlink(self, rel):
+        path = self._resolve(rel)
+        os.unlink(path)
+
+    def exists(self, rel):
+        try:
+            fd, _st = self.open_read(rel)
+            os.close(fd)
+            return True
+        except FileNotFoundError:
+            return False
+
+
+if IS_WINDOWS or not STRICT_DIR_FD:  # pragma: no cover - 平台分支
+    SecureRoot = _WindowsSecureRoot
+
+
 class WorkdirLock:
     def __init__(self, path: Path):
         self.path = path
@@ -408,7 +615,28 @@ class WorkdirLock:
 
     def acquire(self, blocking=False):
         self.path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
-        self.fd = os.open(self.path, os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW, 0o600)
+        self.fd = os.open(self.path, os.O_RDWR | os.O_CREAT | _O_NOFOLLOW | _O_BINARY, 0o600)
+        if IS_WINDOWS:
+            # msvcrt 无 flock，只有区域锁：锁文件首字节即等价语义。
+            try:
+                if os.fstat(self.fd).st_size == 0:
+                    os.write(self.fd, b"\0")
+                    os.fsync(self.fd)
+                os.lseek(self.fd, 0, os.SEEK_SET)
+                mode = msvcrt.LK_LOCK if blocking else msvcrt.LK_NBLCK
+                while True:
+                    try:
+                        msvcrt.locking(self.fd, mode, 1)
+                        break
+                    except OSError:
+                        if not blocking:
+                            raise
+                        time.sleep(0.05)
+            except OSError:
+                os.close(self.fd)
+                self.fd = None
+                return False
+            return True
         flags = fcntl.LOCK_EX | (0 if blocking else fcntl.LOCK_NB)
         try:
             fcntl.flock(self.fd, flags)
@@ -420,7 +648,12 @@ class WorkdirLock:
 
     def close(self):
         if self.fd is not None:
-            fcntl.flock(self.fd, fcntl.LOCK_UN)
+            if IS_WINDOWS:
+                with contextlib.suppress(OSError):
+                    os.lseek(self.fd, 0, os.SEEK_SET)
+                    msvcrt.locking(self.fd, msvcrt.LK_UNLCK, 1)
+            else:
+                fcntl.flock(self.fd, fcntl.LOCK_UN)
             os.close(self.fd)
             self.fd = None
 
@@ -436,7 +669,7 @@ class BridgeCore:
         self.internal = self.workdir / INTERNAL
         if self.internal.exists():
             st = self.internal.lstat()
-            if stat.S_ISLNK(st.st_mode) or not stat.S_ISDIR(st.st_mode) or st.st_uid != os.getuid():
+            if stat.S_ISLNK(st.st_mode) or not stat.S_ISDIR(st.st_mode) or st.st_uid != _current_uid():
                 raise BridgeError(503, "STORAGE_UNAVAILABLE", "内部目录权限或类型不安全")
         else:
             self.internal.mkdir(mode=0o700)
@@ -547,6 +780,9 @@ class BridgeCore:
             CREATE TABLE IF NOT EXISTS write_receipts(
               session_id TEXT NOT NULL,write_key TEXT NOT NULL,action TEXT NOT NULL,receipt_id TEXT NOT NULL,snapshot_id TEXT NOT NULL,
               result_json TEXT NOT NULL,created_at TEXT NOT NULL,PRIMARY KEY(session_id,write_key));
+            CREATE TABLE IF NOT EXISTS editor_urls(
+              token_digest TEXT PRIMARY KEY,session_id TEXT NOT NULL,url TEXT NOT NULL,view TEXT NOT NULL,created_at TEXT NOT NULL,
+              FOREIGN KEY(session_id) REFERENCES sessions(id));
             CREATE TABLE IF NOT EXISTS drafts(
               id TEXT PRIMARY KEY,session_id TEXT NOT NULL,client_id TEXT NOT NULL,html TEXT NOT NULL,annotations_json TEXT NOT NULL,
               base_revision TEXT,created_at TEXT NOT NULL);
@@ -1009,12 +1245,26 @@ class BridgeCore:
             state = current["state"] if current and owner == consumer_id and current["state"] in ("waiting","working") else "registered"
             self.db.execute("INSERT INTO consumers(session_id,consumer_id,state,registered_at,requires_open,lease_until) VALUES(?,?,?,?,0,NULL) ON CONFLICT(session_id,consumer_id) DO UPDATE SET state=excluded.state,registered_at=excluded.registered_at,requires_open=0,lease_until=CASE WHEN consumers.state IN ('waiting','working') THEN consumers.lease_until ELSE NULL END",
                             (session["id"],consumer_id,state,now))
-        browser = self.issue_browser_token(session["id"])
-        # view 是一次性启动提示（设计 brief-page-split §6）：经 URL fragment / 工具结果下发，
-        # **不落库、不进会话状态**——落库会让驻留页每 2s 的 get_status 轮询把用户当前视图翻回去。
-        url = f"{self.origin}/editor.html#brt={browser}&session={session['id']}&view={view}"
         page_online = self.page_online(session["id"])
         view_online = self.view_attached(session["id"])
+        # 单链接不变量（2026-11-11）：已有在线页面时复用该会话最后一次签发的 URL，
+        # 不再无条件签新 token。反复 open_editor 曾导致每次都产出一条新链接，旧页面
+        # 带着过期 revision 继续提交保存（REVISION_CONFLICT）并刷 409 heartbeat。
+        reuse_row = self.db.execute(
+            "SELECT u.url FROM editor_urls u JOIN browser_tokens t ON t.token_digest=u.token_digest "
+            "WHERE u.session_id=? AND t.revoked_at IS NULL ORDER BY u.created_at DESC,u.rowid DESC LIMIT 1",
+            (session["id"],)).fetchone() if page_online else None
+        reuse = reuse_row["url"] if reuse_row and reuse_row["url"].startswith(self.origin + "/editor.html#") else None
+        if reuse:
+            url = reuse
+        else:
+            browser = self.issue_browser_token(session["id"])
+            # view 是一次性启动提示（设计 brief-page-split §6）：经 URL fragment / 工具结果下发，
+            # **不落库、不进会话状态**——落库会让驻留页每 2s 的 get_status 轮询把用户当前视图翻回去。
+            url = f"{self.origin}/editor.html#brt={browser}&session={session['id']}&view={view}"
+            with self.db:
+                self.db.execute("INSERT OR REPLACE INTO editor_urls VALUES(?,?,?,?,?)",
+                                (token_digest(browser),session["id"],url,view,now))
         if page_online:
             # 会话已有在线页面：既不会开新窗，fragment 也到不了它 → 用一次性事件投递（C9）。
             with self.db:
@@ -1751,7 +2001,8 @@ class BridgeCore:
         if not row:return None
         result=json.loads(row[0]); current=self.observe_revision(sid)
         if current==result["revision"]: return result
-        raise BridgeError(409,"REVISION_CONFLICT","原写入已成功但目标已继续前进",True,{"receipt_id":result["receipt_id"],"revision":current})
+        raise BridgeError(409,"REVISION_CONFLICT","原写入已成功但目标已继续前进",True,
+                          {"receipt_id":result["receipt_id"],"revision":current,"already_committed":True,"suggestion":"rebase-and-retry"})
 
     def _copy_current_bundle(self,sid,dst):
         session=self._session(sid); root=self._bundle_root(session); dst.mkdir(parents=True,exist_ok=True)
@@ -1769,7 +2020,8 @@ class BridgeCore:
         fd,tmp=tempfile.mkstemp(dir=path.parent,prefix=".tmp-")
         try:
             with os.fdopen(fd,"wb") as f: f.write(canonical_json(data)); f.flush(); os.fsync(f.fileno())
-            os.replace(tmp,path); dfd=os.open(path.parent,os.O_DIRECTORY); os.fsync(dfd); os.close(dfd)
+            os.replace(tmp,path)
+            _fsync_dir(path.parent)
         finally:
             with contextlib.suppress(OSError): os.unlink(tmp)
 
@@ -1780,7 +2032,12 @@ class BridgeCore:
                 live=self.db.execute("SELECT status,attempt,consumer_id FROM intents WHERE id=? AND session_id=?",(intent["id"],sid)).fetchone()
                 if not live or live["status"]!="processing" or live["attempt"]!=intent["attempt"] or live["consumer_id"]!=consumer_id:
                     raise BridgeError(409,"RECOVERY_REQUIRED","consumer/attempt 所有权已失效",True)
-            if current!=base_revision: raise BridgeError(409,"REVISION_CONFLICT","正式目标 revision 已变化",True,{"revision":current})
+            if current!=base_revision:
+                last=self.db.execute("SELECT action,status,base_revision,new_revision,receipt_id,created_at FROM publications WHERE session_id=? AND status='COMMITTED' ORDER BY created_at DESC,rowid DESC LIMIT 1",(sid,)).fetchone()
+                already=bool(last and last["new_revision"]==current and last["base_revision"]==base_revision)
+                raise BridgeError(409,"REVISION_CONFLICT","正式目标 revision 已变化",True,
+                                  {"revision":current,"base_revision":base_revision,"already_committed":already,
+                                   "last_write":dict(last) if last else None,"suggestion":"rebase-and-retry"})
             if intent:
                 observed_candidate=self.scan_bundle(candidate_root/Path(session["target_path"]).name)
                 if observed_candidate!=manifest:
@@ -1982,17 +2239,29 @@ class BridgeCore:
         if set(body)!=expected or body["protocol_version"]!=2 or body["role"]!="browser" or body["session_id"]!=sid or not UUID_RE.match(str(body["client_id"])) or any(type(body[x]) is not bool for x in ("dirty","active_edit","draft_pending")) or isinstance(body["last_event_id"],bool) or not isinstance(body["last_event_id"],int) or body["last_event_id"]<0: raise BridgeError(400,"INVALID_ARGUMENT","browser heartbeat 非法")
         latest=self.db.execute("SELECT COALESCE(MAX(id),0) FROM events WHERE session_id=?",(sid,)).fetchone()[0]
         if body["last_event_id"]>latest: raise BridgeError(400,"INVALID_ARGUMENT","last_event_id 超出服务端游标")
-        dig=token_digest(token); t=self.db.execute("SELECT * FROM browser_tokens WHERE token_digest=? AND session_id=? AND revoked_at IS NULL",(dig,sid)).fetchone()
+        dig=token_digest(token); t=self.db.execute("SELECT * FROM browser_tokens WHERE token_digest=? AND session_id=?",(dig,sid)).fetchone()
         if not t: raise BridgeError(401,"UNAUTHORIZED","browser token 无效")
+        if t["revoked_at"] or self._latest_token_digest(sid)!=dig:
+            raise BridgeError(410,"SUPERSEDED","此编辑器页面已被新打开的页面取代，请关闭本标签并改用新链接",False,
+                              {"reason":"new-editor-page","revoked_at":t["revoked_at"]})
         if t["client_id"] and t["client_id"]!=body["client_id"]: raise BridgeError(403,"UNAUTHORIZED","browser token 已绑定另一 client")
         now=utcnow()
         with self.db:
             self.db.execute("UPDATE browser_tokens SET client_id=? WHERE token_digest=? AND client_id IS NULL",(body["client_id"],dig)); self.db.execute("INSERT INTO clients(id,session_id,token_digest,last_seen,dirty,active_edit,draft_pending,revision,last_event_id) VALUES(?,?,?,?,?,?,?,?,?) ON CONFLICT(session_id,id) DO UPDATE SET last_seen=excluded.last_seen,dirty=excluded.dirty,active_edit=excluded.active_edit,draft_pending=excluded.draft_pending,revision=excluded.revision,last_event_id=excluded.last_event_id",(body["client_id"],sid,dig,now,int(body["dirty"]),int(body["active_edit"]),int(body["draft_pending"]),body["revision"],body["last_event_id"]))
         return {"ok":True,"role":"browser","session_id":sid,"client_id":body["client_id"],"server_time":now,"last_seen":now,"online_until":future(CLIENT_ONLINE_SEC),"revision":body["revision"],"last_event_id":body["last_event_id"]}
 
+    def _latest_token_digest(self,sid):
+        row=self.db.execute("SELECT token_digest FROM browser_tokens WHERE session_id=? AND revoked_at IS NULL ORDER BY created_at DESC,rowid DESC LIMIT 1",(sid,)).fetchone()
+        return row["token_digest"] if row else None
+
     def authorize_browser(self,token,sid,require_bound=True):
-        row=self.db.execute("SELECT * FROM browser_tokens WHERE token_digest=? AND session_id=? AND revoked_at IS NULL",(token_digest(token),sid)).fetchone()
-        if not row or (require_bound and not row["client_id"]): raise BridgeError(401,"UNAUTHORIZED","browser token 无效或尚未绑定")
+        dig=token_digest(token)
+        row=self.db.execute("SELECT * FROM browser_tokens WHERE token_digest=? AND session_id=?",(dig,sid)).fetchone()
+        if not row: raise BridgeError(401,"UNAUTHORIZED","browser token 无效或尚未绑定")
+        if row["revoked_at"] or self._latest_token_digest(sid)!=dig:
+            raise BridgeError(410,"SUPERSEDED","此编辑器页面已被新打开的页面取代，请关闭本标签并改用新链接",False,
+                              {"reason":"new-editor-page","revoked_at":row["revoked_at"]})
+        if require_bound and not row["client_id"]: raise BridgeError(401,"UNAUTHORIZED","browser token 无效或尚未绑定")
         return row
 
     def get_status(self,sid):
@@ -2496,7 +2765,12 @@ class BridgeHandler(BaseHTTPRequestHandler):
             if path=="/api/intent":
                 sid=body.get("session_id")
                 if not self._is_management():self._browser(sid)
-                return self._json(self.core.accept_intent(sid,body))
+                result=self.core.accept_intent(sid,body)
+                # 轨 B（宿主未声明 MCP Apps 扩展）没有 notifyAgent 敲门：提交只是入队。
+                # 把当前 agent_state 随回执返回，前端才能如实告诉用户「已排队 / 需回对话触发」，
+                # 而不是显示「请求已记录」这种让人误以为 AI 正在执行的措辞。纯增量字段，跨域通用。
+                result["agent_state"]=self.core.agent_state(sid)
+                return self._json(result)
             if path=="/api/intent/retry":
                 sid=body.get("session_id")
                 if not self._is_management():self._browser(sid)
@@ -2666,7 +2940,7 @@ def serve(workdir,port=8926,allow_convert=False):
 def read_discovery(workdir):
     p=Path(workdir).resolve()/INTERNAL/"serve.json"
     st=p.stat()
-    if stat.S_IMODE(st.st_mode)&0o077:raise BridgeError(503,"STORAGE_UNAVAILABLE","serve.json 权限不安全")
+    if not IS_WINDOWS and stat.S_IMODE(st.st_mode)&0o077:raise BridgeError(503,"STORAGE_UNAVAILABLE","serve.json 权限不安全")
     return json.loads(p.read_text("utf-8"))
 
 

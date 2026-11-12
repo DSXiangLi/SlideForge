@@ -104,8 +104,28 @@ VIEW_MIME = "text/html;profile=mcp-app"
 APPS_EXTENSION = "io.modelcontextprotocol/ui"
 VIEW_BUNDLE_PATH = PROJECT_ROOT / "tools" / "ext_apps_bundle.js"
 VIEW_MANIFEST_PATH = PROJECT_ROOT / "tools" / "ext_apps_bundle.json"
-VIEW_SIZE_LIMIT = 2 * 1024 * 1024          # 宿主硬限制：超限静默回退纯文本（设计 §5.7）
+VIEW_SIZE_LIMIT = 2 * 1024 * 1024          # 桥侧构建期硬上限（设计 §5.7）；**不是**宿主的预取上限
 VIEW_SIZE_WARN = int(1.5 * 1024 * 1024)    # 构建期告警线
+# 宿主 CLI 的 MCP_UI_HTML_MAX_BYTES（实测 WorkBuddy codebuddy.js 模块 28326：eh=262144）。
+# 超过它时宿主 broadcastMcpUiForToolCall 的 pickPrefetchedMcpUiHtml 返回空，广播出去的
+# mcpUi 对象不带 html 字段，renderer 必须自己 readResource（200ms loading / 30s 超时）。
+# 当前自包含 View 约 828 KB，必然走这条异步路径。
+#
+# **这个上限只影响 Agent CLI 的 inline-widget 广播，不决定「宿主内是否弹面板」。**
+# WorkBuddy 有两条互不相干的 MCP App 通路（2026-11-12 从 app.asar + 诊断日志实证）：
+#   ① Agent CLI（cli/dist/codebuddy.js）broadcastMcpUiForToolCall：只看工具
+#      `_meta.ui.resourceUri`，把 mcpUi 载荷 stash 给 renderer 的内联卡片／历史回放，
+#      **不查 catalog**。日志 `broadcast ok ... pendingStashed=true` 属于这条，与本上限相关。
+#   ② daemon（app.asar）McpAppsHost + McpAppCatalog + openHostApp：才是「宿主内弹面板」。
+#      catalog 的发现源只有 connectorService 注册的 remote MCP（configId `custom-mcp:*`）
+#      与 bundled `workbuddy-builtin/mcps`；**用户 mcp.json 里的本地 stdio MCP 不在其中**
+#      （它由 Agent CLI 按会话持有）。实测 catalog.refresh scanned=67 acceptedCount=2
+#      liveApps=["ardot/open_design","ardot/create_design"]，`pptx` 在诊断日志出现 0 次，
+#      故 openHostApp 查不到本工具 → catalogMiss → 不弹面板。
+# 结论：面板不弹的根因是宿主侧 catalog 准入，不是资源体积、不是 capabilities 声明、
+# 也不是 renderer 消费缺口。256 KB 只让 ① 少带一个 html 字段；压缩资源修不了 ②。
+HOST_UI_PREFETCH_LIMIT = 262144
+_PREFETCH_WARN_EMITTED = False
 VIEW_HANDSHAKE_TIMEOUT_MS = 15000          # View 等 ui/initialize 应答的上限（引导期承诺）
 EXTERNAL_REF_RE = re.compile(
     r"<script[^>]+\bsrc=|<link[^>]+\bhref\s*=\s*[\"']?https?:|<iframe[^>]+\bsrc=|<object\b|<embed\b", re.I
@@ -275,6 +295,15 @@ def build_view_html(variant: str = "editor") -> str:
         raise RuntimeError(f"View HTML {size} 字节超过宿主 {VIEW_SIZE_LIMIT} 字节上限（宿主会静默回退纯文本）")
     if size > VIEW_SIZE_WARN:
         print(f"[bridge_mcp] 警告：View HTML {size} 字节已超过告警线 {VIEW_SIZE_WARN}", file=sys.stderr)
+    global _PREFETCH_WARN_EMITTED
+    if size > HOST_UI_PREFETCH_LIMIT and not _PREFETCH_WARN_EMITTED:
+        _PREFETCH_WARN_EMITTED = True
+        print(
+            f"[bridge_mcp] 提示：View HTML {size} 字节超过宿主 MCP UI 预取上限 "
+            f"{HOST_UI_PREFETCH_LIMIT}；宿主广播的 mcpUi 将不含 html，renderer 需异步 "
+            "readResource 才能渲染，宿主未消费时内嵌视图不会出现（轨 A 实证须看 view_attached）。",
+            file=sys.stderr,
+        )
     return view
 
 
@@ -365,6 +394,69 @@ class BridgeFastMCP(FastMCP):
         if mimes is None:
             return True
         return isinstance(mimes, list) and VIEW_MIME in mimes
+
+    def apps_capability_probe(self) -> dict[str, object]:
+        """能力协商的**原始证据**——「为什么没走轨 A」必须可观测，不能靠工具列表反推。
+
+        有一类宿主（本机实测 WorkBuddy 属此类）实现了完整的 MCP Apps 宿主侧协议
+        （`ui/initialize` / `ui/message` / `ui/resourceUri` / `text/html;profile=mcp-app`），
+        却不在 MCP `initialize` 的 `capabilities.extensions` 里声明
+        `io.modelcontextprotocol/ui`。`apps_declared()` 按规范只认声明，必然 False；
+        默认 `auto` 于是把工具面冻结到五个、把 `open_browser="auto"` 退化成立即开浏览器，
+        轨 A 连尝试机会都没有。把证据随回执返回，才能判断该不该开
+        `PPTX_HTML_APPS_TOOLS=always`，而不是把现象误判成「框架不支持 mcp-app」。
+
+        **但本探针只描述「桥侧工具面」，不描述「宿主会不会弹面板」**。宿主内独立
+        面板是另一条通路（daemon 侧 MCP App catalog → openHostApp），其准入由宿主
+        自己的发现源决定，桥作为 stdio MCP 无法检测。实测有宿主只索引 connector
+        注册项与 bundled 内置 MCP，本地 `mcp.json` 手配的 stdio 不在其中：此时
+        `apps_tools_listed=true` 仍可能完全没有内嵌面板。故 `host_panel_admission`
+        恒为 `"host-owned"`，真正的实证只有运行时 `view_attached` / `await_intent.kind`。
+        """
+        mode = (os.environ.get("PPTX_HTML_APPS_TOOLS") or "auto").strip().lower()
+        probe: dict[str, object] = {
+            "apps_tools_mode": mode,
+            # 面板准入归宿主：能力协商/工具面全开都**不**构成宿主会弹面板的证据。
+            # Agent 不得据 track=A / wake=notifyAgent / broadcast ok 向用户承诺内嵌视图。
+            "host_panel_admission": "host-owned",
+            "host_panel_evidence": "get_status.view_attached=true | await_intent.kind=mcp_app",
+        }
+        try:
+            params = self._mcp_server.request_context.session.client_params
+            caps = getattr(params, "capabilities", None)
+            extra = getattr(caps, "model_extra", None) or {}
+            exts = extra.get("extensions")
+            probe["declared_extensions"] = sorted(exts.keys()) if isinstance(exts, dict) else []
+            ui = exts.get(APPS_EXTENSION) if isinstance(exts, dict) else None
+            probe["ui_extension_declared"] = isinstance(ui, dict)
+            if isinstance(ui, dict) and isinstance(ui.get("mimeTypes"), list):
+                probe["ui_mime_types"] = list(ui["mimeTypes"])
+        except Exception as exc:
+            probe["declared_extensions"] = []
+            probe["client_params_error"] = type(exc).__name__
+        probe["apps_declared"] = self.apps_declared()
+        probe["apps_tools_listed"] = self.apps_tools_listed()
+        ui_declared = bool(probe.get("ui_extension_declared"))
+        declared = bool(probe["apps_declared"])
+        listed = bool(probe["apps_tools_listed"])
+        if listed and declared:
+            reason = "宿主已按规范声明 UI 扩展，走标准轨 A"
+        elif listed and not declared:
+            reason = ("宿主未声明 UI 扩展，但运维开关放开了工具面（兼容模式）："
+                      "桥侧轨 A 工具面已开放；宿主是否真的渲染内嵌面板由其 catalog 准入决定，"
+                      "本探针无法判定，只以运行时 view_attached 为准")
+        elif declared and not listed:
+            reason = ("宿主已声明 UI 扩展，但 PPTX_HTML_APPS_TOOLS=never 强制冻结工具面，"
+                      "轨 A 被运维关闭")
+        elif ui_declared:
+            reason = ("宿主声明了 io.modelcontextprotocol/ui，但 mimeTypes 不含 "
+                      "text/html;profile=mcp-app：按规范判为不支持，轨 A 未开放")
+        else:
+            reason = ("宿主未声明 io.modelcontextprotocol/ui 且未开 "
+                      "PPTX_HTML_APPS_TOOLS=always：工具面冻结到 5 个、"
+                      "open_browser=auto 退化为立即开独立浏览器，轨 A 未被尝试")
+        probe["reason"] = reason
+        return probe
 
     def apps_tools_listed(self) -> bool:
         mode = (os.environ.get("PPTX_HTML_APPS_TOOLS") or "auto").strip().lower()
@@ -517,9 +609,37 @@ class BridgeMCP:
             resolved_open = "auto" if self.mcp.apps_tools_listed() else True
         result = await self._request("/api/bridge/open", {"consumer_id":self.consumer_id,"deck_path":deck_path,"output_path":output_path,"view":view,"open_browser":resolved_open,"brief_options":brief_options})
         self.owned_sessions.add(result["session_id"])
-        # mode_hint 只是乐观提示：两家真实宿主都不声明 UI 扩展，设计必须在"恒为 unknown"下正确（§4.2）
-        result["mode_hint"] = "mcp-app" if self.mcp.apps_declared() else "unknown"
-        result["mode_source"] = "client-capabilities" if self.mcp.apps_declared() else "none"
+        declared = self.mcp.apps_declared()
+        # `mode_hint` 只表达"宿主有没有按规范声明"；轨 A 通道是否开放由 `apps_tools_listed()`
+        # 决定（它同时管工具面与 open_browser=auto 的存在性窗口）。两者在兼容模式下会分叉：
+        # 宿主实现了 MCP Apps 却不声明扩展时，`always` 能让轨 A 跑起来，而 mode_hint 仍是 unknown。
+        result["mode_hint"] = "mcp-app" if declared else "unknown"
+        result["mode_source"] = "client-capabilities" if declared else "none"
+        listed = self.mcp.apps_tools_listed()
+        # 能力协商结果必须对模型**显式可见**：轨 B 没有 notifyAgent 敲门，页面提交只是入队。
+        # 以前只回一个隐晦的 mode_hint=unknown，Agent 无从判断该不该在交付回复里写「回对话
+        # 说继续」，于是出现「编辑器里发布了批注但 AI 没开始执行」。以下均为纯增量字段，
+        # 不改任何既有语义；Skill §0 判轨表直接读 track/wake 作为判据。
+        result["track"] = "A" if listed else "B"
+        result["wake"] = "notifyAgent" if listed else "chat"
+        result["track_basis"] = "capability-negotiation"
+        # 静态回执不能证明 View 真的挂载过：运行时实证是 get_status.view_attached /
+        # await_intent 回执 kind="mcp_app"（bridge_core 的 track_of 明确"不靠能力声明"）。
+        result["wake_confirmed"] = False
+        if not listed:
+            hint = ("宿主未声明 MCP Apps UI 扩展、轨 A 通道未开放：页面提交只入队（pending），"
+                    "Agent 不会自动开始；请在交付回复里让用户回对话说「继续」，再调 await_intent 认领")
+        elif declared:
+            hint = ("宿主已按规范声明 UI 扩展，内嵌视图提交 intent 后会敲门叫醒 Agent，"
+                    "无需用户在对话里再说一次；仍以 view_attached 实证为准")
+        else:
+            hint = ("运维开关已放开轨 A 工具面，但宿主未声明 UI 扩展（兼容模式）："
+                    "请先确认内嵌视图确实出现（get_status.view_attached=true 或 "
+                    "await_intent 回执 kind=mcp_app）。若实际仍是独立浏览器页，"
+                    "提交只入队，须让用户回对话说「继续」再 await_intent 认领")
+        result["wake_hint"] = hint
+        result["apps_tools_listed"] = listed
+        result["capability_probe"] = self.mcp.apps_capability_probe()
         result["open_browser_resolved"] = resolved_open
         return result
 
@@ -611,7 +731,13 @@ class BridgeMCP:
         async def get_status(
             session_id: Annotated[str, Field(min_length=1, description="Session identifier whose persistent bridge state should be read.")],
         ) -> dict[str, object]:
-            return await self._request("/api/bridge/status", {"session_id":session_id})
+            result = await self._request("/api/bridge/status", {"session_id":session_id})
+            # 零副作用判轨：get_status 是只读探针，过去只能靠有副作用的 open_editor 回执
+            # 才知道 apps_tools_mode。补上能力协商诊断后，Agent 可在任意回合直接确认当前
+            # 连接属于轨 A 还是轨 B；改 PPTX_HTML_APPS_TOOLS 后必须重连 MCP 才生效，
+            # 用本字段即可验证重连是否成功，不必再开一次编辑器。
+            result["capability_probe"] = self.mcp.apps_capability_probe()
+            return result
 
         @self.mcp.tool(
             description="Pause only this MCP consumer, interrupt its unfinished attempt, release its owner lease, and require a later explicit open_editor before awaiting again. It does not stop the daemon or browser and does not delete pending work, drafts, history or files.",

@@ -70,6 +70,7 @@
 
 ```css
 /* C3 终端绿 · 装饰母题（光标跳闪复用骨架 tw-caret keyframes，主题块不自带 @keyframes） */
+:root{--t-display:104px;--t-body:35px}
 .mt-term-box{position:relative;border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);box-shadow:0 0 28px -2px color-mix(in srgb,var(--accent) 45%,transparent),inset 0 0 16px color-mix(in srgb,var(--accent) 10%,transparent)}
 .mt-term-box::before{content:"+";position:absolute;top:-.6em;left:-.35em;color:var(--accent);font-family:var(--font-mono);line-height:1}
 .mt-term-box::after{content:"+";position:absolute;bottom:-.6em;right:-.35em;color:var(--accent);font-family:var(--font-mono);line-height:1}
@@ -95,12 +96,13 @@ info_grammar:
   claim:    主窗口 = `$ ` 前缀 + 重构标题 + 光标块 + 论点注释 + 说明
   data:     侧窗口 = `stat --brief` 三行 key:value，末行高亮
   analysis: 2–4 个同构窗口成阵（同 gap 同 padding）
-type_scale:            # 三级层级（480px 预览基准，单位 cqw）；任何文本不得低于 floor
-  floor:   1.5         # ≈7.2px，唯一硬下限（真实 deck ~2.7x 后 ≈19px）
-  display: 2.6         # 会话标题栏 / 高亮数字（等宽同族，靠明暗建层级）
-  heading: 2.2         # 窗口内条目标题
-  body:    1.8         # key:value / 说明 / 命令输出（opacity ≥ .85，禁灰化弱读）
+type_scale:            # 角色令牌源（px@1920×1080 画布基准）；下限由骨架 .t-* 的 max() 结构性锁定，不可被令牌突破
+  # —— 本主题差异化的令牌覆盖（注入 G9 css 的 :root，单位 px@1920）——
+  --t-display: 104px   # 终端"巨字"封面（$ 提示符 + 等宽标题）；扁平层级靠明暗非字重差，低于 64px 下限时由骨架 floor 锁到 64px
+  --t-body:    35px    # ≈1.8cqw@480 换算基准；key:value / 说明 / 命令输出（opacity ≥ .85，禁灰化弱读）
+  # heading/subhead/caption/meta 未覆盖 → 继承骨架默认（64 / 40 / 18 / 15px）
   rule: 标题:正文 ≈ 1.2–1.5:1；全栈等宽不靠字重差；禁层级倒挂与灰化弱读
+  floor_note: 正文级下限 18px、meta 14px、caption 16px 由骨架 max() 保证，设计层规避，无需后拦截门禁
 invariants:
   - 全栈等宽（display/body/mono 同族）
   - 窗口数 2–4，gap 与 padding 完全一致

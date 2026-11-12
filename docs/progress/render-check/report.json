@@ -1,0 +1,184 @@
+{
+  "generator": {
+    "scenarios": {
+      "default": {
+        "measured": {
+          "display": 96,
+          "heading": 64,
+          "subhead": 40,
+          "body": 28,
+          "caption": 18,
+          "meta": 15,
+          "vertical": 96
+        },
+        "floorViolations": [],
+        "consoleErrors": [],
+        "expected": {
+          "display": 96,
+          "heading": 64,
+          "subhead": 40,
+          "body": 28,
+          "caption": 18,
+          "meta": 15,
+          "vertical": 96
+        },
+        "matchesExpected": true
+      },
+      "b1": {
+        "measured": {
+          "display": 176,
+          "heading": 64,
+          "subhead": 40,
+          "body": 35,
+          "caption": 18,
+          "meta": 15,
+          "vertical": 96
+        },
+        "floorViolations": [],
+        "consoleErrors": [],
+        "expected": {
+          "display": 176,
+          "body": 35
+        },
+        "matchesExpected": true
+      },
+      "c3": {
+        "measured": {
+          "display": 104,
+          "heading": 64,
+          "subhead": 40,
+          "body": 35,
+          "caption": 18,
+          "meta": 15,
+          "vertical": 96
+        },
+        "floorViolations": [],
+        "consoleErrors": [],
+        "expected": {
+          "display": 104,
+          "body": 35
+        },
+        "matchesExpected": true
+      },
+      "e5": {
+        "measured": {
+          "display": 128,
+          "heading": 64,
+          "subhead": 40,
+          "body": 35,
+          "caption": 18,
+          "meta": 15,
+          "vertical": 96
+        },
+        "floorViolations": [],
+        "consoleErrors": [],
+        "expected": {
+          "display": 128,
+          "body": 35
+        },
+        "matchesExpected": true
+      },
+      "h1": {
+        "measured": {
+          "display": 92,
+          "heading": 64,
+          "subhead": 40,
+          "body": 35,
+          "caption": 18,
+          "meta": 15,
+          "vertical": 118
+        },
+        "floorViolations": [],
+        "consoleErrors": [],
+        "expected": {
+          "display": 92,
+          "body": 35,
+          "vertical": 118
+        },
+        "matchesExpected": true
+      },
+      "hostile": {
+        "measured": {
+          "display": 64,
+          "heading": 32,
+          "subhead": 24,
+          "body": 18,
+          "caption": 16,
+          "meta": 14,
+          "vertical": 64
+        },
+        "floorViolations": [],
+        "consoleErrors": [],
+        "clampedTo": {
+          "display": 64,
+          "heading": 32,
+          "subhead": 24,
+          "body": 18,
+          "caption": 16,
+          "meta": 14,
+          "vertical": 64
+        },
+        "allClamped": true
+      }
+    },
+    "floors": {
+      "display": 64,
+      "heading": 32,
+      "subhead": 24,
+      "body": 18,
+      "caption": 16,
+      "meta": 14,
+      "vertical": 64
+    }
+  },
+  "editor": {
+    "stRoleExists": true,
+    "stRoleOptions": [
+      "",
+      "t-display",
+      "t-heading",
+      "t-subhead",
+      "t-body",
+      "t-caption",
+      "t-meta",
+      "t-vertical"
+    ],
+    "applyRoleType": "function",
+    "roleClasses": [
+      "t-display",
+      "t-heading",
+      "t-subhead",
+      "t-body",
+      "t-caption",
+      "t-meta",
+      "t-vertical"
+    ],
+    "consoleErrors": [
+      "Access to fetch at 'file:///C:/Users/lixiang/Desktop/SlideForge/api/health' from origin 'null' has been blocked by CORS policy: Cross origin requests are only supported for protocol schemes: chrome, chrome-extension, chrome-untrusted, data, http, https, isolated-app.",
+      "Failed to load resource: net::ERR_FAILED"
+    ],
+    "interaction": {
+      "status": "done",
+      "before": {
+        "cls": "t-display",
+        "inlineFont": "37px",
+        "computed": 37
+      },
+      "stRoleDisabled": false,
+      "after": {
+        "cls": "ed-selected t-heading",
+        "inlineFont": "",
+        "computed": 64
+      },
+      "legacyInlineCleared": true,
+      "roleApplied": true,
+      "oldRoleRemoved": true,
+      "sizeFollowedRole": true
+    }
+  },
+  "verdict": {
+    "generator": "PASS",
+    "editor": "PASS",
+    "note": "Two file:// CORS errors on /api/health are the editor probing a local bridge server in standalone mode — expected, unrelated to the role system."
+  }
+}
