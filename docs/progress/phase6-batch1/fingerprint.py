@@ -28,8 +28,8 @@ for i in range(n):
     for j in range(n):
         M[i, j] = corr(fs[i]["s"], fs[j]["s"])
 
-# 类间（跨主题）与类内（同主题）——只在基线 24 页上测（压力页是内容形态测试，不参与类间可分）
-base_idx = [i for i in range(n) if "-stress-" not in labels[i]]
+# 类间（跨主题）与类内（同主题）——只用 6 页型基线（排除 full 完整页与 stress 压力页）
+base_idx = [i for i in range(n) if "-stress-" not in labels[i] and "-full" not in labels[i]]
 cross, within = [], []
 for a, i in enumerate(base_idx):
     for j in base_idx[a + 1:]:
@@ -37,13 +37,22 @@ for a, i in enumerate(base_idx):
             cross.append(float(M[i, j]))
         else:
             within.append(float(M[i, j]))
+
+# 同内容 A/B 核心：4 张 full 完整内容页两两骨架相关（这才是「同一内容 × 4 主题」的公平对比）
+full_idx = [i for i in range(n) if "-full" in labels[i]]
+full_cross = []
+for a, i in enumerate(full_idx):
+    for j in full_idx[a + 1:]:
+        full_cross.append((round(float(M[i, j]), 4), labels[i].replace("-full.png", ""), labels[j].replace("-full.png", "")))
+full_cross.sort(reverse=True)
+full_vals = np.array([p[0] for p in full_cross]) if full_cross else np.array([0.0])
 cross = np.array(cross) if cross else np.array([0.0])
 within = np.array(within) if within else np.array([0.0])
 
 # 每主题的类内相关（跨页）
 per_theme_within = {}
 for tid in ["e6", "g2", "e7", "f1"]:
-    idx = [i for i in range(n) if theme_of(paths[i]) == tid and "-stress-" not in labels[i]]
+    idx = [i for i in range(n) if theme_of(paths[i]) == tid and "-stress-" not in labels[i] and "-full" not in labels[i]]
     vals = [float(M[i][j]) for a, i in enumerate(idx) for j in idx[a + 1:]]
     per_theme_within[tid] = {"count": len(vals), "mean": round(float(np.mean(vals)), 3),
                              "min": round(float(np.min(vals)), 3), "max": round(float(np.max(vals)), 3)} if vals else {}
@@ -55,6 +64,12 @@ for i, f in enumerate(fs):
 cxs = [f["cx"] for f in fs]; cys = [f["cy"] for f in fs]
 result = {
     "n": n,
+    "full_cross_theme_skeleton_corr": {
+        "mean": round(float(full_vals.mean()), 4),
+        "max": round(float(full_vals.max()), 4),
+        "pct_above_080": round(float((full_vals > 0.8).mean()), 4),
+        "pairs": full_cross,
+    },
     "cross_theme_skeleton_corr": {
         "mean": round(float(cross.mean()), 4),
         "max": round(float(cross.max()), 4),
@@ -89,6 +104,7 @@ for p in paths:
 json.dump(result, open(os.path.join(DIR, "fingerprint.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=2)
 json.dump(blind_meta, open(os.path.join(DIR, "blind-meta.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=2)
 
+print("FULL_CROSS_THEME", json.dumps(result["full_cross_theme_skeleton_corr"]))
 print("CROSS_THEME", json.dumps(result["cross_theme_skeleton_corr"]))
 print("WITHIN_THEME", json.dumps(result["within_theme_skeleton_corr"]))
 print("PER_THEME", json.dumps(result["per_theme_within"], ensure_ascii=False))

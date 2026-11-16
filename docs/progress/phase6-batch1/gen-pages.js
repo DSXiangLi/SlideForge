@@ -19,12 +19,12 @@ const blindMeta = JSON.parse(fs.readFileSync(path.join(DIR, 'blind-meta.json'), 
 
 /* ---- compare.html ---- */
 const groups = OLD.map((o, i) => {
-  const newPng = `${o.id}-data.png`;
+  const newPng = `${o.id}-full.png`;
   return `<div class="grp">
-  <div class="gtitle">${o.label} · 同一内容「山禾集 1.1」· KPI 页</div>
+  <div class="gtitle">${o.label} · 同一份完整内容「山禾集 1.1 整体特色及优势」（标题 + 两段正文 + 三 KPI + 三条理念 + 脚注，逐字一致）</div>
   <div class="cols">
     <div class="col"><div class="tag">旧 Gallery（换皮同骨架）</div><img src="old/${o.old}" alt="${o.label} old"></div>
-    <div class="col"><div class="tag">新 · G10 构图程序</div><img src="png/${newPng}" alt="${o.label} new"></div>
+    <div class="col"><div class="tag">新 · G10 构图程序（完整内容页）</div><img src="png/${newPng}" alt="${o.label} new"></div>
   </div>
 </div>`;
 }).join('\n');
@@ -38,8 +38,8 @@ h1{font-size:22px;text-align:center;font-weight:600}.sub{color:#8b93a3;text-alig
 .tag{font-size:12px;color:#9aa3b4;margin-bottom:8px;letter-spacing:.08em}
 .col img{width:100%;height:auto;border-radius:6px;display:block}
 </style></head><body>
-<h1>Phase 6 · 批次 1 · 同一内容 × G10 构图程序（新旧 A/B）</h1>
-<div class="sub">左 = 旧 Gallery 展示图（4 主题共享同一版式骨架，只换皮）· 右 = 本批按 signature_operator 重编译的 KPI 页（结构改变，不是换色）。<br>完整 40 页见 sampler.html / png/。</div>
+<h1>Phase 6 · 批次 1 · 同一份完整内容 × G10 构图程序（新旧 A/B）</h1>
+<div class="sub">左 = 旧 Gallery 展示图（4 主题共享同一版式骨架，只换皮）· 右 = 本批按 signature_operator 重编译的<strong>完整内容页</strong>（与旧图同字段逐字一致，不删减任何文字）。<br>完整 44 页见 sampler.html / png/。</div>
 ${groups}
 </body></html>`;
 fs.writeFileSync(path.join(DIR, 'compare.html'), compare, 'utf8');

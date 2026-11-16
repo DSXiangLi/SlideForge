@@ -20,6 +20,10 @@
     "id": "e6-data"
   },
   {
+    "thumb": "e6-full.thumb.png",
+    "id": "e6-full"
+  },
+  {
     "thumb": "e6-stress-d2.thumb.png",
     "id": "e6-stress-d2"
   },
@@ -58,6 +62,10 @@
   {
     "thumb": "e7-data.thumb.png",
     "id": "e7-data"
+  },
+  {
+    "thumb": "e7-full.thumb.png",
+    "id": "e7-full"
   },
   {
     "thumb": "e7-stress-d2.thumb.png",
@@ -100,6 +108,10 @@
     "id": "f1-data"
   },
   {
+    "thumb": "f1-full.thumb.png",
+    "id": "f1-full"
+  },
+  {
     "thumb": "f1-stress-d2.thumb.png",
     "id": "f1-stress-d2"
   },
@@ -138,6 +150,10 @@
   {
     "thumb": "g2-data.thumb.png",
     "id": "g2-data"
+  },
+  {
+    "thumb": "g2-full.thumb.png",
+    "id": "g2-full"
   },
   {
     "thumb": "g2-stress-d2.thumb.png",

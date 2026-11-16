@@ -37,206 +37,230 @@
   },
   {
     "id": "e6",
-    "role": "stress",
-    "variant": "d2",
+    "role": "full",
+    "variant": null,
     "n": 7
   },
   {
     "id": "e6",
     "role": "stress",
-    "variant": "d3",
+    "variant": "d2",
     "n": 8
   },
   {
     "id": "e6",
     "role": "stress",
-    "variant": "d4",
+    "variant": "d3",
     "n": 9
   },
   {
     "id": "e6",
     "role": "stress",
-    "variant": "d7",
+    "variant": "d4",
     "n": 10
   },
   {
-    "id": "g2",
-    "role": "cover",
-    "variant": null,
+    "id": "e6",
+    "role": "stress",
+    "variant": "d7",
     "n": 11
   },
   {
     "id": "g2",
-    "role": "toc",
+    "role": "cover",
     "variant": null,
     "n": 12
   },
   {
     "id": "g2",
-    "role": "claim",
+    "role": "toc",
     "variant": null,
     "n": 13
   },
   {
     "id": "g2",
-    "role": "analysis",
+    "role": "claim",
     "variant": null,
     "n": 14
   },
   {
     "id": "g2",
-    "role": "data",
+    "role": "analysis",
     "variant": null,
     "n": 15
   },
   {
     "id": "g2",
-    "role": "closing",
+    "role": "data",
     "variant": null,
     "n": 16
   },
   {
     "id": "g2",
-    "role": "stress",
-    "variant": "d2",
+    "role": "closing",
+    "variant": null,
     "n": 17
   },
   {
     "id": "g2",
-    "role": "stress",
-    "variant": "d3",
+    "role": "full",
+    "variant": null,
     "n": 18
   },
   {
     "id": "g2",
     "role": "stress",
-    "variant": "d4",
+    "variant": "d2",
     "n": 19
   },
   {
     "id": "g2",
     "role": "stress",
-    "variant": "d7",
+    "variant": "d3",
     "n": 20
   },
   {
-    "id": "e7",
-    "role": "cover",
-    "variant": null,
+    "id": "g2",
+    "role": "stress",
+    "variant": "d4",
     "n": 21
   },
   {
-    "id": "e7",
-    "role": "toc",
-    "variant": null,
+    "id": "g2",
+    "role": "stress",
+    "variant": "d7",
     "n": 22
   },
   {
     "id": "e7",
-    "role": "claim",
+    "role": "cover",
     "variant": null,
     "n": 23
   },
   {
     "id": "e7",
-    "role": "analysis",
+    "role": "toc",
     "variant": null,
     "n": 24
   },
   {
     "id": "e7",
-    "role": "data",
+    "role": "claim",
     "variant": null,
     "n": 25
   },
   {
     "id": "e7",
-    "role": "closing",
+    "role": "analysis",
     "variant": null,
     "n": 26
   },
   {
     "id": "e7",
-    "role": "stress",
-    "variant": "d2",
+    "role": "data",
+    "variant": null,
     "n": 27
   },
   {
     "id": "e7",
-    "role": "stress",
-    "variant": "d3",
+    "role": "closing",
+    "variant": null,
     "n": 28
   },
   {
     "id": "e7",
-    "role": "stress",
-    "variant": "d4",
+    "role": "full",
+    "variant": null,
     "n": 29
   },
   {
     "id": "e7",
     "role": "stress",
-    "variant": "d7",
+    "variant": "d2",
     "n": 30
+  },
+  {
+    "id": "e7",
+    "role": "stress",
+    "variant": "d3",
+    "n": 31
+  },
+  {
+    "id": "e7",
+    "role": "stress",
+    "variant": "d4",
+    "n": 32
+  },
+  {
+    "id": "e7",
+    "role": "stress",
+    "variant": "d7",
+    "n": 33
   },
   {
     "id": "f1",
     "role": "cover",
     "variant": null,
-    "n": 31
+    "n": 34
   },
   {
     "id": "f1",
     "role": "toc",
     "variant": null,
-    "n": 32
+    "n": 35
   },
   {
     "id": "f1",
     "role": "claim",
     "variant": null,
-    "n": 33
+    "n": 36
   },
   {
     "id": "f1",
     "role": "analysis",
     "variant": null,
-    "n": 34
+    "n": 37
   },
   {
     "id": "f1",
     "role": "data",
     "variant": null,
-    "n": 35
+    "n": 38
   },
   {
     "id": "f1",
     "role": "closing",
     "variant": null,
-    "n": 36
+    "n": 39
+  },
+  {
+    "id": "f1",
+    "role": "full",
+    "variant": null,
+    "n": 40
   },
   {
     "id": "f1",
     "role": "stress",
     "variant": "d2",
-    "n": 37
+    "n": 41
   },
   {
     "id": "f1",
     "role": "stress",
     "variant": "d3",
-    "n": 38
+    "n": 42
   },
   {
     "id": "f1",
     "role": "stress",
     "variant": "d4",
-    "n": 39
+    "n": 43
   },
   {
     "id": "f1",
     "role": "stress",
     "variant": "d7",
-    "n": 40
+    "n": 44
   }
 ]
