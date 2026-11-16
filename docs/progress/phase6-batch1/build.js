@@ -130,16 +130,15 @@ function E6(p) {
   if (R === 'full') {
     // 完整内容页（与旧 Gallery 同字段逐字一致）
     // 秩序：标题大块 + 正文两块等大等 y 并排 + KPI 三块等宽、x 等距、沿斜线轻微阶梯（末块焦点 + 硬偏移影）
-    h.push(block(140, 140, 1300, 220,
-      `<div class="t-display" style="font-weight:800;white-space:nowrap;line-height:1.05">${ttl}</div>`, true, 0));
-    h.push(block(140, 400, 760, 240, text('t-caption', D.p1, 'line-height:1.5'), false, 1));
-    h.push(block(940, 400, 760, 240, text('t-caption', D.p2, 'line-height:1.5'), false, 2));
-    const kx = [140, 580, 1020], ky = [700, 670, 640];
-    D.kpis.forEach((k, i) => h.push(block(kx[i], ky[i], 420, 160,
-      `<div class="t-heading" style="font-weight:800;line-height:1.1">${esc(k.num)}</div>` +
-      text('t-meta', k.cap, 'margin-top:8px;line-height:1.35'), i === 2, i)));
-    h.push(`<div style="${pos(140, 900, 1400, 26)}">${D.creed.map(c => text('t-caption', c, 'display:inline-block;margin-right:34px')).join('')}</div>`);
-    h.push(note(950));
+    h.push(block(140, 140, 1660, 200,
+      `<div class="t-display" style="font-weight:800;white-space:nowrap;line-height:1.05">${ttl}</div>`, false, 0));
+    h.push(block(140, 380, 820, 240, text('t-caption', D.p1, 'line-height:1.5'), false, 1));
+    h.push(block(980, 380, 820, 240, text('t-caption', D.p2, 'line-height:1.5'), false, 2));
+    D.kpis.forEach((k, i) => h.push(block(140 + i * 560, 660, 540, 160,
+      `<div class="t-heading" style="font-weight:800;line-height:1.1">${esc(k.num)}${k.tag ? `<span class="t-meta" style="color:var(--accent);margin-left:10px;font-weight:600">${esc(k.tag)}</span>` : ''}</div>` +
+      text('t-meta', k.cap, 'margin-top:8px;line-height:1.35'), i === 0, i)));
+    h.push(`<div style="${pos(140, 860, 1660, 26)}">${D.creed.map(c => text('t-caption', c, 'display:inline-block;margin-right:34px')).join('')}</div>`);
+    h.push(note(900));
     h.push(foot('e6', 'full', p.n));
     return h.join('\n');
   }
@@ -201,7 +200,7 @@ function G2(p) {
 
   if (R === 'full') {
     // 完整内容页（与旧 Gallery 同字段逐字一致）
-    h.push(`<div class="t-display" style="${pos(120, 180, 1500, 150)};font-weight:700;white-space:nowrap;line-height:1.05"><span class="mt-hl-mark">${ttl}</span></div>`);
+    h.push(`<div class="t-display" style="${pos(120, 180, 1500, 150)};font-weight:700;white-space:nowrap;line-height:1.05"><span class="mt-hl-mark" style="--hl-c:var(--accent)">${ttl}</span></div>`);
     const rows = [D.p1.slice(0, 58), D.p1.slice(58), D.p2.slice(0, 55), D.p2.slice(55, 110), D.p2.slice(110)];
     rows.forEach((s, i) => {
       const y = 360 + i * 86;
@@ -276,7 +275,6 @@ function E7(p) {
   };
   h.push(`<div class="bg-layer"></div>`);
   h.push(kicker(120, 96));
-  h.push(`<div class="t-meta" style="${pos(1810, 40, 60, 150)};writing-mode:vertical-rl;letter-spacing:.2em">远景题名</div>`);
 
   if (R === 'full') {
     // 完整内容页（与旧 Gallery 同字段逐字一致）
@@ -284,7 +282,7 @@ function E7(p) {
       `<div class="mt-uki-plate ${first ? 'mt-uki-plate--first' : ''}" data-plate="${i + 1}" style="${pos(i * 48, y, 1920 - i * 48, hh)}">${inner}` +
       `<div class="mt-uki-edition t-meta" style="${pos(1620 - i * 48, 18, 140, 40)}">版次 ${esc(ed)}</div></div>`;
     h.push(P(0, 150, 270,
-      `<div class="t-display" style="${pos(40, 28, 1500, 210)};font-weight:700;white-space:pre-line;line-height:1.02">一杯好茶\n山野作答</div>`, '一', true));
+      `<div class="t-display" style="${pos(40, 40, 1500, 120)};font-weight:700;white-space:nowrap;line-height:1.05">${ttl}</div>`, '一', true));
     h.push(P(1, 470, 230,
       text('t-caption', D.p1, `${pos(40, 26, 1500, 80)};line-height:1.5`) +
       text('t-caption', D.p2, `${pos(40, 110, 1500, 90)};line-height:1.5`), '二', false));
@@ -368,15 +366,15 @@ function F1(p) {
   if (R === 'full') {
     // 完整内容页（与旧 Gallery 同字段逐字一致）
     // 秩序：三层玻璃左缘递增 + 宽度递减的斜向阶梯（近景大在底、远景小在顶），左缘/右缘各自递进，等距后退
-    h.push(`<div class="mt-gls-depth" data-depth="1" style="${pos(120, 560, 1560, 360)};z-index:3;background:linear-gradient(155deg,color-mix(in srgb,var(--paper) 88%,transparent),color-mix(in srgb,var(--paper) 66%,transparent))">` +
-      `<div class="t-display" style="${pos(40, 24, 1400, 130)};font-weight:400;white-space:nowrap;line-height:1.05">${ttl}</div>` +
-      `<div style="${pos(40, 180, 1400, 52)}">${D.kpis.map((k, i) => `<span class="mt-gls-chip-n" style="display:inline-flex;margin-right:18px"><span class="t-subhead" style="font-weight:600">${esc(k.num)}</span></span>`).join('')}</div>` +
-      `<div style="${pos(40, 242, 1400, 52)}">${D.kpis.map((k, i) => text('t-meta', k.cap, `display:inline-block;width:${i === 2 ? 340 : 320}px;margin-right:18px;line-height:1.3`)).join('')}</div>` + `</div>`);
-    h.push(`<div class="mt-gls-depth" data-depth="2" style="${pos(180, 400, 1200, 200)};z-index:2;background:linear-gradient(155deg,color-mix(in srgb,var(--paper) 74%,transparent),color-mix(in srgb,var(--paper) 52%,transparent))">` +
-      `<div style="${pos(40, 30, 1120, 160)}">${text('t-caption', D.p1, 'line-height:1.5')}</div>` + `</div>`);
-    h.push(`<div class="mt-gls-depth" data-depth="3" style="${pos(240, 200, 900, 250)};z-index:1;background:linear-gradient(155deg,color-mix(in srgb,var(--paper) 60%,transparent),color-mix(in srgb,var(--paper) 38%,transparent))">` +
-      `<div style="${pos(40, 20, 820, 110)}">${text('t-caption', D.p2, 'line-height:1.5')}</div>` +
-      `<div style="${pos(40, 140, 820, 80)}">${D.creed.map(c => text('t-meta', c, 'line-height:1.5')).join('')}</div>` + `</div>`);
+    h.push(`<div class="mt-gls-depth" data-depth="1" style="${pos(120, 560, 1560, 380)};z-index:3;background:linear-gradient(155deg,color-mix(in srgb,var(--paper) 88%,transparent),color-mix(in srgb,var(--paper) 66%,transparent))">` +
+      `<div class="t-display" style="${pos(40, 24, 1480, 130)};font-weight:400;white-space:nowrap;line-height:1.05;color:var(--accent)">${ttl}</div>` +
+      `<div style="${pos(40, 180, 1480, 52)}">${D.kpis.map((k, i) => `<span class="mt-gls-chip-n" style="display:inline-flex;margin-right:18px"><span class="t-subhead" style="font-weight:600">${esc(k.num)}</span></span>`).join('')}</div>` +
+      `<div style="${pos(40, 242, 1480, 52)}">${D.kpis.map((k, i) => text('t-meta', k.cap, `display:inline-block;width:${i === 2 ? 340 : 320}px;margin-right:18px;line-height:1.3`)).join('')}</div>` + `</div>`);
+    h.push(`<div class="mt-gls-depth" data-depth="2" style="${pos(120, 370, 1240, 190)};z-index:2;background:linear-gradient(155deg,color-mix(in srgb,var(--paper) 74%,transparent),color-mix(in srgb,var(--paper) 52%,transparent))">` +
+      `<div style="${pos(40, 30, 1160, 150)}">${text('t-caption', D.p1, 'line-height:1.5')}</div>` + `</div>`);
+    h.push(`<div class="mt-gls-depth" data-depth="3" style="${pos(120, 170, 920, 210)};z-index:1;background:linear-gradient(155deg,color-mix(in srgb,var(--paper) 60%,transparent),color-mix(in srgb,var(--paper) 38%,transparent))">` +
+      `<div style="${pos(40, 16, 840, 110)}">${text('t-caption', D.p2, 'line-height:1.5')}</div>` +
+      `<div style="${pos(40, 132, 840, 70)}">${D.creed.map(c => text('t-meta', c, 'line-height:1.5')).join('')}</div>` + `</div>`);
     h.push(note(1015));
     h.push(foot('f1', 'full', p.n));
     return h.join('\n');

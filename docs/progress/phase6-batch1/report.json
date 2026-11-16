@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-16T01:17:31.022Z",
+  "generated": "2026-11-16T01:29:06.044Z",
   "canvas": [
     1920,
     1080
@@ -1633,7 +1633,7 @@
       "theme": "e6",
       "role": "full",
       "variant": "",
-      "textNodes": 17,
+      "textNodes": 18,
       "minFont": 15,
       "maxFont": 132,
       "ratio": 8.8,
@@ -1692,7 +1692,7 @@
           "text": "一杯好茶  山野作答",
           "x": 169,
           "y": 163,
-          "w": 1242,
+          "w": 1602,
           "h": 139,
           "fs": 132,
           "opacity": 1,
@@ -1706,8 +1706,8 @@
           "container": {
             "x": 140,
             "y": 140,
-            "w": 1300,
-            "h": 220
+            "w": 1660,
+            "h": 200
           },
           "containerOverflow": false
         },
@@ -1716,22 +1716,22 @@
           "cls": "t-caption",
           "text": "山禾集深耕新式茶饮行业，同时通过全资子公司山禾供",
           "x": 169,
-          "y": 423,
-          "w": 702,
-          "h": 108,
+          "y": 403,
+          "w": 762,
+          "h": 81,
           "fs": 18,
           "opacity": 1,
           "transformed": false,
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            108,
-            108
+            81,
+            81
           ],
           "container": {
             "x": 140,
-            "y": 400,
-            "w": 760,
+            "y": 380,
+            "w": 820,
             "h": 240
           },
           "containerOverflow": false
@@ -1740,9 +1740,9 @@
           "tag": "div",
           "cls": "t-caption",
           "text": "近年来山禾集门店网络稳步扩张，行业排名持续提升。",
-          "x": 969,
-          "y": 423,
-          "w": 702,
+          "x": 1009,
+          "y": 403,
+          "w": 762,
           "h": 108,
           "fs": 18,
           "opacity": 1,
@@ -1754,9 +1754,9 @@
             108
           ],
           "container": {
-            "x": 940,
-            "y": 400,
-            "w": 760,
+            "x": 980,
+            "y": 380,
+            "w": 820,
             "h": 240
           },
           "containerOverflow": false
@@ -1764,10 +1764,10 @@
         {
           "tag": "div",
           "cls": "t-heading",
-          "text": "8,637家",
+          "text": "8,637家行业前列",
           "x": 169,
-          "y": 723,
-          "w": 362,
+          "y": 683,
+          "w": 482,
           "h": 70,
           "fs": 64,
           "opacity": 1,
@@ -1780,8 +1780,33 @@
           ],
           "container": {
             "x": 140,
-            "y": 700,
-            "w": 420,
+            "y": 660,
+            "w": 540,
+            "h": 160
+          },
+          "containerOverflow": false
+        },
+        {
+          "tag": "span",
+          "cls": "t-meta",
+          "text": "行业前列",
+          "x": 404,
+          "y": 728,
+          "w": 60,
+          "h": 18,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            0,
+            0
+          ],
+          "container": {
+            "x": 140,
+            "y": 660,
+            "w": 540,
             "h": 160
           },
           "containerOverflow": false
@@ -1791,8 +1816,8 @@
           "cls": "t-meta",
           "text": "山禾集（含直营和子公司山禾供应链）全国门店总数",
           "x": 169,
-          "y": 801,
-          "w": 362,
+          "y": 761,
+          "w": 482,
           "h": 20,
           "fs": 15,
           "opacity": 1,
@@ -1805,8 +1830,8 @@
           ],
           "container": {
             "x": 140,
-            "y": 700,
-            "w": 420,
+            "y": 660,
+            "w": 540,
             "h": 160
           },
           "containerOverflow": false
@@ -1815,9 +1840,9 @@
           "tag": "div",
           "cls": "t-heading",
           "text": "2.8亿杯",
-          "x": 609,
-          "y": 693,
-          "w": 362,
+          "x": 729,
+          "y": 683,
+          "w": 482,
           "h": 70,
           "fs": 64,
           "opacity": 1,
@@ -1829,9 +1854,9 @@
             70
           ],
           "container": {
-            "x": 580,
-            "y": 670,
-            "w": 420,
+            "x": 700,
+            "y": 660,
+            "w": 540,
             "h": 160
           },
           "containerOverflow": false
@@ -1840,9 +1865,9 @@
           "tag": "div",
           "cls": "t-meta",
           "text": "成立以来累计为超过6.8亿会员用户售出茶饮",
-          "x": 609,
-          "y": 771,
-          "w": 362,
+          "x": 729,
+          "y": 761,
+          "w": 482,
           "h": 20,
           "fs": 15,
           "opacity": 1,
@@ -1854,9 +1879,9 @@
             20
           ],
           "container": {
-            "x": 580,
-            "y": 670,
-            "w": 420,
+            "x": 700,
+            "y": 660,
+            "w": 540,
             "h": 160
           },
           "containerOverflow": false
@@ -1865,9 +1890,9 @@
           "tag": "div",
           "cls": "t-heading",
           "text": "361家",
-          "x": 1049,
-          "y": 663,
-          "w": 362,
+          "x": 1289,
+          "y": 683,
+          "w": 482,
           "h": 70,
           "fs": 64,
           "opacity": 1,
@@ -1879,9 +1904,9 @@
             70
           ],
           "container": {
-            "x": 1020,
-            "y": 640,
-            "w": 420,
+            "x": 1260,
+            "y": 660,
+            "w": 540,
             "h": 160
           },
           "containerOverflow": false
@@ -1890,9 +1915,9 @@
           "tag": "div",
           "cls": "t-meta",
           "text": "城市旗舰店总数",
-          "x": 1049,
-          "y": 741,
-          "w": 362,
+          "x": 1289,
+          "y": 761,
+          "w": 482,
           "h": 20,
           "fs": 15,
           "opacity": 1,
@@ -1904,9 +1929,9 @@
             20
           ],
           "container": {
-            "x": 1020,
-            "y": 640,
-            "w": 420,
+            "x": 1260,
+            "y": 660,
+            "w": 540,
             "h": 160
           },
           "containerOverflow": false
@@ -1916,7 +1941,7 @@
           "cls": "t-caption",
           "text": "经营理念：当季鲜茶，日常相伴。",
           "x": 140,
-          "y": 900,
+          "y": 860,
           "w": 270,
           "h": 27,
           "fs": 18,
@@ -1930,8 +1955,8 @@
           ],
           "container": {
             "x": 140,
-            "y": 900,
-            "w": 1400,
+            "y": 860,
+            "w": 1660,
             "h": 26
           },
           "containerOverflow": false
@@ -1941,7 +1966,7 @@
           "cls": "t-caption",
           "text": "使命：为大众提供新鲜、健康、平价的日常茶饮。",
           "x": 444,
-          "y": 900,
+          "y": 860,
           "w": 396,
           "h": 27,
           "fs": 18,
@@ -1955,8 +1980,8 @@
           ],
           "container": {
             "x": 140,
-            "y": 900,
-            "w": 1400,
+            "y": 860,
+            "w": 1660,
             "h": 26
           },
           "containerOverflow": false
@@ -1966,7 +1991,7 @@
           "cls": "t-caption",
           "text": "愿景：成为持续领先的新式茶饮品牌。",
           "x": 874,
-          "y": 900,
+          "y": 860,
           "w": 306,
           "h": 27,
           "fs": 18,
@@ -1980,8 +2005,8 @@
           ],
           "container": {
             "x": 140,
-            "y": 900,
-            "w": 1400,
+            "y": 860,
+            "w": 1660,
             "h": 26
           },
           "containerOverflow": false
@@ -1991,7 +2016,7 @@
           "cls": "t-meta",
           "text": "* 注：山禾集为虚构演示品牌，文中数据均为虚构，",
           "x": 120,
-          "y": 950,
+          "y": 900,
           "w": 1500,
           "h": 24,
           "fs": 15,
@@ -8071,7 +8096,7 @@
       "theme": "e7",
       "role": "cover",
       "variant": "",
-      "textNodes": 9,
+      "textNodes": 8,
       "minFont": 12,
       "maxFont": 96,
       "ratio": 8,
@@ -8098,7 +8123,7 @@
         "depths": 0,
         "axis": 0,
         "chips": 0,
-        "vertical": 2,
+        "vertical": 1,
         "grid3": 0
       },
       "nodes": [
@@ -8118,26 +8143,6 @@
           "scroll": [
             24,
             24
-          ],
-          "container": null,
-          "containerOverflow": false
-        },
-        {
-          "tag": "div",
-          "cls": "t-meta",
-          "text": "远景题名",
-          "x": 1810,
-          "y": 40,
-          "w": 60,
-          "h": 150,
-          "fs": 15,
-          "opacity": 1,
-          "transformed": false,
-          "inlineFontSize": "",
-          "contentOverflow": false,
-          "scroll": [
-            150,
-            150
           ],
           "container": null,
           "containerOverflow": false
@@ -8299,7 +8304,7 @@
       "theme": "e7",
       "role": "toc",
       "variant": "",
-      "textNodes": 12,
+      "textNodes": 11,
       "minFont": 15,
       "maxFont": 40,
       "ratio": 2.67,
@@ -8326,7 +8331,7 @@
         "depths": 0,
         "axis": 0,
         "chips": 0,
-        "vertical": 1,
+        "vertical": 0,
         "grid3": 0
       },
       "nodes": [
@@ -8346,26 +8351,6 @@
           "scroll": [
             24,
             24
-          ],
-          "container": null,
-          "containerOverflow": false
-        },
-        {
-          "tag": "div",
-          "cls": "t-meta",
-          "text": "远景题名",
-          "x": 1810,
-          "y": 40,
-          "w": 60,
-          "h": 150,
-          "fs": 15,
-          "opacity": 1,
-          "transformed": false,
-          "inlineFontSize": "",
-          "contentOverflow": false,
-          "scroll": [
-            150,
-            150
           ],
           "container": null,
           "containerOverflow": false
@@ -8607,7 +8592,7 @@
       "theme": "e7",
       "role": "claim",
       "variant": "",
-      "textNodes": 12,
+      "textNodes": 11,
       "minFont": 15,
       "maxFont": 96,
       "ratio": 6.4,
@@ -8636,7 +8621,7 @@
         "depths": 0,
         "axis": 0,
         "chips": 0,
-        "vertical": 1,
+        "vertical": 0,
         "grid3": 0
       },
       "nodes": [
@@ -8656,26 +8641,6 @@
           "scroll": [
             24,
             24
-          ],
-          "container": null,
-          "containerOverflow": false
-        },
-        {
-          "tag": "div",
-          "cls": "t-meta",
-          "text": "远景题名",
-          "x": 1810,
-          "y": 40,
-          "w": 60,
-          "h": 150,
-          "fs": 15,
-          "opacity": 1,
-          "transformed": false,
-          "inlineFontSize": "",
-          "contentOverflow": false,
-          "scroll": [
-            150,
-            150
           ],
           "container": null,
           "containerOverflow": false
@@ -8917,7 +8882,7 @@
       "theme": "e7",
       "role": "analysis",
       "variant": "",
-      "textNodes": 12,
+      "textNodes": 11,
       "minFont": 15,
       "maxFont": 18,
       "ratio": 1.2,
@@ -8944,7 +8909,7 @@
         "depths": 0,
         "axis": 0,
         "chips": 0,
-        "vertical": 1,
+        "vertical": 0,
         "grid3": 0
       },
       "nodes": [
@@ -8964,26 +8929,6 @@
           "scroll": [
             24,
             24
-          ],
-          "container": null,
-          "containerOverflow": false
-        },
-        {
-          "tag": "div",
-          "cls": "t-meta",
-          "text": "远景题名",
-          "x": 1810,
-          "y": 40,
-          "w": 60,
-          "h": 150,
-          "fs": 15,
-          "opacity": 1,
-          "transformed": false,
-          "inlineFontSize": "",
-          "contentOverflow": false,
-          "scroll": [
-            150,
-            150
           ],
           "container": null,
           "containerOverflow": false
@@ -9225,7 +9170,7 @@
       "theme": "e7",
       "role": "data",
       "variant": "",
-      "textNodes": 16,
+      "textNodes": 15,
       "minFont": 12,
       "maxFont": 64,
       "ratio": 5.33,
@@ -9253,7 +9198,7 @@
         "depths": 0,
         "axis": 0,
         "chips": 0,
-        "vertical": 2,
+        "vertical": 1,
         "grid3": 0
       },
       "nodes": [
@@ -9273,26 +9218,6 @@
           "scroll": [
             24,
             24
-          ],
-          "container": null,
-          "containerOverflow": false
-        },
-        {
-          "tag": "div",
-          "cls": "t-meta",
-          "text": "远景题名",
-          "x": 1810,
-          "y": 40,
-          "w": 60,
-          "h": 150,
-          "fs": 15,
-          "opacity": 1,
-          "transformed": false,
-          "inlineFontSize": "",
-          "contentOverflow": false,
-          "scroll": [
-            150,
-            150
           ],
           "container": null,
           "containerOverflow": false
@@ -9629,7 +9554,7 @@
       "theme": "e7",
       "role": "closing",
       "variant": "",
-      "textNodes": 12,
+      "textNodes": 11,
       "minFont": 15,
       "maxFont": 96,
       "ratio": 6.4,
@@ -9658,7 +9583,7 @@
         "depths": 0,
         "axis": 0,
         "chips": 0,
-        "vertical": 1,
+        "vertical": 0,
         "grid3": 0
       },
       "nodes": [
@@ -9678,26 +9603,6 @@
           "scroll": [
             24,
             24
-          ],
-          "container": null,
-          "containerOverflow": false
-        },
-        {
-          "tag": "div",
-          "cls": "t-meta",
-          "text": "远景题名",
-          "x": 1810,
-          "y": 40,
-          "w": 60,
-          "h": 150,
-          "fs": 15,
-          "opacity": 1,
-          "transformed": false,
-          "inlineFontSize": "",
-          "contentOverflow": false,
-          "scroll": [
-            150,
-            150
           ],
           "container": null,
           "containerOverflow": false
@@ -9939,7 +9844,7 @@
       "theme": "e7",
       "role": "full",
       "variant": "",
-      "textNodes": 22,
+      "textNodes": 21,
       "minFont": 12,
       "maxFont": 96,
       "ratio": 8,
@@ -9968,7 +9873,7 @@
         "depths": 0,
         "axis": 0,
         "chips": 0,
-        "vertical": 2,
+        "vertical": 1,
         "grid3": 0
       },
       "nodes": [
@@ -9994,40 +9899,20 @@
         },
         {
           "tag": "div",
-          "cls": "t-meta",
-          "text": "远景题名",
-          "x": 1810,
-          "y": 40,
-          "w": 60,
-          "h": 150,
-          "fs": 15,
-          "opacity": 1,
-          "transformed": false,
-          "inlineFontSize": "",
-          "contentOverflow": false,
-          "scroll": [
-            150,
-            150
-          ],
-          "container": null,
-          "containerOverflow": false
-        },
-        {
-          "tag": "div",
           "cls": "t-display",
-          "text": "一杯好茶\n山野作答",
+          "text": "一杯好茶  山野作答",
           "x": 40,
-          "y": 179,
+          "y": 191,
           "w": 1500,
-          "h": 210,
+          "h": 120,
           "fs": 96,
           "opacity": 1,
           "transformed": false,
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            210,
-            210
+            120,
+            120
           ],
           "container": {
             "x": 0,
@@ -10494,7 +10379,7 @@
       "theme": "e7",
       "role": "stress",
       "variant": "d2",
-      "textNodes": 12,
+      "textNodes": 11,
       "minFont": 15,
       "maxFont": 18,
       "ratio": 1.2,
@@ -10521,7 +10406,7 @@
         "depths": 0,
         "axis": 0,
         "chips": 0,
-        "vertical": 1,
+        "vertical": 0,
         "grid3": 0
       },
       "nodes": [
@@ -10541,26 +10426,6 @@
           "scroll": [
             24,
             24
-          ],
-          "container": null,
-          "containerOverflow": false
-        },
-        {
-          "tag": "div",
-          "cls": "t-meta",
-          "text": "远景题名",
-          "x": 1810,
-          "y": 40,
-          "w": 60,
-          "h": 150,
-          "fs": 15,
-          "opacity": 1,
-          "transformed": false,
-          "inlineFontSize": "",
-          "contentOverflow": false,
-          "scroll": [
-            150,
-            150
           ],
           "container": null,
           "containerOverflow": false
@@ -10802,7 +10667,7 @@
       "theme": "e7",
       "role": "stress",
       "variant": "d3",
-      "textNodes": 16,
+      "textNodes": 15,
       "minFont": 12,
       "maxFont": 64,
       "ratio": 5.33,
@@ -10830,7 +10695,7 @@
         "depths": 0,
         "axis": 0,
         "chips": 0,
-        "vertical": 2,
+        "vertical": 1,
         "grid3": 0
       },
       "nodes": [
@@ -10850,26 +10715,6 @@
           "scroll": [
             24,
             24
-          ],
-          "container": null,
-          "containerOverflow": false
-        },
-        {
-          "tag": "div",
-          "cls": "t-meta",
-          "text": "远景题名",
-          "x": 1810,
-          "y": 40,
-          "w": 60,
-          "h": 150,
-          "fs": 15,
-          "opacity": 1,
-          "transformed": false,
-          "inlineFontSize": "",
-          "contentOverflow": false,
-          "scroll": [
-            150,
-            150
           ],
           "container": null,
           "containerOverflow": false
@@ -11206,7 +11051,7 @@
       "theme": "e7",
       "role": "stress",
       "variant": "d4",
-      "textNodes": 19,
+      "textNodes": 18,
       "minFont": 15,
       "maxFont": 64,
       "ratio": 4.27,
@@ -11234,7 +11079,7 @@
         "depths": 0,
         "axis": 0,
         "chips": 0,
-        "vertical": 1,
+        "vertical": 0,
         "grid3": 0
       },
       "nodes": [
@@ -11254,26 +11099,6 @@
           "scroll": [
             24,
             24
-          ],
-          "container": null,
-          "containerOverflow": false
-        },
-        {
-          "tag": "div",
-          "cls": "t-meta",
-          "text": "远景题名",
-          "x": 1810,
-          "y": 40,
-          "w": 60,
-          "h": 150,
-          "fs": 15,
-          "opacity": 1,
-          "transformed": false,
-          "inlineFontSize": "",
-          "contentOverflow": false,
-          "scroll": [
-            150,
-            150
           ],
           "container": null,
           "containerOverflow": false
@@ -11690,7 +11515,7 @@
       "theme": "e7",
       "role": "stress",
       "variant": "d7",
-      "textNodes": 9,
+      "textNodes": 8,
       "minFont": 12,
       "maxFont": 64,
       "ratio": 5.33,
@@ -11717,7 +11542,7 @@
         "depths": 0,
         "axis": 0,
         "chips": 0,
-        "vertical": 2,
+        "vertical": 1,
         "grid3": 0
       },
       "nodes": [
@@ -11737,26 +11562,6 @@
           "scroll": [
             24,
             24
-          ],
-          "container": null,
-          "containerOverflow": false
-        },
-        {
-          "tag": "div",
-          "cls": "t-meta",
-          "text": "远景题名",
-          "x": 1810,
-          "y": 40,
-          "w": 60,
-          "h": 150,
-          "fs": 15,
-          "opacity": 1,
-          "transformed": false,
-          "inlineFontSize": "",
-          "contentOverflow": false,
-          "scroll": [
-            150,
-            150
           ],
           "container": null,
           "containerOverflow": false
@@ -13409,7 +13214,7 @@
           "text": "一杯好茶  山野作答",
           "x": 161,
           "y": 585,
-          "w": 1400,
+          "w": 1480,
           "h": 130,
           "fs": 108,
           "opacity": 1,
@@ -13424,7 +13229,7 @@
             "x": 120,
             "y": 560,
             "w": 1560,
-            "h": 360
+            "h": 380
           },
           "containerOverflow": false
         },
@@ -13448,7 +13253,7 @@
           "container": {
             "x": 161,
             "y": 741,
-            "w": 1400,
+            "w": 1480,
             "h": 52
           },
           "containerOverflow": false
@@ -13473,7 +13278,7 @@
           "container": {
             "x": 161,
             "y": 741,
-            "w": 1400,
+            "w": 1480,
             "h": 52
           },
           "containerOverflow": false
@@ -13498,7 +13303,7 @@
           "container": {
             "x": 161,
             "y": 741,
-            "w": 1400,
+            "w": 1480,
             "h": 52
           },
           "containerOverflow": false
@@ -13523,7 +13328,7 @@
           "container": {
             "x": 161,
             "y": 803,
-            "w": 1400,
+            "w": 1480,
             "h": 52
           },
           "containerOverflow": false
@@ -13548,7 +13353,7 @@
           "container": {
             "x": 161,
             "y": 803,
-            "w": 1400,
+            "w": 1480,
             "h": 52
           },
           "containerOverflow": false
@@ -13573,7 +13378,7 @@
           "container": {
             "x": 161,
             "y": 803,
-            "w": 1400,
+            "w": 1480,
             "h": 52
           },
           "containerOverflow": false
@@ -13582,9 +13387,9 @@
           "tag": "div",
           "cls": "t-caption",
           "text": "山禾集深耕新式茶饮行业，同时通过全资子公司山禾供",
-          "x": 221,
-          "y": 431,
-          "w": 1120,
+          "x": 161,
+          "y": 401,
+          "w": 1160,
           "h": 54,
           "fs": 18,
           "opacity": 1,
@@ -13596,10 +13401,10 @@
             54
           ],
           "container": {
-            "x": 221,
-            "y": 431,
-            "w": 1120,
-            "h": 160
+            "x": 161,
+            "y": 401,
+            "w": 1160,
+            "h": 150
           },
           "containerOverflow": false
         },
@@ -13607,9 +13412,9 @@
           "tag": "div",
           "cls": "t-caption",
           "text": "近年来山禾集门店网络稳步扩张，行业排名持续提升。",
-          "x": 281,
-          "y": 221,
-          "w": 820,
+          "x": 161,
+          "y": 187,
+          "w": 840,
           "h": 108,
           "fs": 18,
           "opacity": 1,
@@ -13621,9 +13426,9 @@
             108
           ],
           "container": {
-            "x": 281,
-            "y": 221,
-            "w": 820,
+            "x": 161,
+            "y": 187,
+            "w": 840,
             "h": 110
           },
           "containerOverflow": false
@@ -13632,9 +13437,9 @@
           "tag": "div",
           "cls": "t-meta",
           "text": "经营理念：当季鲜茶，日常相伴。",
-          "x": 281,
-          "y": 341,
-          "w": 820,
+          "x": 161,
+          "y": 303,
+          "w": 840,
           "h": 23,
           "fs": 15,
           "opacity": 1,
@@ -13646,10 +13451,10 @@
             23
           ],
           "container": {
-            "x": 281,
-            "y": 341,
-            "w": 820,
-            "h": 80
+            "x": 161,
+            "y": 303,
+            "w": 840,
+            "h": 70
           },
           "containerOverflow": false
         },
@@ -13657,9 +13462,9 @@
           "tag": "div",
           "cls": "t-meta",
           "text": "使命：为大众提供新鲜、健康、平价的日常茶饮。",
-          "x": 281,
-          "y": 364,
-          "w": 820,
+          "x": 161,
+          "y": 326,
+          "w": 840,
           "h": 23,
           "fs": 15,
           "opacity": 1,
@@ -13671,10 +13476,10 @@
             23
           ],
           "container": {
-            "x": 281,
-            "y": 341,
-            "w": 820,
-            "h": 80
+            "x": 161,
+            "y": 303,
+            "w": 840,
+            "h": 70
           },
           "containerOverflow": false
         },
@@ -13682,9 +13487,9 @@
           "tag": "div",
           "cls": "t-meta",
           "text": "愿景：成为持续领先的新式茶饮品牌。",
-          "x": 281,
-          "y": 386,
-          "w": 820,
+          "x": 161,
+          "y": 348,
+          "w": 840,
           "h": 23,
           "fs": 15,
           "opacity": 1,
@@ -13696,10 +13501,10 @@
             23
           ],
           "container": {
-            "x": 281,
-            "y": 341,
-            "w": 820,
-            "h": 80
+            "x": 161,
+            "y": 303,
+            "w": 840,
+            "h": 70
           },
           "containerOverflow": false
         },
