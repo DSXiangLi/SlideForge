@@ -1,20 +1,20 @@
 {
   "s-e6-cover": {
-    "cover": 16.4,
-    "whitespace": 83.6,
+    "cover": 23,
+    "whitespace": 77,
     "centroid": [
-      759,
-      523
+      746,
+      542
     ],
     "offset": [
-      -201,
-      -17
+      -214,
+      2
     ],
     "quad": {
-      "TL": 55,
-      "TR": 24,
-      "BL": 11,
-      "BR": 9
+      "TL": 43,
+      "TR": 15,
+      "BL": 27,
+      "BR": 16
     }
   },
   "s-e6-toc": {
@@ -36,21 +36,21 @@
     }
   },
   "s-e6-claim": {
-    "cover": 19.3,
-    "whitespace": 80.7,
+    "cover": 20.9,
+    "whitespace": 79.1,
     "centroid": [
-      784,
-      533
+      797,
+      551
     ],
     "offset": [
-      -176,
-      -7
+      -163,
+      11
     ],
     "quad": {
-      "TL": 47,
-      "TR": 20,
-      "BL": 18,
-      "BR": 16
+      "TL": 43,
+      "TR": 18,
+      "BL": 20,
+      "BR": 19
     }
   },
   "s-e6-analysis": {
@@ -90,21 +90,21 @@
     }
   },
   "s-e6-closing": {
-    "cover": 19.4,
-    "whitespace": 80.6,
+    "cover": 21,
+    "whitespace": 79,
     "centroid": [
-      786,
-      533
+      799,
+      551
     ],
     "offset": [
-      -174,
-      -7
+      -161,
+      11
     ],
     "quad": {
-      "TL": 47,
-      "TR": 20,
-      "BL": 18,
-      "BR": 16
+      "TL": 43,
+      "TR": 18,
+      "BL": 20,
+      "BR": 19
     }
   },
   "s-e6-full": {
@@ -162,57 +162,57 @@
     }
   },
   "s-e6-stress-d4": {
-    "cover": 9.2,
-    "whitespace": 90.8,
+    "cover": 9,
+    "whitespace": 91,
     "centroid": [
-      743,
-      543
+      736,
+      546
     ],
     "offset": [
-      -217,
-      3
+      -224,
+      6
     ],
     "quad": {
-      "TL": 46,
-      "TR": 16,
+      "TL": 47,
+      "TR": 15,
       "BL": 20,
-      "BR": 17
+      "BR": 18
     }
   },
   "s-e6-stress-d7": {
-    "cover": 22.3,
-    "whitespace": 77.7,
+    "cover": 27.6,
+    "whitespace": 72.4,
     "centroid": [
-      757,
-      535
+      740,
+      568
     ],
     "offset": [
-      -203,
-      -5
+      -220,
+      28
     ],
     "quad": {
-      "TL": 44,
-      "TR": 20,
-      "BL": 22,
-      "BR": 14
+      "TL": 36,
+      "TR": 12,
+      "BL": 35,
+      "BR": 17
     }
   },
   "s-g2-cover": {
-    "cover": 15.2,
-    "whitespace": 84.8,
+    "cover": 18,
+    "whitespace": 82,
     "centroid": [
-      738,
-      535
+      779,
+      515
     ],
     "offset": [
-      -222,
-      -5
+      -181,
+      -25
     ],
     "quad": {
-      "TL": 50,
-      "TR": 10,
-      "BL": 22,
-      "BR": 17
+      "TL": 47,
+      "TR": 20,
+      "BL": 19,
+      "BR": 15
     }
   },
   "s-g2-toc": {
@@ -234,20 +234,20 @@
     }
   },
   "s-g2-claim": {
-    "cover": 29.8,
-    "whitespace": 70.2,
+    "cover": 30.8,
+    "whitespace": 69.2,
     "centroid": [
-      789,
-      544
+      785,
+      540
     ],
     "offset": [
-      -171,
-      4
+      -175,
+      0
     ],
     "quad": {
-      "TL": 37,
+      "TL": 38,
       "TR": 15,
-      "BL": 30,
+      "BL": 29,
       "BR": 18
     }
   },
@@ -288,20 +288,20 @@
     }
   },
   "s-g2-closing": {
-    "cover": 29.9,
-    "whitespace": 70.1,
+    "cover": 30.9,
+    "whitespace": 69.1,
     "centroid": [
-      789,
-      545
+      786,
+      540
     ],
     "offset": [
-      -171,
-      5
+      -174,
+      0
     ],
     "quad": {
-      "TL": 37,
+      "TL": 38,
       "TR": 15,
-      "BL": 30,
+      "BL": 29,
       "BR": 18
     }
   },
@@ -504,21 +504,21 @@
     }
   },
   "s-e7-full": {
-    "cover": 35.8,
-    "whitespace": 64.2,
+    "cover": 38.9,
+    "whitespace": 61.1,
     "centroid": [
-      995,
-      587
+      848,
+      590
     ],
     "offset": [
-      35,
-      47
+      -112,
+      50
     ],
     "quad": {
       "TL": 27,
-      "TR": 18,
-      "BL": 20,
-      "BR": 35
+      "TR": 16,
+      "BL": 33,
+      "BR": 24
     }
   },
   "s-e7-stress-d2": {

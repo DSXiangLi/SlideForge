@@ -85,8 +85,8 @@ const FLOOR = { display: 64, heading: 32, subhead: 24, body: 18, caption: 16, me
           if (v < FLOOR[r]) floorViolations.push({ role: r, value: v, floor: FLOOR[r] });
         }
       });
-      // 裸写 inline font-size（含任意元素，不限文本节点）
-      const inline = Array.from(slide.querySelectorAll('[style]')).filter(e => e.style.fontSize).map(e => ({
+      // 裸写 inline font-size（含任意元素，不限文本节点）——令牌引用 var(--t-*) 不算裸写
+      const inline = Array.from(slide.querySelectorAll('[style]')).filter(e => e.style.fontSize && !/var\(--t-/.test(e.style.fontSize)).map(e => ({
         tag: e.tagName.toLowerCase(), cls: (e.className || '').toString(), value: e.style.fontSize
       }));
       // G10 几何不变量的 DOM 举证

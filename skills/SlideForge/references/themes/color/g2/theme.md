@@ -95,7 +95,7 @@
 - **词汇**：荧光高亮带（`.mt-hl-mark`——半截渐变色带垫关键词，色随 `--hl-c`，四色各一档变体类）/ 荧光圈注（`.mt-hl-circle`——椭圆荧光描边圈住短语，像随手画的圈）/ 纸胶带（`.mt-hl-tape`——半透明胶带条贴便签顶角，固定感）
 
 ```css
-:root{--t-display:112px;--t-body:24px}
+:root{--t-display:112px;--t-hero:140px;--t-body:24px}
 /* G2 腮红荧光笔 · 装饰母题 */
 .mt-hl-mark{background:linear-gradient(180deg,transparent 58%,color-mix(in srgb,var(--hl-c,var(--hl-1)) 60%,transparent) 58%,color-mix(in srgb,var(--hl-c,var(--hl-1)) 60%,transparent) 92%,transparent 92%);padding:0 .08em}
 .mt-hl-mark--2{--hl-c:var(--hl-2)}

@@ -116,31 +116,33 @@ const kicker = (x, y, s = D.kicker) => text('t-meta', s, `${pos(x, y, 600, 24)};
 function E6(p) {
   const h = [];
   const R = p.role, V = p.variant;
-  const conf = [[1680, 120], [1760, 420], [120, 980], [1840, 900]].map(([x, y], i) =>
-    `<i class="mt-mem-dot ${i % 2 ? 'mt-mem-c2' : ''}" style="left:${x}px;top:${y}px"></i>`).join('');
+  const conf = [[1680, 120, 'dot'], [1760, 420, 'tri'], [120, 980, 'ring'], [1840, 900, 'dot'], [1440, 80, 'tri'], [200, 260, 'dot']].map(([x, y, t], i) =>
+    `<i class="mt-mem-${t} ${['', 'mt-mem-c2', 'mt-mem-c3', 'mt-mem-c4'][i % 4]}" style="left:${x}px;top:${y}px"></i>`).join('');
   h.push(`<div class="bg-layer"><div class="mt-mem-path"></div><div class="mt-mem-confetti">${conf}</div></div>`);
   h.push(kicker(M, 96));
   const block = (x, y, w, hh, inner, o = {}) => {
-    const { focus = false, accent = false, idx = 0 } = o;
-    const bg = focus ? 'var(--accent)' : (accent ? 'var(--palette-3)' : 'var(--paper)');
-    const color = focus ? 'var(--accent-on)' : 'var(--ink)';
-    const border = `2px solid ${(focus || accent) ? 'var(--ink)' : `var(--palette-${(idx % 3) + 2})`}`;
+    const { focus = false, accent = false, fill = false, idx = 0 } = o;
+    const pal = `var(--palette-${(idx % 4) + 1})`;
+    const palOn = `var(--palette-${(idx % 4) + 1}-on)`;
+    const bg = focus ? 'var(--accent)' : (fill ? pal : (accent ? pal : 'var(--paper)'));
+    const color = focus ? 'var(--accent-on)' : (fill || accent ? palOn : 'var(--ink)');
+    const border = '3px solid var(--ink)';
     return `<div class="mt-mem-block ${focus ? 'mt-mem-block--focus' : ''}" data-block="${idx}" style="${pos(x, y, w, hh)};background:${bg};color:${color};border:${border}">${inner}</div>`;
   };
   const step = i => `<span class="mt-mem-step"></span>`;
   const titleBlock = (x, y, w, hh, cls = 't-display', s = D.title) => block(x, y, w, hh,
     `<div class="${cls}" style="font-weight:800;white-space:pre-line">${esc(s.length > 18 ? s.slice(0, 16) + '\n' + s.slice(16, 32) + (s.length > 32 ? '\n' + s.slice(32) : '') : s)}</div>` +
-    text('t-meta', D.subtitle, 'margin-top:26px;font-family:var(--font-mono)'), { idx: 0 });
+    `<div class="t-meta" style="position:absolute;left:26px;bottom:20px;font-family:var(--font-mono)">${esc(D.subtitle)}</div>`, { fill: true, idx: 0 });
 
   if (R === 'full') {
     // Z 动线：标题(左上 2/3) → 右上装饰 → 正文两栏 → KPI 三块等宽 → 页脚
-    h.push(block(M, 140, 1080, 220, `<div class="t-display" style="font-weight:800;white-space:nowrap;line-height:1.05">${ttl}</div>`, { idx: 0 }));
+    h.push(block(M, 140, 1080, 220, `<div class="t-display" style="font-weight:800;white-space:nowrap;line-height:1.05">${ttl}</div>`, { fill: true, idx: 0 }));
     h.push(block(1240, 140, 560, 220, text('t-meta', '山禾集 · 主题 01', 'font-family:var(--font-mono);letter-spacing:.12em'), { accent: true, idx: 1 }));
     h.push(block(M, 400, 820, 260, text('t-body', D.p1), { idx: 1 }));
     h.push(block(980, 400, 820, 260, text('t-body', D.p2), { idx: 2 }));
     D.kpis.forEach((k, i) => h.push(block(120 + i * 560, 700, 520, 200,
-      `<div class="t-heading" style="font-weight:800;line-height:1.1">${esc(k.num)}${k.tag ? `<span class="t-meta" style="color:var(--accent);margin-left:10px;font-weight:600">${esc(k.tag)}</span>` : ''}</div>` +
-      text('t-meta', k.cap, 'margin-top:10px;line-height:1.35'), { focus: i === 0, idx: i })));
+      `<div class="t-heading" style="font-weight:800;line-height:1.1">${esc(k.num)}${k.tag ? `<span class="t-meta" style="margin-left:10px;font-weight:600;color:var(--accent-on)">${esc(k.tag)}</span>` : ''}</div>` +
+      text('t-meta', k.cap, 'margin-top:10px;line-height:1.35'), { focus: i === 0, fill: i > 0, idx: i })));
     h.push(`<div style="${pos(M, 940, CW, 26)}">${D.creed.map(c => text('t-caption', c, 'display:inline-block;margin-right:34px')).join('')}</div>`);
     h.push(note(980));
     h.push(foot('e6', 'full', p.n));
@@ -148,8 +150,10 @@ function E6(p) {
   }
 
   if (R === 'cover' || V === 'd7') {
-    h.push(titleBlock(M, 300, 1240, 440, V === 'd7' ? 't-heading' : 't-display', V === 'd7' ? D.longTitle : D.title));
-    h.push(block(1400, 300, 400, 440, text('t-meta', '之字路径 · 第 01 版', 'font-family:var(--font-mono);letter-spacing:.12em;writing-mode:vertical-rl'), { accent: true, idx: 1 }));
+    const coverH = V === 'd7' ? 520 : 440;
+    h.push(titleBlock(M, 300, 1080, coverH, V === 'd7' ? 't-heading' : 't-display', V === 'd7' ? D.longTitle : D.title));
+    h.push(block(1240, 300, 560, 200, text('t-meta', '之字路径 · 第 01 版', 'font-family:var(--font-mono);letter-spacing:.12em'), { accent: true, idx: 1 }));
+    h.push(block(1240, 540, 560, 200, text('t-meta', '孟菲斯 · 积木系统', 'font-family:var(--font-mono);letter-spacing:.12em'), { fill: true, idx: 2 }));
   } else if (V === 'd2') {
     D.longChunks.forEach((s, i) => h.push(block(120 + (i % 2) * 860, 200 + Math.floor(i / 2) * 340, 820, 300, text('t-body', s), { idx: i })));
   } else if (V === 'd4') {
@@ -164,7 +168,7 @@ function E6(p) {
   } else if (R === 'claim' || R === 'closing') {
     const main = R === 'claim' ? D.claim : D.closing;
     const sub = R === 'claim' ? D.claimNote : D.closingNote;
-    h.push(block(M, 260, 1240, 400, text('t-display', main, 'font-weight:800') + text('t-meta', sub, 'margin-top:24px'), { idx: 0 }));
+    h.push(block(M, 260, 1240, 400, text('t-display', main, 'font-weight:800') + text('t-meta', sub, 'margin-top:24px'), { fill: true, idx: 0 }));
     h.push(block(1400, 260, 400, 400, text('t-meta', R, 'font-family:var(--font-mono);letter-spacing:.12em;writing-mode:vertical-rl'), { accent: true, idx: 1 }));
     h.push(block(M, 700, CW, 180, text('t-body', D.creed[0], 'font-weight:600'), { idx: 2 }));
   } else if (R === 'analysis') {
@@ -175,7 +179,7 @@ function E6(p) {
     const nums = V === 'd3' ? D.bigNums.slice(0, 3) : D.kpis.map(k => k.num);
     nums.forEach((n, i) => h.push(block(120 + i * 560, 260, 520, 360,
       `<div class="${i === 0 ? 't-display' : 't-heading'}" style="font-weight:800;line-height:1.1">${esc(n)}</div>` +
-      text('t-meta', (D.kpis[i] && D.kpis[i].cap) || '同比变化', 'margin-top:14px;line-height:1.4'), { focus: i === 0, idx: i })));
+      text('t-meta', (D.kpis[i] && D.kpis[i].cap) || '同比变化', 'margin-top:14px;line-height:1.4'), { focus: i === 0, fill: i > 0, idx: i })));
     h.push(text('t-meta', '结论：三项数字等宽并置，首项为唯一焦点', `${pos(M, 660, 1200, 24)}`));
   }
   h.push(note(1010));
@@ -224,7 +228,7 @@ function G2(p) {
 
   if (R === 'cover' || V === 'd7') {
     const ttl2 = V === 'd7' ? D.longTitle : D.title;
-    h.push(`<div class="t-${V === 'd7' ? 'heading' : 'display'}" style="${pos(M, 300, 1500, 320)};font-weight:700;white-space:pre-line"><span class="mt-hl-mark">${esc(ttl2.length > 18 ? ttl2.slice(0, 16) + '\n' + ttl2.slice(16, 32) + (ttl2.length > 32 ? '\n' + ttl2.slice(32) : '') : ttl2)}</span></div>`);
+    h.push(`<div class="t-${V === 'd7' ? 'heading' : 'display'}" style="${pos(M, 300, 1500, 340)};font-weight:700;white-space:pre-line;${V === 'd7' ? '' : 'font-size:var(--t-hero)'}"><span class="mt-hl-mark">${esc(ttl2.length > 18 ? ttl2.slice(0, 16) + '\n' + ttl2.slice(16, 32) + (ttl2.length > 32 ? '\n' + ttl2.slice(32) : '') : ttl2)}</span></div>`);
     h.push(`<div class="mt-hl-tape" style="${pos(1500, 260, 88, 24)}"></div>`);
     h.push(idx(700, V === 'd7' ? '极长标题 · 一次标注' : '唯一焦点 · 一杯好茶', 0));
     h.push(text('t-meta', D.subtitle, `${pos(M, 720, 800, 24)}`));
@@ -244,7 +248,7 @@ function G2(p) {
     D.toc.forEach((s, i) => h.push(row(240 + i * 130, s, '章节 ' + String(i + 1).padStart(2, '0'), i)));
   } else if (R === 'claim' || R === 'closing') {
     const main = R === 'claim' ? D.claim : D.closing;
-    h.push(text('t-display', main, `${pos(X_TEXT, 240, 1020, 150)};font-weight:700`));
+    h.push(text('t-display', main, `${pos(X_TEXT, 240, 1020, 170)};font-weight:700;${R === 'claim' ? 'font-size:var(--t-hero)' : ''}`));
     h.push(row(440, R === 'claim' ? D.claimNote : D.closingNote, '主张 · 关键词', 0));
     h.push(row(590, D.creed[0], '经营理念', 1));
     h.push(row(740, D.creed[2], '愿景', 2));
@@ -279,13 +283,15 @@ function E7(p) {
   h.push(kicker(M, 96));
 
   if (R === 'full') {
-    // 远景(左上,轻) → 中景(中) → 前景(右下,重)；印章右上
-    h.push(plate(M, 130, 760, 190, text('t-meta', D.subtitle) + text('t-caption', '远景 · 落款', 'margin-top:14px'), '远', false));
-    h.push(plate(400, 320, 1120, 290, text('t-body', D.p1) + text('t-body', D.p2, 'margin-top:8px'), '中', false));
-    h.push(plate(720, 620, 1080, 340,
+    // 天空：远山剪影（左上）+ 云霞横带；对角线：远景(左) → 中景(中) → 前景(下,深墨大版压阵)
+    h.push(`<div style="${pos(120, 120, 380, 150)};background:color-mix(in srgb,var(--ink) 13%,transparent);clip-path:polygon(0 100%, 45% 10%, 100% 100%)"></div>`);
+    h.push(band(300, 'mt-uki-cloud'));
+    h.push(plate(560, 150, 620, 140, text('t-meta', D.subtitle) + text('t-caption', '远景 · 落款', 'margin-top:8px'), '远', false));
+    h.push(plate(120, 340, 1320, 250, text('t-body', D.p1) + text('t-body', D.p2, 'margin-top:6px'), '中', false));
+    h.push(plate(240, 600, 1560, 400,
       `<div class="t-display" style="font-weight:700;white-space:nowrap;line-height:1.05">${ttl}</div>` +
-      `<div style="margin-top:16px">${D.kpis.map((k, i) => `<span style="display:inline-block;margin-right:28px"><span class="t-heading" style="font-weight:700">${esc(k.num)}</span><div class="t-meta" style="margin-top:6px;max-width:300px">${esc(k.cap)}</div></span>`).join('')}</div>` +
-      `<div style="margin-top:14px">${D.creed.map(c => text('t-caption', c, 'display:inline-block;margin-right:24px')).join('')}</div>`,
+      `<div style="margin-top:18px">${D.kpis.map((k, i) => `<span style="display:inline-block;margin-right:30px"><span class="t-heading" style="font-weight:700">${esc(k.num)}</span><div class="t-meta" style="margin-top:6px;max-width:330px">${esc(k.cap)}</div></span>`).join('')}</div>` +
+      `<div style="margin-top:16px">${D.creed.map(c => text('t-caption', c, 'display:inline-block;margin-right:26px')).join('')}</div>`,
       '近', true));
     h.push(seal(1740, 96));
     h.push(note(1010));
@@ -342,10 +348,10 @@ function E7(p) {
 function F1(p) {
   const h = [];
   const R = p.role, V = p.variant;
-  const glass = `linear-gradient(155deg,color-mix(in srgb,var(--accent-on) 12%,transparent),color-mix(in srgb,var(--accent-on) 5%,transparent))`;
+  const glass = `linear-gradient(155deg,color-mix(in srgb,var(--accent-on) 20%,transparent),color-mix(in srgb,var(--accent-on) 9%,transparent))`;
   const panel = (y, hh, inner, x = 360, w = 1200) =>
     `<div class="mt-gls-depth" data-depth="1" style="${pos(x, y, w, hh)};z-index:3;background:${glass}">${inner}</div>`;
-  h.push(`<div class="bg-layer"><div class="mt-gls-blob" style="${pos(100, 60, 500, 500)}"></div><div class="mt-gls-blob" style="${pos(1320, 520, 520, 520)}"></div></div>`);
+  h.push(`<div class="bg-layer"><div class="mt-gls-blob" style="${pos(80, 60, 620, 620)}"></div><div class="mt-gls-blob" style="${pos(1300, 60, 620, 620)}"></div><div class="mt-gls-blob" style="${pos(80, 560, 620, 620)}"></div><div class="mt-gls-blob" style="${pos(1300, 560, 620, 620)}"></div></div>`);
   h.push(kicker(M, 96));
 
   if (R === 'full') {
