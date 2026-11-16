@@ -75,9 +75,9 @@
 - **词汇**：姓名印（.mt-uki-seal：accent 实色小方块 + 反白篆意字，末版右端落款位，每页至多一方）/ 浪花带（.mt-uki-wave：鳞片浪纹横带）/ 云霞横带（.mt-uki-cloud：断续横带，版次层分界）/ 远景题名列（.mt-uki-inscription：右上留白处竖排小字，每页至多一列，**非主标题、非题跋分列**）/ 版次层（.mt-uki-plate：签名结构件，内部文字保持可编辑）/ 版次标号框（.mt-uki-edition：每层右缘的墨线数字框）/ 横带定位（.mt-uki-band）
 
 ```css
-:root{--t-display:96px;--t-body:35px;--t-vertical:72px}
+:root{--t-display:96px;--t-body:24px;--t-vertical:72px}
 /* E7 浮世绘 · 装饰母题 */
-.mt-uki-seal{display:inline-flex;align-items:center;justify-content:center;width:2.4em;height:2.4em;background:var(--accent);color:var(--accent-on);font-family:var(--font-display);font-weight:700;font-size:.5em;line-height:1.15;text-align:center;writing-mode:vertical-rl;letter-spacing:.08em;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--accent-on) 40%,transparent)}
+.mt-uki-seal{display:inline-flex;align-items:center;justify-content:center;width:2.4em;height:2.4em;background:var(--accent);color:var(--accent-on);font-family:var(--font-display);font-weight:700;font-size:20px;line-height:1.15;text-align:center;letter-spacing:.08em;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--accent-on) 40%,transparent)}
 .mt-uki-wave{height:26px;pointer-events:none;user-select:none;background-image:radial-gradient(circle at 13px 26px,transparent 9px,color-mix(in srgb,var(--ink) 55%,transparent) 9px 10.5px,transparent 10.5px),radial-gradient(circle at 13px 26px,transparent 4px,color-mix(in srgb,var(--ink) 55%,transparent) 4px 5.5px,transparent 5.5px);background-size:26px 26px;background-repeat:repeat-x}
 .mt-uki-cloud{height:10px;pointer-events:none;user-select:none;background-image:repeating-linear-gradient(90deg,color-mix(in srgb,var(--accent) 70%,var(--paper)) 0 60px,transparent 60px 88px),repeating-linear-gradient(90deg,color-mix(in srgb,var(--ink) 25%,transparent) 0 34px,transparent 34px 88px);background-position:0 0,14px 5px;background-size:88px 4px,88px 4px;background-repeat:repeat-x}
 .mt-uki-inscription{writing-mode:vertical-rl;font-family:var(--font-display);font-size:.5em;letter-spacing:.35em;color:color-mix(in srgb,var(--ink) 70%,transparent);border-left:1px solid color-mix(in srgb,var(--ink) 40%,transparent);padding-left:.6em}
@@ -97,31 +97,30 @@
 - **DOM 结构测试签署**：删掉 signature_operator，两条横带、三个平涂版次层、逐层 48px 错位、三个版次标号框与末版印章位置全部消失，页面退回「标题 + 两段正文 + 横排三格」；元素数量/分组/顺序/位置**都变** → **PASS**。
 
 ```yaml
+
 doctrine: 一幅画是分版落印出来的；信息的先后就是版次的先后。
-signature_operator: 把整页当作一张套色版画——两条横贯全宽的云霞/浪花带把画幅切成三个版次层，
+signature_operator: 把整页当作一张套色版画——横贯全宽的云霞/浪花带把画幅切成 2–3 个版次层，
   每层是一次独立落印的平涂色面；标题独占首版色面（信息容器，不是角标），
   说明与数字按版次逐层下移，每层左缘递增一个固定套印版差；
   三项数字作为版次标号压在每层右缘的墨线框内（不并列成格），姓名印落在末版右端收束。
-silhouette: 水平三层套印带 + 逐层左缘递增错位；水平主结构；重心左下；右上长留白只容一行竖排远景题名。
+silhouette: 水平 2–3 层套印带 + 逐层左缘递增错位；水平主结构；重心左下；右上长留白。
 info_grammar:
-  cover:    首版满幅平涂 + 题字 + 一枚姓名印；一条浪花带定下缘
-  toc:      三层各容一组章节名，版次标号 一/二/三
-  claim:    首版题字 + 次版论点，版差 48px
+  cover:    首版满幅平涂 + 题字 + 一枚姓名印；一条浪花带定下缘（单层强形态）
+  toc:      三层短版各容一组章节名，版次标号 一/二/三（弱形态）
+  claim:    首版题字 + 次版论点（两层），一条云霞横带
   analysis: 三层各容一类信息（题/论/证），层间云霞横带分隔
   data:     三项数字 → 三层右缘的版次标号框，非横排格
-  closing:  末版收束，姓名印回押，与封面闭环
+  closing:  单版收束 + 姓名印回押，与封面闭环
 type_scale:            # px@1920×1080 画布基准；下限由骨架 .t-* 的 max() 结构性锁定
-  --t-display:  96px  # 版画题字恒重，不做压强巨字；与正文 2.74:1
-  --t-body:     35px
-  --t-vertical: 72px  # 仅远景题名，远小于 H1 的 118px，避免竖排主标题撞脸
+  --t-display:  96px  # 版画题字恒重，不做压强巨字；与正文 4:1
+  --t-body:     24px  # 正文段落（长段落可读）；图注/说明走 caption 18、注脚走 meta 15
   rule: 标题:正文 ≥1.8:1；正文层 opacity = 1，禁灰化弱读；accent 面积 ≤5%、满屏 accent 禁止（G1 立场）
   floor_note: heading/subhead/caption/meta 不覆盖，继承骨架 64/40/18/15；地板由 max() 保证，无需后拦截门禁
 invariants:
-  - 横贯全宽的云霞/浪花带 = 2 条，画幅被切成 3 层
-  - 三层左缘 x 严格递增且步长一致（48px ±2）
+  - 横贯全宽的云霞/浪花带 ≥1 条，画幅被切成 2–3 层
+  - 多层时各层左缘 x 严格递增且步长一致（48px ±2）
   - 主标题位于首层平涂色面内（信息容器）
-  - 竖排文字节点 ≤1（只许远景题名）
-  - 姓名印单页 1 枚且位于末层右端
+  - 姓名印单页 1 枚且位于末版右端
   - 横排等权三格容器数 = 0
 forbidden_defaults: [竖排题跋分列, 上下金轴与卷轴, 横向等权三格 KPI, 卡片墙, 网格矩阵密集排布, 同形重影叠印, 玻璃拟态, 渐变柔光]
 dna_events: {cover: 强, claim: 中, analysis: 强, data: 中, toc: 弱, closing: 强}

@@ -108,7 +108,7 @@
 
 ```css
 /* E6 Memphis 孟菲斯 · 装饰母题 + 缓动签名 */
-:root{--ease-out:cubic-bezier(.5,1.7,.4,1);--t-display:132px;--t-body:35px}
+:root{--ease-out:cubic-bezier(.5,1.7,.4,1);--t-display:132px;--t-body:24px}
 .mt-mem-confetti{position:absolute;inset:0;pointer-events:none;user-select:none;overflow:hidden}
 .mt-mem-confetti i{position:absolute;display:block;--pc:var(--palette-1)}
 .mt-mem-confetti .mt-mem-c2{--pc:var(--palette-2)}
@@ -135,27 +135,29 @@
 - **DOM 结构测试签署**：删掉 signature_operator，页面回到「标题 + 两段正文 + 横排三格 KPI」，之字路径、积木分组、阶梯宽度、palette 轮转顺序、数字台阶全部消失，元素数量/分组/顺序/位置**都变** → **PASS**。
 
 ```yaml
+
 doctrine: 反叛的秩序；信息不是被摆进格子，而是被一串有重量的积木沿路径推着走。
-signature_operator: 把每条信息编译成一块 3px 墨线粗描边的积木，用一条之字折线把它们串成单向路径：
-  积木沿路径逐块吸附、宽度随信息权重阶梯放大、填充按 palette 固定顺序轮转；
-  三项数字重排为沿路径递进的三块台阶，唯一焦点积木带 8px 硬偏移影；之字线是路径本身而非分隔装饰。
-silhouette: 之字折线主路径（45°/135° 转折）；圆角矩形积木块面；起点左下、终点右上；重心沿对角带；右下 ≥15% 留白。
+signature_operator: 把每条信息编译成一块 2px 彩色描边的白底积木，用一条之字折线把它们串成单向路径：
+  积木沿路径吸附、填充按 palette 固定顺序轮转（彩色只作描边/编号/彩纸屑点缀，不作承载正文的面）；
+  标题独占一块大积木（唯一 accent 焦点 + 硬偏移影），正文两块等大等 y 并排；
+  三项数字重排为三块等宽等 y 横排，主数字带「行业前列」accent 标签。
+silhouette: 左缘 140 / 右缘 1800 的统一网格；圆角矩形白底积木 + 彩色描边；重心左上；之字线为背景路径。
 info_grammar:
   cover:    单块超大积木吞掉标题 + 之字线自页面左下引入
   toc:      3–5 块等大积木沿路径前段吸附，palette 轮转编号
-  claim:    论点句独占焦点积木（最大 + 硬偏移影），说明位于路径第二块
-  analysis: 3–5 块积木沿路径阶梯，块宽单调不减，palette 按固定顺序轮转
-  data:     三项数字 → 三块逐级放大的台阶积木，末块承载结论短句
+  claim:    论点句独占焦点积木（唯一 accent + 硬偏移影），说明位于路径第二块
+  analysis: 3–5 块白底彩色描边积木沿路径阶梯，palette 按固定顺序轮转
+  data:     三项数字 → 三块等宽等 y 横排，主数字带 accent 标签
   closing:  焦点积木回到起点方向，之字线收束，彩纸屑一次强形态
 type_scale:            # px@1920×1080 画布基准；下限由骨架 .t-* 的 max() 结构性锁定
-  --t-display: 132px  # 极粗 800 承载积木压强；与正文 3.77:1
-  --t-body:    35px   # ≈1.8cqw@480 换算基准
-  rule: 标题:正文 ≥1.8:1，巨字:正文 ≥3:1；正文层 opacity = 1，禁灰化弱读
+  --t-display: 132px  # 极粗 800 承载积木压强；与正文 5.5:1
+  --t-body:    24px  # 正文段落（长段落可读）；图注/说明走 caption 18、注脚走 meta 15
+  rule: 标题:正文 ≥1.8:1；正文层 opacity = 1，禁灰化弱读
   floor_note: heading/subhead/caption/meta 不覆盖，继承骨架 64/40/18/15；地板由 max() 保证，无需后拦截门禁
 invariants:
-  - 之字路径 1 条，转折角 ∈ {45°,135°}，路径长度 ≥ 60% 画幅对角
-  - 积木块宽沿路径单调不减；焦点块面积 ≥ 其余块 1.4×
-  - 硬偏移投影单页 ≤1，偏移量 8px 且零模糊
+  - 左缘 140 / 右缘 1800 的统一网格，积木块心对齐网格
+  - 积木描边 2px，palette 色轮转；硬偏移影单页 ≤1、偏移 8px 零模糊
+  - accent 焦点单页 ≤1（accent 面积 3–10%）
   - 横排等权三格容器数 = 0
   - 彩纸屑在 DOM 上是积木的兄弟节点，不进任一积木内部
 forbidden_defaults: [横向等权三格 KPI, 卡片墙成阵, 居中 hero, hairline 分区, 无路径撒布式彩纸屑, 玻璃拟态, 弥散软影]

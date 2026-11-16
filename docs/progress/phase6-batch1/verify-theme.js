@@ -13,7 +13,7 @@ let bad = 0;
 for (const [id, rel] of Object.entries(FILES)) {
   const t = fs.readFileSync(T(rel), 'utf8').replace(/\r\n/g, '\n');
   const miss = FIELDS.filter(f => !t.includes(f));
-  const hasRoot = t.includes('--t-display:' + DISPLAY[id]) && t.includes('--t-body:35px');
+  const hasRoot = t.includes('--t-display:' + DISPLAY[id]) && t.includes('--t-body:24px');
   const g10 = t.slice(t.indexOf('**G10 composition_program**'), t.indexOf('**Variants 配色变体**'));
   const domTest = g10.includes('DOM 结构测试签署') && g10.includes('PASS');
   const geo = /invariants:[\s\S]*?(轴|角|左缘|位移|层|x |y )/.test(g10);

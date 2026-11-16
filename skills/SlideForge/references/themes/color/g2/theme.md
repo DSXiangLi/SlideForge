@@ -95,7 +95,7 @@
 - **词汇**：荧光高亮带（`.mt-hl-mark`——半截渐变色带垫关键词，色随 `--hl-c`，四色各一档变体类）/ 荧光圈注（`.mt-hl-circle`——椭圆荧光描边圈住短语，像随手画的圈）/ 纸胶带（`.mt-hl-tape`——半透明胶带条贴便签顶角，固定感）
 
 ```css
-:root{--t-display:112px;--t-body:35px}
+:root{--t-display:112px;--t-body:24px}
 /* G2 腮红荧光笔 · 装饰母题 */
 .mt-hl-mark{background:linear-gradient(180deg,transparent 58%,color-mix(in srgb,var(--hl-c,var(--hl-1)) 60%,transparent) 58%,color-mix(in srgb,var(--hl-c,var(--hl-1)) 60%,transparent) 92%,transparent 92%);padding:0 .08em}
 .mt-hl-mark--2{--hl-c:var(--hl-2)}
@@ -132,7 +132,7 @@ info_grammar:
   closing:  引线全部收回，索引脊收束为一条荧光带
 type_scale:            # px@1920×1080 画布基准；下限由骨架 .t-* 的 max() 结构性锁定
   --t-display: 112px  # 圆体亲切，压强让位给「划重点」；与正文 3.20:1
-  --t-body:    35px
+  --t-body:    24px  # 正文段落（长段落可读）；图注/说明走 caption 18、注脚走 meta 15
   rule: 标题:正文 ≥1.8:1；正文层 opacity = 1，禁灰化弱读；荧光色只进标注层，禁做容器面与正文文字色
   floor_note: heading/subhead/caption/meta 不覆盖，继承骨架 64/40/18/15；地板由 max() 保证，无需后拦截门禁
 invariants:

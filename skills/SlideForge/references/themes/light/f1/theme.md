@@ -70,7 +70,7 @@
 - **词汇**：玻璃卡（`.mt-gls-card`——容器即材质，六件套见 G4）/ 光斑（`.mt-gls-blob`——页面级 blur 光团垫在玻璃卡后增加纵深，每页 ≤2 团）/ 玻璃 chip（`.mt-gls-chip`——胶囊形小玻璃标，标签/序号用）
 
 ```css
-:root{--t-display:108px;--t-body:35px}
+:root{--t-display:108px;--t-body:24px}
 /* F1 浮光玻璃 · 装饰母题 */
 .mt-gls-card{position:relative;border:1px solid color-mix(in srgb,var(--accent-on) 65%,transparent);border-radius:24px;background:linear-gradient(155deg,color-mix(in srgb,var(--paper) 62%,transparent),color-mix(in srgb,var(--paper) 34%,transparent));backdrop-filter:blur(18px) saturate(150%);-webkit-backdrop-filter:blur(18px) saturate(150%);box-shadow:inset 0 1px 0 color-mix(in srgb,var(--accent-on) 70%,transparent),0 1px 2px color-mix(in srgb,var(--ink) 5%,transparent),0 16px 40px -12px color-mix(in srgb,var(--ink) 20%,transparent)}
 .mt-gls-blob{position:absolute;pointer-events:none;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--accent) 38%,transparent),transparent 70%);filter:blur(48px)}
@@ -90,28 +90,28 @@
 - **DOM 结构测试签署**：删掉 signature_operator，深度轴、3–4 层 z 档差异、逐级错位与三枚后退 chip 全部消失，页面退回同 gap 同 padding 的玻璃卡阵；元素数量/分组/顺序/位置**都变** → **PASS**。
 
 ```yaml
+
 doctrine: 层级不是靠线划出来的，是靠「离光源多远」量出来的。
-signature_operator: 把内容编译成一条由近到远的玻璃深度栈——每类信息是一层玻璃，
-  按信息优先级分配离光源的距离（近/中/远景），层数 3–4 且每层有固定 z 深度与不透明度档；
-  近景承载标题与结论数字，中景承载说明，远景只容图注；
-  层与层不并列，而是沿一条左下到右上的 ≈12° 深度轴逐级错位叠压；
-  三项数字重排为沿深度轴逐级后退的三枚玻璃 chip，非横排三格。
-silhouette: ≈12° 斜向深度轴 + 3–4 层圆角玻璃面逐级后退；重心由左下推向右上；左上长留白。
+signature_operator: 把内容编译成左对齐的玻璃深度栈——三层玻璃左缘对齐、宽度单调递减
+  （近景最宽在底、远景最窄在顶），每层有固定 z 深度与模糊/透明度档；
+  近景承载标题（accent 蓝，唯一焦点）与结论数字，中景承载说明，远景承载正文与理念；
+  三项数字为沿深度档后退的玻璃 chip，非横排三格。
+silhouette: 左对齐 + 宽度递减的垂直堆叠（1560→1240→920）；深度靠模糊档体现；重心左下；左上长留白。
 info_grammar:
   cover:    单块近景玻璃吞掉标题 + 满幅光斑（封面特权）
-  toc:      3–4 层按章节优先级后退，层号即深度档
-  claim:    近景主张句 + 中景一行说明，沿轴左右错位
-  analysis: 3–4 层按信息优先级排序，同圆角同 gap 但不同 z 档，不并列成阵
-  data:     三项数字 → 三枚沿轴逐级后退的 chip，末枚为焦点
+  toc:      3–4 层按章节优先级，宽度递减，层号即深度档
+  claim:    近景主张句 + 中景一行说明，沿深度档错位
+  analysis: 3 层按信息优先级，左对齐宽度递减，不同 z 档
+  data:     三项数字 → 三枚沿深度档后退的 chip，末枚为焦点
   closing:  深度栈收束回近景单层，光斑半亮呼应
 type_scale:            # px@1920×1080 画布基准；下限由骨架 .t-* 的 max() 结构性锁定
-  --t-display: 108px  # 轻倒挂细字，靠深度而非字高压层级；与正文 3.09:1
-  --t-body:    35px
+  --t-display: 108px  # 轻倒挂细字，靠深度而非字高压层级；与正文 4.5:1
+  --t-body:    24px  # 正文段落（长段落可读）；图注/说明走 caption 18、注脚走 meta 15
   rule: 标题:正文 ≥1.8:1；文字层 opacity = 1，禁灰化弱读；环境光斑不计入 accent 面积但禁压正文主列
   floor_note: heading/subhead/caption/meta 不覆盖，继承骨架 64/40/18/15；地板由 max() 保证，无需后拦截门禁
 invariants:
   - 玻璃层数 3–4，各层 z / 不透明度档互不相同
-  - 相邻层中心沿深度轴位移 ≥120px，主轴 12° ±4°
+  - 三层左缘 x 相同，宽度单调递减
   - 无祖先-后代 backdrop-filter 嵌套（玻璃不叠玻璃）
   - 光斑层为文本层的兄弟节点，不进入任何文本节点的祖先链
   - 横排等权三格容器数 = 0
