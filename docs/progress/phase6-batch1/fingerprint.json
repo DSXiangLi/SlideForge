@@ -1,0 +1,99 @@
+{
+  "n": 40,
+  "cross_theme_skeleton_corr": {
+    "mean": 0.2644,
+    "max": 0.723,
+    "pct_above_080": 0.0
+  },
+  "within_theme_skeleton_corr": {
+    "mean": 0.6747,
+    "min": 0.0457,
+    "max": 0.9916
+  },
+  "per_theme_within": {
+    "e6": {
+      "count": 15,
+      "mean": 0.601,
+      "min": 0.293,
+      "max": 0.992
+    },
+    "g2": {
+      "count": 15,
+      "mean": 0.475,
+      "min": 0.046,
+      "max": 0.876
+    },
+    "e7": {
+      "count": 15,
+      "mean": 0.861,
+      "min": 0.761,
+      "max": 0.951
+    },
+    "f1": {
+      "count": 15,
+      "mean": 0.762,
+      "min": 0.446,
+      "max": 0.981
+    }
+  },
+  "edge_struct_dominant": {
+    "horizontal": [
+      "e6-analysis.png",
+      "e6-claim.png",
+      "e6-closing.png",
+      "e6-cover.png",
+      "e6-data.png",
+      "e6-stress-d2.png",
+      "e6-stress-d3.png",
+      "e6-stress-d4.png",
+      "e6-stress-d7.png",
+      "e6-toc.png",
+      "e7-analysis.png",
+      "e7-claim.png",
+      "e7-closing.png",
+      "e7-cover.png",
+      "e7-data.png",
+      "e7-stress-d2.png",
+      "e7-stress-d3.png",
+      "e7-stress-d4.png",
+      "e7-stress-d7.png",
+      "e7-toc.png",
+      "f1-analysis.png",
+      "f1-claim.png",
+      "f1-closing.png",
+      "f1-cover.png",
+      "f1-data.png",
+      "f1-stress-d2.png",
+      "f1-stress-d3.png",
+      "f1-stress-d4.png",
+      "f1-stress-d7.png",
+      "f1-toc.png",
+      "g2-analysis.png",
+      "g2-claim.png",
+      "g2-closing.png",
+      "g2-cover.png",
+      "g2-data.png",
+      "g2-stress-d2.png",
+      "g2-stress-d3.png",
+      "g2-stress-d4.png",
+      "g2-stress-d7.png",
+      "g2-toc.png"
+    ]
+  },
+  "centroid": {
+    "cx_mean": 0.4409,
+    "cx_std": 0.0657,
+    "cy_mean": 0.5046,
+    "cy_std": 0.0559
+  },
+  "baseline_28": {
+    "skeleton_corr_mean": 0.4594,
+    "skeleton_corr_pct_above_080": 0.2328,
+    "edge_struct_dominant_counts": {
+      "vertical": 0,
+      "diag135": 0,
+      "horizontal": 28,
+      "diag45": 0
+    }
+  }
+}

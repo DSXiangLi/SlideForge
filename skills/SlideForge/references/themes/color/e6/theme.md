@@ -18,18 +18,18 @@
 | 2 | 容器 | 粗描边色面块——3px ink 描边 + palette 色填充 + 硬偏移投影 | 糖果色编码信息类别，粗描边让块有实体感 |
 | 3 | 分隔 | 不用发丝线——靠色面碰撞或之字线（`.mt-mem-zig`） | hairline 是瑞士系词汇，孟菲斯靠色面碰撞分区 |
 | 4 | 层次 | 硬偏移投影做信息权重——焦点块 8px 投影，辅助块无投影 | 投影大小即信息权重，不是装饰 |
-| 5 | 版式 | **有秩序的积木排列**——并列信息等大对齐，有主次信息大小不等 | 积木有秩序才有信息引导，散落只有混乱 |
+| 5 | 版式 | 之字路径积木——信息沿单向折线逐块吸附，不是居中带也不是横排格 | 积木有路径才有信息引导，散落只有混乱 |
 | 6 | 入场 | scale-pop 蹦贴——彩纸屑与卡片的物理落位感 | 纸片是"蹦"上去的，不是"淡入"的 |
 | 7 | 底色 | 纯白纸面（--paper）——糖果色的干净画布 | 纸纹与颗粒破坏糖果色的纯度 |
 | 8 | 字色 | 墨黑印白纸 + 糖果色只进填充层——粗描边与结构线永远 ink | 墨色骨架托底，彩色只在填充层 |
 
 **布局规则**（生成侧必须遵从——区分并列信息与有主次信息）：
 
-- **并列信息**（目录章节、4 种店型、4 个流程步骤）→ **等大对齐**横排或 2×2，颜色轮转区分，全部统一投影（全有或全无）。大小不等在并列信息上只会造成认知混乱，不传递信息
-- **有主次信息**（KPI 有焦点项、漏斗有断点、章节有重点）→ 焦点块**更大** + **8px 投影**，辅助块更小 + 无投影。大小差异和投影差异只在信息权重确实不同时使用
+- **并列信息**（目录章节、4 种店型、4 个流程步骤）→ 沿之字路径逐块吸附，等大等间距、颜色按 palette 固定顺序轮转，全部统一投影（全有或全无）；**禁横排等权三格**
+- **有主次信息**（KPI 有焦点项、漏斗有断点）→ 焦点块**更大** + 8px 硬偏移投影且位于路径末段，辅助块更小 + 无投影；块宽沿路径单调不减
 - **色面块必须占满可用宽度**——高对比色面块（3px 描边+糖果色填充+硬偏移投影）视觉重量极大，小色面在大画幅上显得小气。多块横排时等分全宽，2×2 时每块占满半宽半高区域，不漂浮在空白中的小方块
 - **色面块尺寸由内容决定**——先确定文字需要多少空间，再确定色面块尺寸，不能为了大小不等而压缩文字空间导致溢出
-- **色面块对齐**——横排时顶部或底部对齐（不是随意错位），2×2 时网格对齐（不是散落）
+- **色面块对齐**——块心落在之字路径的折点上，按 45°/135° 转折吸附；不是横排对齐，也不是散落
 
 **骨架硬规则**（生成侧必须遵从）：
 - **禁 masthead / mastfoot**——派对不需要编辑部刊头刊脚
@@ -37,9 +37,9 @@
 - **禁居中内容带布局**（`display:flex;flex-direction:column;justify-content:center`）——用有秩序的积木排列：内容在粗描边色面块上，块按信息关系排列
 - **禁发丝线 hairline**——分隔靠色面碰撞或之字波浪线（`.mt-mem-zig`）
 - **禁弥散 box-shadow**——唯一允许的"影"是硬偏移投影（`8px 8px 0` 或 `4px 4px 0`，零模糊）
-- **禁倾斜/旋转容器**——信息要正可读，字歪七扭八无法传递信息
+- **禁倾斜/旋转容器**——信息要正可读；旋转只给之字路径本身与彩纸屑，不给积木内的文字
 - **保留 3px 粗描边和硬偏移投影**——这是孟菲斯的材质语言，不是 guizang 的；粗描边 + 硬偏移影 = 签名容器，不可削弱
-- **并列信息等大对齐**——不要在并列信息上用大小不等制造混乱
+- **并列信息等大对齐**——信息必须沿之字路径编译为积木；**禁横排等权三格 KPI 与卡片墙成阵**（G10 composition_program 优先于本节其余条款）
 
 **G1 color**
 
@@ -108,7 +108,7 @@
 
 ```css
 /* E6 Memphis 孟菲斯 · 装饰母题 + 缓动签名 */
-:root{--ease-out:cubic-bezier(.5,1.7,.4,1)}
+:root{--ease-out:cubic-bezier(.5,1.7,.4,1);--t-display:132px;--t-body:35px}
 .mt-mem-confetti{position:absolute;inset:0;pointer-events:none;user-select:none;overflow:hidden}
 .mt-mem-confetti i{position:absolute;display:block;--pc:var(--palette-1)}
 .mt-mem-confetti .mt-mem-c2{--pc:var(--palette-2)}
@@ -119,9 +119,50 @@
 .mt-mem-ring{width:16px;height:16px;border:3px solid var(--ink);border-radius:50%}
 .mt-mem-zig{height:12px;pointer-events:none;background-image:linear-gradient(135deg,var(--ink) 25%,transparent 25%),linear-gradient(225deg,var(--ink) 25%,transparent 25%);background-size:16px 12px;background-repeat:repeat-x}
 .mt-mem-card{border:3px solid var(--ink);border-radius:14px;background:var(--paper);box-shadow:8px 8px 0 color-mix(in srgb,var(--accent) 85%,var(--ink))}
+.mt-mem-path{position:absolute;inset:0;pointer-events:none;user-select:none}
+.mt-mem-path::before{content:"";position:absolute;left:2%;top:78%;width:96%;height:12px;background-image:linear-gradient(135deg,var(--ink) 25%,transparent 25%),linear-gradient(225deg,var(--ink) 25%,transparent 25%);background-size:24px 12px;transform:rotate(-12deg);opacity:.55}
+.mt-mem-block{position:absolute;border:3px solid var(--ink);border-radius:14px;background:var(--paper);padding:20px 26px}
+.mt-mem-block--focus{box-shadow:8px 8px 0 color-mix(in srgb,var(--accent) 85%,var(--ink))}
+.mt-mem-step{display:inline-block;width:1.6em;height:.32em;background:var(--ink);margin-right:.5em;vertical-align:middle}
 ```
 
 - **禁忌**：彩纸屑每页 3–5 件为上限且按 palette 顺序轮转（同页至少两色，撒满即廉价）；之字线每页至多一条、禁进数据图表区（干扰读数）；硬偏移投影只许 accent 色，禁 ink 色投影（与描边糊成一团）、禁 palette 色投影（彩色影只有 accent 一支）；母题件一律 `data-editable-skip`
+
+**G10 composition_program**
+
+- **定位**：主题从「可替换参数集」升级为「决定信息如何进入空间的程序」。本组为硬约束，写进页计划表头即整 deck 的构图契约。
+- **灵魂承载**：之字路径与积木是签名结构件，形状由 CSS 承担（data-editable-skip），其内部承载的文字仍是 data-editable 叶子节点。
+- **DOM 结构测试签署**：删掉 signature_operator，页面回到「标题 + 两段正文 + 横排三格 KPI」，之字路径、积木分组、阶梯宽度、palette 轮转顺序、数字台阶全部消失，元素数量/分组/顺序/位置**都变** → **PASS**。
+
+```yaml
+doctrine: 反叛的秩序；信息不是被摆进格子，而是被一串有重量的积木沿路径推着走。
+signature_operator: 把每条信息编译成一块 3px 墨线粗描边的积木，用一条之字折线把它们串成单向路径：
+  积木沿路径逐块吸附、宽度随信息权重阶梯放大、填充按 palette 固定顺序轮转；
+  三项数字重排为沿路径递进的三块台阶，唯一焦点积木带 8px 硬偏移影；之字线是路径本身而非分隔装饰。
+silhouette: 之字折线主路径（45°/135° 转折）；圆角矩形积木块面；起点左下、终点右上；重心沿对角带；右下 ≥15% 留白。
+info_grammar:
+  cover:    单块超大积木吞掉标题 + 之字线自页面左下引入
+  toc:      3–5 块等大积木沿路径前段吸附，palette 轮转编号
+  claim:    论点句独占焦点积木（最大 + 硬偏移影），说明位于路径第二块
+  analysis: 3–5 块积木沿路径阶梯，块宽单调不减，palette 按固定顺序轮转
+  data:     三项数字 → 三块逐级放大的台阶积木，末块承载结论短句
+  closing:  焦点积木回到起点方向，之字线收束，彩纸屑一次强形态
+type_scale:            # px@1920×1080 画布基准；下限由骨架 .t-* 的 max() 结构性锁定
+  --t-display: 132px  # 极粗 800 承载积木压强；与正文 3.77:1
+  --t-body:    35px   # ≈1.8cqw@480 换算基准
+  rule: 标题:正文 ≥1.8:1，巨字:正文 ≥3:1；正文层 opacity = 1，禁灰化弱读
+  floor_note: heading/subhead/caption/meta 不覆盖，继承骨架 64/40/18/15；地板由 max() 保证，无需后拦截门禁
+invariants:
+  - 之字路径 1 条，转折角 ∈ {45°,135°}，路径长度 ≥ 60% 画幅对角
+  - 积木块宽沿路径单调不减；焦点块面积 ≥ 其余块 1.4×
+  - 硬偏移投影单页 ≤1，偏移量 8px 且零模糊
+  - 横排等权三格容器数 = 0
+  - 彩纸屑在 DOM 上是积木的兄弟节点，不进任一积木内部
+forbidden_defaults: [横向等权三格 KPI, 卡片墙成阵, 居中 hero, hairline 分区, 无路径撒布式彩纸屑, 玻璃拟态, 弥散软影]
+dna_events: {cover: 强, claim: 强, analysis: 中, data: 强, toc: 中, closing: 强}
+```
+
+---
 
 **Variants 配色变体**
 

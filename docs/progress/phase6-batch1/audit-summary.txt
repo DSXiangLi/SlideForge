@@ -1,0 +1,14 @@
+{
+  "pages": 40,
+  "canvasOverflow": 0,
+  "containerOverflow": 0,
+  "contentOverflow": 0,
+  "weakRead": 0,
+  "textOverlaps": 0,
+  "inlineFontSize": 0,
+  "floorViolations": 0,
+  "pageErrors": 0,
+  "lowDensityRatioMin": 6.4,
+  "baselinePages": 24,
+  "stressPages": 16
+}

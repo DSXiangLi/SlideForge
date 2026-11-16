@@ -1,0 +1,6 @@
+E6: PASS | G10字段 8/8 | 令牌 true | DOM测试 true | 几何不变量 true | G9 CSS 17行(≤40) | 字面hex false | 框架选择器 false | 残留旧条款 0
+G2: PASS | G10字段 8/8 | 令牌 true | DOM测试 true | 几何不变量 true | G9 CSS 11行(≤40) | 字面hex false | 框架选择器 false | 残留旧条款 0
+E7: PASS | G10字段 8/8 | 令牌 true | DOM测试 true | 几何不变量 true | G9 CSS 10行(≤40) | 字面hex false | 框架选择器 false | 残留旧条款 0
+F1: PASS | G10字段 8/8 | 令牌 true | DOM测试 true | 几何不变量 true | G9 CSS 8行(≤40) | 字面hex false | 框架选择器 false | 残留旧条款 0
+母题类名总数 160，跨主题重名 0
+VERIFY: ALL PASS

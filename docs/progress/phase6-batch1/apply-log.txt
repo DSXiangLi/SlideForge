@@ -1,0 +1,13 @@
+E6: 已含 G10，跳过
+G2: 已含 G10，跳过
+E7: 改写行 70 ← - **亲和**
+E7: 改写行 75 ← - **词汇**
+E7: 改写行 85 ← - **禁忌**：姓名印每页至多一方
+E7: G9 css 注入 :root{--t-display:96px;--t-body:35px;--t-vertical:72px} + 4 条签名结构件类
+E7: 插入 G10 composition_program
+F1: 改写行 51 ← - **高密度容器边界**
+F1: 改写行 65 ← - **亲和**
+F1: 改写行 79 ← - **禁忌**：玻璃禁叠玻璃
+F1: G9 css 注入 :root{--t-display:108px;--t-body:35px} + 3 条签名结构件类
+F1: 插入 G10 composition_program
+G10 草案已复制到 docs/progress/G10-composition-program.md
