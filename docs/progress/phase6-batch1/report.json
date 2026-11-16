@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-16T00:35:02.956Z",
+  "generated": "2026-11-16T00:58:16.029Z",
   "canvas": [
     1920,
     1080
@@ -1691,8 +1691,8 @@
           "cls": "t-display",
           "text": "一杯好茶\n山野作答",
           "x": 169,
-          "y": 133,
-          "w": 702,
+          "y": 163,
+          "w": 842,
           "h": 277,
           "fs": 132,
           "opacity": 1,
@@ -1705,9 +1705,9 @@
           ],
           "container": {
             "x": 140,
-            "y": 110,
-            "w": 760,
-            "h": 360
+            "y": 140,
+            "w": 900,
+            "h": 320
           },
           "containerOverflow": false
         },
@@ -1716,8 +1716,8 @@
           "cls": "t-caption",
           "text": "山禾集深耕新式茶饮行业，同时通过全资子公司山禾供",
           "x": 169,
-          "y": 513,
-          "w": 582,
+          "y": 523,
+          "w": 702,
           "h": 108,
           "fs": 18,
           "opacity": 1,
@@ -1730,9 +1730,9 @@
           ],
           "container": {
             "x": 140,
-            "y": 490,
-            "w": 640,
-            "h": 250
+            "y": 500,
+            "w": 760,
+            "h": 240
           },
           "containerOverflow": false
         },
@@ -1740,24 +1740,24 @@
           "tag": "div",
           "cls": "t-caption",
           "text": "近年来山禾集门店网络稳步扩张，行业排名持续提升。",
-          "x": 849,
-          "y": 513,
-          "w": 582,
-          "h": 135,
+          "x": 969,
+          "y": 523,
+          "w": 702,
+          "h": 108,
           "fs": 18,
           "opacity": 1,
           "transformed": false,
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            135,
-            135
+            108,
+            108
           ],
           "container": {
-            "x": 820,
-            "y": 490,
-            "w": 640,
-            "h": 250
+            "x": 940,
+            "y": 500,
+            "w": 760,
+            "h": 240
           },
           "containerOverflow": false
         },
@@ -1767,7 +1767,7 @@
           "text": "8,637家",
           "x": 169,
           "y": 783,
-          "w": 302,
+          "w": 362,
           "h": 70,
           "fs": 64,
           "opacity": 1,
@@ -1781,8 +1781,8 @@
           "container": {
             "x": 140,
             "y": 760,
-            "w": 360,
-            "h": 170
+            "w": 420,
+            "h": 160
           },
           "containerOverflow": false
         },
@@ -1792,22 +1792,22 @@
           "text": "山禾集（含直营和子公司山禾供应链）全国门店总数",
           "x": 169,
           "y": 861,
-          "w": 302,
-          "h": 41,
+          "w": 362,
+          "h": 20,
           "fs": 15,
           "opacity": 1,
           "transformed": false,
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            41,
-            41
+            20,
+            20
           ],
           "container": {
             "x": 140,
             "y": 760,
-            "w": 360,
-            "h": 170
+            "w": 420,
+            "h": 160
           },
           "containerOverflow": false
         },
@@ -1815,9 +1815,9 @@
           "tag": "div",
           "cls": "t-heading",
           "text": "2.8亿杯",
-          "x": 549,
-          "y": 759,
-          "w": 322,
+          "x": 609,
+          "y": 753,
+          "w": 362,
           "h": 70,
           "fs": 64,
           "opacity": 1,
@@ -1829,10 +1829,10 @@
             70
           ],
           "container": {
-            "x": 520,
-            "y": 736,
-            "w": 380,
-            "h": 170
+            "x": 580,
+            "y": 730,
+            "w": 420,
+            "h": 160
           },
           "containerOverflow": false
         },
@@ -1840,9 +1840,9 @@
           "tag": "div",
           "cls": "t-meta",
           "text": "成立以来累计为超过6.8亿会员用户售出茶饮",
-          "x": 549,
-          "y": 837,
-          "w": 322,
+          "x": 609,
+          "y": 831,
+          "w": 362,
           "h": 20,
           "fs": 15,
           "opacity": 1,
@@ -1854,10 +1854,10 @@
             20
           ],
           "container": {
-            "x": 520,
-            "y": 736,
-            "w": 380,
-            "h": 170
+            "x": 580,
+            "y": 730,
+            "w": 420,
+            "h": 160
           },
           "containerOverflow": false
         },
@@ -1865,9 +1865,9 @@
           "tag": "div",
           "cls": "t-heading",
           "text": "361家",
-          "x": 929,
-          "y": 735,
-          "w": 342,
+          "x": 1049,
+          "y": 723,
+          "w": 362,
           "h": 70,
           "fs": 64,
           "opacity": 1,
@@ -1879,10 +1879,10 @@
             70
           ],
           "container": {
-            "x": 900,
-            "y": 712,
-            "w": 400,
-            "h": 170
+            "x": 1020,
+            "y": 700,
+            "w": 420,
+            "h": 160
           },
           "containerOverflow": false
         },
@@ -1890,9 +1890,9 @@
           "tag": "div",
           "cls": "t-meta",
           "text": "城市旗舰店总数",
-          "x": 929,
-          "y": 813,
-          "w": 342,
+          "x": 1049,
+          "y": 801,
+          "w": 362,
           "h": 20,
           "fs": 15,
           "opacity": 1,
@@ -1904,10 +1904,10 @@
             20
           ],
           "container": {
-            "x": 900,
-            "y": 712,
-            "w": 400,
-            "h": 170
+            "x": 1020,
+            "y": 700,
+            "w": 420,
+            "h": 160
           },
           "containerOverflow": false
         },
@@ -1916,7 +1916,7 @@
           "cls": "t-caption",
           "text": "经营理念：当季鲜茶，日常相伴。",
           "x": 140,
-          "y": 948,
+          "y": 940,
           "w": 270,
           "h": 27,
           "fs": 18,
@@ -1930,9 +1930,9 @@
           ],
           "container": {
             "x": 140,
-            "y": 948,
+            "y": 940,
             "w": 1400,
-            "h": 30
+            "h": 26
           },
           "containerOverflow": false
         },
@@ -1941,7 +1941,7 @@
           "cls": "t-caption",
           "text": "使命：为大众提供新鲜、健康、平价的日常茶饮。",
           "x": 444,
-          "y": 948,
+          "y": 940,
           "w": 396,
           "h": 27,
           "fs": 18,
@@ -1955,9 +1955,9 @@
           ],
           "container": {
             "x": 140,
-            "y": 948,
+            "y": 940,
             "w": 1400,
-            "h": 30
+            "h": 26
           },
           "containerOverflow": false
         },
@@ -1966,7 +1966,7 @@
           "cls": "t-caption",
           "text": "愿景：成为持续领先的新式茶饮品牌。",
           "x": 874,
-          "y": 948,
+          "y": 940,
           "w": 306,
           "h": 27,
           "fs": 18,
@@ -1980,9 +1980,9 @@
           ],
           "container": {
             "x": 140,
-            "y": 948,
+            "y": 940,
             "w": 1400,
-            "h": 30
+            "h": 26
           },
           "containerOverflow": false
         },
@@ -1991,7 +1991,7 @@
           "cls": "t-meta",
           "text": "* 注：山禾集为虚构演示品牌，文中数据均为虚构，",
           "x": 120,
-          "y": 986,
+          "y": 976,
           "w": 1500,
           "h": 24,
           "fs": 15,
@@ -13407,9 +13407,9 @@
           "tag": "div",
           "cls": "t-display",
           "text": "一杯好茶\n山野作答",
-          "x": 201,
-          "y": 165,
-          "w": 1000,
+          "x": 161,
+          "y": 581,
+          "w": 1400,
           "h": 230,
           "fs": 108,
           "opacity": 1,
@@ -13421,10 +13421,10 @@
             230
           ],
           "container": {
-            "x": 140,
-            "y": 120,
-            "w": 1120,
-            "h": 470
+            "x": 120,
+            "y": 560,
+            "w": 1560,
+            "h": 400
           },
           "containerOverflow": false
         },
@@ -13432,8 +13432,8 @@
           "tag": "span",
           "cls": "t-subhead",
           "text": "8,637家",
-          "x": 218,
-          "y": 420,
+          "x": 178,
+          "y": 828,
           "w": 150,
           "h": 52,
           "fs": 40,
@@ -13446,10 +13446,10 @@
             52
           ],
           "container": {
-            "x": 201,
-            "y": 413,
-            "w": 1000,
-            "h": 56
+            "x": 161,
+            "y": 821,
+            "w": 1400,
+            "h": 52
           },
           "containerOverflow": false
         },
@@ -13457,8 +13457,8 @@
           "tag": "span",
           "cls": "t-subhead",
           "text": "2.8亿杯",
-          "x": 420,
-          "y": 420,
+          "x": 380,
+          "y": 828,
           "w": 141,
           "h": 52,
           "fs": 40,
@@ -13471,10 +13471,10 @@
             52
           ],
           "container": {
-            "x": 201,
-            "y": 413,
-            "w": 1000,
-            "h": 56
+            "x": 161,
+            "y": 821,
+            "w": 1400,
+            "h": 52
           },
           "containerOverflow": false
         },
@@ -13482,8 +13482,8 @@
           "tag": "span",
           "cls": "t-subhead",
           "text": "361家",
-          "x": 613,
-          "y": 420,
+          "x": 573,
+          "y": 828,
           "w": 114,
           "h": 52,
           "fs": 40,
@@ -13496,10 +13496,10 @@
             52
           ],
           "container": {
-            "x": 201,
-            "y": 413,
-            "w": 1000,
-            "h": 56
+            "x": 161,
+            "y": 821,
+            "w": 1400,
+            "h": 52
           },
           "containerOverflow": false
         },
@@ -13507,9 +13507,9 @@
           "tag": "div",
           "cls": "t-meta",
           "text": "山禾集（含直营和子公司山禾供应链）全国门店总数",
-          "x": 201,
-          "y": 477,
-          "w": 300,
+          "x": 161,
+          "y": 883,
+          "w": 320,
           "h": 39,
           "fs": 15,
           "opacity": 1,
@@ -13521,10 +13521,10 @@
             39
           ],
           "container": {
-            "x": 201,
-            "y": 477,
-            "w": 1000,
-            "h": 90
+            "x": 161,
+            "y": 883,
+            "w": 1400,
+            "h": 52
           },
           "containerOverflow": false
         },
@@ -13532,33 +13532,8 @@
           "tag": "div",
           "cls": "t-meta",
           "text": "成立以来累计为超过6.8亿会员用户售出茶饮",
-          "x": 519,
-          "y": 497,
-          "w": 300,
-          "h": 20,
-          "fs": 15,
-          "opacity": 1,
-          "transformed": false,
-          "inlineFontSize": "",
-          "contentOverflow": false,
-          "scroll": [
-            20,
-            20
-          ],
-          "container": {
-            "x": 201,
-            "y": 477,
-            "w": 1000,
-            "h": 90
-          },
-          "containerOverflow": false
-        },
-        {
-          "tag": "div",
-          "cls": "t-meta",
-          "text": "城市旗舰店总数",
-          "x": 837,
-          "y": 497,
+          "x": 499,
+          "y": 903,
           "w": 320,
           "h": 20,
           "fs": 15,
@@ -13571,10 +13546,35 @@
             20
           ],
           "container": {
-            "x": 201,
-            "y": 477,
-            "w": 1000,
-            "h": 90
+            "x": 161,
+            "y": 883,
+            "w": 1400,
+            "h": 52
+          },
+          "containerOverflow": false
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "城市旗舰店总数",
+          "x": 837,
+          "y": 903,
+          "w": 340,
+          "h": 20,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            20,
+            20
+          ],
+          "container": {
+            "x": 161,
+            "y": 883,
+            "w": 1400,
+            "h": 52
           },
           "containerOverflow": false
         },
@@ -13582,24 +13582,24 @@
           "tag": "div",
           "cls": "t-caption",
           "text": "山禾集深耕新式茶饮行业，同时通过全资子公司山禾供",
-          "x": 671,
-          "y": 637,
-          "w": 940,
-          "h": 81,
+          "x": 221,
+          "y": 411,
+          "w": 1120,
+          "h": 54,
           "fs": 18,
           "opacity": 1,
           "transformed": false,
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            81,
-            81
+            54,
+            54
           ],
           "container": {
-            "x": 671,
-            "y": 637,
-            "w": 940,
-            "h": 280
+            "x": 221,
+            "y": 411,
+            "w": 1120,
+            "h": 160
           },
           "containerOverflow": false
         },
@@ -13607,99 +13607,99 @@
           "tag": "div",
           "cls": "t-caption",
           "text": "近年来山禾集门店网络稳步扩张，行业排名持续提升。",
-          "x": 671,
-          "y": 730,
-          "w": 940,
-          "h": 81,
+          "x": 281,
+          "y": 201,
+          "w": 820,
+          "h": 108,
           "fs": 18,
           "opacity": 1,
           "transformed": false,
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            81,
-            81
+            108,
+            108
           ],
           "container": {
-            "x": 671,
-            "y": 637,
-            "w": 940,
-            "h": 280
+            "x": 281,
+            "y": 201,
+            "w": 820,
+            "h": 115
           },
           "containerOverflow": false
         },
         {
           "tag": "div",
-          "cls": "t-caption",
+          "cls": "t-meta",
           "text": "经营理念：当季鲜茶，日常相伴。",
-          "x": 1241,
-          "y": 345,
-          "w": 500,
-          "h": 28,
-          "fs": 18,
+          "x": 281,
+          "y": 326,
+          "w": 820,
+          "h": 23,
+          "fs": 15,
           "opacity": 1,
           "transformed": false,
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            28,
-            28
+            23,
+            23
           ],
           "container": {
-            "x": 1241,
-            "y": 345,
-            "w": 500,
-            "h": 180
+            "x": 281,
+            "y": 326,
+            "w": 820,
+            "h": 80
           },
           "containerOverflow": false
         },
         {
           "tag": "div",
-          "cls": "t-caption",
+          "cls": "t-meta",
           "text": "使命：为大众提供新鲜、健康、平价的日常茶饮。",
-          "x": 1241,
-          "y": 381,
-          "w": 500,
-          "h": 28,
-          "fs": 18,
+          "x": 281,
+          "y": 349,
+          "w": 820,
+          "h": 23,
+          "fs": 15,
           "opacity": 1,
           "transformed": false,
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            28,
-            28
+            23,
+            23
           ],
           "container": {
-            "x": 1241,
-            "y": 345,
-            "w": 500,
-            "h": 180
+            "x": 281,
+            "y": 326,
+            "w": 820,
+            "h": 80
           },
           "containerOverflow": false
         },
         {
           "tag": "div",
-          "cls": "t-caption",
+          "cls": "t-meta",
           "text": "愿景：成为持续领先的新式茶饮品牌。",
-          "x": 1241,
-          "y": 417,
-          "w": 500,
-          "h": 28,
-          "fs": 18,
+          "x": 281,
+          "y": 371,
+          "w": 820,
+          "h": 23,
+          "fs": 15,
           "opacity": 1,
           "transformed": false,
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            28,
-            28
+            23,
+            23
           ],
           "container": {
-            "x": 1241,
-            "y": 345,
-            "w": 500,
-            "h": 180
+            "x": 281,
+            "y": 326,
+            "w": 820,
+            "h": 80
           },
           "containerOverflow": false
         },

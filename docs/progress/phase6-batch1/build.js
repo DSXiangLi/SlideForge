@@ -125,16 +125,18 @@ function E6(p) {
   const R = p.role, V = p.variant;
 
   if (R === 'full') {
-    // 完整内容页（与旧 Gallery 同字段逐字一致：kicker/title/p1/p2/kpi×3/creed×3/note/foot）
-    h.push(block(140, 110, 760, 360,
+    // 完整内容页（与旧 Gallery 同字段逐字一致）
+    // 秩序：标题大块 + 正文两块等大等 y 并排 + KPI 三块等宽、x 等距、沿斜线轻微阶梯（末块焦点 + 硬偏移影）
+    h.push(block(140, 140, 900, 320,
       `<div class="t-display" style="font-weight:800;white-space:pre-line;line-height:1.05">一杯好茶\n山野作答</div>`, true, 0));
-    h.push(block(140, 490, 640, 250, text('t-caption', D.p1, 'line-height:1.5'), false, 1));
-    h.push(block(820, 490, 640, 250, text('t-caption', D.p2, 'line-height:1.5'), false, 2));
-    D.kpis.forEach((k, i) => h.push(block(140 + i * 380, 760 - i * 24, 360 + i * 20, 170,
+    h.push(block(140, 500, 760, 240, text('t-caption', D.p1, 'line-height:1.5'), false, 1));
+    h.push(block(940, 500, 760, 240, text('t-caption', D.p2, 'line-height:1.5'), false, 2));
+    const kx = [140, 580, 1020], ky = [760, 730, 700];
+    D.kpis.forEach((k, i) => h.push(block(kx[i], ky[i], 420, 160,
       `<div class="t-heading" style="font-weight:800;line-height:1.1">${esc(k.num)}</div>` +
       text('t-meta', k.cap, 'margin-top:8px;line-height:1.35'), i === 2, i)));
-    h.push(`<div style="${pos(140, 948, 1400, 30)}">${D.creed.map(c => text('t-caption', c, 'display:inline-block;margin-right:34px')).join('')}</div>`);
-    h.push(note(986));
+    h.push(`<div style="${pos(140, 940, 1400, 26)}">${D.creed.map(c => text('t-caption', c, 'display:inline-block;margin-right:34px')).join('')}</div>`);
+    h.push(note(976));
     h.push(foot('e6', 'full', p.n));
     return h.join('\n');
   }
@@ -361,15 +363,17 @@ function F1(p) {
   h.push(kicker(120, 96));
 
   if (R === 'full') {
-    // 完整内容页（与旧 Gallery 同字段逐字一致）：三层玻璃深度栈，近/中/远景
-    h.push(`<div class="mt-gls-depth" data-depth="1" style="${pos(140, 120, 1120, 470)};z-index:3;background:linear-gradient(155deg,color-mix(in srgb,var(--paper) 88%,transparent),color-mix(in srgb,var(--paper) 66%,transparent))">` +
-      `<div class="t-display" style="${pos(60, 44, 1000, 230)};font-weight:400;white-space:pre-line;line-height:1.02">一杯好茶\n山野作答</div>` +
-      `<div style="${pos(60, 292, 1000, 56)}">${D.kpis.map((k, i) => `<span class="mt-gls-chip-n" style="display:inline-flex;margin-right:18px"><span class="t-subhead" style="font-weight:600">${esc(k.num)}</span></span>`).join('')}</div>` +
-      `<div style="${pos(60, 356, 1000, 90)}">${D.kpis.map((k, i) => text('t-meta', k.cap, `display:inline-block;width:${i === 2 ? 320 : 300}px;margin-right:18px;line-height:1.3`)).join('')}</div>` + `</div>`);
-    h.push(`<div class="mt-gls-depth" data-depth="2" style="${pos(620, 600, 1040, 340)};z-index:2;background:linear-gradient(155deg,color-mix(in srgb,var(--paper) 74%,transparent),color-mix(in srgb,var(--paper) 52%,transparent))">` +
-      `<div style="${pos(50, 36, 940, 280)}">${text('t-caption', D.p1, 'line-height:1.5') + text('t-caption', D.p2, 'line-height:1.5;margin-top:12px')}</div>` + `</div>`);
-    h.push(`<div class="mt-gls-depth" data-depth="3" style="${pos(1200, 300, 580, 240)};z-index:1;background:linear-gradient(155deg,color-mix(in srgb,var(--paper) 60%,transparent),color-mix(in srgb,var(--paper) 38%,transparent))">` +
-      `<div style="${pos(40, 44, 500, 180)}">${D.creed.map(c => text('t-caption', c, 'line-height:1.55;margin-bottom:8px')).join('')}</div>` + `</div>`);
+    // 完整内容页（与旧 Gallery 同字段逐字一致）
+    // 秩序：三层玻璃左缘递增 + 宽度递减的斜向阶梯（近景大在底、远景小在顶），左缘/右缘各自递进，等距后退
+    h.push(`<div class="mt-gls-depth" data-depth="1" style="${pos(120, 560, 1560, 400)};z-index:3;background:linear-gradient(155deg,color-mix(in srgb,var(--paper) 88%,transparent),color-mix(in srgb,var(--paper) 66%,transparent))">` +
+      `<div class="t-display" style="${pos(40, 20, 1400, 230)};font-weight:400;white-space:pre-line;line-height:1.05">一杯好茶\n山野作答</div>` +
+      `<div style="${pos(40, 260, 1400, 52)}">${D.kpis.map((k, i) => `<span class="mt-gls-chip-n" style="display:inline-flex;margin-right:18px"><span class="t-subhead" style="font-weight:600">${esc(k.num)}</span></span>`).join('')}</div>` +
+      `<div style="${pos(40, 322, 1400, 52)}">${D.kpis.map((k, i) => text('t-meta', k.cap, `display:inline-block;width:${i === 2 ? 340 : 320}px;margin-right:18px;line-height:1.3`)).join('')}</div>` + `</div>`);
+    h.push(`<div class="mt-gls-depth" data-depth="2" style="${pos(180, 380, 1200, 200)};z-index:2;background:linear-gradient(155deg,color-mix(in srgb,var(--paper) 74%,transparent),color-mix(in srgb,var(--paper) 52%,transparent))">` +
+      `<div style="${pos(40, 30, 1120, 160)}">${text('t-caption', D.p1, 'line-height:1.5')}</div>` + `</div>`);
+    h.push(`<div class="mt-gls-depth" data-depth="3" style="${pos(240, 180, 900, 250)};z-index:1;background:linear-gradient(155deg,color-mix(in srgb,var(--paper) 60%,transparent),color-mix(in srgb,var(--paper) 38%,transparent))">` +
+      `<div style="${pos(40, 20, 820, 115)}">${text('t-caption', D.p2, 'line-height:1.5')}</div>` +
+      `<div style="${pos(40, 145, 820, 80)}">${D.creed.map(c => text('t-meta', c, 'line-height:1.5')).join('')}</div>` + `</div>`);
     h.push(note(1015));
     h.push(foot('f1', 'full', p.n));
     return h.join('\n');
