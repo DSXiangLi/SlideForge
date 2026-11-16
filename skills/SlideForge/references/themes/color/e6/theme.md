@@ -137,6 +137,13 @@
 ```yaml
 
 doctrine: 反叛的秩序；信息不是被摆进格子，而是被一串有重量的积木沿路径推着走。
+
+page_composition:
+  skeleton: 模块网格 + Z 型动线
+  grid: {margin: 120, gutter: 40, columns: 12}
+  balance: {anchor: 标题块(左上), counterweight: 右上装饰块}
+  whitespace_ratio: "≥50%"
+  flow: "Z 型：标题(左上) → 装饰(右上) → 正文两栏(中) → 数据三块(下) → 页脚"
 signature_operator: 把每条信息编译成一块 2px 彩色描边的白底积木，用一条之字折线把它们串成单向路径：
   积木沿路径吸附、填充按 palette 固定顺序轮转（彩色只作描边/编号/彩纸屑点缀，不作承载正文的面）；
   标题独占一块大积木（唯一 accent 焦点 + 硬偏移影），正文两块等大等 y 并排；

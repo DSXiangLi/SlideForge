@@ -92,6 +92,13 @@
 ```yaml
 
 doctrine: 层级不是靠线划出来的，是靠「离光源多远」量出来的。
+
+page_composition:
+  skeleton: 对角深度栈（默认）/ 中心聚焦（备选 full-b）
+  grid: {margin: 120, gutter: 40}
+  balance: {anchor: 前景玻璃(右下,实), counterweight: 柔光斑(左上/右上)}
+  whitespace_ratio: "≥60%"
+  flow: "对角：远景(左上,透) → 中景 → 前景(右下,实)；重心回光学中心"
 signature_operator: 把内容编译成左对齐的玻璃深度栈——三层玻璃左缘对齐、宽度单调递减
   （近景最宽在底、远景最窄在顶），每层有固定 z 深度与模糊/透明度档；
   近景承载标题（accent 蓝，唯一焦点）与结论数字，中景承载说明，远景承载正文与理念；

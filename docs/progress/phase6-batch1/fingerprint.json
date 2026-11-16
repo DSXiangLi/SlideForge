@@ -1,76 +1,96 @@
 {
-  "n": 44,
+  "n": 45,
   "full_cross_theme_skeleton_corr": {
-    "mean": 0.6612,
-    "max": 0.7096,
+    "mean": 0.3542,
+    "max": 0.6782,
     "pct_above_080": 0.0,
     "pairs": [
       [
-        0.7096,
-        "e7",
+        0.6782,
+        "f1-full-b.png",
         "f1"
       ],
       [
-        0.7075,
+        0.5297,
         "f1",
         "g2"
       ],
       [
-        0.6948,
+        0.4699,
+        "e7",
+        "f1"
+      ],
+      [
+        0.4092,
+        "f1-full-b.png",
+        "g2"
+      ],
+      [
+        0.4072,
         "e6",
         "f1"
       ],
       [
-        0.6471,
+        0.4056,
+        "e6",
+        "f1-full-b.png"
+      ],
+      [
+        0.4037,
+        "e7",
+        "f1-full-b.png"
+      ],
+      [
+        0.2756,
+        "e6",
+        "g2"
+      ],
+      [
+        0.2119,
         "e7",
         "g2"
       ],
       [
-        0.6171,
+        -0.2494,
         "e6",
         "e7"
-      ],
-      [
-        0.5913,
-        "e6",
-        "g2"
       ]
     ]
   },
   "cross_theme_skeleton_corr": {
-    "mean": 0.2894,
-    "max": 0.723,
+    "mean": 0.1873,
+    "max": 0.7278,
     "pct_above_080": 0.0
   },
   "within_theme_skeleton_corr": {
-    "mean": 0.5727,
-    "min": -0.3248,
-    "max": 0.99
+    "mean": 0.5643,
+    "min": -0.0299,
+    "max": 0.9346
   },
   "per_theme_within": {
     "e6": {
       "count": 15,
-      "mean": 0.333,
-      "min": -0.325,
-      "max": 0.99
+      "mean": 0.395,
+      "min": -0.03,
+      "max": 0.919
     },
     "g2": {
       "count": 15,
-      "mean": 0.487,
-      "min": 0.179,
-      "max": 0.858
+      "mean": 0.48,
+      "min": 0.164,
+      "max": 0.802
     },
     "e7": {
       "count": 15,
-      "mean": 0.736,
-      "min": 0.479,
-      "max": 0.961
+      "mean": 0.712,
+      "min": 0.505,
+      "max": 0.91
     },
     "f1": {
       "count": 15,
-      "mean": 0.735,
-      "min": 0.41,
-      "max": 0.946
+      "mean": 0.671,
+      "min": 0.48,
+      "max": 0.935
     }
   },
   "edge_struct_dominant": {
@@ -102,6 +122,7 @@
       "f1-closing.png",
       "f1-cover.png",
       "f1-data.png",
+      "f1-full-b.png",
       "f1-full.png",
       "f1-stress-d2.png",
       "f1-stress-d3.png",
@@ -122,10 +143,10 @@
     ]
   },
   "centroid": {
-    "cx_mean": 0.4341,
-    "cx_std": 0.0808,
-    "cy_mean": 0.4893,
-    "cy_std": 0.0654
+    "cx_mean": 0.4531,
+    "cx_std": 0.1009,
+    "cy_mean": 0.5009,
+    "cy_std": 0.0672
   },
   "baseline_28": {
     "skeleton_corr_mean": 0.4594,

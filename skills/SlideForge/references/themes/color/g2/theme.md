@@ -118,6 +118,13 @@
 
 ```yaml
 doctrine: 重点不是写出来的，是被划出来的；阅读的痕迹本身就是信息结构。
+
+page_composition:
+  skeleton: 非对称两栏（正文 : 批注 ≈ 58 : 4 : 38）
+  grid: {margin: 120, gutter: 40, text_col: 980, index_col: 560}
+  balance: {anchor: 正文栏(左), counterweight: 批注索引脊(右)}
+  whitespace_ratio: "≥50%"
+  flow: "左 → 右：正文行 → 荧光引线 → 批注索引脊"
 signature_operator: 把页面拆成笔记正文层与标注索引层两套坐标——正文拆成带行号的等距行、只占左 2/3；
   被标注的关键词从正文抽出，按标注发生顺序在右 1/3 生成一条纵向标注索引脊，
   每个索引项用一根水平荧光引线连回它原来的正文行（引线 y 与行 y 严格对齐）；

@@ -108,6 +108,10 @@
     "id": "f1-data"
   },
   {
+    "thumb": "f1-full-b.thumb.png",
+    "id": "f1-full-b"
+  },
+  {
     "thumb": "f1-full.thumb.png",
     "id": "f1-full"
   },

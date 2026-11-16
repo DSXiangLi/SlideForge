@@ -99,6 +99,13 @@
 ```yaml
 
 doctrine: 一幅画是分版落印出来的；信息的先后就是版次的先后。
+
+page_composition:
+  skeleton: 对角线纵深（前景大物 → 远景）
+  grid: {margin: 120, gutter: 40}
+  balance: {anchor: 前景版(右下,重), counterweight: 印章(右上) + 远景(左上,轻)}
+  whitespace_ratio: "≥55%"
+  flow: "对角：远景(左上,轻) → 中景 → 前景(右下,重)；上 1/3 留白做天空"
 signature_operator: 把整页当作一张套色版画——横贯全宽的云霞/浪花带把画幅切成 2–3 个版次层，
   每层是一次独立落印的平涂色面；标题独占首版色面（信息容器，不是角标），
   说明与数字按版次逐层下移，每层左缘递增一个固定套印版差；
