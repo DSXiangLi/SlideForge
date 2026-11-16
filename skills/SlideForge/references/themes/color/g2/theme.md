@@ -95,7 +95,7 @@
 - **词汇**：荧光高亮带（`.mt-hl-mark`——半截渐变色带垫关键词，色随 `--hl-c`，四色各一档变体类）/ 荧光圈注（`.mt-hl-circle`——椭圆荧光描边圈住短语，像随手画的圈）/ 纸胶带（`.mt-hl-tape`——半透明胶带条贴便签顶角，固定感）
 
 ```css
-:root{--t-display:112px;--t-hero:140px;--t-body:24px}
+:root{--t-display:128px}
 /* G2 腮红荧光笔 · 装饰母题 */
 .mt-hl-mark{background:linear-gradient(180deg,transparent 58%,color-mix(in srgb,var(--hl-c,var(--hl-1)) 60%,transparent) 58%,color-mix(in srgb,var(--hl-c,var(--hl-1)) 60%,transparent) 92%,transparent 92%);padding:0 .08em}
 .mt-hl-mark--2{--hl-c:var(--hl-2)}
@@ -104,8 +104,11 @@
 .mt-hl-circle{border:2.5px solid color-mix(in srgb,var(--hl-c,var(--hl-1)) 80%,transparent);border-radius:50%;padding:.1em .3em;transform:rotate(-1.5deg)}
 .mt-hl-tape{position:absolute;width:88px;height:24px;background:color-mix(in srgb,var(--hl-c,var(--hl-1)) 45%,transparent);transform:rotate(-4deg);pointer-events:none}
 .mt-hl-lineno{position:absolute;width:56px;text-align:right;color:color-mix(in srgb,var(--ink) 45%,transparent);font-family:var(--font-mono)}
-.mt-hl-lead{position:absolute;height:5px;background:color-mix(in srgb,var(--hl-c,var(--hl-1)) 60%,transparent);pointer-events:none}
-.mt-hl-index{position:absolute;border-left:3px solid var(--hl-c,var(--hl-1));padding-left:14px}
+.mt-hl-note{position:absolute;border:1px solid color-mix(in srgb,var(--ink) 15%,transparent);border-radius:10px;background:var(--paper-tint);padding:14px 20px;transform:rotate(.6deg)}
+.mt-hl-note--alt{transform:rotate(-.8deg)}
+.mt-hl-note--hl2{border-left:3px solid var(--hl-2)}
+.mt-hl-note--hl3{border-left:3px solid var(--hl-3)}
+.mt-hl-note--hl4{border-left:3px solid var(--hl-4)}
 ```
 
 - **禁忌**：高亮带每处只标 1–3 词（标整段等于没划）；圈注每页 ≤1 处；胶带只贴便签顶角；`.mt-hl-mark`/`.mt-hl-circle` 是文本载体类母题（加在真实文本上，文本保持可编辑），其余母题件一律 `data-editable-skip`
@@ -113,42 +116,43 @@
 **G10 composition_program**
 
 - **定位**：主题从「可替换参数集」升级为「决定信息如何进入空间的程序」。本组为硬约束，写进页计划表头即整 deck 的构图契约。
-- **灵魂承载**：荧光引线从「垫在词下的渐变」升级为连接两个信息层的结构件；引线由 CSS 承担（data-editable-skip），两端文字仍是 data-editable 叶子节点。
-- **DOM 结构测试签署**：删掉 signature_operator，右侧整条索引脊、全部水平引线、行号列与页边批注消失，正文退回通栏两段；元素数量/分组/位置**都变** → **PASS**。
+- **灵魂承载**：高亮带和便签是签名结构件——高亮带垫在关键词下（文本载体类，文本保持可编辑），便签由 CSS 承担（data-editable-skip），内部文字仍是 data-editable 叶子节点。
+- **DOM 结构测试签署**：删掉 signature_operator，便签浮层、高亮标注、行号列全部消失，正文退回通栏两段；元素数量/分组/位置**都变** → **PASS**。
 
 ```yaml
 doctrine: 重点不是写出来的，是被划出来的；阅读的痕迹本身就是信息结构。
 
 page_composition:
-  skeleton: 非对称两栏（正文 : 批注 ≈ 58 : 4 : 38）
-  grid: {margin: 120, gutter: 40, text_col: 980, index_col: 560}
-  balance: {anchor: 正文栏(左), counterweight: 批注索引脊(右)}
-  whitespace_ratio: "≥50%"
-  flow: "左 → 右：正文行 → 荧光引线 → 批注索引脊"
-signature_operator: 把页面拆成笔记正文层与标注索引层两套坐标——正文拆成带行号的等距行、只占左 2/3；
-  被标注的关键词从正文抽出，按标注发生顺序在右 1/3 生成一条纵向标注索引脊，
-  每个索引项用一根水平荧光引线连回它原来的正文行（引线 y 与行 y 严格对齐）；
-  三项数字作为页边批注贴在各自笔记行外侧，不独立成格。
-silhouette: 左纵向笔记栏 + 右标注索引脊；水平引线矩阵；重心左；右上 ≥15% 主动留白。
+  skeleton: 单栏流式正文 + 嵌入式便签标注
+  grid: {margin: 120, gutter: 40, text_width: 1280, note_width: 420}
+  balance: {anchor: 正文流(主宽), counterweight: 便签标注(右侧浮动)}
+  whitespace_ratio: "≥45%"
+  flow: "上 → 下：正文自然流动 → 关键词高亮 → 便签标注浮在对应位置右侧"
+signature_operator: 把页面组织成单栏流式正文（占主宽 ~75%）+ 嵌入式便签标注浮层——
+  正文自然流动不拆行号，关键词底部垫荧光高亮带（四色封闭制，每页 ≤2 色）；
+  标注（关键词解释/数字/补充说明）以微旋转便签（±0.8°）形式浮在正文右侧对应位置，
+  便签用 paper-tint 面 + 细描边 + 荧光色左边线；
+  三项数字作为便签贴在各自对应正文段右侧，不独立成格。
+silhouette: 单栏主宽正文 + 右侧便签浮层；高亮带在词下；重心左；便签微旋转。
 info_grammar:
-  cover:    一行手写体巨标 + 一道荧光带；索引脊收束为单个标签
-  toc:      3–6 行带行号目录，右侧同数索引项，引线逐行对齐
-  claim:    主张句独占正文首行；关键词抽出到索引脊首位
-  analysis: 3–6 行带行号正文 + 同数索引项，引线一一对应
-  data:     三项数字 → 三条页边批注（贴对应笔记行外侧，顺序 = 正文行序）
-  closing:  引线全部收回，索引脊收束为一条荧光带
+  cover:    一行圆体巨标 + 关键词荧光带；右下角一枚便签写副标题
+  toc:      3–6 项目录自然排列，关键词高亮，便签贴在右侧标注章节类型
+  claim:    主张句独占正文首段（关键词高亮）；说明便签浮在右侧
+  analysis: 3–6 段正文自然流动，关键词高亮 + 便签标注浮在对应段右侧
+  data:     三项数字 → 三枚便签贴在对应正文段右侧，微旋转
+  closing:  正文收束，高亮带回押，便签收为一条荧光带
 type_scale:            # px@1920×1080 画布基准；下限由骨架 .t-* 的 max() 结构性锁定
-  --t-display: 112px  # 圆体亲切，压强让位给「划重点」；与正文 3.20:1
-  --t-body:    24px  # 正文段落（长段落可读）；图注/说明走 caption 18、注脚走 meta 15
+  --t-display: 128px  # 圆体亲切但有气势；与正文 4.6:1
   rule: 标题:正文 ≥1.8:1；正文层 opacity = 1，禁灰化弱读；荧光色只进标注层，禁做容器面与正文文字色
-  floor_note: heading/subhead/caption/meta 不覆盖，继承骨架 64/40/18/15；地板由 max() 保证，无需后拦截门禁
+  floor_note: body/heading/subhead/caption/meta 不覆盖，继承骨架 28/64/40/18/15；地板由 max() 保证，无需后拦截门禁
 invariants:
-  - 行号列存在且相邻行 y 差恒定 ±2px
-  - 引线数 = 索引项数 ≥1，且每条引线 y 与对应正文行 y 偏差 ≤2px
-  - 正文层位于左 2/3、索引脊位于右 1/3，两栏不交叠
+  - 正文占主宽（≥70%），便签浮在右侧不遮挡正文阅读区
   - 荧光标注 ≤4 处且同页 ≤2 色（G1 多色立场）
+  - 便签微旋转 ±0.8°，paper-tint 面 + 细描边 + 荧光左边线
+  - 同组便签同宽，KPI 便签内字号一致（heading 64px）
+  - 便签 y 位置与对应正文段 y 偏差 ≤30px
   - 横排等权三格容器数 = 0
-forbidden_defaults: [横向等权三格 KPI, 便签卡成阵, 居中内容带, solid hairline, 整段高亮, 荧光色做容器面, 投影]
+forbidden_defaults: [横向等权三格 KPI, 便签卡成阵, 居中内容带, solid hairline, 整段高亮, 荧光色做容器面, 投影, 机械双栏坐标]
 dna_events: {cover: 中, claim: 强, analysis: 强, data: 中, toc: 弱, closing: 中}
 ```
 

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Phase 6 Batch1 v2 · Step 4a rev3 · 标杆页 A/B 对比</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#15181e;font-family:"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif;color:#e8ebf0}
+.wrap{max-width:1920px;margin:0 auto;padding:30px 20px 80px}
+.hd{text-align:center;margin-bottom:8px;font-size:22px;font-weight:600}
+.sub{text-align:center;margin-bottom:28px;font-size:13px;line-height:1.7;color:#8b93a3}
+.audit{text-align:center;margin-bottom:20px;font-size:13px;color:#8b93a3}
+.audit span{display:inline-block;margin:0 8px;padding:2px 10px;border-radius:4px;background:#1e2228}
+.audit .ok{color:#4ade80}
+.audit .warn{color:#fbbf24}
+.theme-block{margin-bottom:40px}
+.theme-label{font-size:18px;font-weight:600;margin-bottom:12px;padding:8px 16px;border-radius:8px;background:#1e2228;display:inline-block}
+.pair{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.pair > div{text-align:center}
+.pair img{width:920px;border:1px solid #2a2e36;border-radius:8px}
+.pair .cap{font-size:13px;color:#9aa3b4;margin-bottom:6px}
+.dir{font-size:13px;color:#8b93a3;margin-top:8px;line-height:1.6;max-width:1840px}
+.dir b{color:#dbe0ea}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hd">Phase 6 · 批次 1 v2 · Step 4a rev3 · 标杆页</div>
+  <div class="sub">
+    同一份「山禾集 1.1」内容 × 4 套新 G10 构图程序 × 8 页（4 claim + 4 full）<br>
+    rev3 全审计通过（9 项 0 违规），请目视确认方向，通过后铺 40 页
+  </div>
+  <div class="audit">
+    <span class="ok">画布越界 0</span>
+    <span class="ok">容器溢出 0</span>
+    <span class="ok">内容溢出 0</span>
+    <span class="ok">弱读 0</span>
+    <span class="ok">文本重叠 0</span>
+    <span class="ok">裸写字号 0</span>
+    <span class="ok">字号地板 0 违规</span>
+    <span class="ok">pageErrors 0</span>
+    <span class="ok">层级落差 ≥6.4:1</span>
+  </div>
+
+  <div class="theme-block">
+    <div class="theme-label">E6 孟菲斯 · 几何拼贴构图</div>
+    <div class="dir"><b>方向</b>：色面碰撞形成不对称分区——矩形+圆形+之字带混合形状。糖果色实色面承载信息，3px 墨粗描边给实体感。不对称平衡：大色面在左，小色面+圆形+彩纸屑在右。<b>KPI 底部三块同宽同高</b>（540×240），焦点用 accent 填充区分不用尺寸区分。设计原理：容器组一致性 + 页面容量控制。</div>
+    <div class="pair">
+      <div><div class="cap">claim 页（低密度）</div><img src="png/e6-claim.png"></div>
+      <div><div class="cap">full 页（高密度）</div><img src="png/e6-full.png"></div>
+    </div>
+  </div>
+
+  <div class="theme-block">
+    <div class="theme-label">G2 腮红荧光笔 · 单栏流式 + 便签浮层</div>
+    <div class="dir"><b>方向</b>：正文占主宽（~75%），关键词荧光高亮，便签以微旋转（±0.8°）浮在右侧对应位置。便签 paper-tint 面 + 荧光色左边线。KPI 作为便签贴在对应段右侧。<b>所有便签同宽 340px</b>，不是机械双栏，是手账的有机感。设计原理：同组容器同宽 + 页面容量控制。</div>
+    <div class="pair">
+      <div><div class="cap">claim 页（低密度）</div><img src="png/g2-claim.png"></div>
+      <div><div class="cap">full 页（高密度）</div><img src="png/g2-full.png"></div>
+    </div>
+  </div>
+
+  <div class="theme-block">
+    <div class="theme-label">E7 浮世绘 · 日式不对称三分法</div>
+    <div class="dir"><b>方向</b>：前景深墨面（木刻墨版，深墨底+纸色字）承载核心信息，位置随页型变化。余白是主动构图元素（内有远山剪影/云霞横带），不是死白。印章落余白平衡点。明度签名 = 浅纸深块（与 F1 相反）。<b>同页同类色面同尺寸</b>，余白区文字宽度受控不与前景面重叠。设计原理：容器尺寸统一 + 文字容量与容器匹配。</div>
+    <div class="pair">
+      <div><div class="cap">claim 页（低密度）</div><img src="png/e7-claim.png"></div>
+      <div><div class="cap">full 页（高密度）</div><img src="png/e7-full.png"></div>
+    </div>
+  </div>
+
+  <div class="theme-block">
+    <div class="theme-label">F1 浮光玻璃 · 中心聚焦单玻璃</div>
+    <div class="dir"><b>方向</b>：一块大玻璃水平居中（占 56% 画宽），四角光斑弥漫，玻璃内纵向信息流。深底 + 中心亮块（明度签名与 E7 相反）。玻璃不是小卡片——大到够分量。光斑强度 62%。<b>所有玻璃容器 border-radius 统一 24px</b>（不再混用 999px 胶囊），同组 KPI chip 同尺寸。设计原理：圆角统一 + 容器组一致性。</div>
+    <div class="pair">
+      <div><div class="cap">claim 页（低密度）</div><img src="png/f1-claim.png"></div>
+      <div><div class="cap">full 页（高密度）</div><img src="png/f1-full.png"></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

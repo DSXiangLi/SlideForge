@@ -108,7 +108,7 @@
 
 ```css
 /* E6 Memphis 孟菲斯 · 装饰母题 + 缓动签名 */
-:root{--ease-out:cubic-bezier(.5,1.7,.4,1);--t-display:132px;--t-body:24px}
+:root{--ease-out:cubic-bezier(.5,1.7,.4,1);--t-display:132px}
 .mt-mem-confetti{position:absolute;inset:0;pointer-events:none;user-select:none;overflow:hidden}
 .mt-mem-confetti i{position:absolute;display:block;--pc:var(--palette-1)}
 .mt-mem-confetti .mt-mem-c2{--pc:var(--palette-2)}
@@ -119,10 +119,11 @@
 .mt-mem-ring{width:16px;height:16px;border:3px solid var(--ink);border-radius:50%}
 .mt-mem-zig{height:12px;pointer-events:none;background-image:linear-gradient(135deg,var(--ink) 25%,transparent 25%),linear-gradient(225deg,var(--ink) 25%,transparent 25%);background-size:16px 12px;background-repeat:repeat-x}
 .mt-mem-card{border:3px solid var(--ink);border-radius:14px;background:var(--paper);box-shadow:8px 8px 0 color-mix(in srgb,var(--accent) 85%,var(--ink))}
-.mt-mem-path{position:absolute;inset:0;pointer-events:none;user-select:none}
-.mt-mem-path::before{content:"";position:absolute;left:2%;top:78%;width:96%;height:12px;background-image:linear-gradient(135deg,var(--ink) 25%,transparent 25%),linear-gradient(225deg,var(--ink) 25%,transparent 25%);background-size:24px 12px;transform:rotate(-12deg);opacity:.55}
-.mt-mem-block{position:absolute;border:3px solid var(--ink);border-radius:14px;background:var(--paper);padding:20px 26px}
+.mt-mem-block{position:absolute;border:3px solid var(--ink);border-radius:14px;padding:20px 26px}
+.mt-mem-block--ink{background:var(--ink);color:var(--paper)}
 .mt-mem-block--focus{box-shadow:8px 8px 0 color-mix(in srgb,var(--accent) 85%,var(--ink))}
+.mt-mem-circle{position:absolute;border:3px solid var(--ink);border-radius:50%}
+.mt-mem-bar{position:absolute;height:12px;pointer-events:none;background-image:linear-gradient(135deg,var(--ink) 25%,transparent 25%),linear-gradient(225deg,var(--ink) 25%,transparent 25%);background-size:16px 12px;background-repeat:repeat-x}
 .mt-mem-step{display:inline-block;width:1.6em;height:.32em;background:var(--ink);margin-right:.5em;vertical-align:middle}
 ```
 
@@ -131,43 +132,44 @@
 **G10 composition_program**
 
 - **定位**：主题从「可替换参数集」升级为「决定信息如何进入空间的程序」。本组为硬约束，写进页计划表头即整 deck 的构图契约。
-- **灵魂承载**：之字路径与积木是签名结构件，形状由 CSS 承担（data-editable-skip），其内部承载的文字仍是 data-editable 叶子节点。
-- **DOM 结构测试签署**：删掉 signature_operator，页面回到「标题 + 两段正文 + 横排三格 KPI」，之字路径、积木分组、阶梯宽度、palette 轮转顺序、数字台阶全部消失，元素数量/分组/顺序/位置**都变** → **PASS**。
+- **灵魂承载**：几何色面是签名结构件，形状由 CSS 承担（data-editable-skip），其内部承载的文字仍是 data-editable 叶子节点。
+- **DOM 结构测试签署**：删掉 signature_operator，页面回到「标题 + 两段正文 + 横排三格 KPI」，几何色面拼贴、色面形状差异、不对称平衡、palette 轮转全部消失，元素数量/分组/顺序/位置**都变** → **PASS**。
 
 ```yaml
 
-doctrine: 反叛的秩序；信息不是被摆进格子，而是被一串有重量的积木沿路径推着走。
+doctrine: 反叛的秩序；信息不是被摆进格子，而是被几何色面碰撞出来的分区承载。
 
 page_composition:
-  skeleton: 模块网格 + Z 型动线
-  grid: {margin: 120, gutter: 40, columns: 12}
-  balance: {anchor: 标题块(左上), counterweight: 右上装饰块}
-  whitespace_ratio: "≥50%"
-  flow: "Z 型：标题(左上) → 装饰(右上) → 正文两栏(中) → 数据三块(下) → 页脚"
-signature_operator: 把每条信息编译成一块 2px 彩色描边的白底积木，用一条之字折线把它们串成单向路径：
-  积木沿路径吸附、填充按 palette 固定顺序轮转（彩色只作描边/编号/彩纸屑点缀，不作承载正文的面）；
-  标题独占一块大积木（唯一 accent 焦点 + 硬偏移影），正文两块等大等 y 并排；
-  三项数字重排为三块等宽等 y 横排，主数字带「行业前列」accent 标签。
-silhouette: 左缘 140 / 右缘 1800 的统一网格；圆角矩形白底积木 + 彩色描边；重心左上；之字线为背景路径。
+  skeleton: 几何拼贴（无固定主轴，不对称平衡）
+  grid: {margin: 120, gutter: 40}
+  balance: {anchor: 大色面(主信息区), counterweight: 小色面/圆形/之字带(对侧)}
+  whitespace_ratio: "≥40%"
+  flow: "不对称：大色面承载核心信息 → 碰撞色面承载辅助信息 → 彩纸屑散布做氛围"
+signature_operator: 把每条信息编译成一块几何色面——矩形/圆形/之字带碰撞形成不对称分区，
+  色面填充按 palette 固定顺序轮转（粉/黄/蓝/绿），3px 墨粗描边给色面以实体感；
+  标题独占一块大色面（accent 焦点 + 8px 硬偏移影），正文在相邻色面上（反白或深色 on 糖果色）；
+  三项数字重排为沿底部排列的三块色面（大小递减，非等宽），主数字带 accent 标签；
+  之字线/彩纸屑是构图的一部分（色面的兄弟节点），不是背景装饰。
+silhouette: 多色面碰撞构图；矩形+圆形+之字带混合形状；不对称平衡（大色面一侧，小色面+彩纸屑另一侧）；重心不在画布中心。
 info_grammar:
-  cover:    单块超大积木吞掉标题 + 之字线自页面左下引入
-  toc:      3–5 块等大积木沿路径前段吸附，palette 轮转编号
-  claim:    论点句独占焦点积木（唯一 accent + 硬偏移影），说明位于路径第二块
-  analysis: 3–5 块白底彩色描边积木沿路径阶梯，palette 按固定顺序轮转
-  data:     三项数字 → 三块等宽等 y 横排，主数字带 accent 标签
-  closing:  焦点积木回到起点方向，之字线收束，彩纸屑一次强形态
+  cover:    一块超大色面吞掉标题（palette-1 填充 + 硬偏移影），右侧散落小几何色面 + 彩纸屑
+  toc:      3–5 块不等大色面碰撞排列，palette 轮转编号，之字带做过渡
+  claim:    论点句独占大色面（唯一 accent + 硬偏移影），说明在相邻小色面上
+  analysis: 3–5 块色面碰撞分区，palette 按固定顺序轮转，每块承载一段信息
+  data:     三项数字 → 三块沿底部排列的等宽等高色面，主数字色面用 accent 填充区分焦点
+  closing:  大色面回到起点方向，之字带收束，彩纸屑一次强形态
 type_scale:            # px@1920×1080 画布基准；下限由骨架 .t-* 的 max() 结构性锁定
-  --t-display: 132px  # 极粗 800 承载积木压强；与正文 5.5:1
-  --t-body:    24px  # 正文段落（长段落可读）；图注/说明走 caption 18、注脚走 meta 15
+  --t-display: 132px  # 极粗 800 承载色面压强；与正文 4.7:1
   rule: 标题:正文 ≥1.8:1；正文层 opacity = 1，禁灰化弱读
-  floor_note: heading/subhead/caption/meta 不覆盖，继承骨架 64/40/18/15；地板由 max() 保证，无需后拦截门禁
+  floor_note: body/heading/subhead/caption/meta 不覆盖，继承骨架 28/64/40/18/15；地板由 max() 保证，无需后拦截门禁
 invariants:
-  - 左缘 140 / 右缘 1800 的统一网格，积木块心对齐网格
-  - 积木描边 2px，palette 色轮转；硬偏移影单页 ≤1、偏移 8px 零模糊
+  - 色面形状 ≥2 种（矩形 + 圆形或之字带），不对称排布
+  - 色面描边 3px ink，填充按 palette 顺序轮转；硬偏移影单页 ≤1、偏移 8px 零模糊
   - accent 焦点单页 ≤1（accent 面积 3–10%）
+  - 同组并列色面 width/height 一致，焦点用 accent 填充区分不用尺寸区分
   - 横排等权三格容器数 = 0
-  - 彩纸屑在 DOM 上是积木的兄弟节点，不进任一积木内部
-forbidden_defaults: [横向等权三格 KPI, 卡片墙成阵, 居中 hero, hairline 分区, 无路径撒布式彩纸屑, 玻璃拟态, 弥散软影]
+  - 彩纸屑在 DOM 上是色面的兄弟节点，不进任一色面内部
+forbidden_defaults: [横向等权三格 KPI, 卡片墙成阵, 居中 hero, hairline 分区, 白底细描边卡, 玻璃拟态, 弥散软影]
 dna_events: {cover: 强, claim: 强, analysis: 中, data: 强, toc: 中, closing: 强}
 ```
 

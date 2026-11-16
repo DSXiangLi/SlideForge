@@ -75,7 +75,7 @@
 - **词汇**：姓名印（.mt-uki-seal：accent 实色小方块 + 反白篆意字，末版右端落款位，每页至多一方）/ 浪花带（.mt-uki-wave：鳞片浪纹横带）/ 云霞横带（.mt-uki-cloud：断续横带，版次层分界）/ 远景题名列（.mt-uki-inscription：右上留白处竖排小字，每页至多一列，**非主标题、非题跋分列**）/ 版次层（.mt-uki-plate：签名结构件，内部文字保持可编辑）/ 版次标号框（.mt-uki-edition：每层右缘的墨线数字框）/ 横带定位（.mt-uki-band）
 
 ```css
-:root{--t-display:96px;--t-body:24px;--t-vertical:72px}
+:root{--t-display:96px;--t-vertical:72px}
 /* E7 浮世绘 · 装饰母题 */
 .mt-uki-seal{display:inline-flex;align-items:center;justify-content:center;width:2.4em;height:2.4em;background:var(--accent);color:var(--accent-on);font-family:var(--font-display);font-weight:700;font-size:20px;line-height:1.15;text-align:center;letter-spacing:.08em;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--accent-on) 40%,transparent)}
 .mt-uki-wave{height:26px;pointer-events:none;user-select:none;background-image:radial-gradient(circle at 13px 26px,transparent 9px,color-mix(in srgb,var(--ink) 55%,transparent) 9px 10.5px,transparent 10.5px),radial-gradient(circle at 13px 26px,transparent 4px,color-mix(in srgb,var(--ink) 55%,transparent) 4px 5.5px,transparent 5.5px);background-size:26px 26px;background-repeat:repeat-x}
@@ -93,42 +93,43 @@
 
 - **定位**：主题从「可替换参数集」升级为「决定信息如何进入空间的程序」。本组为硬约束，写进页计划表头即整 deck 的构图契约。
 - **与 H1 的界限**：H1 是垂直主轴 + 自右向左展开 + 竖排主标题 + 题跋分列；本主题是**水平主轴 + 自上而下分版 + 横排题字 + 逐层左缘错位**，竖排文字每页至多一列且只作远景题名。
-- **灵魂承载**：三个版次层是签名结构件，形状由 CSS 承担（data-editable-skip），层内文字仍是 data-editable 叶子节点；姓名印是唯一句读，不是可随处贴的贴纸。
-- **DOM 结构测试签署**：删掉 signature_operator，对角线三层版次、深墨前景面、版次标号框与右上印章位置全部消失，页面退回「标题 + 两段正文 + 横排三格」；元素数量/分组/顺序/位置**都变** → **PASS**。
+- **灵魂承载**：前景深墨面和余白是签名结构件——深墨面由 CSS 承担（data-editable-skip），面内文字仍是 data-editable 叶子节点；姓名印是构图的平衡砝码，不是角落贴纸。
+- **DOM 结构测试签署**：删掉 signature_operator，前景深墨面、主面/余白不对称构图、印章平衡位置全部消失，页面退回「标题 + 两段正文 + 横排三格」；元素数量/分组/顺序/位置**都变** → **PASS**。
 
 ```yaml
 
-doctrine: 一幅画是分版落印出来的；信息的先后就是版次的先后。
+doctrine: 一幅画是分版落印出来的；余白是主动的构图元素，不是没放东西的空区域。
 
 page_composition:
-  skeleton: 对角线纵深（前景大物 → 远景）
+  skeleton: 日式不对称（主面 / 余白 / 印章三分法）
   grid: {margin: 120, gutter: 40}
-  balance: {anchor: 前景版(右下,重), counterweight: 印章(右上) + 远景(左上,轻)}
-  whitespace_ratio: "≥55%"
-  flow: "对角：远景(左上,轻) → 中景 → 前景(右下,重)；上 1/3 留白做天空"
-signature_operator: 把整页当作一张套色版画——三层版次沿对角线纵深排布：远景(左上,轻,浅纸) → 中景(中,纸色) → 前景(右下,重,深墨面)；
-  前景大版用深墨底 + 纸色字（木刻墨版），标题独占前景版；
-  说明与数字沿对角逐层下沉，每层版次标号框落在层缘；姓名印落右上留白处收束。
-silhouette: 对角线三层纵深（左上轻→右下重）；前景深墨面 vs 远景浅纸（明度签名 = 浅纸深块）；重心右下；上 1/3 留白做天空；右上姓名印。
+  balance: {anchor: 前景深墨面(主信息区), counterweight: 印章(余白平衡点) + 远景(轻)}
+  whitespace_ratio: "≥50%"
+  flow: "不对称：前景深墨面承载核心信息 → 余白呼吸（内有远山/云霞/题名）→ 印章落平衡点"
+signature_operator: 把整页当作一幅浮世绘——前景是一块深墨色面（木刻墨版，深墨底+纸色字），
+  承载标题与核心信息，位置和大小随页型变化（cover 居下满宽、claim 居右下半幅、data 化为三小块沿底部）；
+  余白是主动构图元素（内有远山剪影/云霞横带/题名，不是死白）；
+  姓名印落在余白的视觉平衡点上（对角于前景面），是构图的砝码不是角落装饰；
+  说明与数字沿前景面边缘排布，每项可带版次标号框。
+silhouette: 前景深墨面 + 大面积主动余白 + 印章平衡点；明度签名 = 浅纸深块（与 F1 深底亮块相反）；重心随前景面位置变化。
 info_grammar:
-  cover:    首版满幅平涂 + 题字 + 一枚姓名印；一条浪花带定下缘（单层强形态）
-  toc:      三层短版各容一组章节名，版次标号 一/二/三（弱形态）
-  claim:    首版题字 + 次版论点（两层），一条云霞横带
-  analysis: 三层各容一类信息（题/论/证），层间云霞横带分隔
-  data:     三项数字 → 三层右缘的版次标号框，非横排格
-  closing:  单版收束 + 姓名印回押，与封面闭环
+  cover:    前景深墨面居下满宽（大），题字反白 + 一枚姓名印落右上；浪花带定下缘
+  toc:      前景面居中（中），3–5 组章节名在面内；余白有云霞横带
+  claim:    前景面居右下半幅（中），主张句反白；说明在余白左上
+  analysis: 前景面居下（大），3 类信息在面内分层；余白有远山剪影
+  data:     前景化为三小块沿底部（小而多），各容一项数字；印章落对角
+  closing:  前景面回到单块收束，姓名印回押，与封面闭环
 type_scale:            # px@1920×1080 画布基准；下限由骨架 .t-* 的 max() 结构性锁定
-  --t-display:  96px  # 版画题字恒重，不做压强巨字；与正文 4:1
-  --t-body:     24px  # 正文段落（长段落可读）；图注/说明走 caption 18、注脚走 meta 15
+  --t-display:  96px  # 版画题字恒重，不做压强巨字；与正文 3.4:1
   rule: 标题:正文 ≥1.8:1；正文层 opacity = 1，禁灰化弱读；accent 面积 ≤5%、满屏 accent 禁止（G1 立场）
-  floor_note: heading/subhead/caption/meta 不覆盖，继承骨架 64/40/18/15；地板由 max() 保证，无需后拦截门禁
+  floor_note: body/heading/subhead/caption/meta 不覆盖，继承骨架 28/64/40/18/15；地板由 max() 保证，无需后拦截门禁
 invariants:
-  - 三层版次沿对角线排布（左上轻→右下重），前景版为深墨面（background: var(--ink)）
-  - 前景版文字用纸色（color: var(--paper)），远景/中景为浅纸面
-  - 主标题位于前景深墨版内
-  - 姓名印单页 1 枚且位于右上留白处
-  - 横排等权三格容器数 = 0
-forbidden_defaults: [竖排题跋分列, 上下金轴与卷轴, 横向等权三格 KPI, 卡片墙, 网格矩阵密集排布, 同形重影叠印, 玻璃拟态, 渐变柔光]
+  - 前景深墨面存在（background: var(--ink)），面内文字用纸色（color: var(--paper)）
+  - 前景面位置和大小随页型变化（非每页同一位置同一大小）
+  - 余白内有内容（远山剪影/云霞横带/题名 ≥1），不是死白
+  - 姓名印单页 1 枚且位于余白的视觉平衡点（对角于前景面）
+  - 同页同类色面同尺寸；横排等权三格容器数 = 0
+forbidden_defaults: [竖排题跋分列, 上下金轴与卷轴, 横向等权三格 KPI, 卡片墙, 网格矩阵密集排布, 同形重影叠印, 玻璃拟态, 渐变柔光, 机械对角线三层纵深]
 dna_events: {cover: 强, claim: 中, analysis: 强, data: 中, toc: 弱, closing: 强}
 ```
 
