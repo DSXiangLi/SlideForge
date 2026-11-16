@@ -3,7 +3,7 @@
  */
 const fs = require('fs');
 const path = require('path');
-const ROOT = 'C:/Users/lixiang/Desktop/SlideForge';
+const ROOT = path.resolve(__dirname, '../../..');
 const T = (p) => path.join(ROOT, 'skills/SlideForge/references/themes', p);
 const FILES = { E6: 'color/e6/theme.md', G2: 'color/g2/theme.md', E7: 'texture/e7/theme.md', F1: 'light/f1/theme.md' };
 const DISPLAY = { E6: '132px', G2: '112px', E7: '96px', F1: '108px' };

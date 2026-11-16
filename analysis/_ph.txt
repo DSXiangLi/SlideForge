@@ -1,6 +1,0 @@
-1  right:8cqw;top:22cqh;writing-mode:vertical-rl;
-1  right:8cqw;top:18cqh;writing-mode:vertical-rl;
-1  right:10cqw;top:22cqh;writing-mode:vertical-rl
-1  toc(){let items=D.toc.map((it,i)=>
-1  </span></div>`).join("");
-done

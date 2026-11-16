@@ -1,6 +1,7 @@
 // 从指纹矩阵计算每套未升级主题的「结构撞脸」指标
 const fs = require('fs');
-const j = JSON.parse(fs.readFileSync('C:/Users/lixiang/Desktop/SlideForge/analysis/_fingerprint.json', 'utf8'));
+const path = require('path');
+const j = JSON.parse(fs.readFileSync(path.join(__dirname, '_fingerprint.json'), 'utf8'));
 const labels = j.matrix_labels;
 const M = j.matrix;
 const N = labels.length;
@@ -20,6 +21,6 @@ for (let i = 0; i < N; i++) {
   });
 }
 rows.sort((a, b) => b.mean - a.mean);
-fs.writeFileSync('C:/Users/lixiang/Desktop/SlideForge/analysis/_fp-skel-rank.txt',
+fs.writeFileSync(path.join(__dirname, '_fp-skel-rank.txt'),
   rows.map(r => [r.file, r.mean, r.max, r.maxWith, r.n80, r.sim_to_mean, r.edge, r.top3].join(' | ')).join('\n'));
 console.log('ok');

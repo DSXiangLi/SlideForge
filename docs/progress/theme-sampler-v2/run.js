@@ -6,10 +6,11 @@
  */
 const fs = require('fs');
 const path = require('path');
-const { chromium } = require('C:/Users/lixiang/.workbuddy/binaries/node/workspace/node_modules/playwright-core');
+// playwright-core 由 PLAYWRIGHT_CORE 环境变量定位（托管 node workspace），避免写死本机路径
+const { chromium } = require(process.env.PLAYWRIGHT_CORE || 'playwright-core');
 
 const DIR = __dirname;
-const CHROME = 'C:/Program Files/Google/Chrome/Application/chrome.exe';
+const CHROME = process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe';
 const KEYS = ['b1', 'c3', 'e5', 'h1'];
 const W = 1920, H = 1080;
 

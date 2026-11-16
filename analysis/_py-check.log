@@ -1,5 +1,0 @@
-Traceback (most recent call last):
-  File "<string>", line 1, in <module>
-    import PIL, numpy; print('PIL',PIL.__version__,'numpy',numpy.__version__)
-    ^^^^^^^^^^^^^^^^^
-ModuleNotFoundError: No module named 'PIL'

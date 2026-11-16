@@ -8,7 +8,7 @@
  */
 const fs = require('fs');
 const path = require('path');
-const ROOT = 'C:/Users/lixiang/Desktop/SlideForge';
+const ROOT = path.resolve(__dirname, '../../..');
 const T = (p) => path.join(ROOT, 'skills/SlideForge/references/themes', p);
 const DIR = path.join(ROOT, 'docs/progress/phase6-batch1');
 const log = [];

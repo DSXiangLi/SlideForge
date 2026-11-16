@@ -2,7 +2,7 @@
 
 > 建立日期：2026-11-12
 > 用途：**新 session 的唯一入口文档**。读完本文即可继续优化剩余主题，无需重放历史对话。
-> 基线：`origin/main` = `9c8d7de`；本地依次追加 `490bfa7`（Phase 1–3）、`da7dca0`（Phase 4–5）、`d4209e9`（handover）、以及 Phase 6 的 `analysis/` 入库提交，**共领先 4 个提交，均未推送**（`git rev-list --count origin/main..HEAD` 可核）。
+> 基线：`origin/main` 原为 `9c8d7de`；**2026-11-16 已把 6 个本地提交推送至 `origin/main`**（Phase 1–3 / 4–5 / handover / analysis 入库 / 批次 1 / 推送前清理），本地与远端一致（`git status -sb` 可核）。
 > 落档约定（用户明确要求）：**每一步变更都必须记录到 `docs/progress/`**。
 
 ---
@@ -352,23 +352,24 @@ docs/progress/
 | `docs/progress/render-check/run.js` | Phase 3 实机渲染校验（含恶意令牌场景） | ✅ |
 | `docs/progress/theme-sampler-v2/build.js` + `run.js` | **可直接复用**的同内容多主题编译器 + 四类版面审计 | ✅ |
 | `docs/progress/theme-sampler-v2/compare.html` | 新旧 A/B 并排页模板 | ✅ |
-| `analysis/G10-主题DNA规范草案.md` | G10 规范草案、验收口径、指纹实测 | ✅ Phase 6 整目录入库（仅本地提交） |
+| `analysis/G10-主题DNA规范草案.md` | G10 规范草案、验收口径、指纹实测 | ✅ Phase 6 入库，已随本次推送公开 |
 | `analysis/_fingerprint.py` / `_fingerprint.json` | 28×28 结构相关矩阵、指纹测量 | ✅ |
 | `analysis/check-dna.py` / `dna-pilot.html` / `dna-soul.html` | 24 页 pilot、盲测演示、check-dna 草案 | ✅ |
 | `analysis/DNA-*.png` / `PILOT-*.png` / `B1-*.png` | 诊断与 pilot 截图 | ✅ |
-| `analysis/_render*.py` / `_patch*.py` / `*.txt` / `*.log` | 渲染、补丁、stdout 诊断转储 | ✅（含本机绝对路径，勿推送公开远端） |
+| `analysis/_render*.py` / `_patch*.py` / `_scan-themes.js` | 渲染、补丁与扫描脚本（路径已相对化，可跨机复跑） | ✅ |
+| `analysis/*.log` / `_*.txt` stdout 转储 | 运行日志（可重跑生成） | ❌ 已从跟踪剔除，`.gitignore` 忽略，只本地保留 |
 | `docs/progress/_logs/theme-sampler-source.html` | 从 git 历史恢复的源 deck | ❌ `.gitignore` 忽略（只本地） |
 | `tests/decks/theme-sampler/index.html` | 原始 sampler（29 section、skeleton v7.4） | ❌ 工作树不存在；可用 `git show 41a3147:tests/decks/theme-sampler/index.html` 取回 |
 
-> ✅ **换机风险已消除（Phase 6）**：用户决策为「修改 `.gitignore`，`analysis/` 整目录入库，全部只按本地提交」，因此不做 4 文件零散迁移。`.gitignore` 已加 `!/analysis/` 显式放行，78 个文件（约 3.2 MB）随本地提交入库，详见 `phase6-analysis-in-repo.md`。**两个边界**：① 提交未 push，干净克隆/另一台机器需先同步本地提交；② 目录内脚本与日志含本机绝对路径，**推送公开远端前必须复核清理**。
+> ✅ **换机风险已消除，并已推送（2026-11-16）**：`analysis/` 的核心判据资产已随本地提交推送到 `origin/main`；运行日志与 stdout 转储在推送前从跟踪中剔除（`.gitignore` 忽略、只本地保留），脚本内的硬编码本机路径已改为相对定位。两个边界：① 干净克隆/另一台机器需同步远端；② 前 5 个提交（含 `fa4666f` / `c1efc3e`）的**历史文本**里仍留有本机路径，当前 HEAD 已无；按用户决策本轮「追加清理提交、不改写已有提交」，若需从历史彻底抹除要另行重写整条提交链。
 
 **本机环境速查（shim 有坑）**
 
 | 项 | 值 |
 |---|---|
-| 托管 Node | `C:/Users/lixiang/.workbuddy/binaries/node/versions/22.22.2-3/node.exe` |
-| playwright-core | `C:/Users/lixiang/.workbuddy/binaries/node/workspace/node_modules/playwright-core`（1.65.0，纯 JS，不下载 Chromium） |
-| 系统 Chrome | `C:/Program Files/Google/Chrome/Application/chrome.exe`（用 `executablePath` 复用） |
+| 托管 Node | 用 `node -v` / `command -v node` 定位（22.x）；路径因机器而异，脚本不写死 |
+| playwright-core | 装在托管 node 的 workspace `node_modules`（1.65.0，纯 JS，不下载 Chromium）；渲染脚本用 `PLAYWRIGHT_CORE` 环境变量定位 |
+| 系统 Chrome | 用 `CHROME_PATH` 环境变量指定 `executablePath`；未设置时回退 Windows 默认安装路径 |
 | 安装方式 | 系统 `npm` 在本 shell 不可用；用 `node "<managed>/node_modules/npm/bin/npm-cli.js" install --prefix <workspace> playwright-core@1.65.0` |
 | shell 缺失命令 | `dirname` / `head` / `tail` / `ls` / `mkdir` / `cat` / `sed` 均不可用或静默失败 → **一律用托管 Node 的 `fs` / `child_process.execFileSync` 代替，命令里不要接管道**；脚本 stdout 可能被吞，重定向到 `.log` 再用 Node 读 |
 | 预览页路径 | 从 `docs/progress/theme-sampler-v2/` 到仓库根是 `../../../`；静态预览服务根跨不到 `assets/`，需加 `onerror` 同源回退 |
@@ -411,13 +412,15 @@ docs/progress/
 | `490bfa7` | Phase 1–3：角色化字号系统 + 编辑器角色下拉 + 实机渲染验收落档（28 文件，+1574/−116） |
 | `da7dca0` | Phase 4–5：同内容重编译 4 主题 + README Gallery 替换 + 落档（27 文件，+2537/−55） |
 | `d4209e9` | Handover 文档（仅本文，+421） |
-| Phase 6 | `.gitignore` 显式放行 `analysis/` + 整目录入库 + 本文同步勘误 + `phase6-analysis-in-repo.md`（仅本地提交） |
+| `fa4666f` | `.gitignore` 放行 `analysis/` + 整目录入库 + 本文同步勘误（**未改写**，历史文本仍含本机路径） |
+| `c1efc3e` | 批次 1：E6/G2/E7/F1 的 G10 构图程序 + 40 页验收包（并行会话提交） |
+| 推送前清理提交 | 剔除 33 个运行日志 / 两批脚本路径相对化 / 文档勘误；作为第 6 个提交追加，不改变前 5 个提交 |
 
-均未 push；`main` 领先 `origin/main` 4 个提交。
+2026-11-16 已全部推送至 `origin/main`，本地与远端一致。
 
 ## 附录 B · 新 session 第一句可以这样说
 
-> 「我读了 `docs/progress/HANDOVER.md`。当前 30 套主题中 B1/C3/E5/H1 已升级，26 套待做。按 §5 从**批次 1（C1 / E7 / G1 / F1）**开始：先补四套的 G10 契约并过 DOM 结构测试，用同一份「山禾集 1.1」内容构造 24 页基线 + 16 页压力集，跑 9 项审计与指纹，出 A/B 验收包后**停下来等你验收**。开始前请确认：① 批次顺序是否照 §5.2；② `analysis/` 已随 Phase 6 整目录本地入库，请确认当前工作副本包含这批未推送的本地提交。」
+> 「我读了 `docs/progress/HANDOVER.md`。当前 30 套主题中 B1/C3/E5/H1 已升级，26 套待做。按 §5 从**批次 1（C1 / E7 / G1 / F1）**开始：先补四套的 G10 契约并过 DOM 结构测试，用同一份「山禾集 1.1」内容构造 24 页基线 + 16 页压力集，跑 9 项审计与指纹，出 A/B 验收包后**停下来等你验收**。开始前请确认：① 批次顺序是否照 §5.2；② `analysis/` 已随 Phase 6 入库并推送至 `origin/main`，请确认当前工作副本已同步。」
 
 ---
 

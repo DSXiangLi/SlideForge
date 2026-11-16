@@ -17,7 +17,7 @@ import sys
 import numpy as np
 from PIL import Image, ImageFilter
 
-ROOT = r"C:\Users\lixiang\Desktop\SlideForge"
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))  # 仓库根，随机器迁移
 SAMPLE = os.path.join(ROOT, "assets", "theme-sampler")
 ANALYSIS = os.path.join(ROOT, "analysis")
 

@@ -1,7 +1,7 @@
 // 扫描 26 套未升级主题的结构指标，输出 JSON 供评审
 const fs = require('fs');
 const path = require('path');
-const ROOT = 'C:/Users/lixiang/Desktop/SlideForge/skills/SlideForge/references/themes';
+const ROOT = path.resolve(__dirname, '../skills/SlideForge/references/themes');
 const DONE = new Set(['b1', 'c3', 'e5', 'h1']);
 const files = [];
 for (const cat of fs.readdirSync(ROOT)) {
@@ -58,8 +58,8 @@ for (const { cat, id, f } of files) {
   });
 }
 out.sort((a, b) => a.id.localeCompare(b.id));
-fs.writeFileSync('C:/Users/lixiang/Desktop/SlideForge/analysis/_scan-themes.json', JSON.stringify(out, null, 2));
+fs.writeFileSync(path.join(__dirname, '_scan-themes.json'), JSON.stringify(out, null, 2));
 // 同时输出紧凑表格
 const rows = out.map(o => [o.id, o.name, o.cat, o.lines, o.hasBake ? 'B' : '-', o.hasG10 ? 'G10' : '-', o.g9CssLines, o.risks.join(','), o.cqwCount, (o.typeScale || '').slice(0, 60), (o.unforgettable || '').slice(0, 90)].join(' | '));
-fs.writeFileSync('C:/Users/lixiang/Desktop/SlideForge/analysis/_scan-themes.txt', rows.join('\n'));
+fs.writeFileSync(path.join(__dirname, '_scan-themes.txt'), rows.join('\n'));
 console.log('done ' + out.length);

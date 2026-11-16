@@ -2,7 +2,7 @@
 import os
 from playwright.sync_api import sync_playwright
 
-ANALYSIS = r"C:\Users\lixiang\Desktop\SlideForge\analysis"
+ANALYSIS = os.path.dirname(os.path.abspath(__file__))
 URL = "file:///" + os.path.join(ANALYSIS, "dna-soul.html").replace("\\", "/")
 NAMES = ["b1", "e5", "c3", "h1"]
 

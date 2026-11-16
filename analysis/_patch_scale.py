@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """E5/H1 toc+low font-harmony patch: coherent 3-tier scale (number~3 / title~2.2 / body~1.8)."""
-import io, sys
+import io, os, sys
 
-P = r"C:/Users/lixiang/Desktop/SlideForge/analysis/dna-pilot.html"
+P = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dna-pilot.html")
 t = io.open(P, encoding="utf-8").read()
 
 EDITS = [
@@ -45,7 +45,7 @@ for old, new in EDITS:
         missed.append((n, old[:70]))
 
 io.open(P, "w", encoding="utf-8", newline="\n").write(t)
-with io.open(r"C:/Users/lixiang/Desktop/SlideForge/analysis/_patch_out.txt", "w", encoding="utf-8") as f:
+with io.open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "_patch_out.txt"), "w", encoding="utf-8") as f:
     f.write("APPLIED %d / %d\n" % (applied, len(EDITS)))
     for n, frag in missed:
         f.write("MISS(count=%d): %s\n" % (n, frag))

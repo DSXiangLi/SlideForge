@@ -3,6 +3,7 @@
 > 日期：2026-11-12
 > 触发：Handover §6 标注「`analysis/` 整目录未入库，换机/克隆即丢判据原始依据」，上一轮询问是否把 4 个关键文件迁移进 `docs/progress/`。
 > 用户决策：**是的，修改 `.gitignore`，把 `analysis/` 提交，都按本地**（即整目录入库，不 push）。
+> 状态更新（2026-11-16）：用户随后要求推送远端，并选择「先清理再全推」。本文 §1–§4 的「不 push」口径已被覆盖，**以 §5 为准**。
 
 ## 1. 决策与口径
 
@@ -49,3 +50,17 @@
 - 干净克隆 / 另一台机器需先同步本地提交，否则 `analysis/` 仍不可见。
 - 若将来要 push 到公开远端：先复核并清理 `analysis/` 内含本机绝对路径与内部研究痕迹的脚本、日志；`.gitignore` 注释已写明这条边界。
 - 本阶段不改变任何主题、骨架、编辑器或 README 内容，只解决「判据原始依据的可追溯性」。
+
+## 5 · 2026-11-16 推送前清理与推送
+
+> 期间并行会话提交了 `c1efc3e`（批次 1），使 `fa4666f` 不再是 HEAD。用户决策：**不改写任何已有提交**，把清理作为新提交追加后全量推送。
+
+| 动作 | 说明 |
+|---|---|
+| 剔除运行日志 | `analysis/*.log`、`analysis/_*.txt`（stdout/错误转储）与 `docs/progress/theme-sampler-v2/run.log` 从跟踪中剔除；文件留在本地，`.gitignore` 加规则忽略。它们含本机绝对路径且可由脚本重跑生成 |
+| 脚本相对化 | `analysis/` 下 8 个 py/js 脚本 + `phase6-batch1/` 下 7 个脚本（共 8 处路径）改为基于 `__file__` / `__dirname` 定位；`render-check/run.js`、`theme-sampler-v2/run.js` 的 `WORK` 用 `path.resolve(__dirname, ...)`；playwright-core 用 `PLAYWRIGHT_CORE`、Chrome 用 `CHROME_PATH`（回退通用系统路径，不含用户名） |
+| 报告与文档 | `render-check/report.json` 的 CORS 文本改为 `<project-root>` 占位；HANDOVER 环境速查表、§0/§6/附录 A/B 的「未推送/本机路径」口径同步勘误 |
+| 提交方式 | 并行会话在我操作期间提交了 `c1efc3e`（批次 1，110 文件），`fa4666f` 已不是 HEAD；按用户决策**不改写任何已有提交**，清理作为第 6 个提交追加 |
+| 推送 | 6 个提交 fast-forward 推送到 `origin/main`（远端原为 `9c8d7de`），非 force |
+
+> 诚实边界：前 5 个提交（含 `fa4666f` 与 `c1efc3e`）的**历史对象**里仍留有本机路径文本，当前 HEAD 已全部清除；本轮按用户决策「追加清理提交、不改写已有提交」执行，若需从 git 历史彻底抹除，须另行重写整条提交链。

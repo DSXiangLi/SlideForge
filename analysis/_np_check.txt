@@ -1,6 +1,0 @@
-Traceback (most recent call last):
-  File "<string>", line 1, in <module>
-    import numpy, PIL; print('managed 3.13 OK', numpy.__version__, PIL.__version__)
-    ^^^^^^^^^^^^^^^^^
-ModuleNotFoundError: No module named 'numpy'
-sys 3.11 OK 2.3.5 10.3.0

@@ -77,3 +77,9 @@ docs/progress/_logs/
 # 注意：目录内脚本/日志含本机绝对路径与内部研究痕迹，按项目约定**只提交
 # 本地、不推送公开远端**；若将来要 push，需先复核并清理这些文件。
 !/analysis/
+
+# 运行日志与 stdout 转储：只本地保留（含本机绝对路径、可由脚本重跑生成）
+# 它们已在 2026-11-16 推送前从跟踪中剔除
+/analysis/*.log
+/analysis/_*.txt
+/docs/progress/theme-sampler-v2/run.log

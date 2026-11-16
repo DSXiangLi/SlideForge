@@ -14,7 +14,7 @@ Phase 1/2 的结论都建立在"静态代码审查 + 数值换算"上：`.t-* { 
 
 | 项 | 值 |
 |---|---|
-| 浏览器 | 系统 Chrome `C:/Program Files/Google/Chrome/Application/chrome.exe` |
+| 浏览器 | 系统 Chrome（用 `CHROME_PATH` 指定 `executablePath`；未设置时回退 Windows 默认安装路径） |
 | 驱动 | `playwright-core@1.65.0`（装入托管 Node workspace，复用系统 Chrome，不下载 Chromium） |
 | 脚本 | `docs/progress/render-check/run.js` |
 | 数据 | `docs/progress/render-check/report.json` |

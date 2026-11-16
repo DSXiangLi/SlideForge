@@ -4,7 +4,7 @@
  */
 const fs = require('fs');
 const path = require('path');
-const ROOT = 'C:/Users/lixiang/Desktop/SlideForge';
+const ROOT = path.resolve(__dirname, '../../..');
 const DIR = path.join(ROOT, 'docs/progress/phase6-batch1');
 const scan = JSON.parse(fs.readFileSync(path.join(ROOT, 'analysis/_scan-themes.json'), 'utf8'));
 const fp = JSON.parse(fs.readFileSync(path.join(ROOT, 'analysis/_fingerprint.json'), 'utf8'));

@@ -1,5 +1,5 @@
 /* phase6-batch1 / build.js
- * 同一份「山禾集 1.1」内容对象 × 4 套 G10 构图程序 × 10 页 = 40 页 sampler。
+ * 同一份「山禾集 1.1」内容对象 × 4 套 G10 构图程序 × 11 页 = 44 页 sampler。
  *
  * 纪律：
  *  - 唯一内容对象 D；渲染函数只消费、不改写文字（压力变体的长文/极长标题也在 D 里定义）。
@@ -10,7 +10,7 @@
  */
 const fs = require('fs');
 const path = require('path');
-const ROOT = 'C:/Users/lixiang/Desktop/SlideForge';
+const ROOT = path.resolve(__dirname, '../../..');
 const DIR = path.join(ROOT, 'docs/progress/phase6-batch1');
 const THEMES = {
   e6: 'color/e6/theme.md', g2: 'color/g2/theme.md',
@@ -105,7 +105,7 @@ const bars = (arr, x, y, w, color) => arr.map((s, i) =>
   `<div style="${pos(x, y + i * 22, w, 12)};background:color-mix(in srgb,var(--accent) ${Math.max(18, s.v)}%,var(--paper));border:1px solid color-mix(in srgb,var(--ink) 20%,transparent)"></div>` +
   text('t-meta', s.n, `${pos(x + w + 12, y + i * 22 - 3, 120, 20)}`)
 ).join('');
-const foot = (id, role, n) => `<div class="mastfoot"><span>${esc(D.footL)}</span><span>${LABEL[id]} · ${role}</span><span>${n} / 40</span></div>`;
+const foot = (id, role, n) => `<div class="mastfoot"><span>${esc(D.footL)}</span><span>${LABEL[id]} · ${role}</span><span>${n} / 44</span></div>`;
 const note = (y = 1000) => text('t-meta', D.note, `${pos(120, y, 1500, 24)}`);
 const kicker = (x, y, s = D.kicker) => text('t-meta', s, `${pos(x, y, 600, 24)};letter-spacing:.1em`);
 
@@ -123,6 +123,21 @@ function E6(p) {
   };
   const step = i => `<span class="mt-mem-step"></span>`;
   const R = p.role, V = p.variant;
+
+  if (R === 'full') {
+    // 完整内容页（与旧 Gallery 同字段逐字一致：kicker/title/p1/p2/kpi×3/creed×3/note/foot）
+    h.push(block(140, 110, 760, 360,
+      `<div class="t-display" style="font-weight:800;white-space:pre-line;line-height:1.05">一杯好茶\n山野作答</div>`, true, 0));
+    h.push(block(140, 490, 640, 250, text('t-caption', D.p1, 'line-height:1.5'), false, 1));
+    h.push(block(820, 490, 640, 250, text('t-caption', D.p2, 'line-height:1.5'), false, 2));
+    D.kpis.forEach((k, i) => h.push(block(140 + i * 380, 760 - i * 24, 360 + i * 20, 170,
+      `<div class="t-heading" style="font-weight:800;line-height:1.1">${esc(k.num)}</div>` +
+      text('t-meta', k.cap, 'margin-top:8px;line-height:1.35'), i === 2, i)));
+    h.push(`<div style="${pos(140, 948, 1400, 30)}">${D.creed.map(c => text('t-caption', c, 'display:inline-block;margin-right:34px')).join('')}</div>`);
+    h.push(note(986));
+    h.push(foot('e6', 'full', p.n));
+    return h.join('\n');
+  }
 
   if (R === 'cover' || V === 'd7') {
     const ttl = V === 'd7' ? D.longTitle : D.title;
@@ -178,6 +193,29 @@ function G2(p) {
   h.push(kicker(100, 96));
   h.push(text('t-meta', '笔记正文层', `${pos(X_TEXT, 150, 400, 24)};font-family:var(--font-mono);letter-spacing:.14em`));
   h.push(text('t-meta', '标注索引脊', `${pos(X_IDX, 150, 400, 24)};font-family:var(--font-mono);letter-spacing:.14em`));
+
+  if (R === 'full') {
+    // 完整内容页（与旧 Gallery 同字段逐字一致）
+    h.push(`<div class="t-display" style="${pos(120, 86, 1500, 230)};font-weight:700;white-space:pre-line;line-height:1.02"><span class="mt-hl-mark">一杯好茶\n山野作答</span></div>`);
+    h.push(text('t-meta', D.subtitle, `${pos(120, 326, 800, 22)}`));
+    const rows = [D.p1.slice(0, 58), D.p1.slice(58), D.p2.slice(0, 55), D.p2.slice(55, 110), D.p2.slice(110)];
+    rows.forEach((s, i) => {
+      const y = 380 + i * 88;
+      h.push(lineNo(y, i) + text('t-caption', s, `${pos(X_TEXT, y, 960, 74)};line-height:1.4`) + lead(y, i));
+    });
+    D.kpis.forEach((k, i) => {
+      const y = 380 + i * 88;
+      h.push(text('t-subhead', k.num, `${pos(X_IDX, y, 420, 46)};font-weight:700`) +
+        text('t-meta', k.cap, `${pos(X_IDX, y + 44, 440, 20)};line-height:1.3`));
+    });
+    D.creed.forEach((c, i) => {
+      const y = 380 + (3 + i) * 88 - 8;
+      h.push(text('t-caption', c, `${pos(X_IDX, y, 440, 40)};line-height:1.35`));
+    });
+    h.push(note(1015));
+    h.push(foot('g2', 'full', p.n));
+    return h.join('\n');
+  }
 
   if (R === 'cover' || V === 'd7') {
     const ttl = V === 'd7' ? D.longTitle : D.title;
@@ -235,6 +273,29 @@ function E7(p) {
   h.push(`<div class="bg-layer"></div>`);
   h.push(kicker(120, 96));
   h.push(`<div class="t-meta" style="${pos(1810, 40, 60, 150)};writing-mode:vertical-rl;letter-spacing:.2em">远景题名</div>`);
+
+  if (R === 'full') {
+    // 完整内容页（与旧 Gallery 同字段逐字一致）
+    const P = (i, y, hh, inner, ed, first) =>
+      `<div class="mt-uki-plate ${first ? 'mt-uki-plate--first' : ''}" data-plate="${i + 1}" style="${pos(i * 48, y, 1920 - i * 48, hh)}">${inner}` +
+      `<div class="mt-uki-edition t-meta" style="${pos(1700 - i * 48, 18, 140, 40)}">版次 ${esc(ed)}</div></div>`;
+    h.push(P(0, 150, 270,
+      `<div class="t-display" style="${pos(40, 28, 1500, 170)};font-weight:700;white-space:pre-line;line-height:1.02">一杯好茶\n山野作答</div>` +
+      text('t-meta', D.subtitle, `${pos(40, 210, 900, 22)}`), '一', true));
+    h.push(P(1, 470, 230,
+      text('t-caption', D.p1, `${pos(40, 26, 1500, 80)};line-height:1.5`) +
+      text('t-caption', D.p2, `${pos(40, 110, 1500, 90)};line-height:1.5`), '二', false));
+    h.push(P(2, 750, 210,
+      D.kpis.map((k, i) => text('t-heading', k.num, `${pos(40 + i * 560, 24, 500, 80)};font-weight:700`) +
+        text('t-meta', k.cap, `${pos(40 + i * 560, 108, 500, 36)}`)).join('') +
+      `<div style="${pos(40, 156, 1500, 28)}">${D.creed.map(c => text('t-caption', c, 'display:inline-block;margin-right:28px')).join('')}</div>`, '三', false));
+    h.push(band(440, 'mt-uki-cloud'));
+    h.push(band(720, 'mt-uki-cloud'));
+    h.push(`<span class="mt-uki-seal" style="${pos(1740, 900, 96, 96)}">茶</span>`);
+    h.push(note(1015));
+    h.push(foot('e7', 'full', p.n));
+    return h.join('\n');
+  }
 
   if (R === 'cover' || V === 'd7') {
     const ttl = V === 'd7' ? D.longTitle : D.title;
@@ -301,6 +362,21 @@ function F1(p) {
     `<div class="mt-gls-axis" data-axis="12" style="${pos(100, 800, 1700, 1)};transform:rotate(-12deg)"></div></div>`);
   h.push(kicker(120, 96));
 
+  if (R === 'full') {
+    // 完整内容页（与旧 Gallery 同字段逐字一致）：三层玻璃深度栈，近/中/远景
+    h.push(`<div class="mt-gls-depth" data-depth="1" style="${pos(140, 130, 1120, 430)};z-index:3;background:linear-gradient(155deg,color-mix(in srgb,var(--paper) 88%,transparent),color-mix(in srgb,var(--paper) 66%,transparent))">` +
+      `<div class="t-display" style="${pos(60, 54, 1000, 170)};font-weight:400;white-space:pre-line;line-height:1.02">一杯好茶\n山野作答</div>` +
+      `<div style="${pos(60, 240, 1000, 56)}">${D.kpis.map((k, i) => `<span class="mt-gls-chip-n" style="display:inline-flex;margin-right:18px"><span class="t-subhead" style="font-weight:600">${esc(k.num)}</span></span>`).join('')}</div>` +
+      `<div style="${pos(60, 306, 1000, 90)}">${D.kpis.map((k, i) => text('t-meta', k.cap, `display:inline-block;width:${i === 2 ? 320 : 300}px;margin-right:18px;line-height:1.3`)).join('')}</div>` + `</div>`);
+    h.push(`<div class="mt-gls-depth" data-depth="2" style="${pos(620, 580, 1040, 360)};z-index:2;background:linear-gradient(155deg,color-mix(in srgb,var(--paper) 74%,transparent),color-mix(in srgb,var(--paper) 52%,transparent))">` +
+      `<div style="${pos(50, 40, 940, 300)}">${text('t-caption', D.p1, 'line-height:1.5') + text('t-caption', D.p2, 'line-height:1.5;margin-top:12px')}</div>` + `</div>`);
+    h.push(`<div class="mt-gls-depth" data-depth="3" style="${pos(1200, 300, 580, 240)};z-index:1;background:linear-gradient(155deg,color-mix(in srgb,var(--paper) 60%,transparent),color-mix(in srgb,var(--paper) 38%,transparent))">` +
+      `<div style="${pos(40, 44, 500, 180)}">${D.creed.map(c => text('t-caption', c, 'line-height:1.55;margin-bottom:8px')).join('')}</div>` + `</div>`);
+    h.push(note(1015));
+    h.push(foot('f1', 'full', p.n));
+    return h.join('\n');
+  }
+
   if (R === 'cover' || V === 'd7') {
     const ttl = V === 'd7' ? D.longTitle : D.title;
     h.push(`<div class="mt-gls-depth" data-depth="1" style="${pos(120, 250, 1660, 560)};z-index:3;background:linear-gradient(155deg,color-mix(in srgb,var(--paper) 88%,transparent),color-mix(in srgb,var(--paper) 66%,transparent))">` +
@@ -339,7 +415,7 @@ function F1(p) {
   return h.join('\n');
 }
 
-/* ---------------- 组装 40 页 ---------------- */
+/* ---------------- 组装 44 页 ---------------- */
 const RENDER = { e6: E6, g2: G2, e7: E7, f1: F1 };
 const ROLES = ['cover', 'toc', 'claim', 'analysis', 'data', 'closing'];
 const STRESS = ['d2', 'd3', 'd4', 'd7'];
@@ -347,6 +423,7 @@ const IDS = ['e6', 'g2', 'e7', 'f1'];
 const cases = [];
 IDS.forEach(id => {
   ROLES.forEach(role => cases.push({ id, role, variant: null }));
+  cases.push({ id, role: 'full', variant: null });   // 完整内容页：与旧 Gallery 同字段逐字一致，A/B 用
   STRESS.forEach(variant => cases.push({ id, role: 'stress', variant }));
 });
 cases.forEach((c, i) => c.n = i + 1);
@@ -359,7 +436,7 @@ const html = `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>Phase6 Batch1 · 同一内容 × 4 套 G10 构图程序 · 40 页</title>
+<title>Phase6 Batch1 · 同一内容 × 4 套 G10 构图程序 · 44 页</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{background:#15181e;font-family:"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif}
@@ -391,10 +468,10 @@ ${Object.values(MOTIF).join('\n')}
 </head>
 <body>
 <div class="wrap">
-  <div class="hd">Phase 6 · 批次 1 · 同一份「山禾集 1.1」内容 × 4 套 G10 构图程序 × 40 页</div>
+  <div class="hd">Phase 6 · 批次 1 · 同一份「山禾集 1.1」内容 × 4 套 G10 构图程序 × 44 页</div>
   <div class="sub">基线 24 页（4 套 × 6 页型）＋ 压力 16 页（4 套 × 4 变体）。每页按该主题 signature_operator 重新编译 DOM。<br>
   字号只用骨架 v7.6 的 .t-* 角色类；主题令牌与 G9 母题 CSS 逐字提取自各自 theme.md。</div>
-${cases.map((c, i) => `  <div class="slot"><div class="cap"><span>${LABEL[c.id]} · ${c.role}${c.variant ? ' / ' + c.variant : ''}</span><b>${String(c.n).padStart(2, '0')} / 40</b></div>
+${cases.map((c, i) => `  <div class="slot"><div class="cap"><span>${LABEL[c.id]} · ${c.role}${c.variant ? ' / ' + c.variant : ''}</span><b>${String(c.n).padStart(2, '0')} / 44</b></div>
   ${slides[i]}
   </div>`).join('\n')}
 </div>

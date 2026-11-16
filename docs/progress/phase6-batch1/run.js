@@ -5,12 +5,13 @@
  */
 const fs = require('fs');
 const path = require('path');
-const { chromium } = require('C:/Users/lixiang/.workbuddy/binaries/node/workspace/node_modules/playwright-core');
+// playwright-core 由 PLAYWRIGHT_CORE 环境变量定位（托管 node workspace），避免写死本机路径
+const { chromium } = require(process.env.PLAYWRIGHT_CORE || 'playwright-core');
 
 const DIR = __dirname;
 const PNGDIR = path.join(DIR, 'png');
 if (!fs.existsSync(PNGDIR)) fs.mkdirSync(PNGDIR, { recursive: true });
-const CHROME = 'C:/Program Files/Google/Chrome/Application/chrome.exe';
+const CHROME = process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe';
 const W = 1920, H = 1080;
 const FLOOR = { display: 64, heading: 32, subhead: 24, body: 18, caption: 16, meta: 14, vertical: 64 };
 

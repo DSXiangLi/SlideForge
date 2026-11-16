@@ -6,7 +6,7 @@ import glob, json, os, sys
 import numpy as np
 from PIL import Image
 
-ROOT = r"C:\Users\lixiang\Desktop\SlideForge"
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 sys.path.insert(0, os.path.join(ROOT, "analysis"))
 from _fingerprint import features, corr  # noqa: E402
 

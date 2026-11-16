@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """一次性原子化应用 dna-pilot.html 的全部布局修正。"""
-import io, sys
+import io, os, sys
 
-P = r"C:\Users\lixiang\Desktop\SlideForge\analysis\dna-pilot.html"
+P = os.path.join(os.path.dirname(os.path.abspath(__file__)), "dna-pilot.html")
 s = io.open(P, encoding="utf-8").read()
 n0 = s
 

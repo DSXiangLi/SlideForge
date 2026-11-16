@@ -1,13 +1,14 @@
-const { chromium } = require('C:/Users/lixiang/.workbuddy/binaries/node/workspace/node_modules/playwright-core');
+// playwright-core 由 PLAYWRIGHT_CORE 环境变量定位（托管 node workspace），避免写死本机路径
+const { chromium } = require(process.env.PLAYWRIGHT_CORE || 'playwright-core');
 const path = require('path');
 const fs = require('fs');
 
-const WORK = 'C:/Users/lixiang/Desktop/SlideForge';
+const WORK = path.resolve(__dirname, '../../..');
 const SKELETON = path.join(WORK, 'skills/SlideForge/assets/skeleton.html');
 const EDITOR = path.join(WORK, 'editor.html');
 const OUTDIR = path.join(WORK, 'docs/progress/render-check');
 
-const CHROME = 'C:/Program Files/Google/Chrome/Application/chrome.exe';
+const CHROME = process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe';
 
 // Each theme's :root token override — exact text from theme.md G9 block (px@1920)
 const THEMES = {
