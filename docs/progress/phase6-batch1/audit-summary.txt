@@ -1,5 +1,5 @@
 {
-  "pages": 45,
+  "pages": 44,
   "canvasOverflow": 0,
   "containerOverflow": 0,
   "contentOverflow": 0,
@@ -9,6 +9,6 @@
   "floorViolations": 0,
   "pageErrors": 0,
   "lowDensityRatioMin": 6.4,
-  "baselinePages": 29,
+  "baselinePages": 28,
   "stressPages": 16
 }

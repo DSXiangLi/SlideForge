@@ -82,7 +82,7 @@
 .mt-uki-cloud{height:10px;pointer-events:none;user-select:none;background-image:repeating-linear-gradient(90deg,color-mix(in srgb,var(--accent) 70%,var(--paper)) 0 60px,transparent 60px 88px),repeating-linear-gradient(90deg,color-mix(in srgb,var(--ink) 25%,transparent) 0 34px,transparent 34px 88px);background-position:0 0,14px 5px;background-size:88px 4px,88px 4px;background-repeat:repeat-x}
 .mt-uki-inscription{writing-mode:vertical-rl;font-family:var(--font-display);font-size:.5em;letter-spacing:.35em;color:color-mix(in srgb,var(--ink) 70%,transparent);border-left:1px solid color-mix(in srgb,var(--ink) 40%,transparent);padding-left:.6em}
 .mt-uki-plate{position:absolute;left:0;right:0;background:var(--paper-tint);border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);padding:18px 28px}
-.mt-uki-plate--first{background:color-mix(in srgb,var(--ink-tint) 12%,var(--paper))}
+.mt-uki-plate--first{background:var(--ink);color:var(--paper);border-top:1px solid var(--ink);border-bottom:1px solid var(--ink)}
 .mt-uki-edition{position:absolute;border:1px solid var(--ink);padding:6px 12px;font-family:var(--font-mono)}
 .mt-uki-band{position:absolute;left:0;right:0;height:10px;pointer-events:none}
 ```
@@ -94,7 +94,7 @@
 - **定位**：主题从「可替换参数集」升级为「决定信息如何进入空间的程序」。本组为硬约束，写进页计划表头即整 deck 的构图契约。
 - **与 H1 的界限**：H1 是垂直主轴 + 自右向左展开 + 竖排主标题 + 题跋分列；本主题是**水平主轴 + 自上而下分版 + 横排题字 + 逐层左缘错位**，竖排文字每页至多一列且只作远景题名。
 - **灵魂承载**：三个版次层是签名结构件，形状由 CSS 承担（data-editable-skip），层内文字仍是 data-editable 叶子节点；姓名印是唯一句读，不是可随处贴的贴纸。
-- **DOM 结构测试签署**：删掉 signature_operator，两条横带、三个平涂版次层、逐层 48px 错位、三个版次标号框与末版印章位置全部消失，页面退回「标题 + 两段正文 + 横排三格」；元素数量/分组/顺序/位置**都变** → **PASS**。
+- **DOM 结构测试签署**：删掉 signature_operator，对角线三层版次、深墨前景面、版次标号框与右上印章位置全部消失，页面退回「标题 + 两段正文 + 横排三格」；元素数量/分组/顺序/位置**都变** → **PASS**。
 
 ```yaml
 
@@ -106,11 +106,10 @@ page_composition:
   balance: {anchor: 前景版(右下,重), counterweight: 印章(右上) + 远景(左上,轻)}
   whitespace_ratio: "≥55%"
   flow: "对角：远景(左上,轻) → 中景 → 前景(右下,重)；上 1/3 留白做天空"
-signature_operator: 把整页当作一张套色版画——横贯全宽的云霞/浪花带把画幅切成 2–3 个版次层，
-  每层是一次独立落印的平涂色面；标题独占首版色面（信息容器，不是角标），
-  说明与数字按版次逐层下移，每层左缘递增一个固定套印版差；
-  三项数字作为版次标号压在每层右缘的墨线框内（不并列成格），姓名印落在末版右端收束。
-silhouette: 水平 2–3 层套印带 + 逐层左缘递增错位；水平主结构；重心左下；右上长留白。
+signature_operator: 把整页当作一张套色版画——三层版次沿对角线纵深排布：远景(左上,轻,浅纸) → 中景(中,纸色) → 前景(右下,重,深墨面)；
+  前景大版用深墨底 + 纸色字（木刻墨版），标题独占前景版；
+  说明与数字沿对角逐层下沉，每层版次标号框落在层缘；姓名印落右上留白处收束。
+silhouette: 对角线三层纵深（左上轻→右下重）；前景深墨面 vs 远景浅纸（明度签名 = 浅纸深块）；重心右下；上 1/3 留白做天空；右上姓名印。
 info_grammar:
   cover:    首版满幅平涂 + 题字 + 一枚姓名印；一条浪花带定下缘（单层强形态）
   toc:      三层短版各容一组章节名，版次标号 一/二/三（弱形态）
@@ -124,10 +123,10 @@ type_scale:            # px@1920×1080 画布基准；下限由骨架 .t-* 的 m
   rule: 标题:正文 ≥1.8:1；正文层 opacity = 1，禁灰化弱读；accent 面积 ≤5%、满屏 accent 禁止（G1 立场）
   floor_note: heading/subhead/caption/meta 不覆盖，继承骨架 64/40/18/15；地板由 max() 保证，无需后拦截门禁
 invariants:
-  - 横贯全宽的云霞/浪花带 ≥1 条，画幅被切成 2–3 层
-  - 多层时各层左缘 x 严格递增且步长一致（48px ±2）
-  - 主标题位于首层平涂色面内（信息容器）
-  - 姓名印单页 1 枚且位于末版右端
+  - 三层版次沿对角线排布（左上轻→右下重），前景版为深墨面（background: var(--ink)）
+  - 前景版文字用纸色（color: var(--paper)），远景/中景为浅纸面
+  - 主标题位于前景深墨版内
+  - 姓名印单页 1 枚且位于右上留白处
   - 横排等权三格容器数 = 0
 forbidden_defaults: [竖排题跋分列, 上下金轴与卷轴, 横向等权三格 KPI, 卡片墙, 网格矩阵密集排布, 同形重影叠印, 玻璃拟态, 渐变柔光]
 dna_events: {cover: 强, claim: 中, analysis: 强, data: 中, toc: 弱, closing: 强}

@@ -1,5 +1,5 @@
 /* phase6-batch1 / build.js
- * 同一份「山禾集 1.1」内容对象 × 4 套 G10 构图程序 × 45 页 sampler（含 F1 双变体 full-b）。
+ * 同一份「山禾集 1.1」内容对象 × 4 套 G10 构图程序 × 44 页 sampler。
  *
  * 纪律：
  *  - 唯一内容对象 D；渲染函数只消费、不改写文字。
@@ -105,7 +105,7 @@ const bars = (arr, x, y, w, color) => arr.map((s, i) =>
   `<div style="${pos(x, y + i * 22, w, 12)};background:color-mix(in srgb,var(--accent) ${Math.max(18, s.v)}%,var(--paper));border:1px solid color-mix(in srgb,var(--ink) 20%,transparent)"></div>` +
   text('t-meta', s.n, `${pos(x + w + 12, y + i * 22 - 3, 120, 20)}`)
 ).join('');
-const foot = (id, role, n) => `<div class="mastfoot"><span>${esc(D.footL)}</span><span>${LABEL[id]} · ${role}</span><span>${n} / 45</span></div>`;
+const foot = (id, role, n) => `<div class="mastfoot"><span>${esc(D.footL)}</span><span>${LABEL[id]} · ${role}</span><span>${n} / 44</span></div>`;
 const note = (y = 1000) => text('t-meta', D.note, `${pos(M, y, 1500, 24)}`);
 const kicker = (x, y, s = D.kicker) => text('t-meta', s, `${pos(x, y, 600, 24)};letter-spacing:.1em`);
 
@@ -337,91 +337,57 @@ function E7(p) {
 }
 
 /* =================== F1 浮光玻璃 ===================
- * 骨架（A 对角深度栈）：远景(左上,透) → 中景 → 前景(右下,实)，重心回光学中心。
- * 变体 B（中心聚焦）：单块主玻璃居中，周围大留白 + 柔光斑。 */
+ * 骨架：暗色玻璃 + 中心聚焦——单块主玻璃水平居中，四周大留白 + 对角柔光斑。
+ * 明度签名：整页深底 + 亮玻璃块（与 E7 的浅纸深块相反）。 */
 function F1(p) {
   const h = [];
   const R = p.role, V = p.variant;
-  // A 变体：三层沿左上→右下对角递减
-  const layers = [
-    { x: 120, y: 110, w: 880, h: 240, tx: 160, ty: 140, tw: 800, th: 170, d: 3, a: 56 },
-    { x: 480, y: 370, w: 1040, h: 280, tx: 520, ty: 400, tw: 960, th: 210, d: 2, a: 72 },
-    { x: 820, y: 670, w: 980, h: 320, tx: 860, ty: 700, tw: 900, th: 250, d: 1, a: 88 }
-  ];
-  const layer = (i, inner) => {
-    const L = layers[i];
-    return `<div class="mt-gls-depth" data-depth="${L.d}" style="${pos(L.x, L.y, L.w, L.h)};z-index:${4 - L.d};` +
-      `background:linear-gradient(155deg,color-mix(in srgb,var(--paper) ${L.a}%,transparent),color-mix(in srgb,var(--paper) ${L.a - 22}%,transparent))">` +
-      `<div style="${pos(L.tx - L.x, L.ty - L.y, L.tw, L.th)}">${inner}</div></div>`;
-  };
-  h.push(`<div class="bg-layer"><div class="mt-gls-blob" style="${pos(1180, 60, 620, 620)}"></div><div class="mt-gls-blob" style="${pos(80, 660, 560, 560)}"></div>` +
-    `<div class="mt-gls-axis" data-axis="12" style="${pos(100, 800, 1700, 1)};transform:rotate(-12deg)"></div></div>`);
+  const glass = `linear-gradient(155deg,color-mix(in srgb,var(--accent-on) 12%,transparent),color-mix(in srgb,var(--accent-on) 5%,transparent))`;
+  const panel = (y, hh, inner, x = 360, w = 1200) =>
+    `<div class="mt-gls-depth" data-depth="1" style="${pos(x, y, w, hh)};z-index:3;background:${glass}">${inner}</div>`;
+  h.push(`<div class="bg-layer"><div class="mt-gls-blob" style="${pos(100, 60, 500, 500)}"></div><div class="mt-gls-blob" style="${pos(1320, 520, 520, 520)}"></div></div>`);
   h.push(kicker(M, 96));
 
-  if (R === 'full' && V === 'b') {
-    // 变体 B：中心聚焦——单块主玻璃居中，正文/数据/理念全在其中，四周大留白
-    h.push(`<div class="mt-gls-depth" data-depth="1" style="${pos(360, 150, 1200, 700)};z-index:3;background:linear-gradient(155deg,color-mix(in srgb,var(--paper) 90%,transparent),color-mix(in srgb,var(--paper) 70%,transparent))">` +
+  if (R === 'full') {
+    // 中心聚焦：单块主玻璃居中（full 与 full-b 同构）
+    h.push(panel(150, 700,
       `<div class="t-display" style="${pos(60, 40, 1080, 110)};font-weight:400;white-space:nowrap;line-height:1.05;color:var(--accent)">${ttl}</div>` +
       `<div style="${pos(60, 165, 1080, 80)}">${D.kpis.map((k, i) => `<span class="mt-gls-chip-n" style="display:inline-flex;margin-right:18px"><span class="t-heading" style="font-weight:500">${esc(k.num)}</span></span>`).join('')}</div>` +
       `<div style="${pos(60, 245, 1080, 70)}">${D.kpis.map((k, i) => text('t-meta', k.cap, `display:inline-block;width:${i === 2 ? 360 : 340}px;margin-right:18px;line-height:1.3`)).join('')}</div>` +
       `<div style="${pos(60, 325, 1080, 280)}">${text('t-body', D.p1) + text('t-body', D.p2, 'margin-top:12px')}</div>` +
-      `<div style="${pos(60, 615, 1080, 30)}">${D.creed.map(c => text('t-meta', c, 'display:inline-block;margin-right:22px')).join('')}</div>` + `</div>`);
+      `<div style="${pos(60, 615, 1080, 30)}">${D.creed.map(c => text('t-meta', c, 'display:inline-block;margin-right:22px')).join('')}</div>`));
     h.push(note(900));
-    h.push(foot('f1', 'full/b', p.n));
-    return h.join('\n');
-  }
-
-  if (R === 'full') {
-    // 变体 A：对角深度栈（左缘 120→360→720 对角，重心回光学中心）
-    h.push(`<div class="mt-gls-depth" data-depth="1" style="${pos(720, 560, 1080, 360)};z-index:3;background:linear-gradient(155deg,color-mix(in srgb,var(--paper) 88%,transparent),color-mix(in srgb,var(--paper) 66%,transparent))">` +
-      `<div class="t-display" style="${pos(40, 24, 1000, 110)};font-weight:400;white-space:nowrap;line-height:1.05;color:var(--accent)">${ttl}</div>` +
-      `<div style="${pos(40, 150, 1000, 80)}">${D.kpis.map((k, i) => `<span class="mt-gls-chip-n" style="display:inline-flex;margin-right:16px"><span class="t-heading" style="font-weight:500">${esc(k.num)}</span></span>`).join('')}</div>` +
-      `<div style="${pos(40, 245, 1000, 90)}">${D.kpis.map((k, i) => text('t-meta', k.cap, `display:inline-block;width:${i === 2 ? 320 : 310}px;margin-right:16px;line-height:1.3`)).join('')}</div>` + `</div>`);
-    h.push(`<div class="mt-gls-depth" data-depth="2" style="${pos(360, 340, 1200, 220)};z-index:2;background:linear-gradient(155deg,color-mix(in srgb,var(--paper) 74%,transparent),color-mix(in srgb,var(--paper) 52%,transparent))">` +
-      `<div style="${pos(40, 30, 1120, 160)}">${text('t-body', D.p1)}</div>` + `</div>`);
-    h.push(`<div class="mt-gls-depth" data-depth="3" style="${pos(120, 120, 1120, 220)};z-index:1;background:linear-gradient(155deg,color-mix(in srgb,var(--paper) 60%,transparent),color-mix(in srgb,var(--paper) 38%,transparent))">` +
-      `<div style="${pos(40, 16, 1040, 160)}">${text('t-body', D.p2)}</div>` +
-      `<div style="${pos(40, 182, 1040, 30)}">${D.creed.map(c => text('t-meta', c, 'display:inline-block;margin-right:20px')).join('')}</div>` + `</div>`);
-    h.push(note(1015));
-    h.push(foot('f1', 'full', p.n));
+    h.push(foot('f1', R + (V ? '/' + V : ''), p.n));
     return h.join('\n');
   }
 
   if (R === 'cover' || V === 'd7') {
     const ttl2 = V === 'd7' ? D.longTitle : D.title;
-    h.push(`<div class="mt-gls-depth" data-depth="1" style="${pos(120, 250, 1660, 560)};z-index:3;background:linear-gradient(155deg,color-mix(in srgb,var(--paper) 88%,transparent),color-mix(in srgb,var(--paper) 66%,transparent))">` +
-      `<div class="t-${V === 'd7' ? 'heading' : 'display'}" style="${pos(80, 90, 1480, 320)};font-weight:400;white-space:pre-line">${esc(ttl2.length > 18 ? ttl2.slice(0, 16) + '\n' + ttl2.slice(16) : ttl2)}</div>` +
-      text('t-meta', D.subtitle, `${pos(80, 440, 800, 24)}`) + `</div>`);
+    h.push(panel(220, 560,
+      `<div class="t-${V === 'd7' ? 'heading' : 'display'}" style="${pos(60, 110, 1080, 300)};font-weight:400;white-space:pre-line;text-align:center">${esc(ttl2.length > 18 ? ttl2.slice(0, 16) + '\n' + ttl2.slice(16) : ttl2)}</div>` +
+      text('t-meta', D.subtitle, `${pos(60, 430, 1080, 24)};text-align:center`)));
   } else if (V === 'd2') {
-    h.push(layer(2, text('t-body', D.longChunks[0]) + text('t-body', D.longChunks[1], 'margin-top:12px')));
-    h.push(layer(1, text('t-body', D.longChunks[2])));
-    h.push(layer(0, text('t-meta', D.longChunks[3].slice(0, 40), 'line-height:1.5')));
+    h.push(panel(150, 700, `<div style="${pos(60, 50, 1080, 580)}">${D.longChunks.map(s => text('t-body', s, 'margin-bottom:16px')).join('')}</div>`));
   } else if (V === 'd4') {
-    h.push(`<div class="mt-gls-depth" data-depth="1" style="${pos(240, 200, 1440, 620)};z-index:3;background:linear-gradient(155deg,color-mix(in srgb,var(--paper) 88%,transparent),color-mix(in srgb,var(--paper) 66%,transparent))">` +
-      `<div style="${pos(70, 60, 1300, 90)}">${text('t-heading', '八系列 · 门店分布', 'font-weight:400')}</div>` +
-      `<div style="${pos(70, 170, 900, 400)}">${bars(D.series8, 0, 0, 760)}</div>` +
-      `<div style="${pos(1050, 180, 300, 380)}">${text('t-body', D.p1.slice(0, 70))}</div>` + `</div>`);
+    h.push(panel(180, 640,
+      `<div style="${pos(70, 50, 1060, 90)}">${text('t-heading', '八系列 · 门店分布', 'font-weight:400')}</div>` +
+      `<div style="${pos(70, 130, 760, 460)}">${bars(D.series8, 0, 0, 600)}</div>` +
+      `<div style="${pos(880, 130, 250, 460)}">${text('t-body', D.p1.slice(0, 70))}</div>`));
   } else if (R === 'toc') {
-    h.push(layer(2, D.toc.slice(0, 2).map(s => text('t-body', s, 'margin-bottom:14px')).join('')));
-    h.push(layer(1, D.toc.slice(2, 4).map(s => text('t-caption', s, 'margin-bottom:8px')).join('')));
-    h.push(layer(0, text('t-caption', D.toc[4])));
+    h.push(`<div style="${pos(360, 200, 1200, 640)};display:flex;flex-direction:column;align-items:center">${D.toc.map((s, i) => `<span class="mt-gls-chip" style="display:inline-flex;margin-bottom:20px"><span class="t-body" style="font-weight:500">${String(i + 1).padStart(2, '0')} · ${esc(s)}</span></span>`).join('')}</div>`);
   } else if (R === 'claim' || R === 'closing') {
     const main = R === 'claim' ? D.claim : D.closing;
     const sub = R === 'claim' ? D.claimNote : D.closingNote;
-    h.push(`<div class="mt-gls-depth" data-depth="1" style="${pos(240, 250, 1440, 460)};z-index:3;background:linear-gradient(155deg,color-mix(in srgb,var(--paper) 88%,transparent),color-mix(in srgb,var(--paper) 66%,transparent))">` +
-      `<div style="${pos(70, 90, 1300, 200)}">${text('t-display', main, 'font-weight:400;white-space:nowrap')}</div>` +
-      `<div style="${pos(70, 300, 1300, 40)}">${text('t-body', sub)}</div>` +
-      `<div style="${pos(70, 360, 1300, 30)}">${D.creed.map(c => text('t-meta', c, 'display:inline-block;margin-right:24px')).join('')}</div>` + `</div>`);
+    h.push(panel(240, 480,
+      `<div style="${pos(70, 90, 1060, 180)};text-align:center">${text('t-display', main, 'font-weight:400;white-space:nowrap')}</div>` +
+      `<div style="${pos(70, 290, 1060, 40)};text-align:center">${text('t-body', sub)}</div>` +
+      `<div style="${pos(70, 360, 1060, 30)};text-align:center">${D.creed.map(c => text('t-meta', c, 'display:inline-block;margin-right:24px')).join('')}</div>`));
   } else if (R === 'analysis') {
-    h.push(layer(2, text('t-body', D.p1.slice(0, 120)) + text('t-body', D.p1.slice(120, 200), 'margin-top:12px')));
-    h.push(layer(1, text('t-body', D.p2.slice(0, 90))));
-    h.push(layer(0, text('t-meta', D.kicker)));
+    h.push(panel(160, 360, `<div style="${pos(60, 40, 1080, 280)}">${text('t-body', D.p1)}</div>`));
+    h.push(panel(560, 300, `<div style="${pos(60, 40, 1080, 220)}">${text('t-body', D.p2)}</div>`));
   } else if (R === 'data' || V === 'd3') {
     const nums = V === 'd3' ? D.bigNums.slice(0, 3) : D.kpis.map(k => k.num);
-    h.push(layer(2, text('t-subhead', D.footL, 'font-weight:500') +
-      nums.map((n, i) => `<span class="mt-gls-chip-n" style="position:absolute;left:${i * 300}px;top:84px"><span class="t-subhead" style="font-weight:600">${esc(n)}</span></span>`).join('')));
-    h.push(layer(1, text('t-caption', D.kpis[0].cap, 'line-height:1.5')));
-    h.push(layer(0, text('t-meta', '结论数字 · 深度 3')));
+    h.push(`<div style="${pos(360, 360, 1200, 360)};display:flex;justify-content:center;align-items:center;gap:36px">${nums.map((n, i) => `<span class="mt-gls-chip" style="display:inline-flex;flex-direction:column;align-items:center;padding:32px 42px"><span class="t-heading" style="font-weight:500">${esc(n)}</span><span class="t-meta" style="margin-top:10px;max-width:300px;text-align:center;line-height:1.4">${esc((D.kpis[i] && D.kpis[i].cap) || '同比变化')}</span></span>`).join('')}</div>`);
   }
   h.push(note(1010));
   h.push(foot('f1', R + (V ? '/' + V : ''), p.n));
@@ -439,7 +405,6 @@ IDS.forEach(id => {
   cases.push({ id, role: 'full', variant: null });
   STRESS.forEach(variant => cases.push({ id, role: 'stress', variant }));
 });
-cases.push({ id: 'f1', role: 'full', variant: 'b' });   // F1 变体 B（中心聚焦），供 A/B 择优
 cases.forEach((c, i) => c.n = i + 1);
 
 const slides = cases.map(c => `<section class="slide ${c.id}" id="s-${c.id}-${c.role}${c.variant ? '-' + c.variant : ''}" ` +
@@ -482,9 +447,9 @@ ${Object.values(MOTIF).join('\n')}
 </head>
 <body>
 <div class="wrap">
-  <div class="hd">Phase 6 · 批次 1 · 同一份「山禾集 1.1」内容 × 4 套 G10 构图程序 × 45 页</div>
-  <div class="sub">基线 24 页（4 套 × 6 页型）＋ 完整内容页 5 页（含 F1 双变体）＋ 压力 16 页。<br>
-  页面级构图骨架：E6 模块网格+Z 动线 · G2 非对称两栏 · E7 对角线纵深 · F1 对角深度栈(+中心聚焦变体)。<br>
+  <div class="hd">Phase 6 · 批次 1 · 同一份「山禾集 1.1」内容 × 4 套 G10 构图程序 × 44 页</div>
+  <div class="sub">基线 24 页（4 套 × 6 页型）＋ 完整内容页 4 页＋ 压力 16 页。<br>
+  页面级构图骨架（明度签名）：E6 模块网格+Z 动线 · G2 非对称两栏 · E7 对角线纵深(浅纸深块) · F1 中心聚焦(深底亮块)。<br>
   字号只用骨架 v7.6 的 .t-* 角色类；主题令牌与 G9 母题 CSS 逐字提取自各自 theme.md。</div>
 ${cases.map((c, i) => `  <div class="slot"><div class="cap"><span>${LABEL[c.id]} · ${c.role}${c.variant ? ' / ' + c.variant : ''}</span><b>${String(c.n).padStart(2, '0')} / 45</b></div>
   ${slides[i]}

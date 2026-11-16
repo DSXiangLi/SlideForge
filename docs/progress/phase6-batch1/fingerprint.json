@@ -1,44 +1,14 @@
 {
-  "n": 45,
+  "n": 44,
   "full_cross_theme_skeleton_corr": {
-    "mean": 0.3542,
-    "max": 0.6782,
+    "mean": 0.1319,
+    "max": 0.6545,
     "pct_above_080": 0.0,
     "pairs": [
       [
-        0.6782,
-        "f1-full-b.png",
-        "f1"
-      ],
-      [
-        0.5297,
+        0.6545,
         "f1",
         "g2"
-      ],
-      [
-        0.4699,
-        "e7",
-        "f1"
-      ],
-      [
-        0.4092,
-        "f1-full-b.png",
-        "g2"
-      ],
-      [
-        0.4072,
-        "e6",
-        "f1"
-      ],
-      [
-        0.4056,
-        "e6",
-        "f1-full-b.png"
-      ],
-      [
-        0.4037,
-        "e7",
-        "f1-full-b.png"
       ],
       [
         0.2756,
@@ -46,26 +16,36 @@
         "g2"
       ],
       [
-        0.2119,
+        0.2358,
+        "e7",
+        "f1"
+      ],
+      [
+        0.2052,
+        "e6",
+        "f1"
+      ],
+      [
+        -0.1879,
         "e7",
         "g2"
       ],
       [
-        -0.2494,
+        -0.3918,
         "e6",
         "e7"
       ]
     ]
   },
   "cross_theme_skeleton_corr": {
-    "mean": 0.1873,
+    "mean": 0.1633,
     "max": 0.7278,
     "pct_above_080": 0.0
   },
   "within_theme_skeleton_corr": {
-    "mean": 0.5643,
+    "mean": 0.5394,
     "min": -0.0299,
-    "max": 0.9346
+    "max": 0.9868
   },
   "per_theme_within": {
     "e6": {
@@ -82,15 +62,15 @@
     },
     "e7": {
       "count": 15,
-      "mean": 0.712,
-      "min": 0.505,
-      "max": 0.91
+      "mean": 0.584,
+      "min": -0.013,
+      "max": 0.987
     },
     "f1": {
       "count": 15,
-      "mean": 0.671,
-      "min": 0.48,
-      "max": 0.935
+      "mean": 0.699,
+      "min": 0.394,
+      "max": 0.987
     }
   },
   "edge_struct_dominant": {
@@ -122,13 +102,11 @@
       "f1-closing.png",
       "f1-cover.png",
       "f1-data.png",
-      "f1-full-b.png",
       "f1-full.png",
       "f1-stress-d2.png",
       "f1-stress-d3.png",
       "f1-stress-d4.png",
       "f1-stress-d7.png",
-      "f1-toc.png",
       "g2-analysis.png",
       "g2-claim.png",
       "g2-closing.png",
@@ -140,13 +118,16 @@
       "g2-stress-d4.png",
       "g2-stress-d7.png",
       "g2-toc.png"
+    ],
+    "vertical": [
+      "f1-toc.png"
     ]
   },
   "centroid": {
-    "cx_mean": 0.4531,
-    "cx_std": 0.1009,
-    "cy_mean": 0.5009,
-    "cy_std": 0.0672
+    "cx_mean": 0.4803,
+    "cx_std": 0.1166,
+    "cy_mean": 0.5088,
+    "cy_std": 0.0968
   },
   "baseline_28": {
     "skeleton_corr_mean": 0.4594,

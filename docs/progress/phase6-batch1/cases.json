@@ -262,11 +262,5 @@
     "role": "stress",
     "variant": "d7",
     "n": 44
-  },
-  {
-    "id": "f1",
-    "role": "full",
-    "variant": "b",
-    "n": 45
   }
 ]
