@@ -140,7 +140,7 @@ v2 重启后采取的优化策略（最终 4 套通过验收）：
 | 1 | 字号比例冲突 | E6/G2/F1 的 display:body 比均低于全局 §5 硬规则（8:1/5:1），但各自 G10 type_scale 声明更宽松（≥1.8:1）——设计决策冲突未解决 |
 | 2 | E7 未复核 | E7 在 v1 判定「完全不可用」，v2 是否已修复未确认（本轮未做 E7 的深度审计） |
 | 3 | C1 G10 刚补全 | C1 的 G10 是最后补的，尚未经多页实测验证 |
-| 4 | 验收 PPTX 未完成 | 4 个子 agent 因 TPM 限制全部失败，但已生成 4 份 HTML deck（`tests/decks/acceptance/{e6,g2,f1,c1}/index.html`），需新 session 渲染校验后验收 |
+| 4 | ~~验收 PPTX 未完成~~ ✅ 已完成校验（2026-11-17） | 4 份 HTML deck 已逐页渲染校验通过；g2 p2 AABB 假阳性交叠已修。待用户目视验收 |
 
 ### 3.4 ⚠️ 必须避免的 12 个二次犯错
 
@@ -316,7 +316,7 @@ v2 重启后采取的优化策略（最终 4 套通过验收）：
 | `skills/SlideForge/references/components.md` | **§13 容器组一致性纪律（v2 新增）** | ✅ |
 | `docs/progress/phase6-batch1-v2/` | 批次 1 v2 的 build.js / run.js / report.json / PNG | ✅ |
 | `docs/progress/phase6-batch1-issues.md` | 批次 1 v1 的 28 条问题清单 | ✅ |
-| `tests/decks/acceptance/{e6,g2,f1,c1}/index.html` | 4 份验收 PPTX（需校验） | ⚠️ 未校验 |
+| `tests/decks/acceptance/{e6,g2,f1,c1}/index.html` | 4 份验收 PPTX | ✅ 已渲染校验通过（2026-11-17） |
 | `analysis/G10-主题DNA规范草案.md` | G10 规范草案 | ✅ |
 | `analysis/_fingerprint.py` | 指纹测量脚本 | ✅ |
 
@@ -326,7 +326,7 @@ v2 重启后采取的优化策略（最终 4 套通过验收）：
 
 | # | 遗留 | 说明 | 优先级 |
 |---|---|---|---|
-| 1 | 验收 PPTX 未校验 | 4 份 HTML 已生成但未跑渲染校验 | 高（新 session 首要任务） |
+| 1 | ~~验收 PPTX 未校验~~ ✅ 已校验通过（2026-11-17） | 4 份 HTML 逐页跑 check-render（Node + playwright-core + 系统 Chrome），e6/f1/c1 全绿；g2 p2 两处便签数字与说明的 AABB 假阳性交叠，已将 caption `margin-top:4px→12px` 修复后全绿。`check-capacity.py` 在本机因缺 `fc-match` 字体度量失真（出现 36550px 类伪值）不可信，仅渲染校验作可用性判据 | 已关闭 |
 | 2 | E7 浮世绘未复核 | v1 判定「不可用」，v2 是否已修复未确认 | 高 |
 | 3 | 字号比例冲突 | E6/G2/F1 的 display:body 低于全局 §5 但 G10 type_scale 更宽松 | 中（需统一口径） |
 | 4 | C1 G10 未实测 | C1 的 G10 是最后补的，未做多页实测 | 中 |
