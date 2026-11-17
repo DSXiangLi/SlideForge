@@ -484,14 +484,13 @@ body{
 .mt-deco-rhombus{display:inline-block;width:8px;height:8px;background:var(--accent);transform:rotate(45deg)}
 
 
-/* sampler 页面基础 */
+/* sampler 页面基础——强制 1:1 渲染，不缩放 */
+:root{--slide-scale:1}
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{background:#222;font-family:sans-serif}
 .deck{display:flex;flex-direction:column;align-items:center;padding:24px 0}
-.slide-slot{width:1920px;height:1080px;margin:12px 0;position:relative}
-.slide{width:1920px;height:1080px;position:relative;overflow:hidden;transform:none;background:var(--paper);color:var(--ink);padding:96px 120px}
-/* 确保不缩放——sampler 直接 1:1 渲染 */
-.slide-slot{width:1920px;height:1080px;overflow:hidden}
+.slide-slot{width:1920px!important;height:1080px!important;margin:12px 0;position:relative;overflow:visible!important;content-visibility:visible!important}
+.slide{width:1920px!important;height:1080px!important;position:relative;overflow:hidden;transform:none!important;background:var(--paper);color:var(--ink)}
 /* 动效终态——截静态图 */
 .reveal{opacity:1!important;transform:none!important}
 [data-anim="wipe-clip"]{clip-path:inset(0 0 0 0)!important}
