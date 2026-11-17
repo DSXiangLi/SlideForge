@@ -1,0 +1,6309 @@
+{
+  "generated": "2026-11-17T01:11:31.020Z",
+  "canvas": [
+    1920,
+    1080
+  ],
+  "pageCount": 16,
+  "pages": {
+    "s-g4-cover": {
+      "file": "g4-cover.png",
+      "theme": "g4",
+      "role": "cover",
+      "textNodes": 10,
+      "minFont": 15,
+      "maxFont": 128,
+      "ratio": 8.53,
+      "canvasOverflow": [],
+      "containerOverflow": [],
+      "contentOverflow": [],
+      "weakRead": [],
+      "textOverlaps": [],
+      "inlineFontSize": [],
+      "roleFonts": {
+        "display": 128,
+        "subhead": 40,
+        "caption": 18,
+        "meta": 15
+      },
+      "floorViolations": [],
+      "blankGridCells": [],
+      "titleFlush": [],
+      "groupWidthMismatch": [],
+      "nodes": [
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "1.1 · 整体特色及优势",
+          "x": 120,
+          "y": 96,
+          "w": 400,
+          "h": 30,
+          "textWidth": 159,
+          "fs": 15,
+          "opacity": 0.9,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            30,
+            30
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "山禾集 · 经营情况汇报 · 2026",
+          "x": 820,
+          "y": 96,
+          "w": 400,
+          "h": 30,
+          "textWidth": 224,
+          "fs": 15,
+          "opacity": 0.9,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            30,
+            30
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "EXHIBITION · 2026",
+          "x": 1500,
+          "y": 96,
+          "w": 300,
+          "h": 30,
+          "textWidth": 176,
+          "fs": 15,
+          "opacity": 0.9,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            30,
+            30
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-display",
+          "text": "一杯好茶  山野作答",
+          "x": 120,
+          "y": 360,
+          "w": 1680,
+          "h": 200,
+          "textWidth": 1109,
+          "fs": 128,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "max(var(--t-display),128px)",
+          "contentOverflow": false,
+          "scroll": [
+            200,
+            200
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-subhead",
+          "text": "山禾集 · 经营情况汇报 · 2026",
+          "x": 120,
+          "y": 580,
+          "w": 800,
+          "h": 48,
+          "textWidth": 577,
+          "fs": 40,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            54,
+            48
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "mt-bie-num",
+          "text": "01",
+          "x": 1740,
+          "y": 900,
+          "w": 120,
+          "h": 120,
+          "textWidth": 106,
+          "fs": 96,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "var(--t-display)",
+          "contentOverflow": false,
+          "scroll": [
+            120,
+            120
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-caption",
+          "text": "经营理念：当季鲜茶，日常相伴。",
+          "x": 120,
+          "y": 920,
+          "w": 800,
+          "h": 30,
+          "textWidth": 270,
+          "fs": 18,
+          "opacity": 0.9,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            30,
+            30
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "山禾集 · 经营情况汇报",
+          "x": 120,
+          "y": 1035,
+          "w": 167,
+          "h": 21,
+          "textWidth": 167,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "G4 靛墨黄页 · cover",
+          "x": 959,
+          "y": 1035,
+          "w": 160,
+          "h": 21,
+          "textWidth": 160,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "—",
+          "x": 1791,
+          "y": 1035,
+          "w": 9,
+          "h": 21,
+          "textWidth": 9,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        }
+      ]
+    },
+    "s-g4-claim": {
+      "file": "g4-claim.png",
+      "theme": "g4",
+      "role": "claim",
+      "textNodes": 14,
+      "minFont": 15,
+      "maxFont": 128,
+      "ratio": 8.53,
+      "canvasOverflow": [],
+      "containerOverflow": [],
+      "contentOverflow": [],
+      "weakRead": [],
+      "textOverlaps": [],
+      "inlineFontSize": [],
+      "roleFonts": {
+        "display": 128,
+        "heading": 64,
+        "body": 28,
+        "meta": 15
+      },
+      "floorViolations": [],
+      "blankGridCells": [],
+      "titleFlush": [],
+      "groupWidthMismatch": [],
+      "nodes": [
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "1.1 · 整体特色及优势",
+          "x": 120,
+          "y": 60,
+          "w": 159,
+          "h": 21,
+          "textWidth": 159,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-display",
+          "text": "从茶园到门店",
+          "x": 120,
+          "y": 160,
+          "w": 1680,
+          "h": 160,
+          "textWidth": 768,
+          "fs": 128,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "max(var(--t-display),128px)",
+          "contentOverflow": false,
+          "scroll": [
+            160,
+            160
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-body",
+          "text": "一杯好茶的答案，写在每一片叶子的来路上。",
+          "x": 120,
+          "y": 340,
+          "w": 1000,
+          "h": 80,
+          "textWidth": 560,
+          "fs": 28,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            80,
+            80
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-body",
+          "text": "山禾集深耕新式茶饮行业，同时通过全资子公司山禾供",
+          "x": 120,
+          "y": 570,
+          "w": 760,
+          "h": 200,
+          "textWidth": 756,
+          "fs": 28,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            200,
+            200
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-heading",
+          "text": "8,637家",
+          "x": 1125,
+          "y": 587,
+          "w": 510,
+          "h": 70,
+          "textWidth": 256,
+          "fs": 64,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            80,
+            70
+          ],
+          "container": {
+            "x": 1100,
+            "y": 570,
+            "w": 560,
+            "h": 110
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "山禾集全国门店总数",
+          "x": 1125,
+          "y": 661,
+          "w": 510,
+          "h": 20,
+          "textWidth": 135,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            20,
+            20
+          ],
+          "container": {
+            "x": 1100,
+            "y": 570,
+            "w": 560,
+            "h": 110
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-heading",
+          "text": "2.8亿杯",
+          "x": 1125,
+          "y": 717,
+          "w": 510,
+          "h": 70,
+          "textWidth": 235,
+          "fs": 64,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            80,
+            70
+          ],
+          "container": {
+            "x": 1100,
+            "y": 700,
+            "w": 560,
+            "h": 110
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "累计售出茶饮",
+          "x": 1125,
+          "y": 791,
+          "w": 510,
+          "h": 20,
+          "textWidth": 90,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            20,
+            20
+          ],
+          "container": {
+            "x": 1100,
+            "y": 700,
+            "w": 560,
+            "h": 110
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-heading",
+          "text": "361家",
+          "x": 1125,
+          "y": 847,
+          "w": 510,
+          "h": 70,
+          "textWidth": 192,
+          "fs": 64,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            80,
+            70
+          ],
+          "container": {
+            "x": 1100,
+            "y": 830,
+            "w": 560,
+            "h": 110
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "城市旗舰店总数",
+          "x": 1125,
+          "y": 921,
+          "w": 510,
+          "h": 20,
+          "textWidth": 105,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            20,
+            20
+          ],
+          "container": {
+            "x": 1100,
+            "y": 830,
+            "w": 560,
+            "h": 110
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "mt-bie-num",
+          "text": "02",
+          "x": 1740,
+          "y": 900,
+          "w": 120,
+          "h": 120,
+          "textWidth": 106,
+          "fs": 96,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "var(--t-display)",
+          "contentOverflow": false,
+          "scroll": [
+            120,
+            120
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "山禾集 · 经营情况汇报",
+          "x": 120,
+          "y": 1035,
+          "w": 167,
+          "h": 21,
+          "textWidth": 167,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "G4 靛墨黄页 · claim",
+          "x": 959,
+          "y": 1035,
+          "w": 160,
+          "h": 21,
+          "textWidth": 160,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "—",
+          "x": 1791,
+          "y": 1035,
+          "w": 9,
+          "h": 21,
+          "textWidth": 9,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        }
+      ]
+    },
+    "s-g4-analysis": {
+      "file": "g4-analysis.png",
+      "theme": "g4",
+      "role": "analysis",
+      "textNodes": 19,
+      "minFont": 15,
+      "maxFont": 96,
+      "ratio": 6.4,
+      "canvasOverflow": [],
+      "containerOverflow": [],
+      "contentOverflow": [],
+      "weakRead": [],
+      "textOverlaps": [],
+      "inlineFontSize": [],
+      "roleFonts": {
+        "display": 96,
+        "heading": 64,
+        "body": 28,
+        "caption": 18,
+        "meta": 15
+      },
+      "floorViolations": [],
+      "blankGridCells": [],
+      "titleFlush": [],
+      "groupWidthMismatch": [],
+      "nodes": [
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "1.1 · 整体特色及优势",
+          "x": 120,
+          "y": 96,
+          "w": 159,
+          "h": 21,
+          "textWidth": 159,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-display",
+          "text": "一杯好茶  山野作答",
+          "x": 120,
+          "y": 180,
+          "w": 1680,
+          "h": 120,
+          "textWidth": 832,
+          "fs": 96,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            120,
+            120
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-body",
+          "text": "山禾集深耕新式茶饮行业，同时通过全资子公司山禾供",
+          "x": 149,
+          "y": 385,
+          "w": 462,
+          "h": 238,
+          "textWidth": 448,
+          "fs": 28,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            238,
+            238
+          ],
+          "container": {
+            "x": 120,
+            "y": 360,
+            "w": 520,
+            "h": 300
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-body",
+          "text": "经营理念：当季鲜茶，日常相伴。 使命：为大众提供",
+          "x": 729,
+          "y": 385,
+          "w": 462,
+          "h": 143,
+          "textWidth": 456,
+          "fs": 28,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            143,
+            143
+          ],
+          "container": {
+            "x": 700,
+            "y": 360,
+            "w": 520,
+            "h": 300
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-body",
+          "text": "近年来山禾集门店网络稳步扩张，行业排名持续提升。",
+          "x": 1309,
+          "y": 385,
+          "w": 462,
+          "h": 238,
+          "textWidth": 448,
+          "fs": 28,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            238,
+            238
+          ],
+          "container": {
+            "x": 1280,
+            "y": 360,
+            "w": 520,
+            "h": 300
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "span",
+          "cls": "t-caption",
+          "text": "经营理念：当季鲜茶，日常相伴。",
+          "x": 120,
+          "y": 720,
+          "w": 270,
+          "h": 27,
+          "textWidth": 270,
+          "fs": 18,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            27,
+            27
+          ],
+          "container": {
+            "x": 120,
+            "y": 720,
+            "w": 1680,
+            "h": 30
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "span",
+          "cls": "t-caption",
+          "text": "使命：为大众提供新鲜、健康、平价的日常茶饮。",
+          "x": 424,
+          "y": 720,
+          "w": 396,
+          "h": 27,
+          "textWidth": 396,
+          "fs": 18,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            27,
+            27
+          ],
+          "container": {
+            "x": 120,
+            "y": 720,
+            "w": 1680,
+            "h": 30
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "span",
+          "cls": "t-caption",
+          "text": "愿景：成为持续领先的新式茶饮品牌。",
+          "x": 854,
+          "y": 720,
+          "w": 306,
+          "h": 27,
+          "textWidth": 306,
+          "fs": 18,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            27,
+            27
+          ],
+          "container": {
+            "x": 120,
+            "y": 720,
+            "w": 1680,
+            "h": 30
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-heading",
+          "text": "8,637家",
+          "x": 145,
+          "y": 809,
+          "w": 470,
+          "h": 70,
+          "textWidth": 256,
+          "fs": 64,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            80,
+            70
+          ],
+          "container": {
+            "x": 120,
+            "y": 790,
+            "w": 520,
+            "h": 130
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "山禾集全国门店总数",
+          "x": 145,
+          "y": 885,
+          "w": 470,
+          "h": 20,
+          "textWidth": 135,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            20,
+            20
+          ],
+          "container": {
+            "x": 120,
+            "y": 790,
+            "w": 520,
+            "h": 130
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-heading",
+          "text": "2.8亿杯",
+          "x": 725,
+          "y": 809,
+          "w": 470,
+          "h": 70,
+          "textWidth": 235,
+          "fs": 64,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            80,
+            70
+          ],
+          "container": {
+            "x": 700,
+            "y": 790,
+            "w": 520,
+            "h": 130
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "累计售出茶饮",
+          "x": 725,
+          "y": 885,
+          "w": 470,
+          "h": 20,
+          "textWidth": 90,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            20,
+            20
+          ],
+          "container": {
+            "x": 700,
+            "y": 790,
+            "w": 520,
+            "h": 130
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-heading",
+          "text": "361家",
+          "x": 1305,
+          "y": 809,
+          "w": 470,
+          "h": 70,
+          "textWidth": 192,
+          "fs": 64,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            80,
+            70
+          ],
+          "container": {
+            "x": 1280,
+            "y": 790,
+            "w": 520,
+            "h": 130
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "城市旗舰店总数",
+          "x": 1305,
+          "y": 885,
+          "w": 470,
+          "h": 20,
+          "textWidth": 105,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            20,
+            20
+          ],
+          "container": {
+            "x": 1280,
+            "y": 790,
+            "w": 520,
+            "h": 130
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "mt-bie-num",
+          "text": "03",
+          "x": 1740,
+          "y": 900,
+          "w": 120,
+          "h": 120,
+          "textWidth": 106,
+          "fs": 96,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "var(--t-display)",
+          "contentOverflow": false,
+          "scroll": [
+            120,
+            120
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta note",
+          "text": "* 注：山禾集为虚构演示品牌，文中数据均为虚构，",
+          "x": 120,
+          "y": 960,
+          "w": 520,
+          "h": 21,
+          "textWidth": 520,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "山禾集 · 经营情况汇报",
+          "x": 120,
+          "y": 1035,
+          "w": 167,
+          "h": 21,
+          "textWidth": 167,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "G4 靛墨黄页 · analysis",
+          "x": 946,
+          "y": 1035,
+          "w": 186,
+          "h": 21,
+          "textWidth": 186,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "—",
+          "x": 1791,
+          "y": 1035,
+          "w": 9,
+          "h": 21,
+          "textWidth": 9,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        }
+      ]
+    },
+    "s-g4-data": {
+      "file": "g4-data.png",
+      "theme": "g4",
+      "role": "data",
+      "textNodes": 16,
+      "minFont": 15,
+      "maxFont": 128,
+      "ratio": 8.53,
+      "canvasOverflow": [],
+      "containerOverflow": [],
+      "contentOverflow": [
+        {
+          "tag": "div",
+          "cls": "t-display",
+          "text": "8,637家",
+          "x": 180,
+          "y": 465,
+          "w": 960,
+          "h": 128,
+          "textWidth": 512,
+          "fs": 128,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "max(var(--t-display),128px)",
+          "contentOverflow": true,
+          "scroll": [
+            154,
+            128
+          ],
+          "container": {
+            "x": 120,
+            "y": 380,
+            "w": 1080,
+            "h": 420
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-body",
+          "text": "近年来山禾集门店网络稳步扩张，行业排名持续提升。",
+          "x": 120,
+          "y": 830,
+          "w": 1080,
+          "h": 120,
+          "textWidth": 1070,
+          "fs": 28,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": true,
+          "scroll": [
+            143,
+            120
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        }
+      ],
+      "weakRead": [],
+      "textOverlaps": [],
+      "inlineFontSize": [],
+      "roleFonts": {
+        "display": 96,
+        "heading": 64,
+        "subhead": 40,
+        "body": 28,
+        "meta": 15
+      },
+      "floorViolations": [],
+      "blankGridCells": [],
+      "titleFlush": [],
+      "groupWidthMismatch": [],
+      "nodes": [
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "1.1 · 整体特色及优势",
+          "x": 120,
+          "y": 96,
+          "w": 159,
+          "h": 21,
+          "textWidth": 159,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-display",
+          "text": "数据宣言",
+          "x": 120,
+          "y": 180,
+          "w": 1680,
+          "h": 120,
+          "textWidth": 384,
+          "fs": 96,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            120,
+            120
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "KEY METRIC",
+          "x": 180,
+          "y": 428,
+          "w": 960,
+          "h": 21,
+          "textWidth": 100,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": {
+            "x": 120,
+            "y": 380,
+            "w": 1080,
+            "h": 420
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-display",
+          "text": "8,637家",
+          "x": 180,
+          "y": 465,
+          "w": 960,
+          "h": 128,
+          "textWidth": 512,
+          "fs": 128,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "max(var(--t-display),128px)",
+          "contentOverflow": true,
+          "scroll": [
+            154,
+            128
+          ],
+          "container": {
+            "x": 120,
+            "y": 380,
+            "w": 1080,
+            "h": 420
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-subhead",
+          "text": "山禾集全国门店总数",
+          "x": 180,
+          "y": 609,
+          "w": 960,
+          "h": 52,
+          "textWidth": 360,
+          "fs": 40,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            54,
+            52
+          ],
+          "container": {
+            "x": 120,
+            "y": 380,
+            "w": 1080,
+            "h": 420
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "行业前列",
+          "x": 180,
+          "y": 669,
+          "w": 960,
+          "h": 21,
+          "textWidth": 60,
+          "fs": 15,
+          "opacity": 0.8,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": {
+            "x": 120,
+            "y": 380,
+            "w": 1080,
+            "h": 420
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-heading",
+          "text": "2.8亿杯",
+          "x": 1269,
+          "y": 405,
+          "w": 502,
+          "h": 70,
+          "textWidth": 235,
+          "fs": 64,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            80,
+            70
+          ],
+          "container": {
+            "x": 1240,
+            "y": 380,
+            "w": 560,
+            "h": 190
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "累计售出茶饮",
+          "x": 1269,
+          "y": 483,
+          "w": 502,
+          "h": 20,
+          "textWidth": 90,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            20,
+            20
+          ],
+          "container": {
+            "x": 1240,
+            "y": 380,
+            "w": 560,
+            "h": 190
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-heading",
+          "text": "361家",
+          "x": 1269,
+          "y": 615,
+          "w": 502,
+          "h": 70,
+          "textWidth": 192,
+          "fs": 64,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            80,
+            70
+          ],
+          "container": {
+            "x": 1240,
+            "y": 590,
+            "w": 560,
+            "h": 190
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "城市旗舰店总数",
+          "x": 1269,
+          "y": 693,
+          "w": 502,
+          "h": 20,
+          "textWidth": 105,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            20,
+            20
+          ],
+          "container": {
+            "x": 1240,
+            "y": 590,
+            "w": 560,
+            "h": 190
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-body",
+          "text": "近年来山禾集门店网络稳步扩张，行业排名持续提升。",
+          "x": 120,
+          "y": 830,
+          "w": 1080,
+          "h": 120,
+          "textWidth": 1070,
+          "fs": 28,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": true,
+          "scroll": [
+            143,
+            120
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "mt-bie-num",
+          "text": "04",
+          "x": 1740,
+          "y": 900,
+          "w": 120,
+          "h": 120,
+          "textWidth": 106,
+          "fs": 96,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "var(--t-display)",
+          "contentOverflow": false,
+          "scroll": [
+            120,
+            120
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta note",
+          "text": "* 注：山禾集为虚构演示品牌，文中数据均为虚构，",
+          "x": 120,
+          "y": 960,
+          "w": 520,
+          "h": 21,
+          "textWidth": 520,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "山禾集 · 经营情况汇报",
+          "x": 120,
+          "y": 1035,
+          "w": 167,
+          "h": 21,
+          "textWidth": 167,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "G4 靛墨黄页 · data",
+          "x": 964,
+          "y": 1035,
+          "w": 151,
+          "h": 21,
+          "textWidth": 151,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "—",
+          "x": 1791,
+          "y": 1035,
+          "w": 9,
+          "h": 21,
+          "textWidth": 9,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        }
+      ]
+    },
+    "s-g5-cover": {
+      "file": "g5-cover.png",
+      "theme": "g5",
+      "role": "cover",
+      "textNodes": 8,
+      "minFont": 14,
+      "maxFont": 112,
+      "ratio": 8,
+      "canvasOverflow": [],
+      "containerOverflow": [],
+      "contentOverflow": [],
+      "weakRead": [],
+      "textOverlaps": [],
+      "inlineFontSize": [],
+      "roleFonts": {
+        "display": 112,
+        "subhead": 40,
+        "caption": 18
+      },
+      "floorViolations": [],
+      "blankGridCells": [],
+      "titleFlush": [],
+      "groupWidthMismatch": [],
+      "nodes": [
+        {
+          "tag": "span",
+          "cls": "mt-tri-tag",
+          "text": "VOL.07 / NO.128",
+          "x": 120,
+          "y": 96,
+          "w": 178,
+          "h": 26,
+          "textWidth": 153,
+          "fs": 14,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            24,
+            24
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-display",
+          "text": "一杯好茶  山野作答",
+          "x": 120,
+          "y": 320,
+          "w": 1680,
+          "h": 200,
+          "textWidth": 951,
+          "fs": 112,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "max(var(--t-display),112px)",
+          "contentOverflow": false,
+          "scroll": [
+            200,
+            200
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-subhead",
+          "text": "山禾集 · 经营情况汇报 · 2026",
+          "x": 120,
+          "y": 540,
+          "w": 800,
+          "h": 48,
+          "textWidth": 499,
+          "fs": 40,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            52,
+            48
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-caption",
+          "text": "经营理念：当季鲜茶，日常相伴。",
+          "x": 120,
+          "y": 700,
+          "w": 800,
+          "h": 30,
+          "textWidth": 270,
+          "fs": 18,
+          "opacity": 0.9,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            30,
+            30
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "mt-tri-pill-lg",
+          "text": "2026",
+          "x": 120,
+          "y": 800,
+          "w": 210,
+          "h": 81,
+          "textWidth": 118,
+          "fs": 44,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            77,
+            77
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "山禾集 · 经营情况汇报",
+          "x": 120,
+          "y": 1035,
+          "w": 167,
+          "h": 21,
+          "textWidth": 167,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "G5 三色旬刊 · cover",
+          "x": 959,
+          "y": 1035,
+          "w": 160,
+          "h": 21,
+          "textWidth": 160,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "—",
+          "x": 1791,
+          "y": 1035,
+          "w": 9,
+          "h": 21,
+          "textWidth": 9,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        }
+      ]
+    },
+    "s-g5-claim": {
+      "file": "g5-claim.png",
+      "theme": "g5",
+      "role": "claim",
+      "textNodes": 13,
+      "minFont": 14,
+      "maxFont": 112,
+      "ratio": 8,
+      "canvasOverflow": [],
+      "containerOverflow": [],
+      "contentOverflow": [],
+      "weakRead": [],
+      "textOverlaps": [],
+      "inlineFontSize": [],
+      "roleFonts": {
+        "display": 112,
+        "heading": 64,
+        "body": 28,
+        "meta": 15
+      },
+      "floorViolations": [],
+      "blankGridCells": [],
+      "titleFlush": [],
+      "groupWidthMismatch": [],
+      "nodes": [
+        {
+          "tag": "span",
+          "cls": "mt-tri-tag",
+          "text": "VOL.07 / NO.128",
+          "x": 120,
+          "y": 80,
+          "w": 178,
+          "h": 26,
+          "textWidth": 153,
+          "fs": 14,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            24,
+            24
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-display",
+          "text": "从茶园到门店",
+          "x": 120,
+          "y": 220,
+          "w": 760,
+          "h": 160,
+          "textWidth": 672,
+          "fs": 112,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "max(var(--t-display),112px)",
+          "contentOverflow": false,
+          "scroll": [
+            160,
+            160
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-body",
+          "text": "一杯好茶的答案，写在每一片叶子的来路上。",
+          "x": 120,
+          "y": 400,
+          "w": 760,
+          "h": 120,
+          "textWidth": 560,
+          "fs": 28,
+          "opacity": 0.9,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            120,
+            120
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-body",
+          "text": "山禾集深耕新式茶饮行业，同时通过全资子公司山禾供",
+          "x": 1020,
+          "y": 220,
+          "w": 760,
+          "h": 200,
+          "textWidth": 756,
+          "fs": 28,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            200,
+            200
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-heading",
+          "text": "8,637家",
+          "x": 1048,
+          "y": 480,
+          "w": 704,
+          "h": 70,
+          "textWidth": 207,
+          "fs": 64,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            73,
+            70
+          ],
+          "container": {
+            "x": 1020,
+            "y": 460,
+            "w": 760,
+            "h": 120
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "山禾集全国门店总数",
+          "x": 1048,
+          "y": 556,
+          "w": 704,
+          "h": 20,
+          "textWidth": 135,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            20,
+            20
+          ],
+          "container": {
+            "x": 1020,
+            "y": 460,
+            "w": 760,
+            "h": 120
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-heading",
+          "text": "2.8亿杯",
+          "x": 1048,
+          "y": 620,
+          "w": 704,
+          "h": 70,
+          "textWidth": 208,
+          "fs": 64,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            73,
+            70
+          ],
+          "container": {
+            "x": 1020,
+            "y": 600,
+            "w": 760,
+            "h": 120
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "累计售出茶饮",
+          "x": 1048,
+          "y": 696,
+          "w": 704,
+          "h": 20,
+          "textWidth": 90,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            20,
+            20
+          ],
+          "container": {
+            "x": 1020,
+            "y": 600,
+            "w": 760,
+            "h": 120
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-heading",
+          "text": "361家",
+          "x": 1048,
+          "y": 760,
+          "w": 704,
+          "h": 70,
+          "textWidth": 158,
+          "fs": 64,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            73,
+            70
+          ],
+          "container": {
+            "x": 1020,
+            "y": 740,
+            "w": 760,
+            "h": 120
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "城市旗舰店总数",
+          "x": 1048,
+          "y": 836,
+          "w": 704,
+          "h": 20,
+          "textWidth": 105,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            20,
+            20
+          ],
+          "container": {
+            "x": 1020,
+            "y": 740,
+            "w": 760,
+            "h": 120
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "山禾集 · 经营情况汇报",
+          "x": 120,
+          "y": 1035,
+          "w": 167,
+          "h": 21,
+          "textWidth": 167,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "G5 三色旬刊 · claim",
+          "x": 959,
+          "y": 1035,
+          "w": 160,
+          "h": 21,
+          "textWidth": 160,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "—",
+          "x": 1791,
+          "y": 1035,
+          "w": 9,
+          "h": 21,
+          "textWidth": 9,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        }
+      ]
+    },
+    "s-g5-analysis": {
+      "file": "g5-analysis.png",
+      "theme": "g5",
+      "role": "analysis",
+      "textNodes": 16,
+      "minFont": 14,
+      "maxFont": 96,
+      "ratio": 6.86,
+      "canvasOverflow": [],
+      "containerOverflow": [],
+      "contentOverflow": [],
+      "weakRead": [],
+      "textOverlaps": [],
+      "inlineFontSize": [],
+      "roleFonts": {
+        "display": 96,
+        "body": 28,
+        "caption": 18,
+        "meta": 15
+      },
+      "floorViolations": [],
+      "blankGridCells": [],
+      "titleFlush": [],
+      "groupWidthMismatch": [],
+      "nodes": [
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "1.1 · 整体特色及优势",
+          "x": 120,
+          "y": 96,
+          "w": 164,
+          "h": 21,
+          "textWidth": 164,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-display",
+          "text": "一杯好茶  山野作答",
+          "x": 120,
+          "y": 180,
+          "w": 1680,
+          "h": 120,
+          "textWidth": 815,
+          "fs": 96,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            120,
+            120
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "span",
+          "cls": "mt-tri-tag",
+          "text": "NO.128",
+          "x": 1500,
+          "y": 96,
+          "w": 86,
+          "h": 26,
+          "textWidth": 61,
+          "fs": 14,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            24,
+            24
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-body",
+          "text": "山禾集深耕新式茶饮行业，同时通过全资子公司山禾供",
+          "x": 148,
+          "y": 384,
+          "w": 464,
+          "h": 238,
+          "textWidth": 448,
+          "fs": 28,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            238,
+            238
+          ],
+          "container": {
+            "x": 120,
+            "y": 360,
+            "w": 520,
+            "h": 320
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-body",
+          "text": "经营理念：当季鲜茶，日常相伴。 使命：为大众提供",
+          "x": 728,
+          "y": 384,
+          "w": 464,
+          "h": 143,
+          "textWidth": 455,
+          "fs": 28,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            143,
+            143
+          ],
+          "container": {
+            "x": 700,
+            "y": 360,
+            "w": 520,
+            "h": 320
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-body",
+          "text": "近年来山禾集门店网络稳步扩张，行业排名持续提升。",
+          "x": 1308,
+          "y": 384,
+          "w": 464,
+          "h": 238,
+          "textWidth": 448,
+          "fs": 28,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            238,
+            238
+          ],
+          "container": {
+            "x": 1280,
+            "y": 360,
+            "w": 520,
+            "h": 320
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "span",
+          "cls": "t-caption",
+          "text": "经营理念：当季鲜茶，日常相伴。",
+          "x": 120,
+          "y": 730,
+          "w": 270,
+          "h": 27,
+          "textWidth": 270,
+          "fs": 18,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            27,
+            27
+          ],
+          "container": {
+            "x": 120,
+            "y": 730,
+            "w": 1080,
+            "h": 30
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "span",
+          "cls": "t-caption",
+          "text": "使命：为大众提供新鲜、健康、平价的日常茶饮。",
+          "x": 420,
+          "y": 730,
+          "w": 396,
+          "h": 27,
+          "textWidth": 396,
+          "fs": 18,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            27,
+            27
+          ],
+          "container": {
+            "x": 120,
+            "y": 730,
+            "w": 1080,
+            "h": 30
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "span",
+          "cls": "t-caption",
+          "text": "愿景：成为持续领先的新式茶饮品牌。",
+          "x": 846,
+          "y": 730,
+          "w": 306,
+          "h": 27,
+          "textWidth": 306,
+          "fs": 18,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            27,
+            27
+          ],
+          "container": {
+            "x": 120,
+            "y": 730,
+            "w": 1080,
+            "h": 30
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "8,637家 — 山禾集全国门店总数",
+          "x": 1240,
+          "y": 730,
+          "w": 204,
+          "h": 21,
+          "textWidth": 204,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "2.8亿杯 — 累计售出茶饮",
+          "x": 1240,
+          "y": 800,
+          "w": 160,
+          "h": 21,
+          "textWidth": 160,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "361家 — 城市旗舰店总数",
+          "x": 1240,
+          "y": 870,
+          "w": 164,
+          "h": 21,
+          "textWidth": 164,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta note",
+          "text": "* 注：山禾集为虚构演示品牌，文中数据均为虚构，",
+          "x": 120,
+          "y": 980,
+          "w": 520,
+          "h": 21,
+          "textWidth": 520,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "山禾集 · 经营情况汇报",
+          "x": 120,
+          "y": 1035,
+          "w": 167,
+          "h": 21,
+          "textWidth": 167,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "G5 三色旬刊 · analysis",
+          "x": 946,
+          "y": 1035,
+          "w": 186,
+          "h": 21,
+          "textWidth": 186,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "—",
+          "x": 1791,
+          "y": 1035,
+          "w": 9,
+          "h": 21,
+          "textWidth": 9,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        }
+      ]
+    },
+    "s-g5-data": {
+      "file": "g5-data.png",
+      "theme": "g5",
+      "role": "data",
+      "textNodes": 17,
+      "minFont": 14,
+      "maxFont": 96,
+      "ratio": 6.86,
+      "canvasOverflow": [],
+      "containerOverflow": [],
+      "contentOverflow": [],
+      "weakRead": [],
+      "textOverlaps": [],
+      "inlineFontSize": [],
+      "roleFonts": {
+        "display": 96,
+        "heading": 64,
+        "body": 28,
+        "meta": 15
+      },
+      "floorViolations": [],
+      "blankGridCells": [],
+      "titleFlush": [],
+      "groupWidthMismatch": [],
+      "nodes": [
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "1.1 · 整体特色及优势",
+          "x": 120,
+          "y": 96,
+          "w": 164,
+          "h": 21,
+          "textWidth": 164,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-display",
+          "text": "数据宣言",
+          "x": 120,
+          "y": 180,
+          "w": 1680,
+          "h": 120,
+          "textWidth": 384,
+          "fs": 96,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            120,
+            120
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "span",
+          "cls": "mt-tri-tag",
+          "text": "NO.128",
+          "x": 1500,
+          "y": 96,
+          "w": 86,
+          "h": 26,
+          "textWidth": 61,
+          "fs": 14,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            24,
+            24
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "METRIC 01",
+          "x": 160,
+          "y": 483,
+          "w": 440,
+          "h": 21,
+          "textWidth": 90,
+          "fs": 15,
+          "opacity": 0.7,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": {
+            "x": 120,
+            "y": 360,
+            "w": 520,
+            "h": 400
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-heading",
+          "text": "8,637家",
+          "x": 160,
+          "y": 520,
+          "w": 440,
+          "h": 64,
+          "textWidth": 207,
+          "fs": 64,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "max(var(--t-heading),48px)",
+          "contentOverflow": false,
+          "scroll": [
+            70,
+            64
+          ],
+          "container": {
+            "x": 120,
+            "y": 360,
+            "w": 520,
+            "h": 400
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-body",
+          "text": "山禾集全国门店总数",
+          "x": 160,
+          "y": 598,
+          "w": 440,
+          "h": 39,
+          "textWidth": 252,
+          "fs": 28,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            39,
+            39
+          ],
+          "container": {
+            "x": 120,
+            "y": 360,
+            "w": 520,
+            "h": 400
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "METRIC 02",
+          "x": 710,
+          "y": 483,
+          "w": 440,
+          "h": 21,
+          "textWidth": 90,
+          "fs": 15,
+          "opacity": 0.7,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": {
+            "x": 670,
+            "y": 360,
+            "w": 520,
+            "h": 400
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-heading",
+          "text": "2.8亿杯",
+          "x": 710,
+          "y": 520,
+          "w": 440,
+          "h": 64,
+          "textWidth": 208,
+          "fs": 64,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "max(var(--t-heading),48px)",
+          "contentOverflow": false,
+          "scroll": [
+            70,
+            64
+          ],
+          "container": {
+            "x": 670,
+            "y": 360,
+            "w": 520,
+            "h": 400
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-body",
+          "text": "累计售出茶饮",
+          "x": 710,
+          "y": 598,
+          "w": 440,
+          "h": 39,
+          "textWidth": 168,
+          "fs": 28,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            39,
+            39
+          ],
+          "container": {
+            "x": 670,
+            "y": 360,
+            "w": 520,
+            "h": 400
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "METRIC 03",
+          "x": 1260,
+          "y": 483,
+          "w": 440,
+          "h": 21,
+          "textWidth": 90,
+          "fs": 15,
+          "opacity": 0.7,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": {
+            "x": 1220,
+            "y": 360,
+            "w": 520,
+            "h": 400
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-heading",
+          "text": "361家",
+          "x": 1260,
+          "y": 520,
+          "w": 440,
+          "h": 64,
+          "textWidth": 158,
+          "fs": 64,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "max(var(--t-heading),48px)",
+          "contentOverflow": false,
+          "scroll": [
+            70,
+            64
+          ],
+          "container": {
+            "x": 1220,
+            "y": 360,
+            "w": 520,
+            "h": 400
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-body",
+          "text": "城市旗舰店总数",
+          "x": 1260,
+          "y": 598,
+          "w": 440,
+          "h": 39,
+          "textWidth": 196,
+          "fs": 28,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            39,
+            39
+          ],
+          "container": {
+            "x": 1220,
+            "y": 360,
+            "w": 520,
+            "h": 400
+          },
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-body",
+          "text": "近年来山禾集门店网络稳步扩张，行业排名持续提升。",
+          "x": 120,
+          "y": 800,
+          "w": 1680,
+          "h": 120,
+          "textWidth": 1656,
+          "fs": 28,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            120,
+            120
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta note",
+          "text": "* 注：山禾集为虚构演示品牌，文中数据均为虚构，",
+          "x": 120,
+          "y": 960,
+          "w": 520,
+          "h": 21,
+          "textWidth": 520,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "山禾集 · 经营情况汇报",
+          "x": 120,
+          "y": 1035,
+          "w": 167,
+          "h": 21,
+          "textWidth": 167,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "G5 三色旬刊 · data",
+          "x": 964,
+          "y": 1035,
+          "w": 151,
+          "h": 21,
+          "textWidth": 151,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "—",
+          "x": 1791,
+          "y": 1035,
+          "w": 9,
+          "h": 21,
+          "textWidth": 9,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        }
+      ]
+    },
+    "s-e2-cover": {
+      "file": "e2-cover.png",
+      "theme": "e2",
+      "role": "cover",
+      "textNodes": 11,
+      "minFont": 11,
+      "maxFont": 104,
+      "ratio": 9.45,
+      "canvasOverflow": [],
+      "containerOverflow": [],
+      "contentOverflow": [],
+      "weakRead": [],
+      "textOverlaps": [],
+      "inlineFontSize": [],
+      "roleFonts": {
+        "display": 104,
+        "subhead": 40,
+        "caption": 18,
+        "meta": 15
+      },
+      "floorViolations": [],
+      "blankGridCells": [],
+      "titleFlush": [],
+      "groupWidthMismatch": [],
+      "nodes": [
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "DWG-A1 · SCALE 1:50",
+          "x": 120,
+          "y": 80,
+          "w": 400,
+          "h": 30,
+          "textWidth": 197,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            30,
+            30
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-display",
+          "text": "一杯好茶  山野作答",
+          "x": 120,
+          "y": 300,
+          "w": 1680,
+          "h": 200,
+          "textWidth": 894,
+          "fs": 104,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "max(var(--t-display),104px)",
+          "contentOverflow": false,
+          "scroll": [
+            200,
+            200
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-subhead",
+          "text": "山禾集 · 经营情况汇报 · 2026",
+          "x": 120,
+          "y": 520,
+          "w": 800,
+          "h": 48,
+          "textWidth": 551,
+          "fs": 40,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            52,
+            48
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "mt-bp-dim",
+          "text": "W = 1920px",
+          "x": 120,
+          "y": 620,
+          "w": 800,
+          "h": 14,
+          "textWidth": 350,
+          "fs": 12,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            14,
+            14
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "DWG-A1",
+          "x": 1481,
+          "y": 921,
+          "w": 65,
+          "h": 159,
+          "textWidth": 46,
+          "fs": 11,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            159,
+            159
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mt-bp-tag"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "1:50",
+          "x": 1546,
+          "y": 921,
+          "w": 51,
+          "h": 159,
+          "textWidth": 30,
+          "fs": 11,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            159,
+            159
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mt-bp-tag"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "2026",
+          "x": 1597,
+          "y": 921,
+          "w": 51,
+          "h": 159,
+          "textWidth": 30,
+          "fs": 11,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            159,
+            159
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mt-bp-tag"
+        },
+        {
+          "tag": "div",
+          "cls": "t-caption",
+          "text": "经营理念：当季鲜茶，日常相伴。",
+          "x": 120,
+          "y": 700,
+          "w": 800,
+          "h": 30,
+          "textWidth": 270,
+          "fs": 18,
+          "opacity": 0.9,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            30,
+            30
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "山禾集 · 经营情况汇报",
+          "x": 120,
+          "y": 1035,
+          "w": 167,
+          "h": 21,
+          "textWidth": 167,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "E2 蓝图 · cover",
+          "x": 975,
+          "y": 1035,
+          "w": 129,
+          "h": 21,
+          "textWidth": 129,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "—",
+          "x": 1791,
+          "y": 1035,
+          "w": 9,
+          "h": 21,
+          "textWidth": 9,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        }
+      ]
+    },
+    "s-e2-claim": {
+      "file": "e2-claim.png",
+      "theme": "e2",
+      "role": "claim",
+      "textNodes": 19,
+      "minFont": 11,
+      "maxFont": 96,
+      "ratio": 8.73,
+      "canvasOverflow": [],
+      "containerOverflow": [],
+      "contentOverflow": [
+        {
+          "tag": "div",
+          "cls": "t-display",
+          "text": "从茶园到门店",
+          "x": 149,
+          "y": 185,
+          "w": 1022,
+          "h": 96,
+          "textWidth": 576,
+          "fs": 96,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "max(var(--t-display),88px)",
+          "contentOverflow": true,
+          "scroll": [
+            111,
+            96
+          ],
+          "container": {
+            "x": 120,
+            "y": 160,
+            "w": 1080,
+            "h": 340
+          },
+          "containerOverflow": false,
+          "parentId": "mt-bp-frame"
+        }
+      ],
+      "weakRead": [],
+      "textOverlaps": [],
+      "inlineFontSize": [],
+      "roleFonts": {
+        "display": 96,
+        "body": 28,
+        "meta": 15
+      },
+      "floorViolations": [],
+      "blankGridCells": [],
+      "titleFlush": [],
+      "groupWidthMismatch": [],
+      "nodes": [
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "DWG-A2 · CLAIM",
+          "x": 120,
+          "y": 80,
+          "w": 400,
+          "h": 30,
+          "textWidth": 145,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            30,
+            30
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-display",
+          "text": "从茶园到门店",
+          "x": 149,
+          "y": 185,
+          "w": 1022,
+          "h": 96,
+          "textWidth": 576,
+          "fs": 96,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "max(var(--t-display),88px)",
+          "contentOverflow": true,
+          "scroll": [
+            111,
+            96
+          ],
+          "container": {
+            "x": 120,
+            "y": 160,
+            "w": 1080,
+            "h": 340
+          },
+          "containerOverflow": false,
+          "parentId": "mt-bp-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "t-body",
+          "text": "一杯好茶的答案，写在每一片叶子的来路上。",
+          "x": 149,
+          "y": 301,
+          "w": 1022,
+          "h": 45,
+          "textWidth": 560,
+          "fs": 28,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            45,
+            45
+          ],
+          "container": {
+            "x": 120,
+            "y": 160,
+            "w": 1080,
+            "h": 340
+          },
+          "containerOverflow": false,
+          "parentId": "mt-bp-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "mt-bp-dim",
+          "text": "1080px",
+          "x": 120,
+          "y": 520,
+          "w": 1080,
+          "h": 14,
+          "textWidth": 506,
+          "fs": 12,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            14,
+            14
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "STAT --BRIEF",
+          "x": 1269,
+          "y": 185,
+          "w": 502,
+          "h": 21,
+          "textWidth": 121,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": {
+            "x": 1240,
+            "y": 160,
+            "w": 560,
+            "h": 340
+          },
+          "containerOverflow": false,
+          "parentId": "mt-bp-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "t-body",
+          "text": "8,637家 山禾集全国门店总数",
+          "x": 1269,
+          "y": 222,
+          "w": 502,
+          "h": 50,
+          "textWidth": 105,
+          "fs": 28,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            50,
+            50
+          ],
+          "container": {
+            "x": 1240,
+            "y": 160,
+            "w": 560,
+            "h": 340
+          },
+          "containerOverflow": false,
+          "parentId": "mt-bp-frame"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "8,637家",
+          "x": 1269,
+          "y": 230,
+          "w": 105,
+          "h": 33,
+          "textWidth": 105,
+          "fs": 28,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            0,
+            0
+          ],
+          "container": {
+            "x": 1240,
+            "y": 160,
+            "w": 560,
+            "h": 340
+          },
+          "containerOverflow": false,
+          "parentId": "t-body"
+        },
+        {
+          "tag": "div",
+          "cls": "t-body",
+          "text": "2.8亿杯 累计售出茶饮",
+          "x": 1269,
+          "y": 272,
+          "w": 502,
+          "h": 50,
+          "textWidth": 102,
+          "fs": 28,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            50,
+            50
+          ],
+          "container": {
+            "x": 1240,
+            "y": 160,
+            "w": 560,
+            "h": 340
+          },
+          "containerOverflow": false,
+          "parentId": "mt-bp-frame"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "2.8亿杯",
+          "x": 1269,
+          "y": 280,
+          "w": 102,
+          "h": 33,
+          "textWidth": 102,
+          "fs": 28,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            0,
+            0
+          ],
+          "container": {
+            "x": 1240,
+            "y": 160,
+            "w": 560,
+            "h": 340
+          },
+          "containerOverflow": false,
+          "parentId": "t-body"
+        },
+        {
+          "tag": "div",
+          "cls": "t-body",
+          "text": "361家 城市旗舰店总数",
+          "x": 1269,
+          "y": 323,
+          "w": 502,
+          "h": 50,
+          "textWidth": 74,
+          "fs": 28,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            50,
+            50
+          ],
+          "container": {
+            "x": 1240,
+            "y": 160,
+            "w": 560,
+            "h": 340
+          },
+          "containerOverflow": false,
+          "parentId": "mt-bp-frame"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "361家",
+          "x": 1269,
+          "y": 331,
+          "w": 74,
+          "h": 33,
+          "textWidth": 74,
+          "fs": 28,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            0,
+            0
+          ],
+          "container": {
+            "x": 1240,
+            "y": 160,
+            "w": 560,
+            "h": 340
+          },
+          "containerOverflow": false,
+          "parentId": "t-body"
+        },
+        {
+          "tag": "div",
+          "cls": "mt-bp-dim",
+          "text": "560px",
+          "x": 1240,
+          "y": 520,
+          "w": 560,
+          "h": 14,
+          "textWidth": 250,
+          "fs": 12,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            14,
+            14
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-body",
+          "text": "山禾集深耕新式茶饮行业，同时通过全资子公司山禾供",
+          "x": 149,
+          "y": 605,
+          "w": 1622,
+          "h": 143,
+          "textWidth": 1596,
+          "fs": 28,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            143,
+            143
+          ],
+          "container": {
+            "x": 120,
+            "y": 580,
+            "w": 1680,
+            "h": 200
+          },
+          "containerOverflow": false,
+          "parentId": "mt-bp-frame"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "DWG-A2",
+          "x": 1481,
+          "y": 961,
+          "w": 65,
+          "h": 119,
+          "textWidth": 46,
+          "fs": 11,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            119,
+            119
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mt-bp-tag"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "1:100",
+          "x": 1546,
+          "y": 961,
+          "w": 59,
+          "h": 119,
+          "textWidth": 38,
+          "fs": 11,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            119,
+            119
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mt-bp-tag"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "2026",
+          "x": 1605,
+          "y": 961,
+          "w": 51,
+          "h": 119,
+          "textWidth": 30,
+          "fs": 11,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            119,
+            119
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mt-bp-tag"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "山禾集 · 经营情况汇报",
+          "x": 120,
+          "y": 1035,
+          "w": 167,
+          "h": 21,
+          "textWidth": 167,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "E2 蓝图 · claim",
+          "x": 975,
+          "y": 1035,
+          "w": 129,
+          "h": 21,
+          "textWidth": 129,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "—",
+          "x": 1791,
+          "y": 1035,
+          "w": 9,
+          "h": 21,
+          "textWidth": 9,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        }
+      ]
+    },
+    "s-e2-analysis": {
+      "file": "e2-analysis.png",
+      "theme": "e2",
+      "role": "analysis",
+      "textNodes": 22,
+      "minFont": 11,
+      "maxFont": 96,
+      "ratio": 8.73,
+      "canvasOverflow": [],
+      "containerOverflow": [],
+      "contentOverflow": [],
+      "weakRead": [],
+      "textOverlaps": [],
+      "inlineFontSize": [],
+      "roleFonts": {
+        "display": 96,
+        "body": 28,
+        "caption": 18,
+        "meta": 15
+      },
+      "floorViolations": [],
+      "blankGridCells": [],
+      "titleFlush": [],
+      "groupWidthMismatch": [],
+      "nodes": [
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "DWG-A3 · ANALYSIS",
+          "x": 120,
+          "y": 80,
+          "w": 400,
+          "h": 30,
+          "textWidth": 176,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            30,
+            30
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-display",
+          "text": "一杯好茶  山野作答",
+          "x": 120,
+          "y": 160,
+          "w": 1680,
+          "h": 100,
+          "textWidth": 825,
+          "fs": 96,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            113,
+            100
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "SECTION 01",
+          "x": 149,
+          "y": 345,
+          "w": 462,
+          "h": 21,
+          "textWidth": 100,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": {
+            "x": 120,
+            "y": 320,
+            "w": 520,
+            "h": 320
+          },
+          "containerOverflow": false,
+          "parentId": "mt-bp-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "t-body",
+          "text": "山禾集深耕新式茶饮行业，同时通过全资子公司山禾供",
+          "x": 149,
+          "y": 378,
+          "w": 462,
+          "h": 190,
+          "textWidth": 448,
+          "fs": 28,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            190,
+            190
+          ],
+          "container": {
+            "x": 120,
+            "y": 320,
+            "w": 520,
+            "h": 320
+          },
+          "containerOverflow": false,
+          "parentId": "mt-bp-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "SECTION 02",
+          "x": 699,
+          "y": 345,
+          "w": 462,
+          "h": 21,
+          "textWidth": 100,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": {
+            "x": 670,
+            "y": 320,
+            "w": 520,
+            "h": 320
+          },
+          "containerOverflow": false,
+          "parentId": "mt-bp-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "t-body",
+          "text": "经营理念：当季鲜茶，日常相伴。 使命：为大众提供",
+          "x": 699,
+          "y": 378,
+          "w": 462,
+          "h": 143,
+          "textWidth": 456,
+          "fs": 28,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            143,
+            143
+          ],
+          "container": {
+            "x": 670,
+            "y": 320,
+            "w": 520,
+            "h": 320
+          },
+          "containerOverflow": false,
+          "parentId": "mt-bp-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "SECTION 03",
+          "x": 1249,
+          "y": 345,
+          "w": 462,
+          "h": 21,
+          "textWidth": 100,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": {
+            "x": 1220,
+            "y": 320,
+            "w": 520,
+            "h": 320
+          },
+          "containerOverflow": false,
+          "parentId": "mt-bp-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "t-body",
+          "text": "近年来山禾集门店网络稳步扩张，行业排名持续提升。",
+          "x": 1249,
+          "y": 378,
+          "w": 462,
+          "h": 190,
+          "textWidth": 448,
+          "fs": 28,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            190,
+            190
+          ],
+          "container": {
+            "x": 1220,
+            "y": 320,
+            "w": 520,
+            "h": 320
+          },
+          "containerOverflow": false,
+          "parentId": "mt-bp-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "mt-bp-dim",
+          "text": "3 × 520 + 2 × 30 = 1620p",
+          "x": 120,
+          "y": 660,
+          "w": 1680,
+          "h": 14,
+          "textWidth": 730,
+          "fs": 12,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            14,
+            14
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "8,637家",
+          "x": 149,
+          "y": 725,
+          "w": 462,
+          "h": 21,
+          "textWidth": 56,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": {
+            "x": 120,
+            "y": 700,
+            "w": 520,
+            "h": 160
+          },
+          "containerOverflow": false,
+          "parentId": "mt-bp-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "t-caption",
+          "text": "山禾集全国门店总数",
+          "x": 149,
+          "y": 752,
+          "w": 462,
+          "h": 25,
+          "textWidth": 162,
+          "fs": 18,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            25,
+            25
+          ],
+          "container": {
+            "x": 120,
+            "y": 700,
+            "w": 520,
+            "h": 160
+          },
+          "containerOverflow": false,
+          "parentId": "mt-bp-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "2.8亿杯",
+          "x": 699,
+          "y": 725,
+          "w": 462,
+          "h": 21,
+          "textWidth": 55,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": {
+            "x": 670,
+            "y": 700,
+            "w": 520,
+            "h": 160
+          },
+          "containerOverflow": false,
+          "parentId": "mt-bp-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "t-caption",
+          "text": "累计售出茶饮",
+          "x": 699,
+          "y": 752,
+          "w": 462,
+          "h": 25,
+          "textWidth": 108,
+          "fs": 18,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            25,
+            25
+          ],
+          "container": {
+            "x": 670,
+            "y": 700,
+            "w": 520,
+            "h": 160
+          },
+          "containerOverflow": false,
+          "parentId": "mt-bp-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "361家",
+          "x": 1249,
+          "y": 725,
+          "w": 462,
+          "h": 21,
+          "textWidth": 40,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": {
+            "x": 1220,
+            "y": 700,
+            "w": 520,
+            "h": 160
+          },
+          "containerOverflow": false,
+          "parentId": "mt-bp-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "t-caption",
+          "text": "城市旗舰店总数",
+          "x": 1249,
+          "y": 752,
+          "w": 462,
+          "h": 25,
+          "textWidth": 126,
+          "fs": 18,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            25,
+            25
+          ],
+          "container": {
+            "x": 1220,
+            "y": 700,
+            "w": 520,
+            "h": 160
+          },
+          "containerOverflow": false,
+          "parentId": "mt-bp-frame"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "DWG-A3",
+          "x": 1481,
+          "y": 961,
+          "w": 65,
+          "h": 119,
+          "textWidth": 46,
+          "fs": 11,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            119,
+            119
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mt-bp-tag"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "1:200",
+          "x": 1546,
+          "y": 961,
+          "w": 59,
+          "h": 119,
+          "textWidth": 38,
+          "fs": 11,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            119,
+            119
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mt-bp-tag"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "2026",
+          "x": 1605,
+          "y": 961,
+          "w": 51,
+          "h": 119,
+          "textWidth": 30,
+          "fs": 11,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            119,
+            119
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mt-bp-tag"
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta note",
+          "text": "* 注：山禾集为虚构演示品牌，文中数据均为虚构，",
+          "x": 120,
+          "y": 980,
+          "w": 521,
+          "h": 21,
+          "textWidth": 521,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "山禾集 · 经营情况汇报",
+          "x": 120,
+          "y": 1035,
+          "w": 167,
+          "h": 21,
+          "textWidth": 167,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "E2 蓝图 · analysis",
+          "x": 962,
+          "y": 1035,
+          "w": 155,
+          "h": 21,
+          "textWidth": 155,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "—",
+          "x": 1791,
+          "y": 1035,
+          "w": 9,
+          "h": 21,
+          "textWidth": 9,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        }
+      ]
+    },
+    "s-e2-data": {
+      "file": "e2-data.png",
+      "theme": "e2",
+      "role": "data",
+      "textNodes": 19,
+      "minFont": 11,
+      "maxFont": 96,
+      "ratio": 8.73,
+      "canvasOverflow": [],
+      "containerOverflow": [],
+      "contentOverflow": [
+        {
+          "tag": "div",
+          "cls": "t-display",
+          "text": "8,637家",
+          "x": 149,
+          "y": 382,
+          "w": 1022,
+          "h": 96,
+          "textWidth": 360,
+          "fs": 96,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "max(var(--t-display),88px)",
+          "contentOverflow": true,
+          "scroll": [
+            111,
+            96
+          ],
+          "container": {
+            "x": 120,
+            "y": 320,
+            "w": 1080,
+            "h": 380
+          },
+          "containerOverflow": false,
+          "parentId": "mt-bp-frame"
+        }
+      ],
+      "weakRead": [],
+      "textOverlaps": [],
+      "inlineFontSize": [],
+      "roleFonts": {
+        "display": 96,
+        "subhead": 40,
+        "body": 28,
+        "caption": 18,
+        "meta": 15
+      },
+      "floorViolations": [],
+      "blankGridCells": [],
+      "titleFlush": [],
+      "groupWidthMismatch": [],
+      "nodes": [
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "DWG-A4 · DATA",
+          "x": 120,
+          "y": 80,
+          "w": 400,
+          "h": 30,
+          "textWidth": 135,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            30,
+            30
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-display",
+          "text": "数据宣言",
+          "x": 120,
+          "y": 160,
+          "w": 1680,
+          "h": 100,
+          "textWidth": 384,
+          "fs": 96,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            113,
+            100
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "KEY METRIC",
+          "x": 149,
+          "y": 345,
+          "w": 1022,
+          "h": 21,
+          "textWidth": 100,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": {
+            "x": 120,
+            "y": 320,
+            "w": 1080,
+            "h": 380
+          },
+          "containerOverflow": false,
+          "parentId": "mt-bp-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "t-display",
+          "text": "8,637家",
+          "x": 149,
+          "y": 382,
+          "w": 1022,
+          "h": 96,
+          "textWidth": 360,
+          "fs": 96,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "max(var(--t-display),88px)",
+          "contentOverflow": true,
+          "scroll": [
+            111,
+            96
+          ],
+          "container": {
+            "x": 120,
+            "y": 320,
+            "w": 1080,
+            "h": 380
+          },
+          "containerOverflow": false,
+          "parentId": "mt-bp-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "t-subhead",
+          "text": "山禾集全国门店总数",
+          "x": 149,
+          "y": 492,
+          "w": 1022,
+          "h": 52,
+          "textWidth": 360,
+          "fs": 40,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            52,
+            52
+          ],
+          "container": {
+            "x": 120,
+            "y": 320,
+            "w": 1080,
+            "h": 380
+          },
+          "containerOverflow": false,
+          "parentId": "mt-bp-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "行业前列",
+          "x": 149,
+          "y": 552,
+          "w": 1022,
+          "h": 21,
+          "textWidth": 60,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": {
+            "x": 120,
+            "y": 320,
+            "w": 1080,
+            "h": 380
+          },
+          "containerOverflow": false,
+          "parentId": "mt-bp-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "mt-bp-dim",
+          "text": "1080px",
+          "x": 120,
+          "y": 720,
+          "w": 1080,
+          "h": 14,
+          "textWidth": 506,
+          "fs": 12,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            14,
+            14
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "2.8亿杯",
+          "x": 1269,
+          "y": 345,
+          "w": 502,
+          "h": 21,
+          "textWidth": 55,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": {
+            "x": 1240,
+            "y": 320,
+            "w": 560,
+            "h": 170
+          },
+          "containerOverflow": false,
+          "parentId": "mt-bp-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "t-caption",
+          "text": "累计售出茶饮",
+          "x": 1269,
+          "y": 372,
+          "w": 502,
+          "h": 25,
+          "textWidth": 108,
+          "fs": 18,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            25,
+            25
+          ],
+          "container": {
+            "x": 1240,
+            "y": 320,
+            "w": 560,
+            "h": 170
+          },
+          "containerOverflow": false,
+          "parentId": "mt-bp-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "361家",
+          "x": 1269,
+          "y": 545,
+          "w": 502,
+          "h": 21,
+          "textWidth": 40,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": {
+            "x": 1240,
+            "y": 520,
+            "w": 560,
+            "h": 170
+          },
+          "containerOverflow": false,
+          "parentId": "mt-bp-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "t-caption",
+          "text": "城市旗舰店总数",
+          "x": 1269,
+          "y": 572,
+          "w": 502,
+          "h": 25,
+          "textWidth": 126,
+          "fs": 18,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            25,
+            25
+          ],
+          "container": {
+            "x": 1240,
+            "y": 520,
+            "w": 560,
+            "h": 170
+          },
+          "containerOverflow": false,
+          "parentId": "mt-bp-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "mt-bp-dim",
+          "text": "560px",
+          "x": 1240,
+          "y": 720,
+          "w": 560,
+          "h": 14,
+          "textWidth": 250,
+          "fs": 12,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            14,
+            14
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-body",
+          "text": "近年来山禾集门店网络稳步扩张，行业排名持续提升。",
+          "x": 149,
+          "y": 785,
+          "w": 1622,
+          "h": 95,
+          "textWidth": 1615,
+          "fs": 28,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            95,
+            95
+          ],
+          "container": {
+            "x": 120,
+            "y": 760,
+            "w": 1680,
+            "h": 140
+          },
+          "containerOverflow": false,
+          "parentId": "mt-bp-frame"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "DWG-A4",
+          "x": 1481,
+          "y": 961,
+          "w": 65,
+          "h": 119,
+          "textWidth": 46,
+          "fs": 11,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            119,
+            119
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mt-bp-tag"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "1:50",
+          "x": 1546,
+          "y": 961,
+          "w": 51,
+          "h": 119,
+          "textWidth": 30,
+          "fs": 11,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            119,
+            119
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mt-bp-tag"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "2026",
+          "x": 1597,
+          "y": 961,
+          "w": 51,
+          "h": 119,
+          "textWidth": 30,
+          "fs": 11,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            119,
+            119
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mt-bp-tag"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "山禾集 · 经营情况汇报",
+          "x": 120,
+          "y": 1035,
+          "w": 167,
+          "h": 21,
+          "textWidth": 167,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "E2 蓝图 · data",
+          "x": 979,
+          "y": 1035,
+          "w": 120,
+          "h": 21,
+          "textWidth": 120,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "—",
+          "x": 1791,
+          "y": 1035,
+          "w": 9,
+          "h": 21,
+          "textWidth": 9,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        }
+      ]
+    },
+    "s-e3-cover": {
+      "file": "e3-cover.png",
+      "theme": "e3",
+      "role": "cover",
+      "textNodes": 9,
+      "minFont": 15,
+      "maxFont": 120,
+      "ratio": 8,
+      "canvasOverflow": [],
+      "containerOverflow": [],
+      "contentOverflow": [],
+      "weakRead": [],
+      "textOverlaps": [],
+      "inlineFontSize": [],
+      "roleFonts": {
+        "display": 120,
+        "subhead": 40,
+        "caption": 18,
+        "meta": 15
+      },
+      "floorViolations": [],
+      "blankGridCells": [],
+      "titleFlush": [],
+      "groupWidthMismatch": [],
+      "nodes": [
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "1.1 · 整体特色及优势",
+          "x": 854,
+          "y": 330,
+          "w": 213,
+          "h": 21,
+          "textWidth": 213,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": true,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-display",
+          "text": "一杯好茶  山野作答",
+          "x": 480,
+          "y": 430,
+          "w": 960,
+          "h": 240,
+          "textWidth": 900,
+          "fs": 120,
+          "opacity": 1,
+          "transformed": true,
+          "inlineFontSize": "max(var(--t-display),120px)",
+          "contentOverflow": false,
+          "scroll": [
+            247,
+            240
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-subhead",
+          "text": "山禾集 · 经营情况汇报 · 2026",
+          "x": 682,
+          "y": 640,
+          "w": 555,
+          "h": 52,
+          "textWidth": 555,
+          "fs": 40,
+          "opacity": 1,
+          "transformed": true,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            52,
+            52
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-caption",
+          "text": "经营理念：当季鲜茶，日常相伴。",
+          "x": 825,
+          "y": 720,
+          "w": 270,
+          "h": 27,
+          "textWidth": 270,
+          "fs": 18,
+          "opacity": 0.9,
+          "transformed": true,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            27,
+            27
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "2026",
+          "x": 80,
+          "y": 300,
+          "w": 100,
+          "h": 41,
+          "textWidth": 18,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            41,
+            41
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "EXHIBITION",
+          "x": 1740,
+          "y": 300,
+          "w": 100,
+          "h": 103,
+          "textWidth": 18,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            103,
+            103
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "山禾集 · 经营情况汇报",
+          "x": 120,
+          "y": 1035,
+          "w": 167,
+          "h": 21,
+          "textWidth": 167,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "E3 装饰艺术 · cover",
+          "x": 959,
+          "y": 1035,
+          "w": 160,
+          "h": 21,
+          "textWidth": 160,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "—",
+          "x": 1791,
+          "y": 1035,
+          "w": 9,
+          "h": 21,
+          "textWidth": 9,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        }
+      ]
+    },
+    "s-e3-claim": {
+      "file": "e3-claim.png",
+      "theme": "e3",
+      "role": "claim",
+      "textNodes": 15,
+      "minFont": 15,
+      "maxFont": 112,
+      "ratio": 7.47,
+      "canvasOverflow": [],
+      "containerOverflow": [],
+      "contentOverflow": [],
+      "weakRead": [],
+      "textOverlaps": [],
+      "inlineFontSize": [],
+      "roleFonts": {
+        "display": 112,
+        "heading": 64,
+        "body": 28,
+        "meta": 15
+      },
+      "floorViolations": [],
+      "blankGridCells": [],
+      "titleFlush": [],
+      "groupWidthMismatch": [],
+      "nodes": [
+        {
+          "tag": "div",
+          "cls": "t-display",
+          "text": "从茶园到门店",
+          "x": 497,
+          "y": 279,
+          "w": 926,
+          "h": 112,
+          "textWidth": 672,
+          "fs": 112,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "max(var(--t-display),112px)",
+          "contentOverflow": false,
+          "scroll": [
+            118,
+            112
+          ],
+          "container": {
+            "x": 460,
+            "y": 250,
+            "w": 1000,
+            "h": 280
+          },
+          "containerOverflow": false,
+          "parentId": "mt-deco-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "t-body",
+          "text": "一杯好茶的答案，写在每一片叶子的来路上。",
+          "x": 497,
+          "y": 407,
+          "w": 926,
+          "h": 45,
+          "textWidth": 560,
+          "fs": 28,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            45,
+            45
+          ],
+          "container": {
+            "x": 460,
+            "y": 250,
+            "w": 1000,
+            "h": 280
+          },
+          "containerOverflow": false,
+          "parentId": "mt-deco-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "CONTEXT",
+          "x": 157,
+          "y": 649,
+          "w": 686,
+          "h": 21,
+          "textWidth": 70,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": {
+            "x": 120,
+            "y": 620,
+            "w": 760,
+            "h": 260
+          },
+          "containerOverflow": false,
+          "parentId": "mt-deco-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "t-body",
+          "text": "山禾集深耕新式茶饮行业，同时通过全资子公司山禾供",
+          "x": 157,
+          "y": 682,
+          "w": 686,
+          "h": 134,
+          "textWidth": 672,
+          "fs": 28,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            134,
+            134
+          ],
+          "container": {
+            "x": 120,
+            "y": 620,
+            "w": 760,
+            "h": 260
+          },
+          "containerOverflow": false,
+          "parentId": "mt-deco-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "CREED",
+          "x": 1077,
+          "y": 649,
+          "w": 686,
+          "h": 21,
+          "textWidth": 50,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": {
+            "x": 1040,
+            "y": 620,
+            "w": 760,
+            "h": 260
+          },
+          "containerOverflow": false,
+          "parentId": "mt-deco-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "t-body",
+          "text": "经营理念：当季鲜茶，日常相伴。 使命：为大众提供",
+          "x": 1077,
+          "y": 682,
+          "w": 686,
+          "h": 90,
+          "textWidth": 680,
+          "fs": 28,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            90,
+            90
+          ],
+          "container": {
+            "x": 1040,
+            "y": 620,
+            "w": 760,
+            "h": 260
+          },
+          "containerOverflow": false,
+          "parentId": "mt-deco-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "t-heading",
+          "text": "8,637家",
+          "x": 460,
+          "y": 900,
+          "w": 280,
+          "h": 70,
+          "textWidth": 198,
+          "fs": 64,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            71,
+            70
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "山禾集全国门店总数",
+          "x": 460,
+          "y": 976,
+          "w": 280,
+          "h": 20,
+          "textWidth": 135,
+          "fs": 15,
+          "opacity": 0.8,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            20,
+            20
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-heading",
+          "text": "2.8亿杯",
+          "x": 820,
+          "y": 900,
+          "w": 280,
+          "h": 70,
+          "textWidth": 202,
+          "fs": 64,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            71,
+            70
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "累计售出茶饮",
+          "x": 820,
+          "y": 976,
+          "w": 280,
+          "h": 20,
+          "textWidth": 90,
+          "fs": 15,
+          "opacity": 0.8,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            20,
+            20
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-heading",
+          "text": "361家",
+          "x": 1180,
+          "y": 900,
+          "w": 280,
+          "h": 70,
+          "textWidth": 154,
+          "fs": 64,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            71,
+            70
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "城市旗舰店总数",
+          "x": 1180,
+          "y": 976,
+          "w": 280,
+          "h": 20,
+          "textWidth": 105,
+          "fs": 15,
+          "opacity": 0.8,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            20,
+            20
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "山禾集 · 经营情况汇报",
+          "x": 120,
+          "y": 1035,
+          "w": 167,
+          "h": 21,
+          "textWidth": 167,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "E3 装饰艺术 · claim",
+          "x": 959,
+          "y": 1035,
+          "w": 160,
+          "h": 21,
+          "textWidth": 160,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "—",
+          "x": 1791,
+          "y": 1035,
+          "w": 9,
+          "h": 21,
+          "textWidth": 9,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        }
+      ]
+    },
+    "s-e3-analysis": {
+      "file": "e3-analysis.png",
+      "theme": "e3",
+      "role": "analysis",
+      "textNodes": 17,
+      "minFont": 15,
+      "maxFont": 96,
+      "ratio": 6.4,
+      "canvasOverflow": [],
+      "containerOverflow": [],
+      "contentOverflow": [],
+      "weakRead": [],
+      "textOverlaps": [],
+      "inlineFontSize": [],
+      "roleFonts": {
+        "display": 96,
+        "heading": 64,
+        "body": 28,
+        "caption": 18,
+        "meta": 15
+      },
+      "floorViolations": [],
+      "blankGridCells": [],
+      "titleFlush": [],
+      "groupWidthMismatch": [],
+      "nodes": [
+        {
+          "tag": "div",
+          "cls": "t-display",
+          "text": "一杯好茶  山野作答",
+          "x": 552,
+          "y": 160,
+          "w": 816,
+          "h": 101,
+          "textWidth": 816,
+          "fs": 96,
+          "opacity": 1,
+          "transformed": true,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            104,
+            101
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "SECTION A",
+          "x": 157,
+          "y": 379,
+          "w": 686,
+          "h": 21,
+          "textWidth": 90,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": {
+            "x": 120,
+            "y": 350,
+            "w": 760,
+            "h": 360
+          },
+          "containerOverflow": false,
+          "parentId": "mt-deco-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "t-body",
+          "text": "山禾集深耕新式茶饮行业，同时通过全资子公司山禾供",
+          "x": 157,
+          "y": 412,
+          "w": 686,
+          "h": 238,
+          "textWidth": 672,
+          "fs": 28,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            238,
+            238
+          ],
+          "container": {
+            "x": 120,
+            "y": 350,
+            "w": 760,
+            "h": 360
+          },
+          "containerOverflow": false,
+          "parentId": "mt-deco-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "t-caption",
+          "text": "经营理念：当季鲜茶，日常相伴。",
+          "x": 157,
+          "y": 666,
+          "w": 686,
+          "h": 27,
+          "textWidth": 270,
+          "fs": 18,
+          "opacity": 0.9,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            27,
+            27
+          ],
+          "container": {
+            "x": 120,
+            "y": 350,
+            "w": 760,
+            "h": 360
+          },
+          "containerOverflow": false,
+          "parentId": "mt-deco-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "SECTION B",
+          "x": 1077,
+          "y": 379,
+          "w": 686,
+          "h": 21,
+          "textWidth": 90,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": {
+            "x": 1040,
+            "y": 350,
+            "w": 760,
+            "h": 360
+          },
+          "containerOverflow": false,
+          "parentId": "mt-deco-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "t-body",
+          "text": "近年来山禾集门店网络稳步扩张，行业排名持续提升。",
+          "x": 1077,
+          "y": 412,
+          "w": 686,
+          "h": 190,
+          "textWidth": 672,
+          "fs": 28,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            190,
+            190
+          ],
+          "container": {
+            "x": 1040,
+            "y": 350,
+            "w": 760,
+            "h": 360
+          },
+          "containerOverflow": false,
+          "parentId": "mt-deco-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "t-caption",
+          "text": "使命：为大众提供新鲜、健康、平价的日常茶饮。",
+          "x": 1077,
+          "y": 618,
+          "w": 686,
+          "h": 27,
+          "textWidth": 396,
+          "fs": 18,
+          "opacity": 0.9,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            27,
+            27
+          ],
+          "container": {
+            "x": 1040,
+            "y": 350,
+            "w": 760,
+            "h": 360
+          },
+          "containerOverflow": false,
+          "parentId": "mt-deco-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "t-heading",
+          "text": "8,637家",
+          "x": 460,
+          "y": 780,
+          "w": 280,
+          "h": 70,
+          "textWidth": 198,
+          "fs": 64,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            71,
+            70
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "山禾集全国门店总数",
+          "x": 460,
+          "y": 856,
+          "w": 280,
+          "h": 20,
+          "textWidth": 135,
+          "fs": 15,
+          "opacity": 0.8,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            20,
+            20
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-heading",
+          "text": "2.8亿杯",
+          "x": 820,
+          "y": 780,
+          "w": 280,
+          "h": 70,
+          "textWidth": 202,
+          "fs": 64,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            71,
+            70
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "累计售出茶饮",
+          "x": 820,
+          "y": 856,
+          "w": 280,
+          "h": 20,
+          "textWidth": 90,
+          "fs": 15,
+          "opacity": 0.8,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            20,
+            20
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-heading",
+          "text": "361家",
+          "x": 1180,
+          "y": 780,
+          "w": 280,
+          "h": 70,
+          "textWidth": 154,
+          "fs": 64,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            71,
+            70
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "城市旗舰店总数",
+          "x": 1180,
+          "y": 856,
+          "w": 280,
+          "h": 20,
+          "textWidth": 105,
+          "fs": 15,
+          "opacity": 0.8,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            20,
+            20
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "DIV"
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta note",
+          "text": "* 注：山禾集为虚构演示品牌，文中数据均为虚构，",
+          "x": 120,
+          "y": 960,
+          "w": 521,
+          "h": 21,
+          "textWidth": 521,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "山禾集 · 经营情况汇报",
+          "x": 120,
+          "y": 1035,
+          "w": 167,
+          "h": 21,
+          "textWidth": 167,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "E3 装饰艺术 · analysis",
+          "x": 946,
+          "y": 1035,
+          "w": 186,
+          "h": 21,
+          "textWidth": 186,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "—",
+          "x": 1791,
+          "y": 1035,
+          "w": 9,
+          "h": 21,
+          "textWidth": 9,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        }
+      ]
+    },
+    "s-e3-data": {
+      "file": "e3-data.png",
+      "theme": "e3",
+      "role": "data",
+      "textNodes": 14,
+      "minFont": 15,
+      "maxFont": 112,
+      "ratio": 7.47,
+      "canvasOverflow": [],
+      "containerOverflow": [],
+      "contentOverflow": [],
+      "weakRead": [],
+      "textOverlaps": [],
+      "inlineFontSize": [],
+      "roleFonts": {
+        "display": 96,
+        "heading": 64,
+        "subhead": 40,
+        "meta": 15
+      },
+      "floorViolations": [],
+      "blankGridCells": [],
+      "titleFlush": [],
+      "groupWidthMismatch": [],
+      "nodes": [
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "DATA",
+          "x": 80,
+          "y": 280,
+          "w": 100,
+          "h": 41,
+          "textWidth": 18,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            41,
+            41
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "REPORT",
+          "x": 1740,
+          "y": 280,
+          "w": 100,
+          "h": 62,
+          "textWidth": 18,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            62,
+            62
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-display",
+          "text": "数据宣言",
+          "x": 768,
+          "y": 180,
+          "w": 384,
+          "h": 101,
+          "textWidth": 384,
+          "fs": 96,
+          "opacity": 1,
+          "transformed": true,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            104,
+            101
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "KEY METRIC",
+          "x": 597,
+          "y": 389,
+          "w": 726,
+          "h": 21,
+          "textWidth": 100,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": {
+            "x": 560,
+            "y": 360,
+            "w": 800,
+            "h": 280
+          },
+          "containerOverflow": false,
+          "parentId": "mt-deco-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "t-display",
+          "text": "8,637家",
+          "x": 597,
+          "y": 422,
+          "w": 726,
+          "h": 112,
+          "textWidth": 347,
+          "fs": 112,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "max(var(--t-display),112px)",
+          "contentOverflow": false,
+          "scroll": [
+            118,
+            112
+          ],
+          "container": {
+            "x": 560,
+            "y": 360,
+            "w": 800,
+            "h": 280
+          },
+          "containerOverflow": false,
+          "parentId": "mt-deco-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "t-subhead",
+          "text": "山禾集全国门店总数",
+          "x": 597,
+          "y": 548,
+          "w": 726,
+          "h": 52,
+          "textWidth": 360,
+          "fs": 40,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            52,
+            52
+          ],
+          "container": {
+            "x": 560,
+            "y": 360,
+            "w": 800,
+            "h": 280
+          },
+          "containerOverflow": false,
+          "parentId": "mt-deco-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "t-heading",
+          "text": "2.8亿杯",
+          "x": 157,
+          "y": 749,
+          "w": 446,
+          "h": 70,
+          "textWidth": 202,
+          "fs": 64,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            71,
+            70
+          ],
+          "container": {
+            "x": 120,
+            "y": 720,
+            "w": 520,
+            "h": 160
+          },
+          "containerOverflow": false,
+          "parentId": "mt-deco-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "累计售出茶饮",
+          "x": 157,
+          "y": 825,
+          "w": 446,
+          "h": 20,
+          "textWidth": 90,
+          "fs": 15,
+          "opacity": 0.9,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            20,
+            20
+          ],
+          "container": {
+            "x": 120,
+            "y": 720,
+            "w": 520,
+            "h": 160
+          },
+          "containerOverflow": false,
+          "parentId": "mt-deco-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "t-heading",
+          "text": "361家",
+          "x": 1317,
+          "y": 749,
+          "w": 446,
+          "h": 70,
+          "textWidth": 154,
+          "fs": 64,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            71,
+            70
+          ],
+          "container": {
+            "x": 1280,
+            "y": 720,
+            "w": 520,
+            "h": 160
+          },
+          "containerOverflow": false,
+          "parentId": "mt-deco-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta",
+          "text": "城市旗舰店总数",
+          "x": 1317,
+          "y": 825,
+          "w": 446,
+          "h": 20,
+          "textWidth": 105,
+          "fs": 15,
+          "opacity": 0.9,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            20,
+            20
+          ],
+          "container": {
+            "x": 1280,
+            "y": 720,
+            "w": 520,
+            "h": 160
+          },
+          "containerOverflow": false,
+          "parentId": "mt-deco-frame"
+        },
+        {
+          "tag": "div",
+          "cls": "t-meta note",
+          "text": "* 注：山禾集为虚构演示品牌，文中数据均为虚构，",
+          "x": 120,
+          "y": 920,
+          "w": 521,
+          "h": 21,
+          "textWidth": 521,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": null
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "山禾集 · 经营情况汇报",
+          "x": 120,
+          "y": 1035,
+          "w": 167,
+          "h": 21,
+          "textWidth": 167,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "E3 装饰艺术 · data",
+          "x": 964,
+          "y": 1035,
+          "w": 151,
+          "h": 21,
+          "textWidth": 151,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        },
+        {
+          "tag": "span",
+          "cls": "",
+          "text": "—",
+          "x": 1791,
+          "y": 1035,
+          "w": 9,
+          "h": 21,
+          "textWidth": 9,
+          "fs": 15,
+          "opacity": 1,
+          "transformed": false,
+          "inlineFontSize": "",
+          "contentOverflow": false,
+          "scroll": [
+            21,
+            21
+          ],
+          "container": null,
+          "containerOverflow": false,
+          "parentId": "mastfoot"
+        }
+      ]
+    }
+  },
+  "pageErrors": [],
+  "summary": {
+    "pages": 16,
+    "canvasOverflow": 0,
+    "containerOverflow": 0,
+    "contentOverflow": 4,
+    "weakRead": 0,
+    "textOverlaps": 0,
+    "inlineFontSize": 0,
+    "floorViolations": 0,
+    "pageErrors": 0,
+    "lowDensityRatioMin": 7.47,
+    "blankGridCells": 0,
+    "titleFlush": 0,
+    "groupWidthMismatch": 0
+  }
+}

@@ -1,0 +1,17 @@
+1/16 s-g4-cover: overflow=0 cOver=0 weak=0 overlap=0 inline=0 ratio=8.53 blankCells=0 titleFlush=0 groupWidth=0
+2/16 s-g4-claim: overflow=0 cOver=0 weak=0 overlap=0 inline=0 ratio=8.53 blankCells=0 titleFlush=0 groupWidth=0
+3/16 s-g4-analysis: overflow=0 cOver=0 weak=0 overlap=0 inline=0 ratio=6.4 blankCells=0 titleFlush=0 groupWidth=0
+4/16 s-g4-data: overflow=0 cOver=0 weak=0 overlap=0 inline=0 ratio=8.53 blankCells=0 titleFlush=0 groupWidth=0
+5/16 s-g5-cover: overflow=0 cOver=0 weak=0 overlap=0 inline=0 ratio=8 blankCells=0 titleFlush=0 groupWidth=0
+6/16 s-g5-claim: overflow=0 cOver=0 weak=0 overlap=0 inline=0 ratio=8 blankCells=0 titleFlush=0 groupWidth=0
+7/16 s-g5-analysis: overflow=0 cOver=0 weak=0 overlap=0 inline=0 ratio=6.86 blankCells=0 titleFlush=0 groupWidth=0
+8/16 s-g5-data: overflow=0 cOver=0 weak=0 overlap=0 inline=0 ratio=6.86 blankCells=0 titleFlush=0 groupWidth=0
+9/16 s-e2-cover: overflow=0 cOver=0 weak=0 overlap=0 inline=0 ratio=9.45 blankCells=0 titleFlush=0 groupWidth=0
+10/16 s-e2-claim: overflow=0 cOver=0 weak=0 overlap=0 inline=0 ratio=8.73 blankCells=0 titleFlush=0 groupWidth=0
+11/16 s-e2-analysis: overflow=0 cOver=0 weak=0 overlap=0 inline=0 ratio=8.73 blankCells=0 titleFlush=0 groupWidth=0
+12/16 s-e2-data: overflow=0 cOver=0 weak=0 overlap=0 inline=0 ratio=8.73 blankCells=0 titleFlush=0 groupWidth=0
+13/16 s-e3-cover: overflow=0 cOver=0 weak=0 overlap=0 inline=0 ratio=8 blankCells=0 titleFlush=0 groupWidth=0
+14/16 s-e3-claim: overflow=0 cOver=0 weak=0 overlap=0 inline=0 ratio=7.47 blankCells=0 titleFlush=0 groupWidth=0
+15/16 s-e3-analysis: overflow=0 cOver=0 weak=0 overlap=0 inline=0 ratio=6.4 blankCells=0 titleFlush=0 groupWidth=0
+16/16 s-e3-data: overflow=0 cOver=0 weak=0 overlap=0 inline=0 ratio=7.47 blankCells=0 titleFlush=0 groupWidth=0
+SUMMARY {"pages":16,"canvasOverflow":0,"containerOverflow":0,"contentOverflow":4,"weakRead":0,"textOverlaps":0,"inlineFontSize":0,"floorViolations":0,"pageErrors":0,"lowDensityRatioMin":7.47,"blankGridCells":0,"titleFlush":0,"groupWidthMismatch":0}

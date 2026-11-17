@@ -135,6 +135,56 @@
 }
 ```
 
+**G10 composition_program**
+
+- **定位**：主题从「可替换参数集」升级为「决定信息如何进入空间的程序」。本组为硬约束，写进页计划表头即整 deck 的构图契约。
+- **灵魂承载**：扇形放射 sunburst 和双线金框是签名结构件，形状由 CSS 承担（data-editable-skip），其内部承载的文字仍是 data-editable 叶子节点。
+- **DOM 结构测试签署**：删掉 signature_operator，页面回到「标题 + 两段正文 + 横排三格 KPI」，中轴对称构图、扇形放射、双线金框阵列、菱形分隔符全部消失，元素数量/分组/顺序/位置**都变** → **PASS**。
+
+```yaml
+
+doctrine: 对称即仪式——Deco 的奢华不在金子的量，在金线划出的秩序。
+
+page_composition:
+  skeleton: 中轴对称（双线金框对称阵列 + 扇形放射仪式背景）
+  grid: {margin: 96, gutter: 40}
+  balance: {anchor: 中轴(标题/主张), counterweight: 对称双栏(左右镜像)}
+  whitespace_ratio: "≥40%"
+  flow: "中轴标题/主张 → 菱形分隔 → 对称双栏辅助信息 → 底部结论（菱形引出）"
+signature_operator: 把每条信息编译成中轴对称的金线框阵列——
+  核心信息装进中轴上的双线金框（border + outline 双 1px 金线，间距 5px）；
+  标题在金框内，高对比衬线 600–700，拉丁 kicker 全大写宽字距 ≥.3em；
+  菱形分隔符（旋转 45° 小金菱 + 两侧金线翼卫）做标题上下修饰，中轴居中；
+  三项数字重排为对称双栏的镜像模块（非横排等宽三格），主数字在中轴金框内；
+  扇形放射 sunburst（repeating-conic-gradient 半扇金线）做封面/仪式页背景层，每页至多一个；
+  底色块只用 ink-tint/paper-tint 明度档，金是线不是面（accent 面积 ≤8%）。
+silhouette: 中轴对称构图；矩形双线金框对称排列；重心在中轴上；墨黑/墨绿暖底 + 金线 + 象牙白字。
+info_grammar:
+  cover:    双线金框整页内框 + 页顶半扇金线 sunburst + 中轴巨字标题 + 菱形分隔 + kicker
+  toc:      3–5 个双线金框对称排列，当前章节用金线强调，菱形分隔做章节标记
+  claim:    中轴金框装主张句 + 两侧金线翼卫 + 底部菱形引出说明
+  analysis: 中轴对称双栏（左/右镜像模块），金线 hairline 分隔，底部菱形引出结论
+  data:     三项数字 → 对称双栏镜像模块，主数字在中轴金框内
+  closing:  sunburst 回到封面方向（半亮或缩小）+ 双线金框 + 菱形分隔收束
+type_scale:            # px@1920×1080 画布基准；下限由骨架 .t-* 的 max() 结构性锁定
+  --t-display: 120px  # 高对比衬线 600–700 承载对称仪式压强；与正文 4.3:1
+  rule: 标题:正文 ≥1.8:1；正文层 opacity = 1，禁灰化弱读；金线 accent 面积 ≤8%（金是线不是面）
+  floor_note: body/heading/subhead/caption/meta 不覆盖，继承骨架 28/64/40/18/15；地板由 max() 保证，无需后拦截门禁
+invariants:
+  - 中轴对称：所有主要元素沿中轴左右镜像（analysis 用对称双栏，claim 用中轴金框）
+  - 双线金框 ≥1 个/页（border + outline 双 1px 金线，间距 5px，直角中空无填充）
+  - 扇形放射 sunburst 每页至多一个、只许页顶/标题区/仪式页背景层
+  - 菱形分隔符只许中轴对称位（标题上下居中）
+  - 金是线不是面：accent 面积 ≤8%，禁大面积金块/金渐变/金箔照片质感
+  - 横排等权三格容器数 = 0
+  - 禁斜线/对角构图——Deco 是中轴对称的艺术
+  - 禁圆角、禁阴影、禁玻璃拟态
+forbidden_defaults: [横向等权三格 KPI, 卡片墙成阵, 居中 hero（裸居中文字无金框）, hairline 发丝线分区, 弥散软影, 渐变色块, 玻璃拟态, 斜线/对角构图, 大面积金块, 圆角]
+dna_events: {cover: 强, claim: 强, analysis: 中, data: 中, divider: 强, closing: 强}
+```
+
+---
+
 **Variants 配色变体**
 
 #### 墨绿金
