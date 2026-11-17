@@ -131,7 +131,7 @@ v3 把"动效怎么被触发"提升为一等维度。**族前缀即触发器自�
 | `amb-pulse` 呼吸 | ambience | 呼吸点、状态灯 | 循环 4s | 全主题 | 不透明度摆幅 ≤.4 |
 | `amb-drift` 漂移 | ambience | 水印、背景图形 | 循环 9s | 全主题 | 位移 ≤10px |
 | `amb-glow` 辉光呼吸 | ambience | 氛围光斑 | 循环 6s | dramatic/calm 亲和 | 透明度 + 1.05 缩放 |
-| `amb-noise` 噪点 | ambience | 纸纹/胶片感背景 | 步进 1.4s | 纸感/手绘主题（A4/D3）亲和；flat 系（B/C1）禁 | steps(2) 抖动背景位，作用于自带纹理背景的元素 |
+| `amb-noise` 噪点 | ambience | 纸纹/胶片感背景 | 步进 1.4s | 纸感/印刷主题（E1/E7）亲和；flat 系（B/C1）禁 | steps(2) 抖动背景位，作用于自带纹理背景的元素 |
 | `amb-gradient-blob` 渐变球 | ambience | 封面/收束的氛围主体 | 循环 16s | dramatic/calm 亲和 | 位移 ≤24px、缩放 ≤1.06（上限烧死） |
 | `amb-kenburns` 缓推镜 | ambience | 封面大图、背景照片 | 循环 26s 往返 | editorial/dramatic 亲和 | scale 1→1.08 + 微位移，作用于 img/背景容器 |
 | `amb-marquee` 走马灯 | ambience | 装饰条带（logo 墙/关键词带） | 循环 ≥12s | playful/techy 亲和；editorial 禁 | 生成侧把内容写两遍，translateX −50% 无缝循环 |
@@ -231,7 +231,7 @@ canvas FX 是**页面级仪式效果**，不是元素级 recipe——8 族词汇
 | 科技 Techy | 精确、系统 | count-up/draw-line/dash-flow/flow-dot，数字与图表生长；主题限定款 typewriter/scramble 只在这里合法 |
 | 活泼 Playful | 轻松 | scale-pop/magnetic/amb-marquee 点到为止；本技能形态下建议主要用配色表达 |
 
-- **主题 G5**：主题声明动效气质、强度上限与禁用 recipe（如 editorial 系禁 shatter/persp-in、calm 系禁 dash-flow/flow-dot、typewriter/scramble 仅 techy 主题可用），生成侧选型必须遵守；G5 缺省时走全局默认（professional，无禁用，主题限定款仍按 §4 表执行）。G5 另携「fx 许可」白名单（canvas 仪式层，§4 fx 小节），缺省全禁。**G 期起 G5 扩为动效签名**：气质/上限/禁用/fx 许可之外可声明——「锚点偏好」（本主题锚点 recipe 首选序列，如 c1=scale-pop/wipe-clip、d2=blur-in、a1=mask-lines）、「节奏偏移」（时长档 ±1 与阶梯步长上下限，生成侧落码时执行）、「缓动签名」（主题 CSS 块内 `:root{}` 重定义 `--ease-out/--ease-shift/--ease-loop`，骨架 var() 消费即生效，如 b1 锐利 .2,.9,.25,1、d1 回弹 .34,1.56,.64,1）。优先级硬规则：注意力预算（§1/§5）与禁用清单仍是上限，签名只在预算内定倾向，不得借签名突破。
+- **主题 G5**：主题声明动效气质、强度上限与禁用 recipe（如 editorial 系禁 shatter/persp-in、calm 系禁 dash-flow/flow-dot、typewriter/scramble 仅 techy 主题可用），生成侧选型必须遵守；G5 缺省时走全局默认（professional，无禁用，主题限定款仍按 §4 表执行）。G5 另携「fx 许可」白名单（canvas 仪式层，§4 fx 小节），缺省全禁。**G 期起 G5 扩为动效签名**：气质/上限/禁用/fx 许可之外可声明——「锚点偏好」（本主题锚点 recipe 首选序列，如 c1=scale-pop/wipe-clip、d2=blur-in、a1=mask-lines）、「节奏偏移」（时长档 ±1 与阶梯步长上下限，生成侧落码时执行）、「缓动签名」（主题 CSS 块内 `:root{}` 重定义 `--ease-out/--ease-shift/--ease-loop`，骨架 var() 消费即生效，如 b1 锐利 .2,.9,.25,1、g2 轻快 .5,1.7,.4,1）。优先级硬规则：注意力预算（§1/§5）与禁用清单仍是上限，签名只在预算内定倾向，不得借签名突破。
 - **图表**：`draw-line` / `fill-bar` / `fill-bar-y` / `ring` / `count-up` 即图表入场动效的标准款，charts.md 引用本词汇表，不再单独定义动画。同一页里图表生长是主角时，其他元素减少或不做入场（沉静原则）。
 - **编辑**：所有文本类动效运行时化（`data-anim` 属性本身不参与编辑，编辑器忽略）；编辑后下次入场按新文本重拆/重打。mask-lines 的分行结构（`.ml-line`/`.ml-inner`）是**产物结构**，编辑对象是 `.ml-inner` 叶子文字；改行数属于结构变更，走 AI 流程。ptr/scroll 族在编辑器内被冻结（编辑态静态终态），不影响演示态。
 - **隐喻交叉**：内容关系 → 视觉隐喻的发散见 `references/motifs.md`（H 期，SKILL.md 呈现发散步的查询库）——动效承载内容隐喻时（如 draw-line=生长/描绘、blur-in=显影），锚点选择先服从主题 G5 签名，再服从隐喻亲和。

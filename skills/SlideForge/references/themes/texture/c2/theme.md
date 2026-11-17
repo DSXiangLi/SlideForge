@@ -83,6 +83,54 @@
 
 - **禁忌**：引线与签条是标注工具不是装饰，禁无内容空挂；叶脉线禁横穿正文区、禁与引线同页抢焦；母题件一律 `data-editable-skip`
 
+**G10 composition_program**
+
+- **定位**：主题从「可替换参数集」升级为「决定信息如何进入空间的程序」。本组为硬约束，写进页计划表头即整 deck 的构图契约。
+- **灵魂承载**：图鉴卡（.mt-bot-plate）和编号签条（.mt-bot-tag）是签名结构件，形状由 CSS 承担（data-editable-skip），其内部承载的文字仍是 data-editable 叶子节点。
+- **DOM 结构测试签署**：删掉 signature_operator，页面回到「标题 + 两段正文 + 横排三格 KPI」，暗底图鉴卡阵、1px 描边直角卡、编号签条、标本引线、叶脉侧缘全部消失，元素数量/分组/顺序/位置**都变** → **PASS**。
+
+```yaml
+
+doctrine: 标本是时间的标本柜——暗夜纸面上，每条信息是一份编号入册的植物图鉴条目，暖金辉光像温室夜灯悬在图鉴上方。
+
+page_composition:
+  skeleton: 图鉴卡阵——1px 细描边直角卡片在暗底上阵列，卡左上角钉编号签条
+  grid: {margin: 96px 120px, gutter: 32px}
+  balance: {anchor: 图鉴卡阵(主信息区), counterweight: 辉光区(右上角) / 叶脉侧缘}
+  whitespace_ratio: ">=40%"
+  flow: "编号签条定锚 → 图鉴卡承载核心信息 → 标本引线连接卡与注 → 拉丁学名做学术签名 → 脚注收束"
+signature_operator: 把每条信息编译成一份图鉴条目——
+  核心信息装进 1px 细描边直角图鉴卡（.mt-bot-plate），卡左上角钉 mono 编号签条（.mt-bot-tag "No.01"）；
+  主张句在卡内衬线大字，拉丁学名斜体注在下方（.mt-bot-latin）；
+  辅助信息用标本引线（.mt-bot-lead：accent 空心圆点 + 渐隐细线 + mono 小注）从图鉴卡引出；
+  三项数字重排为图鉴卡阵内的编号条目（非横排等权三格），主数字独占一张图鉴卡 + accent 签点；
+  叶脉分叉细线（.mt-bot-vein）只许页面侧缘低透明装饰；
+  暗底 + 右上角暖金辉光是仪式页氛围，正文页纯暗夜纸面。
+silhouette: 暗底图鉴卡阵；直角 1px 描边矩形块面；重心偏左上（卡阵区）；右侧辉光或叶脉装饰带。
+info_grammar:
+  cover:    满版暗底 + 右上角暖金辉光 + 衬线巨字标题 + 编号签条钉页角
+  toc:      3-5 个图鉴卡排列，当前章节用 accent 签点标记
+  claim:    图鉴卡阵承载主张句（卡内衬线大字 + 拉丁学名注），标本引线从卡引出连接辅助说明，编号签条钉卡角
+  analysis: 2-4 个同构图鉴卡在暗底上，每个承载一段信息，至多一张卡用 accent 签点焦点
+  data:     三项数字 → 图鉴卡阵内编号条目排列，主数字独占 accent 签点卡
+  closing:  暗底 + 右上角辉光呼应封面（可略强），编号签条最后一次出现
+type_scale:            # px@1920x1080 画布基准；下限由骨架 .t-* 的 max() 结构性锁定
+  --t-display: 96px  # 衬线 500-600 承载图鉴标题；与正文 3.4:1
+  rule: 标题:正文 >=1.8:1；正文层 opacity = 1，禁灰化弱读；accent 暖金面积 <=5%（只做签点 / 引线端点 / 关键数字）
+  floor_note: body/heading/subhead/caption/meta 不覆盖，继承骨架 28/64/40/18/15；地板由 max() 保证，无需后拦截门禁
+invariants:
+  - 图鉴卡 1px solid hairline 描边（color-mix ink 28%），直角，无阴影
+  - 暗底（--paper #0f0f0f）+ 暖金 accent（#d4a574），accent 面积 <=5%
+  - 编号签条每卡至多一枚、钉在左上角
+  - 标本引线每页 <=2 条，是标注工具不是装饰
+  - 横排等权三格容器数 = 0
+  - 叶脉线只许页面侧缘低透明装饰，禁横穿正文区
+forbidden_defaults: [横向等权三格 KPI, 卡片墙成阵, 居中 hero, 圆角卡, 弥散软影, 渐变色块, 玻璃拟态, 满版色块]
+dna_events: {cover: 强, claim: 中, analysis: 弱, data: 中, toc: 弱, closing: 强}
+```
+
+---
+
 **Variants 配色变体**
 
 #### 月白

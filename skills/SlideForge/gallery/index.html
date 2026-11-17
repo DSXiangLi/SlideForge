@@ -247,7 +247,7 @@ body{
    G 期主题样张 · 母题 CSS 合入区（仅属画廊豁免）
    以下来自 references/themes.md 各主题 G9 css 块，逐字复制，
    只收 .mt-* 规则——:root{} 缓动签名转写为对应样张页 section
-   的内联自定义属性（见 theme-b1/c1/d1/d2 页 style）。
+   的内联自定义属性（见 theme-b1/c1/d2 页 style）。
    ============================================================ */
 
 /* A1 电子杂志 · 装饰母题 */
@@ -290,28 +290,11 @@ body{
 .mt-term-prompt::before{content:"$ ";color:var(--accent);font-weight:600}
 @media (prefers-reduced-motion: reduce){.mt-term-caret{animation:none}}
 
-/* C4 纸与墨 · 装饰母题 */
-.mt-pub-orn{display:flex;align-items:center;justify-content:center;gap:16px;color:var(--accent);font-family:var(--font-display);pointer-events:none;user-select:none}
-.mt-pub-orn::before,.mt-pub-orn::after{content:"";width:64px;height:1px;background:color-mix(in srgb,var(--ink) 28%,transparent)}
-.mt-pub-dropcap::first-letter{font-family:var(--font-display);font-weight:700;font-size:3.2em;line-height:.78;float:left;padding:.06em .14em 0 0;color:var(--accent)}
-.mt-pub-pull{border-left:3px solid var(--accent);padding-left:1.2em;font-family:var(--font-display);font-size:1.45em;line-height:1.7}
-
-/* D1 奶油物语 · 装饰母题（:root 缓动签名 → theme-d1 页内联） */
-.mt-crm-sticker{display:inline-block;padding:.45em 1.1em;border-radius:999px;background:var(--accent);color:var(--accent-on);font-weight:600;letter-spacing:.05em;transform:rotate(-3deg);box-shadow:0 6px 18px color-mix(in srgb,var(--accent) 30%,transparent)}
-.mt-crm-scallop{height:16px;background-image:radial-gradient(circle at 8px 0,var(--paper-tint) 8px,transparent 8.5px);background-size:16px 16px;background-repeat:repeat-x}
-.mt-crm-dot{display:inline-block;width:.55em;height:.55em;border-radius:50%;background:var(--accent)}
-
 /* D2 柔光暗房 · 装饰母题（:root 缓动签名 → theme-d2 页内联） */
 .mt-drk-film{height:26px;pointer-events:none;background-image:linear-gradient(90deg,color-mix(in srgb,var(--ink) 55%,transparent) 0 12px,transparent 12px 24px);background-size:24px 12px;background-repeat:repeat-x;background-position:0 50%;opacity:.6}
 .mt-drk-beam{position:absolute;pointer-events:none;width:200px;height:200px;background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 20%,transparent),transparent 65%);clip-path:polygon(0 0,100% 0,0 100%)}
 .mt-drk-halo{position:relative}
 .mt-drk-halo::before{content:"";position:absolute;inset:-12%;pointer-events:none;background:radial-gradient(65% 65% at 50% 60%,color-mix(in srgb,var(--accent) 13%,transparent),transparent 70%)}
-
-/* D3 手绘油彩 · 装饰母题 */
-.mt-art-brush{position:relative;isolation:isolate}
-.mt-art-brush::before{content:"";position:absolute;inset:-.15em -.35em;z-index:-1;background:color-mix(in srgb,var(--accent) 22%,transparent);border-radius:62% 38% 55% 45%/48% 55% 42% 52%}
-.mt-art-circle{border:2px dashed color-mix(in srgb,var(--accent) 65%,transparent);border-radius:58% 42% 50% 50%/52% 48% 55% 45%;padding:.4em .9em}
-.mt-art-frame{border:1px solid color-mix(in srgb,var(--ink) 55%,transparent);box-shadow:inset 0 0 0 5px var(--paper),inset 0 0 0 6px color-mix(in srgb,var(--ink) 35%,transparent)}
 
 /* E1 孔版印刷 · 装饰母题（:root 缓动签名 → theme-e1 页内联） */
 .mt-ris-misreg{position:relative;isolation:isolate}
@@ -438,13 +421,6 @@ body{
 .mt-neo-dot{display:inline-block;width:.5em;height:.5em;border-radius:50%;background:var(--accent);box-shadow:0 0 12px color-mix(in srgb,var(--accent) 80%,transparent);animation:amb-pulse 2.4s ease-in-out infinite}
 .mt-neo-refl{transform:scaleY(-1);opacity:.35;pointer-events:none;filter:blur(1px);-webkit-mask-image:linear-gradient(180deg,transparent 28%,color-mix(in srgb,var(--accent) 45%,transparent));mask-image:linear-gradient(180deg,transparent 28%,color-mix(in srgb,var(--accent) 45%,transparent))}
 @media (prefers-reduced-motion: reduce){.mt-neo-dot{animation:none}}
-
-/* F3 暮色长镜 · 装饰母题 */
-.mt-dsk-horizon{position:absolute;left:0;right:0;bottom:0;height:22vh;pointer-events:none;background:linear-gradient(180deg,transparent,color-mix(in srgb,var(--accent) 26%,transparent) 78%,color-mix(in srgb,var(--accent) 45%,transparent))}
-.mt-dsk-grad{background:linear-gradient(100deg,var(--ink) 30%,color-mix(in srgb,var(--accent) 75%,var(--ink)));-webkit-background-clip:text;background-clip:text;color:transparent}
-.mt-dsk-code{font-family:var(--font-mono);font-size:13px;letter-spacing:.22em;opacity:.55;pointer-events:none}
-.mt-dsk-code::before{content:"[ "}
-.mt-dsk-code::after{content:" ]"}
 
 /* G1 翡翠年鉴 · 装饰母题 */
 .mt-emr-seal{width:88px;height:88px;border-radius:50%;border:2px solid var(--accent);box-shadow:inset 0 0 0 5px color-mix(in srgb,var(--accent) 25%,transparent);pointer-events:none}
@@ -1879,41 +1855,7 @@ body{
     </section>
   </div>
 
-  <!-- 30 · 主题样张 C4 纸与墨（母题：题花 / 引文拉页 / 首字下沉；文本载体母题保持可编辑） -->
-  <div class="slide-slot">
-    <section class="slide cover-page" data-slide-id="theme-c4" style="--paper:#faf9f7;--paper-tint:#efece7;--ink:#1a1a1a;--ink-tint:#2b2b2b;--accent:#c41e3a;--accent-on:#faf9f7;--font-display:'Songti SC','Noto Serif SC','STSong',serif;--font-body:'Songti SC','Noto Serif SC','STSong',serif;--font-mono:'SF Mono','JetBrains Mono','Menlo',monospace;--texture-type:paper;--texture-layer:radial-gradient(80% 60% at 25% 12%,color-mix(in srgb,var(--ink) 3%,transparent),transparent 65%);--texture-scope:cover" data-content-hash="78426c0b4813">
-      <div style="position:relative;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-family:var(--font-body)">
-        <p data-editable class="reveal" style="font-family:var(--font-mono);font-size:18px;letter-spacing:.12em;opacity:.55">THEME SAMPLES · G</p>
-        <h1 data-editable class="reveal" style="--d:.1s;margin-top:40px;font-family:var(--font-display);font-size:140px;line-height:1.3;font-weight:700">想象的形状</h1>
-        <div class="mt-pub-orn reveal" data-editable-skip style="--d:.18s;margin-top:36px;font-size:26px">❧</div>
-        <p data-editable class="mt-pub-pull reveal" style="--d:.26s;margin-top:40px;font-size:24px;text-align:left">同一段内容，二十九个世界</p>
-        <p data-editable class="mt-pub-dropcap reveal" style="--d:.34s;margin-top:64px;max-width:620px;font-size:21px;line-height:1.9;text-align:left;opacity:.85">纸面铺开，墨色落定。同一句话落在不同的纸上，就长成不同的世界。排版从不是装饰——它是内容抵达读者之前，最后一次被郑重对待的机会。字有墨色，纸有呼吸。</p>
-      </div>
-      <p data-editable style="position:absolute;left:120px;bottom:60px;font-family:var(--font-mono);font-size:15px;font-weight:500;opacity:.55">C4 · 纸与墨 · 绯红</p>
-    </section>
-  </div>
-
-  <!-- 31 · 主题样张 D1 奶油物语（母题：贴纸徽章 / 奶油圆点 / 扇贝花边；缓动签名内联） -->
-  <div class="slide-slot">
-    <section class="slide cover-page" data-slide-id="theme-d1" style="--paper:#fbf6ee;--paper-tint:#f4ecdc;--ink:#3d3229;--ink-tint:#544738;--accent:#c08334;--accent-on:#fffaf0;--font-display:'Yuanti SC','PingFang SC','Noto Sans SC',sans-serif;--font-body:'Yuanti SC','PingFang SC','Noto Sans SC',sans-serif;--font-mono:'SF Mono','JetBrains Mono','Menlo',monospace;--texture-type:flat;--texture-layer:none;--texture-scope:cover;--ease-out:cubic-bezier(.34,1.56,.64,1)" data-content-hash="3d8455a7fd6d">
-      <div style="position:relative;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--font-body)">
-        <div class="reveal" style="position:relative;background:var(--paper-tint);border-radius:36px;box-shadow:0 8px 24px color-mix(in srgb,var(--ink) 8%,transparent);padding:88px 132px;text-align:center">
-          <span class="mt-crm-sticker" data-editable-skip style="position:absolute;top:-22px;right:-30px;font-size:17px">G · 限定</span>
-          <div style="display:flex;align-items:center;justify-content:center;gap:14px">
-            <span class="mt-crm-dot" data-editable-skip></span>
-            <p data-editable style="font-family:var(--font-mono);font-size:17px;font-weight:600;letter-spacing:.12em;opacity:.55">THEME SAMPLES · G</p>
-            <span class="mt-crm-dot" data-editable-skip></span>
-          </div>
-          <h1 data-editable style="margin-top:36px;font-family:var(--font-display);font-size:120px;line-height:1.3;font-weight:600">想象的形状</h1>
-          <p data-editable style="margin-top:28px;font-size:26px;opacity:.75">同一段内容，二十九个世界</p>
-        </div>
-        <div class="mt-crm-scallop reveal" data-editable-skip style="--d:.2s;margin-top:64px;width:440px"></div>
-      </div>
-      <p data-editable style="position:absolute;left:120px;bottom:60px;font-family:var(--font-mono);font-size:15px;font-weight:500;opacity:.55">D1 · 奶油物语 · 焦糖</p>
-    </section>
-  </div>
-
-  <!-- 32 · 主题样张 D2 柔光暗房（母题：胶片齿孔条 / 光束角标 / 显影晕；缓动签名内联） -->
+  <!-- 30 · 主题样张 D2 柔光暗房（母题：胶片齿孔条 / 光束角标 / 显影晕；缓动签名内联） -->
   <div class="slide-slot">
     <section class="slide cover-page" data-slide-id="theme-d2" style="--paper:#14110e;--paper-tint:#211b16;--ink:#f0e6d8;--ink-tint:#2c241d;--accent:#e8a34c;--accent-on:#14110e;--font-display:'Songti SC','Noto Serif SC','STSong',serif;--font-body:'PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;--font-mono:'SF Mono','JetBrains Mono','Menlo',monospace;--texture-type:glow;--texture-layer:radial-gradient(120% 90% at 70% 10%,color-mix(in srgb,var(--accent) 14%,transparent),transparent 60%);--texture-scope:cover;--ease-out:cubic-bezier(.1,.7,.2,1)" data-content-hash="6e91afa92f6f">
       <div class="mt-drk-film" data-editable-skip style="position:absolute;left:0;right:0;top:0"></div>
@@ -1929,20 +1871,7 @@ body{
     </section>
   </div>
 
-  <!-- 33 · 主题样张 D3 手绘油彩（母题：虚线圈注 / 笔触块 / 画框双描边） -->
-  <div class="slide-slot">
-    <section class="slide cover-page" data-slide-id="theme-d3" style="--paper:#e9e5da;--paper-tint:#dcd6c6;--ink:#33413a;--ink-tint:#46564d;--accent:#a05f3c;--accent-on:#f5f1e6;--font-display:'Kaiti SC','STKaiti','Songti SC','Noto Serif SC',serif;--font-body:'Kaiti SC','STKaiti','Songti SC','Noto Serif SC',serif;--font-mono:'SF Mono','JetBrains Mono','Menlo',monospace;--texture-type:paper;--texture-layer:radial-gradient(80% 60% at 30% 20%,color-mix(in srgb,var(--accent) 5%,transparent),transparent 70%),radial-gradient(70% 80% at 75% 85%,color-mix(in srgb,var(--ink) 4%,transparent),transparent 70%);--texture-scope:all" data-content-hash="58a337b20009">
-      <div class="mt-art-frame" data-editable-skip style="position:absolute;right:220px;bottom:200px;width:190px;height:140px;background:color-mix(in srgb,var(--accent) 16%,var(--paper))"></div>
-      <div style="position:relative;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-family:var(--font-body)">
-        <p data-editable class="mt-art-circle reveal" style="font-family:var(--font-mono);font-size:16px;font-weight:500;letter-spacing:.12em">THEME SAMPLES · G</p>
-        <h1 data-editable class="reveal" style="--d:.12s;margin-top:56px;font-family:var(--font-display);font-size:150px;line-height:1.35;font-weight:500">想象的<span class="mt-art-brush">形状</span></h1>
-        <p data-editable class="reveal" style="--d:.24s;margin-top:48px;font-size:26px;opacity:.8">同一段内容，二十九个世界</p>
-      </div>
-      <p data-editable style="position:absolute;left:120px;bottom:60px;font-family:var(--font-mono);font-size:15px;font-weight:500;opacity:.55">D3 · 手绘油彩 · 赭石</p>
-    </section>
-  </div>
-
-  <!-- 34 · 主题样张 E1 孔版印刷（母题：套色错位叠印块 / 裁剪虚线 / 网目调点块；缓动签名内联） -->
+  <!-- 33 · 主题样张 E1 孔版印刷（母题：套色错位叠印块 / 裁剪虚线 / 网目调点块；缓动签名内联） -->
   <div class="slide-slot">
     <section class="slide cover-page" data-slide-id="theme-e1" style="--paper:#f7f2e6;--paper-tint:#ece5d3;--ink:#221d16;--ink-tint:#332c22;--accent:#FF48B0;--accent-on:#fdfaf3;--accent-2:#0078BF;--accent-2-on:#f2f8fc;--font-display:'Helvetica Neue','Arial Black','PingFang SC','Noto Sans SC',sans-serif;--font-body:'Helvetica Neue','PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;--font-mono:'Courier New','SF Mono','JetBrains Mono',monospace;--texture-type:grain;--texture-layer:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22240%22 height=%22240%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.9%22 numOctaves=%222%22 stitchTiles=%22stitch%22/%3E%3CfeColorMatrix type=%22saturate%22 values=%220%22/%3E%3C/filter%3E%3Crect width=%22240%22 height=%22240%22 filter=%22url(%23n)%22 opacity=%220.05%22/%3E%3C/svg%3E'),radial-gradient(70% 60% at 75% 85%,color-mix(in srgb,var(--accent) 4%,transparent),transparent 65%);--texture-scope:all;--ease-out:cubic-bezier(.3,1.4,.4,1)" data-content-hash="5d88041a356d">
       <div class="mt-ris-halftone" data-editable-skip style="right:120px;top:96px;width:220px;height:160px"></div>
@@ -2196,21 +2125,7 @@ body{
     </section>
   </div>
 
-  <!-- 48 · 主题样张 F3 暮色长镜（母题：地平线色带 / 暮光渐变字 / 场次时间码；中文片名字距 +.12em） -->
-  <div class="slide-slot">
-    <section class="slide cover-page" data-slide-id="theme-f3" style="--paper:#12101A;--paper-tint:#1C1826;--ink:#F4EBDC;--ink-tint:#2A2333;--accent:#E8753A;--accent-on:#12101A;--font-display:'Songti SC','Noto Serif SC','STSong',serif;--font-body:'PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;--font-mono:'SF Mono','JetBrains Mono','Menlo',monospace;--texture-type:aura;--texture-layer:linear-gradient(180deg,transparent 52%,color-mix(in srgb,var(--accent) 9%,transparent) 74%,color-mix(in srgb,var(--accent) 22%,transparent) 100%),radial-gradient(115% 95% at 50% 42%,transparent 56%,color-mix(in srgb,black 52%,transparent) 100%);--texture-scope:cover" data-content-hash="2e7e1ca4a31b">
-      <div class="mt-dsk-horizon" data-editable-skip></div>
-      <p class="mt-dsk-code" data-editable-skip style="position:absolute;left:120px;top:64px">SCENE 24</p>
-      <div style="position:relative;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding-bottom:14vh;text-align:center;font-family:var(--font-body)">
-        <p data-editable class="reveal" style="font-family:var(--font-mono);font-size:18px;font-weight:500;letter-spacing:.22em;opacity:.55">THEME SAMPLES · G</p>
-        <h1 data-editable class="mt-dsk-grad reveal" style="--d:.14s;margin-top:52px;font-family:var(--font-display);font-size:128px;line-height:1.3;font-weight:500;letter-spacing:.12em">想象的形状</h1>
-        <p data-editable class="reveal" style="--d:.28s;margin-top:48px;font-size:26px;line-height:1.8;opacity:.75">同一段内容，二十九个世界</p>
-      </div>
-      <p data-editable style="position:absolute;left:120px;bottom:60px;font-family:var(--font-mono);font-size:15px;font-weight:500;opacity:.55">F3 · 暮色长镜 · 黄昏</p>
-    </section>
-  </div>
-
-  <!-- 49 · 主题样张 G1 翡翠年鉴 · 深翡翠绒面（母题：金箔奖章单点 / 年鉴栏框线；奶油墨 + 衬线恒重） -->
+  <!-- 48 · 主题样张 G1 翡翠年鉴 · 深翡翠绒面（母题：金箔奖章单点 / 年鉴栏框线；奶油墨 + 衬线恒重） -->
   <div class="slide-slot">
     <section class="slide cover-page" data-slide-id="theme-g1" style="--paper:#1E4A3A;--paper-tint:#2B5F4C;--ink:#F3EDDC;--ink-tint:#16382B;--accent:#D9A93A;--accent-on:#1E4A3A;--font-display:'Songti SC','Noto Serif SC','STSong',serif;--font-body:'PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;--font-mono:'SF Mono','JetBrains Mono','Menlo',monospace;--texture-type:flat;--texture-layer:none;--texture-scope:cover" data-content-hash="aabf999b944a">
       <div class="mt-emr-seal" data-editable-skip style="position:absolute;right:160px;top:150px"></div>

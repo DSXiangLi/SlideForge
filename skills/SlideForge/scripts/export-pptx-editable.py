@@ -1598,7 +1598,7 @@ def _fsType_embeddable(fs_type):
 
 
 def embed_fonts(pptx_path, embeds):
-    """C3/F3 字体内嵌：embeds=[{'path','declare':[族名…],'slot'}]——
+    """C3 字体内嵌：embeds=[{'path','declare':[族名…],'slot'}]——
     以映射后族名注册（run 的 typeface 即族名，WPS 回退可预测、365 吃内嵌增强）；
     同一文件多族名共享同一 fntdata part（修孤儿件）。fsType 闸兜底复验。
     返回 {'embedded': [...], 'skipped': [...]} 或 None（无内嵌）。"""
