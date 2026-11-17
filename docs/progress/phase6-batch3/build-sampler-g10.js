@@ -73,117 +73,119 @@ const CONTENT = {
   footnote: '* 注：山禾集为虚构演示品牌，文中数据均为虚构，仅用于主题样式对比展示。'
 };
 
-// ===== G4 靛墨黄页 — G10: 海报式不对称出血，裂屏对开 =====
+// ===== G4 靛墨黄页 — G10 claim: 裂屏对开（黄/靛对撞），主张句在黄面上反白，说明在靛面上 =====
 const slideG4 = `
-  <!-- G4 靛墨黄页 · G10 海报式不对称出血：裂屏对开（黄/靛对撞）+ 出血黄楔 + 展览编号签 + 主数字独占黄面 -->
+  <!-- G4 靛墨黄页 · G10 claim 裂屏对开：左靛蓝面（说明）+ 右黄面（主张句反白）+ 出血黄楔 + 展览编号签 + 靛蓝线框KPI（主数字独占黄面焦点） -->
   <div class="slide-slot">
     <section class="slide texture-on" data-slide-id="theme-g4" style="--paper:#E9E5DB;--paper-tint:#DDD8CB;--ink:#1B2566;--ink-tint:#2A3374;--accent:#F1EE2E;--accent-on:#1B2566;--accent-2:#E26B4A;--accent-2-on:#FAF1E2;--font-display:'Helvetica Neue','Arial Black','PingFang SC','Noto Sans SC',sans-serif;--font-body:'Helvetica Neue','PingFang SC','Noto Sans SC',sans-serif;--font-mono:'SF Mono','JetBrains Mono','Menlo',monospace;--texture-type:flat;--texture-layer:none;--texture-scope:cover;padding:0">
-      <!-- 出血黄楔（右上方出血块，G10 signature_operator） -->
-      <div class="mt-bie-wedge" data-editable-skip style="right:0;top:0;width:420px;height:560px"></div>
+      <!-- 出血黄楔（左上方出血块，G10 signature_operator: 出血色面 ≥1 块/页） -->
+      <div class="mt-bie-wedge" data-editable-skip style="left:0;top:0;width:380px;height:200px"></div>
       <!-- 展览编号签（G9，页角页码语义） -->
-      <span class="mt-bie-num" data-editable style="position:absolute;right:48px;top:380px;font-size:120px">28</span>
-      <!-- 底部对撞带 -->
+      <span class="mt-bie-num" data-editable style="position:absolute;right:64px;top:60px;font-size:100px">28</span>
+      <!-- 底部对撞带（页缘出血） -->
       <span class="mt-bie-band" data-editable-skip style="position:absolute;left:0;right:0;bottom:0"></span>
 
-      <!-- 左侧纸底靛墨区（辅助信息） -->
-      <div style="position:absolute;left:0;top:0;width:1100px;height:100%;padding:80px 60px 80px 120px;display:flex;flex-direction:column;justify-content:center">
+      <!-- 左侧靛蓝面（说明——裂屏对开的靛面） -->
+      <div style="position:absolute;left:0;top:0;width:900px;height:100%;background:var(--ink);color:var(--paper);padding:80px 60px 80px 120px;display:flex;flex-direction:column;justify-content:center">
         <p data-editable style="font-family:var(--font-mono);font-size:16px;font-weight:600;letter-spacing:.14em;opacity:.7">${CONTENT.eyebrow}</p>
-        <h1 data-editable data-anim="wipe-clip" style="margin-top:24px;font-family:var(--font-display);font-size:96px;line-height:1.1;font-weight:900;letter-spacing:.02em">${CONTENT.title}</h1>
-        <div style="margin-top:28px;max-width:880px;border-left:3px solid var(--ink);padding-left:24px">
+        <div style="margin-top:24px;max-width:720px">
           <p data-editable style="font-size:18px;line-height:1.8">${CONTENT.body1}</p>
           <p data-editable style="margin-top:10px;font-size:18px;line-height:1.8">${CONTENT.body2}</p>
         </div>
-        <!-- 三项数字：靛蓝线框内纵向错落排列（非横排等宽三格），主数字用余烬橙单点 -->
-        <div style="margin-top:32px;display:flex;gap:0;max-width:880px">
-          <div style="flex:0 0 300px;border:1.5px solid var(--ink);padding:20px 24px">
-            <p data-editable style="font-family:var(--font-mono);font-size:42px;font-weight:800;line-height:1.1;color:var(--accent-2)">${CONTENT.kpi1Num}<span style="font-size:22px">${CONTENT.kpi1Unit}</span></p>
+        <!-- 价值观在靛面上 -->
+        <div style="margin-top:28px;max-width:720px;border-top:1.5px solid var(--accent);padding-top:16px">
+          ${CONTENT.values.map((v, i) => `<p data-editable style="${i > 0 ? 'margin-top:8px;' : ''}font-size:19px;line-height:1.7">${v}</p>`).join('\n          ')}
+        </div>
+      </div>
+
+      <!-- 右侧黄面（主张句反白——裂屏对开的黄面，G10 info_grammar.claim: 主张句在黄面上反白） -->
+      <div style="position:absolute;right:0;top:0;width:1020px;height:100%;background:var(--accent);color:var(--accent-on);padding:80px 80px 80px 60px;display:flex;flex-direction:column;justify-content:center">
+        <h1 data-editable data-anim="wipe-clip" style="font-family:var(--font-display);font-size:96px;line-height:1.05;font-weight:900;letter-spacing:.02em;white-space:nowrap">${CONTENT.title}</h1>
+
+        <!-- 三项数字：靛蓝线框内纵向错落排列（G10 info_grammar.data: 靛蓝线框内纵向或错落排列，主数字独占黄面焦点） -->
+        <!-- 主数字独占黄面焦点（余烬橙单点） -->
+        <div style="margin-top:36px;display:flex;gap:0;max-width:860px">
+          <div style="flex:0 0 360px;border:2px solid var(--ink);padding:24px 28px;background:var(--accent)">
+            <p data-editable style="font-family:var(--font-mono);font-size:48px;font-weight:800;line-height:1.1;color:var(--accent-2)">${CONTENT.kpi1Num}<span style="font-size:24px">${CONTENT.kpi1Unit}</span></p>
             <p data-editable style="margin-top:8px;font-size:15px;line-height:1.5;opacity:.85">${CONTENT.kpi1Label}</p>
             <p data-editable style="margin-top:6px;font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--accent-2)">${CONTENT.kpi1Tag}</p>
           </div>
-          <div style="flex:0 0 240px;border:1.5px solid var(--ink);border-left:none;padding:20px 24px">
-            <p data-editable style="font-family:var(--font-mono);font-size:36px;font-weight:800;line-height:1.1">${CONTENT.kpi2Num}<span style="font-size:18px">${CONTENT.kpi2Unit}</span></p>
+          <div style="flex:0 0 260px;border:2px solid var(--ink);border-left:none;padding:24px 28px;background:var(--accent)">
+            <p data-editable style="font-family:var(--font-mono);font-size:40px;font-weight:800;line-height:1.1">${CONTENT.kpi2Num}<span style="font-size:20px">${CONTENT.kpi2Unit}</span></p>
             <p data-editable style="margin-top:8px;font-size:15px;line-height:1.5;opacity:.85">${CONTENT.kpi2Label}</p>
           </div>
-          <div style="flex:0 0 200px;border:1.5px solid var(--ink);border-left:none;padding:20px 24px">
-            <p data-editable style="font-family:var(--font-mono);font-size:36px;font-weight:800;line-height:1.1">${CONTENT.kpi3Num}<span style="font-size:18px">${CONTENT.kpi3Unit}</span></p>
+          <div style="flex:0 0 240px;border:2px solid var(--ink);border-left:none;padding:24px 28px;background:var(--accent)">
+            <p data-editable style="font-family:var(--font-mono);font-size:40px;font-weight:800;line-height:1.1">${CONTENT.kpi3Num}<span style="font-size:20px">${CONTENT.kpi3Unit}</span></p>
             <p data-editable style="margin-top:8px;font-size:15px;line-height:1.5;opacity:.85">${CONTENT.kpi3Label}</p>
           </div>
         </div>
-      </div>
-
-      <!-- 右侧黄面区（核心信息——裂屏对开的黄面） -->
-      <div style="position:absolute;right:0;top:0;width:820px;height:100%;background:var(--accent);color:var(--accent-on);padding:80px 60px 80px 60px;display:flex;flex-direction:column;justify-content:flex-end">
-        <div style="margin-bottom:80px">
-          <p data-editable style="font-family:var(--font-mono);font-size:14px;font-weight:600;letter-spacing:.14em;opacity:.7">CORE VALUES</p>
-          <div style="margin-top:20px">
-            ${CONTENT.values.map((v, i) => `<p data-editable style="${i > 0 ? 'margin-top:16px;' : ''}font-size:22px;line-height:1.5;font-weight:700">${v}</p>`).join('\n            ')}
-          </div>
-        </div>
+        <p data-editable style="margin-top:16px;font-family:var(--font-mono);font-size:13px;opacity:.55">${CONTENT.footnote}</p>
       </div>
 
       <!-- 底部页码条 -->
-      <div style="position:absolute;left:120px;right:120px;bottom:30px;display:flex;justify-content:space-between;align-items:baseline;gap:2em;font-family:var(--font-mono);font-size:14px;opacity:.65">
+      <div style="position:absolute;left:120px;right:120px;bottom:30px;display:flex;justify-content:space-between;align-items:baseline;gap:2em;font-family:var(--font-mono);font-size:14px;opacity:.65;z-index:10">
         <span data-editable>山禾集 · 经营情况汇报</span>
         <span data-editable>G4 · 靛墨黄页 · 太阳黄</span>
         <span data-editable>28 / 29</span>
       </div>
-      <p data-editable style="position:absolute;left:120px;bottom:54px;font-family:var(--font-mono);font-size:13px;opacity:.5">${CONTENT.footnote}</p>
     </section>
   </div>`;
 
-// ===== G5 三色旬刊 — G10: 三色反转配对面，刊号签 + 三色带 =====
+// ===== G5 三色旬刊 — G10 claim: 裂屏对开（暗夜蓝/苔绿对撞），主张句在暗夜蓝底苔绿字上 =====
 const slideG5 = `
-  <!-- G5 三色旬刊 · G10 三色反转配对面：刊号签页眉 + 双线刊框 + 三色反转面KPI（主数字独占暗夜蓝底）+ 三色带收束 -->
+  <!-- G5 三色旬刊 · G10 claim 裂屏对开：左暗夜蓝面（主张句苔绿字）+ 右苔绿面（说明暗夜蓝字）+ 刊号签 + 三色反转面KPI + 三色带收束 -->
   <div class="slide-slot">
-    <section class="slide texture-on" data-slide-id="theme-g5" style="--paper:#E4C9A8;--paper-tint:#8BAE6F;--ink:#1A2B3D;--ink-tint:#121E2D;--accent:#8BAE6F;--accent-on:#1A2B3D;--font-display:'Didot','Bodoni MT','Songti SC','Noto Serif SC',serif;--font-body:'Songti SC','Noto Serif SC','STSong',serif;--font-mono:'SF Mono','JetBrains Mono','Menlo',monospace;--texture-type:flat;--texture-layer:none;--texture-scope:cover">
-      <!-- 三色带（页底收束，G9 signature） -->
-      <span class="mt-tri-band" data-editable-skip style="position:absolute;left:0;right:0;bottom:0"></span>
+    <section class="slide texture-on" data-slide-id="theme-g5" style="--paper:#E4C9A8;--paper-tint:#8BAE6F;--ink:#1A2B3D;--ink-tint:#121E2D;--accent:#8BAE6F;--accent-on:#1A2B3D;--font-display:'Didot','Bodoni MT','Songti SC','Noto Serif SC',serif;--font-body:'Songti SC','Noto Serif SC','STSong',serif;--font-mono:'SF Mono','JetBrains Mono','Menlo',monospace;--texture-type:flat;--texture-layer:none;--texture-scope:cover;padding:0">
+      <!-- 三色带（页底收束，G9 signature: 三色带每页至多一条） -->
+      <span class="mt-tri-band" data-editable-skip style="position:absolute;left:0;right:0;bottom:0;z-index:5"></span>
 
-      <!-- 刊号签（页眉，G9 signature） -->
-      <div style="position:absolute;left:120px;top:64px"><span class="mt-tri-tag" data-editable>VOL.03 / NO.29</span></div>
+      <!-- 刊号签（页眉，G9 signature: 刊号签只许页眉一枚） -->
+      <div style="position:absolute;left:120px;top:64px;z-index:10"><span class="mt-tri-tag" data-editable>VOL.03 / NO.29</span></div>
 
-      <div style="position:relative;height:100%;display:flex;flex-direction:column;justify-content:center;padding:120px 120px 80px">
+      <!-- 左侧暗夜蓝面（主张句在暗夜蓝底苔绿字上——G10 info_grammar.claim） -->
+      <div style="position:absolute;left:0;top:0;width:1000px;height:100%;background:var(--ink);color:var(--accent);padding:120px 80px 80px 120px;display:flex;flex-direction:column;justify-content:center">
         <p data-editable style="font-family:var(--font-mono);font-size:16px;font-weight:500;letter-spacing:.14em;opacity:.7">${CONTENT.eyebrow}</p>
-        <h1 data-anim="mask-lines" style="margin-top:22px;font-family:var(--font-display);font-size:88px;line-height:1.25;font-weight:600"><span class="ml-line"><span class="ml-inner" data-editable>${CONTENT.title}</span></span></h1>
+        <h1 data-anim="mask-lines" style="margin-top:22px;font-family:var(--font-display);font-size:84px;line-height:1.2;font-weight:600"><span class="ml-line"><span class="ml-inner" data-editable>${CONTENT.title}</span></span></h1>
 
-        <!-- 双线刊框装正文 -->
-        <div class="mt-tri-frame" style="margin-top:28px;max-width:1360px;padding:28px 40px">
-          <p data-editable style="font-size:18px;line-height:1.85">${CONTENT.body1}</p>
-          <p data-editable style="margin-top:10px;font-size:18px;line-height:1.85">${CONTENT.body2}</p>
+        <!-- 双线刊框装正文（G10 invariants: 三色反转面 ≥2 块/页——暗夜蓝底苔绿字框） -->
+        <div class="mt-tri-frame" style="margin-top:28px;max-width:760px;padding:24px 36px">
+          <p data-editable style="font-size:18px;line-height:1.85;color:var(--paper)">${CONTENT.body1}</p>
+          <p data-editable style="margin-top:10px;font-size:18px;line-height:1.85;color:var(--paper)">${CONTENT.body2}</p>
+        </div>
+      </div>
+
+      <!-- 右侧苔绿面（说明在苔绿底暗夜蓝字上——G10 invariants: 反转配对 暗夜蓝底苔绿字 ↔ 苔绿底暗夜蓝字） -->
+      <div style="position:absolute;right:0;top:0;width:920px;height:100%;background:var(--accent);color:var(--accent-on);padding:120px 120px 80px 60px;display:flex;flex-direction:column;justify-content:center">
+        <!-- 三色反转面 KPI（G10 info_grammar.data: 三色反转面并置排列，主数字独占暗夜蓝底面） -->
+        <!-- 焦点：暗夜蓝底苔绿字（主数字独占暗夜蓝底面——单焦点=唯一的暗夜蓝底容器已在左侧，此处用赭石底暗夜蓝字做第三色轮转） -->
+        <div style="display:flex;flex-direction:column;gap:16px;max-width:680px">
+          <div style="background:var(--paper);color:var(--ink);padding:24px 32px">
+            <p data-editable style="font-family:var(--font-display);font-size:44px;font-weight:600;line-height:1.2">${CONTENT.kpi1Num}<span style="font-size:22px">${CONTENT.kpi1Unit}</span></p>
+            <p data-editable style="margin-top:8px;font-size:17px;line-height:1.55">${CONTENT.kpi1Label}</p>
+            <p data-editable style="margin-top:6px;font-family:var(--font-mono);font-size:14px;font-weight:600">${CONTENT.kpi1Tag}</p>
+          </div>
+          <div style="background:var(--ink);color:var(--accent);padding:24px 32px">
+            <p data-editable style="font-family:var(--font-display);font-size:40px;font-weight:600;line-height:1.2">${CONTENT.kpi2Num}<span style="font-size:20px">${CONTENT.kpi2Unit}</span></p>
+            <p data-editable style="margin-top:8px;font-size:17px;line-height:1.55;color:var(--paper)">${CONTENT.kpi2Label}</p>
+          </div>
+          <div style="background:var(--paper);color:var(--ink);padding:24px 32px">
+            <p data-editable style="font-family:var(--font-display);font-size:40px;font-weight:600;line-height:1.2">${CONTENT.kpi3Num}<span style="font-size:20px">${CONTENT.kpi3Unit}</span></p>
+            <p data-editable style="margin-top:8px;font-size:17px;line-height:1.55">${CONTENT.kpi3Label}</p>
+          </div>
         </div>
 
-        <!-- 三色反转面 KPI（非横排等宽三格——三块色面宽度不等、底字互反） -->
-        <div style="margin-top:28px;display:flex;max-width:1360px">
-          <!-- 焦点：暗夜蓝底苔绿字（主数字独占暗夜蓝底面） -->
-          <div style="width:520px;background:var(--ink);color:var(--accent);padding:28px 36px">
-            <p data-editable style="font-family:var(--font-display);font-size:48px;font-weight:600;line-height:1.2">${CONTENT.kpi1Num}<span style="font-size:24px">${CONTENT.kpi1Unit}</span></p>
-            <p data-editable style="margin-top:10px;font-size:18px;line-height:1.6;color:var(--paper)">${CONTENT.kpi1Label}</p>
-            <p data-editable style="margin-top:8px;font-family:var(--font-mono);font-size:14px;font-weight:600">${CONTENT.kpi1Tag}</p>
-          </div>
-          <!-- 苔绿底暗夜蓝字（反转配对） -->
-          <div style="width:420px;background:var(--accent);color:var(--accent-on);padding:28px 36px">
-            <p data-editable style="font-family:var(--font-display);font-size:42px;font-weight:600;line-height:1.2">${CONTENT.kpi2Num}<span style="font-size:20px">${CONTENT.kpi2Unit}</span></p>
-            <p data-editable style="margin-top:10px;font-size:18px;line-height:1.6">${CONTENT.kpi2Label}</p>
-          </div>
-          <!-- 赭石底暗夜蓝字（第三色轮转） -->
-          <div style="width:420px;background:var(--paper);color:var(--ink);padding:28px 36px;border:1.5px solid var(--ink)">
-            <p data-editable style="font-family:var(--font-display);font-size:42px;font-weight:600;line-height:1.2">${CONTENT.kpi3Num}<span style="font-size:20px">${CONTENT.kpi3Unit}</span></p>
-            <p data-editable style="margin-top:10px;font-size:18px;line-height:1.6">${CONTENT.kpi3Label}</p>
-          </div>
+        <!-- 价值观 -->
+        <div style="margin-top:24px;max-width:680px">
+          ${CONTENT.values.map((v, i) => `<p data-editable style="${i > 0 ? 'margin-top:6px;' : ''}font-size:19px;line-height:1.7">${v}</p>`).join('\n          ')}
         </div>
-
-        <!-- 价值观（三色带分隔上方） -->
-        <div style="margin-top:24px;max-width:1360px">
-          ${CONTENT.values.map((v, i) => `<p data-editable style="${i > 0 ? 'margin-top:8px;' : ''}font-size:20px;line-height:1.75">${v}</p>`).join('\n          ')}
-        </div>
-        <p data-editable style="margin-top:14px;font-family:var(--font-mono);font-size:14px;opacity:.65">${CONTENT.footnote}</p>
+        <p data-editable style="margin-top:12px;font-family:var(--font-mono);font-size:13px;opacity:.6">${CONTENT.footnote}</p>
       </div>
 
       <!-- 底部页码条 -->
-      <div style="position:absolute;left:120px;right:120px;bottom:30px;display:flex;justify-content:space-between;align-items:baseline;gap:2em;font-family:var(--font-mono);font-size:14px;opacity:.65">
-        <span data-editable>山禾集 · 经营情况汇报</span>
-        <span data-editable>G5 · 三色旬刊 · 赭石</span>
-        <span data-editable>29 / 29</span>
+      <div style="position:absolute;left:120px;right:120px;bottom:30px;display:flex;justify-content:space-between;align-items:baseline;gap:2em;font-family:var(--font-mono);font-size:14px;opacity:.65;z-index:10">
+        <span data-editable style="color:var(--accent)">山禾集 · 经营情况汇报</span>
+        <span data-editable style="color:var(--ink)">G5 · 三色旬刊 · 赭石</span>
+        <span data-editable style="color:var(--accent)">29 / 29</span>
       </div>
     </section>
   </div>`;
@@ -252,29 +254,39 @@ const slideE2 = `
     </section>
   </div>`;
 
-// ===== E3 装饰艺术 — G10: 中轴对称，双线金框，菱形分隔，对称双栏 =====
+// ===== E3 装饰艺术 — G10 claim: 中轴金框装主张句 + 两侧金线翼卫 + 底部菱形引出说明 =====
 const slideE3 = `
-  <!-- E3 装饰艺术 · G10 中轴对称：扇形放射 + 双线金框整页内框 + 中轴标题 + 菱形分隔 + 对称双栏数字 -->
+  <!-- E3 装饰艺术 · G10 claim 中轴对称：扇形放射 + 双线金框整页内框 + 中轴金框装主张句 + 两侧金线翼卫 + 底部菱形引出说明 + 对称双栏数字 -->
   <div class="slide-slot">
     <section class="slide texture-on" data-slide-id="theme-e3" style="--paper:#111110;--paper-tint:#1b1b18;--ink:#f0e9d6;--ink-tint:#0a0a09;--accent:#c9a227;--accent-on:#111110;--font-display:'Songti SC','Noto Serif SC','STSong',serif;--font-body:'PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;--font-mono:'SF Mono','JetBrains Mono','Menlo',monospace;--texture-type:flat;--texture-layer:none;--texture-scope:cover">
-      <!-- 扇形放射 sunburst（页顶，G9 signature） -->
+      <!-- 扇形放射 sunburst（页顶，G9 signature: 每页至多一个） -->
       <div class="mt-deco-sun" data-editable-skip style="position:absolute;left:50%;top:0;transform:translateX(-50%)"></div>
-      <!-- 双线金框整页内框 -->
+      <!-- 双线金框整页内框（G10 invariants: 双线金框 ≥1 个/页） -->
       <div class="mt-deco-frame" data-editable-skip style="position:absolute;inset:56px 72px;pointer-events:none"></div>
 
       <div style="position:relative;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:96px 120px">
         <p data-editable style="font-family:var(--font-mono);font-size:15px;font-weight:500;letter-spacing:.34em;color:var(--accent)">${CONTENT.eyebrow}</p>
-        <!-- 菱形分隔 -->
+        <!-- 菱形分隔（G10 invariants: 菱形分隔只许中轴对称位） -->
         <div class="mt-deco-divider" data-editable-skip style="margin-top:20px"><span class="mt-deco-rhombus"></span></div>
 
-        <h1 data-anim="mask-lines" style="margin-top:20px;font-family:var(--font-display);font-size:84px;line-height:1.3;font-weight:600;letter-spacing:.06em"><span class="ml-line"><span class="ml-inner" data-editable>${CONTENT.title}</span></span></h1>
+        <!-- 中轴金框装主张句 + 两侧金线翼卫（G10 info_grammar.claim: 中轴金框装主张句 + 两侧金线翼卫） -->
+        <div style="margin-top:24px;display:flex;align-items:center;gap:0;max-width:1400px">
+          <!-- 左金线翼卫 -->
+          <div style="flex:1;height:1px;background:color-mix(in srgb,var(--accent) 65%,transparent)"></div>
+          <!-- 中轴金框装主张句 -->
+          <div class="mt-deco-frame" style="padding:28px 64px;text-align:center;flex:0 0 auto">
+            <h1 data-anim="mask-lines" style="font-family:var(--font-display);font-size:72px;line-height:1.3;font-weight:600;letter-spacing:.06em;white-space:nowrap"><span class="ml-line"><span class="ml-inner" data-editable>${CONTENT.title}</span></span></h1>
+          </div>
+          <!-- 右金线翼卫 -->
+          <div style="flex:1;height:1px;background:color-mix(in srgb,var(--accent) 65%,transparent)"></div>
+        </div>
 
         <div style="margin-top:22px;max-width:1100px">
           <p data-editable style="font-size:18px;line-height:1.85;opacity:.85">${CONTENT.body1}</p>
           <p data-editable style="margin-top:10px;font-size:18px;line-height:1.85;opacity:.85">${CONTENT.body2}</p>
         </div>
 
-        <!-- 三项数字：对称双栏镜像模块（主数字在中轴金框内） -->
+        <!-- 三项数字：对称双栏镜像模块（G10 info_grammar.data: 对称双栏镜像模块，主数字在中轴金框内） -->
         <div style="margin-top:28px;display:flex;justify-content:center;align-items:stretch">
           <!-- 左栏 -->
           <div style="padding:0 40px;text-align:center">
@@ -294,14 +306,12 @@ const slideE3 = `
           </div>
         </div>
 
-        <!-- 菱形分隔 -->
+        <!-- 底部菱形引出说明（G10 info_grammar.claim: 底部菱形引出说明） -->
         <div class="mt-deco-divider" data-editable-skip style="margin-top:24px"><span class="mt-deco-rhombus"></span></div>
-
-        <!-- 价值观 -->
-        <div style="margin-top:18px">
+        <div style="margin-top:14px;max-width:900px">
           ${CONTENT.values.map((v, i) => `<p data-editable style="${i > 0 ? 'margin-top:6px;' : ''}font-size:19px;line-height:1.8">${v}</p>`).join('\n          ')}
         </div>
-        <p data-editable style="margin-top:14px;font-family:var(--font-mono);font-size:14px;opacity:.5">${CONTENT.footnote}</p>
+        <p data-editable style="margin-top:12px;font-family:var(--font-mono);font-size:14px;opacity:.5">${CONTENT.footnote}</p>
       </div>
 
       <!-- 底部页码条 -->
