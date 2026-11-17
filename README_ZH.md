@@ -88,19 +88,13 @@ HTML、PPTX、Image，这不是三个独立的形态，而是不同条件下可�
 
 同一份业务内容（虚构茶饮品牌「山禾集」，数据均为虚构），交给十二套写入了 G10 `composition_program` 构图契约的主题重新编译。每套主题对「信息如何进入空间」有不同主权，因此差异是结构级的，不是换配色：B1 把整页压进可见的 12 栏网格、右侧竖起数据脊；C3 把内容打印成终端窗口与 `key:value` 输出；E5 让标题骑上 −12° 对角力带；H1 以手卷方式竖排展开、钤朱砂印收束；E6 以 3px 墨粗描边几何色面拼贴出糖果色碰撞；G2 让单栏正文自然流动、关键词垫荧光带、便签浮在右侧标注；F1 在深底上居中悬浮一块磨砂玻璃、四角弥漫柔光斑；C1 在纯黑舞台上落下一块信号橙、巨号页码沉在底缘；G4 裂屏对开、黄面上反白主张句；G5 裂屏对开、暗夜蓝底苔绿字主张句；E2 把主张句装进双线图框、KPI 以 mono key:value 标注行呈现；E3 中轴金框装主张句、两侧金线翼卫、对称双栏镜像 KPI。文字字号只由骨架 `.t-*` 角色类决定，可读性下限在设计层结构性锁定，无需事后门禁。
 
-| <img src="assets/theme-sampler/v2-b1.png" width="416"> | <img src="assets/theme-sampler/v2-c3.png" width="416"> |
-|---|---|
-| B1 · 瑞士国际主义 · 12 栏网格 + 数据脊 | C3 · 终端绿 · 终端窗口 + key:value |
-| <img src="assets/theme-sampler/v2-e5.png" width="416"> | <img src="assets/theme-sampler/v2-h1.png" width="416"> |
-| E5 · 构成主义 · −12° 对角力带 | H1 · 氤氲手卷 · 竖排题字 + 朱砂印 |
-| <img src="assets/theme-sampler/v2-e6.png" width="416"> | <img src="assets/theme-sampler/v2-g2.png" width="416"> |
-| E6 · 孟菲斯 · 几何色面拼贴 + 糖果色块 | G2 · 腮红荧光笔 · 单栏流式 + 便签标注 |
-| <img src="assets/theme-sampler/v2-f1.png" width="416"> | <img src="assets/theme-sampler/p03-c1.png" width="416"> |
-| F1 · 玻璃光 · 居中单玻璃面板 | C1 · 信号黑 · 黑场舞台 + 信号橙 |
-| <img src="assets/theme-sampler/v3-g4.png" width="416"> | <img src="assets/theme-sampler/v3-g5.png" width="416"> |
-| G4 · 靛墨黄页 · 裂屏对开（黄/靛对撞） | G5 · 三色旬刊 · 裂屏对开（暗夜蓝/苔绿对撞） |
-| <img src="assets/theme-sampler/v3-e2.png" width="416"> | <img src="assets/theme-sampler/v3-e3.png" width="416"> |
-| E2 · 蓝图 · 双线图框阵列 + 标注线 | E3 · 装饰艺术 · 中轴金框 + 对称双栏镜像 |
+| <img src="assets/theme-sampler/v2-b1.png" width="208"> | <img src="assets/theme-sampler/v2-c3.png" width="208"> | <img src="assets/theme-sampler/v2-e5.png" width="208"> | <img src="assets/theme-sampler/v2-h1.png" width="208"> |
+|---|---|---|---|
+| B1 · 瑞士国际主义 · 12 栏网格 + 数据脊 | C3 · 终端绿 · 终端窗口 + key:value | E5 · 构成主义 · −12° 对角力带 | H1 · 氤氲手卷 · 竖排题字 + 朱砂印 |
+| <img src="assets/theme-sampler/v2-e6.png" width="208"> | <img src="assets/theme-sampler/v2-g2.png" width="208"> | <img src="assets/theme-sampler/v2-f1.png" width="208"> | <img src="assets/theme-sampler/p03-c1.png" width="208"> |
+| E6 · 孟菲斯 · 几何色面拼贴 + 糖果色块 | G2 · 腮红荧光笔 · 单栏流式 + 便签标注 | F1 · 玻璃光 · 居中单玻璃面板 | C1 · 信号黑 · 黑场舞台 + 信号橙 |
+| <img src="assets/theme-sampler/v3-g4.png" width="208"> | <img src="assets/theme-sampler/v3-g5.png" width="208"> | <img src="assets/theme-sampler/v3-e2.png" width="208"> | <img src="assets/theme-sampler/v3-e3.png" width="208"> |
+| G4 · 靛墨黄页 · 裂屏对开（黄/靛对撞） | G5 · 三色旬刊 · 裂屏对开（暗夜蓝/苔绿对撞） | E2 · 蓝图 · 双线图框阵列 + 标注线 | E3 · 装饰艺术 · 中轴金框 + 对称双栏镜像 |
 
 > 早期的换皮样张（旧 `p01`–`p29` 一组）仍保留在 `assets/theme-sampler/`；以上十二张是重编译版本。源 deck：`tests/decks/theme-sampler/`。E6/G2/F1 的高密度样张来自 batch-1 v2 验收（rev6，12 项审计全绿）；C1 使用原始换皮样张；G4/G5/E2/E3 来自 batch-3 G10 管线接入验收。
 
