@@ -15,7 +15,7 @@
 | 色法 | 色彩关系 | 色彩搭配/面积/叠印是主设计语言 | 7 |
 | 线法 | 线条/网格 | 线条、网格、分割线是主设计语言 | 4 |
 | 空间 | 空间构成 | 留白、几何构成、容器布局是主设计语言 | 5 |
-| 质感 | 材质触感 | 物质纹理、印刷质感是主设计语言 | 4 |
+| 质感 | 材质触感 | 物质纹理、印刷质感是主设计语言 | 5 |
 | 光线 | 光学效果 | 光、玻璃、霓虹、电影感是主设计语言 | 3 |
 | 字法 | 字排性格 | 字体选择/字重/字距是主设计语言 | 2 |
 
@@ -24,7 +24,7 @@
 | **色法** | [C1 信号黑](color/c1/theme.md) · [E1 孔版印刷](color/e1/theme.md) · [E6 孟菲斯](color/e6/theme.md) · [G1 翡翠年鉴](color/g1/theme.md) · [G2 腮红荧光笔](color/g2/theme.md) · [G4 靛墨黄页](color/g4/theme.md) · [G5 三色旬刊](color/g5/theme.md) | 每个主题目录内含 ≥2 张 demo PNG |
 | **线法** | [B1 瑞士国际主义](line/b1/theme.md) · [E2 蓝图](line/e2/theme.md) · [E8 号外报纸](line/e8/theme.md) · [E11 票据](line/e11/theme.md) | 同上 |
 | **空间** | [A1 电子杂志](space/a1/theme.md) · [E3 装饰艺术](space/e3/theme.md) · [E4 包豪斯](space/e4/theme.md) · [E5 构成主义](space/e5/theme.md) · [E12 商务粗野](space/e12/theme.md) | 同上 |
-| **质感** | [C2 暗夜植物园](texture/c2/theme.md) · [D4 黄铜年代](texture/d4/theme.md) · [E7 浮世绘](texture/e7/theme.md) · [E9 地质地层](texture/e9/theme.md) · [H1 氤氲手卷](texture/h1/theme.md) | 同上 |
+| **质感** | [C2 暗夜植物园](texture/c2/theme.md) · [D3 手绘油彩](texture/d3/theme.md) · [D4 黄铜年代](texture/d4/theme.md) · [E7 浮世绘](texture/e7/theme.md) · [E9 地质地层](texture/e9/theme.md) · [H1 氤氲手卷](texture/h1/theme.md) | 同上 |
 | **光线** | [D2 柔光暗房](light/d2/theme.md) · [F1 浮光玻璃](light/f1/theme.md) · [F2 霓虹夜行](light/f2/theme.md) | 同上 |
 | **字法** | [C3 终端绿](type/c3/theme.md) · [E10 星图](type/e10/theme.md) | 同上 |
 
@@ -119,7 +119,7 @@
 | 人文 / 书评 / 怀旧 | A1 牛皮纸变体 或 E8 号外报纸 |
 | 生活方式 / 消费品牌 / 轻暖场景 | A1 牛皮纸变体 或 G2 腮红荧光笔 |
 | 自然 / 博物 / 研究型叙事 | C2 暗夜植物园 |
-| 设计 / 艺术 / 展览 / 匠心 | E7 浮世绘 或 A1 沙丘变体 |
+| 设计 / 艺术 / 展览 / 匠心 | D3 手绘油彩 或 E7 浮世绘 或 A1 沙丘变体 |
 | 年轻 / 活力 / 零售 | B1 柠檬黄 / 柠檬绿变体 |
 | 工业 / 警告 / 转折重点 | B1 安全橙变体 |
 | 开发者 / 工程文化 | C3 终端绿 |
