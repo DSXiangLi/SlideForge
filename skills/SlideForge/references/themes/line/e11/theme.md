@@ -83,6 +83,52 @@
 
 - **禁忌**：齿孔撕线每页至多一条（横竖皆可，只一条——撕两次票就废了）；条码只许页底一条横贯，禁进图表区、禁竖放；字段行 LABEL 永远大写 mono，禁中文进 LABEL 位（中文进 VALUE）；`.mt-tix-field` 是文本载体类母题——样式由类承担，文本保持可编辑；`.mt-tix-perf`/`.mt-tix-barcode` 一律 `data-editable-skip`
 
+**G10 composition_program**
+
+- **定位**：主题从「可替换参数集」升级为「决定信息如何进入空间的程序」。本组为硬约束，写进页计划表头即整 deck 的构图契约。
+- **灵魂承载**：齿孔撕线（.mt-tix-perf）和票根字段行（.mt-tix-field）是签名结构件，形状由 CSS 承担（data-editable-skip），其内部承载的文字仍是 data-editable 叶子节点。
+- **DOM 结构测试签署**：删掉 signature_operator，页面回到「标题 + 两段正文 + 横排三格 KPI」，齿孔撕线、条码、票根字段行、副券区全部消失，元素数量/分组/顺序/位置**都变** → **PASS**。
+
+```yaml
+
+doctrine: 每页是一张工业印刷的票纸——信息不是排进去的，是印在固定字段位上的；撕线把页面切成主券与副券，条码是全篇的工业签名。
+
+page_composition:
+  skeleton: 票据容器阵——1px 描边票面 + 齿孔撕线分区 + 字段分隔线，主券/副券两大区
+  grid: {margin: 96px 120px, gutter: 32px}
+  balance: {anchor: 主券区(核心信息), counterweight: 副券区(存根/摘要) / 条码(页底横贯)}
+  whitespace_ratio: ">=25%"
+  flow: "accent 头带横条定锚 → mono 字段行（LABEL/VALUE）承载信息 → 齿孔撕线切主券/副券 → 副券区做存根 → 条码页底收束"
+signature_operator: 把每条信息编译成票面上的一组字段——
+  核心信息装进票据容器（1px 描边 + 齿孔分隔 .mt-tix-perf + 副券区 .mt-tix-stub 淡 accent 底）；
+  主张句用 mono 大写字段行（.mt-tix-field：LABEL/VALUE 对，LABEL 永远大写 mono，VALUE 承载内容）排列；
+  三项数字重排为票根字段行（非横排等权三格），主数字独占一行 mono 大字 + accent 头带标记；
+  齿孔撕线（.mt-tix-perf：dashed 虚线 + 两端半圆缺口）把页面撕出主券/副券，每页至多一条；
+  条码（.mt-tix-barcode：repeating-linear-gradient 粗细交替竖条）只许页底一条横贯；
+  纸白票纸底（--paper #FDFCF9）+ 航司蓝 accent（#0F4C81）只给头带、关键字段值、条码上方字。
+silhouette: 纸白票纸上 1px 描边票面 + 齿孔撕线；直角票据容器；重心偏上（主券区）；底部条码做工业基座。
+info_grammar:
+  cover:    满版纸白票纸 + accent 头带横贯版面上缘（<=30%）+ mono 大字标题 + 条码页底 + 齿孔撕线切主券/副券
+  toc:      3-5 个票据容器排列，当前章节用 accent 头带标记
+  claim:    票据容器承载主张句（mono 字段行 LABEL/VALUE 排列主张），齿孔撕线分主券/副券，副券做摘要存根
+  analysis: 2-4 个同构票据容器在纸白底上，每个承载一段信息，至多一个用 accent 头带焦点
+  data:     三项数字 → 票根字段行排列（mono LABEL/VALUE 对），主数字独占一行 mono 大字 + accent 头带
+  closing:  纸白票纸 + 头带呼应封面 + 条码页底呼应 + 齿孔撕线最后一次出现
+type_scale:            # px@1920x1080 画布基准；下限由骨架 .t-* 的 max() 结构性锁定
+  --t-display: 112px  # 极粗无衬线 800 承载票面标题；与正文 4.0:1
+  rule: 标题:正文 >=1.8:1；正文层 opacity = 1，禁灰化弱读；accent 航司蓝面积 <=8%（只做头带/关键字段值/条码上方字）
+  floor_note: body/heading/subhead/caption/meta 不覆盖，继承骨架 28/64/40/18/15；地板由 max() 保证，无需后拦截门禁
+invariants:
+  - 票据容器 1px 描边 + 齿孔分隔，直角，无弥散影
+  - 纸白底（--paper #FDFCF9）+ 航司蓝 accent（#0F4C81），accent 面积 <=8%
+  - 齿孔撕线每页至多一条（横竖皆可），把页面撕出主券/副券
+  - 横排等权三格容器数 = 0
+  - 条码只许页底一条横贯，禁进图表区、禁竖放
+  - 字段行 LABEL 永远大写 mono，禁中文进 LABEL 位（中文进 VALUE）
+forbidden_defaults: [横向等权三格 KPI, 卡片墙成阵, 居中 hero, 圆角大卡, 弥散软影, 渐变色块, 玻璃拟态, 满版色块, 竖排题字条/Ghost 残影, 圆角弥散卡]
+dna_events: {cover: 强, claim: 中, analysis: 弱, data: 中, toc: 弱, closing: 强}
+```
+
 **Variants 配色变体**
 
 #### 铁路绿

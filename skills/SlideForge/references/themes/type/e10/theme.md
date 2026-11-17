@@ -82,6 +82,51 @@
 
 - **禁忌**：星座件是关系图式不是撒星——每页星座 ≤1 组（3–7 颗星），星点禁无连线空挂（孤星不是星座）；坐标网格禁进正文阅读区；母题件一律 `data-editable-skip`（`.mt-star-name`/`.mt-star-mag` 承载真实星名/坐标文本时除外——样式由类承担，文本保持可编辑）
 
+**G10 composition_program**
+
+- **定位**：主题从「可替换参数集」升级为「决定信息如何进入空间的程序」。本组为硬约束，写进页计划表头即整 deck 的构图契约。
+- **灵魂承载**：星座件（.mt-star-dot + .mt-star-link）和黄道坐标网格（.mt-star-grid）是签名结构件，形状由 CSS 承担（data-editable-skip），其内部承载的文字仍是 data-editable 叶子节点。
+- **DOM 结构测试签署**：删掉 signature_operator，页面回到「标题 + 两段正文 + 横排三格 KPI」，星座连线、星点、坐标网格、星等注记全部消失，元素数量/分组/顺序/位置**都变** → **PASS**。
+
+```yaml
+
+doctrine: 浩瀚与精确并存——夜空不拥挤，几颗亮星以虚线缝成星座就够了；信息要点之间的关系比要点本身更重要。
+
+page_composition:
+  skeleton: 星座连线阵——内容悬浮于星空，分区靠虚线连线与坐标网格，无实色卡无实框
+  grid: {margin: 96px 120px, gutter: 32px}
+  balance: {anchor: 星座连线区(主信息关系网), counterweight: 黄道坐标网格(仪式页背景) / 留白星场}
+  whitespace_ratio: ">=45%"
+  flow: "mono 坐标注记定锚 → 星点承载核心信息节点 → 虚线连线缝成关系星座 → 斜体星名做学术签名 → 星等注记收束"
+signature_operator: 把每条信息编译成夜空中的一颗星——
+  核心信息节点装进星点（.mt-star-dot：小圆点 + 十字星芒 + 微弱辉光），3-7 颗星点用虚线连线（.mt-star-link：1px dashed accent）缝成一组星座；
+  主张句在星座关系网中，斜体星名（.mt-star-name：衬线 italic 小注）标注节点，mono 星等注记（.mt-star-mag）标注坐标/编号；
+  三项数字重排为星座节点（非横排等权三格），主数字独占一颗最亮星 + accent 辉光；
+  黄道坐标网格（.mt-star-grid：细经纬直线网格）只许仪式页与图版区低透明背景；
+  深蓝夜空底（--paper #0b1426）+ 金黄 accent（#e8b64c）只做星光与连线，禁大块铺色。
+silhouette: 深蓝夜空上虚线星座；无框悬浮节点；重心分散（星座分布）；大面积留白星场是主负空间。
+info_grammar:
+  cover:    满版深蓝夜空 + 黄道坐标网格仪式背景 + 衬线巨字标题 + 主星座开场（3-5 颗星 + 连线）
+  toc:      3-5 组星座排列，每组对应一章，当前章节用 accent 辉光标记
+  claim:    星座连线网承载主张句（节点 = 要点，连线 = 关系），斜体星名标注节点，mono 星等注记引出说明
+  analysis: 2-4 组同构星座在深蓝夜空上，每组承载一段信息，至多一组用 accent 辉光焦点
+  data:     三项数字 → 星座节点排列，主数字独占最亮星 + accent 辉光 + mono 坐标注记
+  closing:  深蓝夜空 + 封面主星座再现（或黄道金光带呼应），星等注记最后一次出现
+type_scale:            # px@1920x1080 画布基准；下限由骨架 .t-* 的 max() 结构性锁定
+  --t-display: 104px  # 衬线 400 偏细承载星图题铭；与正文 3.7:1
+  rule: 标题:正文 >=1.8:1；正文层 opacity = 1，禁灰化弱读；accent 金黄面积 <=5%（只做星点/连线/星等注记/关键数字）
+  floor_note: body/heading/subhead/caption/meta 不覆盖，继承骨架 28/64/40/18/15；地板由 max() 保证，无需后拦截门禁
+invariants:
+  - 无框 + 虚线连线结构（1px dashed ink 30%），禁实色卡、禁描边实框、禁辉光托底
+  - 深蓝底（--paper #0b1426）+ 金黄 accent（#e8b64c），accent 面积 <=5%
+  - 每页星座 ≤1 组（3-7 颗星），星点禁无连线空挂（孤星不是星座）
+  - 横排等权三格容器数 = 0
+  - 坐标网格禁进正文阅读区
+  - fx 仪式层（constellation/starfield/particle-drift）只许封面/收束仪式页，每页至多 1 个
+forbidden_defaults: [横向等权三格 KPI, 卡片墙成阵, 居中 hero, 圆角卡, 弥散软影, 渐变色块, 玻璃拟态, 满版色块, 实线实框, 密集网格矩阵, 辉光托底]
+dna_events: {cover: 强, claim: 中, analysis: 弱, data: 中, toc: 弱, closing: 强}
+```
+
 **Variants 配色变体**
 
 #### 星云紫

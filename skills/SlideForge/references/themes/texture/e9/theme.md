@@ -79,6 +79,52 @@
 
 - **禁忌**：层理色带每页至多一条（页底或侧缘二选一，横放），禁压正文；等高线圈禁横穿正文区、禁与岩芯条同页抢焦；岩芯条只许年代/层级语义处，禁当纯装饰撒布；母题件一律 `data-editable-skip`
 
+**G10 composition_program**
+
+- **定位**：主题从「可替换参数集」升级为「决定信息如何进入空间的程序」。本组为硬约束，写进页计划表头即整 deck 的构图契约。
+- **灵魂承载**：层理色带（.mt-geo-strata）和岩芯样本条（.mt-geo-core）是签名结构件，形状由 CSS 承担（data-editable-skip），其内部承载的文字仍是 data-editable 叶子节点。
+- **DOM 结构测试签署**：删掉 signature_operator，页面回到「标题 + 两段正文 + 横排三格 KPI」，层理色带、岩芯条、等高线圈、年代标注签全部消失，元素数量/分组/顺序/位置**都变** → **PASS**。
+
+```yaml
+
+doctrine: 大地剖面即叙事——每条信息是地质调查图上的一个层位或标注，时间是这里的主轴，精确的测绘比花哨的视觉更有说服力。
+
+page_composition:
+  skeleton: 剖面切片阵——直角薄色层容器在纸米底上按层序排列，页底横贯层理色带
+  grid: {margin: 96px 120px, gutter: 32px}
+  balance: {anchor: 剖面切片阵(主信息区), counterweight: 层理色带(页底) / 等高线圈(页角留白)}
+  whitespace_ratio: ">=40%"
+  flow: "年代标注签定锚 → 剖面切片承载核心信息 → 岩芯样本条做年代标尺 → 等高线圈页角装饰 → 层理色带页底收束"
+signature_operator: 把每条信息编译成地质调查图上的一个层位——
+  核心信息装进剖面切片（直角薄色层容器：paper-tint 或 accent color-mix 淡阶纯色薄层，顶缘可压 2px accent 界线作"地表线"）；
+  主张句在切片内 sans 大字，年代标注签（.mt-geo-tag：mono 小字 + accent 短横引线）标注层位/年代；
+  三项数字重排为层理色带上的分段标尺（非横排等权三格），主数字独占一段 accent 淡阶色层；
+  岩芯样本条（.mt-geo-core）只许年代/层级语义处，竖向圆柱感色条分段对应地质年代；
+  等高线圈（.mt-geo-contour）只许页角与留白区低透明装饰；
+  页底或侧缘横贯一条层理色带（.mt-geo-strata），层厚比例由数据调整 gradient 断点。
+silhouette: 纸米底上剖面切片阵 + 页底层理色带；直角薄色层矩形块面；重心偏上（切片阵区）；底部色带做大地基座。
+info_grammar:
+  cover:    满版纸米底 + 底部厚层理色带（页底 30%）+ sans 大字标题 + 年代标注签钉页角
+  toc:      3-5 个剖面切片按层序排列，当前章节用 accent 界线标记
+  claim:    剖面切片阵承载主张句（切片内 sans 大字 + 年代标注签引线注），层理色带在页底做层序呼应
+  analysis: 2-4 个同构剖面切片在纸米底上，每个承载一段信息，至多一张切片用 accent 界线焦点
+  data:     三项数字 → 层理色带上分段标尺排列，主数字独占 accent 淡阶色层段
+  closing:  纸米底 + 底部薄层理色带呼应封面（色带高度减半），年代标注签最后一次出现
+type_scale:            # px@1920x1080 画布基准；下限由骨架 .t-* 的 max() 结构性锁定
+  --t-display: 104px  # sans 600-700 承载测绘图签标题；与正文 3.7:1
+  rule: 标题:正文 >=1.8:1；正文层 opacity = 1，禁灰化弱读；accent 赭石面积 <=10%（只做界线/标注/关键数字）；层理色带大面积色层用 color-mix 淡阶不计入预算
+  floor_note: body/heading/subhead/caption/meta 不覆盖，继承骨架 28/64/40/18/15；地板由 max() 保证，无需后拦截门禁
+invariants:
+  - 剖面切片直角薄色层容器（paper-tint 或 accent color-mix 淡阶），顶缘可压 2px accent 界线，无阴影
+  - 纸米底（--paper #f0e9d8）+ 赭石 accent（#a85a2a），accent 面积 <=10%
+  - 层理色带每页至多一条（页底或侧缘二选一），禁压正文
+  - 横排等权三格容器数 = 0
+  - 等高线圈禁横穿正文区、禁与岩芯条同页抢焦
+  - 岩芯条只许年代/层级语义处，禁当纯装饰撒布
+forbidden_defaults: [横向等权三格 KPI, 卡片墙成阵, 居中 hero, 圆角卡, 弥散软影, 渐变色块, 玻璃拟态, 满版色块, 荧光高亮, 手绘/有机形态]
+dna_events: {cover: 强, claim: 中, analysis: 弱, data: 中, toc: 弱, closing: 强}
+```
+
 **Variants 配色变体**
 
 #### 岩灰蓝

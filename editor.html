@@ -3169,6 +3169,86 @@ var PANEL_DATA = {
             ]
           },
           {
+            "id": "d3",
+            "label": "手绘油彩",
+            "series": "D",
+            "vibe": "画纸暖灰 + 赭石一笔，手绘油彩的呼吸感与留白",
+            "description": "艺术、文化、展览、人文叙事、创作者作品集、慢内容分享；画纸暖灰 + 赭石一笔，手绘油彩的呼吸感与留白",
+            "focus": [
+              "G2",
+              "G9"
+            ],
+            "focus_label": "字排 + 装饰",
+            "group": "motif",
+            "group_label": "装饰主导",
+            "visual": {
+              "paper": "#e9e5da",
+              "ink": "#33413a",
+              "accent": "#a05f3c",
+              "font_display": "serif",
+              "font_body": "serif"
+            },
+            "tokens": {
+              "--paper": "#e9e5da",
+              "--paper-tint": "#dcd6c6",
+              "--ink": "#33413a",
+              "--ink-tint": "#46564d",
+              "--accent": "#a05f3c",
+              "--accent-on": "#f5f1e6",
+              "--font-display": "\"Kaiti SC\",\"STKaiti\",\"Songti SC\",\"Noto Serif SC\",serif",
+              "--font-body": "\"Kaiti SC\",\"STKaiti\",\"Songti SC\",\"Noto Serif SC\",serif",
+              "--font-mono": "\"SF Mono\",\"JetBrains Mono\",\"Menlo\",monospace",
+              "--texture-type": "paper",
+              "--texture-layer": "radial-gradient(80% 60% at 30% 20%, color-mix(in srgb, var(--accent) 5%, transparent), transparent 70%), radial-gradient(70% 80% at 75% 85%, color-mix(in srgb, var(--ink) 4%, transparent), transparent 70%)",
+              "--texture-scope": "all"
+            },
+            "theme_css": "/* D3 手绘油彩 · 装饰母题 */\n.mt-art-brush{position:relative;isolation:isolate}\n.mt-art-brush::before{content:\"\";position:absolute;inset:-.15em -.35em;z-index:-1;background:color-mix(in srgb,var(--accent) 22%,transparent);border-radius:62% 38% 55% 45%/48% 55% 42% 52%}\n.mt-art-circle{border:2px dashed color-mix(in srgb,var(--accent) 65%,transparent);border-radius:58% 42% 50% 50%/52% 48% 55% 45%;padding:.4em .9em}\n.mt-art-frame{border:1px solid color-mix(in srgb,var(--ink) 55%,transparent);box-shadow:inset 0 0 0 5px var(--paper),inset 0 0 0 6px color-mix(in srgb,var(--ink) 35%,transparent)}",
+            "demos": [
+              "demo-1.png",
+              "demo-2.png"
+            ],
+            "variants": [
+              {
+                "id": "d3-v1",
+                "label": "雾蓝",
+                "vibe": "油画三色体系的重心移向雾蓝——烟雨山水感，冷静诗意，适合东方美学、节气、慢旅行",
+                "accent_note": "",
+                "tokens": {
+                  "--paper": "#e9e5da",
+                  "--paper-tint": "#dcd6c6",
+                  "--ink": "#33413a",
+                  "--ink-tint": "#46564d",
+                  "--accent": "#5B7A8C",
+                  "--accent-on": "#f5f1e6"
+                },
+                "visual": {
+                  "paper": "#e9e5da",
+                  "ink": "#33413a",
+                  "accent": "#5B7A8C"
+                }
+              },
+              {
+                "id": "d3-v2",
+                "label": "灰绿",
+                "vibe": "油画三色体系的重心移向灰绿——苔色入画，植物标本册感，适合自然、植物、生态、茶文化",
+                "accent_note": "",
+                "tokens": {
+                  "--paper": "#e9e5da",
+                  "--paper-tint": "#dcd6c6",
+                  "--ink": "#33413a",
+                  "--ink-tint": "#46564d",
+                  "--accent": "#6B7F5E",
+                  "--accent-on": "#f5f1e6"
+                },
+                "visual": {
+                  "paper": "#e9e5da",
+                  "ink": "#33413a",
+                  "accent": "#6B7F5E"
+                }
+              }
+            ]
+          },
+          {
             "id": "d4",
             "label": "黄铜年代 Brass Age",
             "series": "D",

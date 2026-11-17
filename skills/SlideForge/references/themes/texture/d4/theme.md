@@ -151,6 +151,52 @@
 }
 ```
 
+**G10 composition_program**
+
+- **定位**：主题从「可替换参数集」升级为「决定信息如何进入空间的程序」。本组为硬约束，写进页计划表头即整 deck 的构图契约。
+- **灵魂承载**：黄铜刻线框（.mt-brs-engrave）和铆钉（.mt-brs-rivet）是签名结构件，形状由 CSS 承担（data-editable-skip），其内部承载的文字仍是 data-editable 叶子节点。
+- **DOM 结构测试签署**：删掉 signature_operator，页面回到「标题 + 两段正文 + 横排三格 KPI」，黄铜刻线框、铆钉四角、红色标注章、疏格蓝图网全部消失，元素数量/分组/顺序/位置**都变** → **PASS**。
+
+```yaml
+
+doctrine: 1950s 世博会的工业乐观主义——钢板上的黄铜刻线是工程的尊严，每条信息都是从钢板上刻出来的精确构件，不是贴上去的便利贴。
+
+page_composition:
+  skeleton: 黄铜刻线框成阵——2px+1px 双刻线直角容器在深蓝图纸上等距阵列，四角钉铆钉
+  grid: {margin: 96px 120px, gutter: 32px}
+  balance: {anchor: 刻线框阵(主信息区), counterweight: 红色标注章(角部批注) / 疏格蓝图网(仪式页背景)}
+  whitespace_ratio: ">=35%"
+  flow: "mono 项目编号 kicker 定锚 → 刻线框承载核心信息（标题/数据/参数）→ 铆钉钉角收边 → 红色标注章做批注 → 底部 mono 小字收束"
+signature_operator: 把每条信息编译成一个从钢板上刻出来的构件——
+  核心信息装进黄铜刻线框（.mt-brs-engrave：2px 黄铜 border + 1px outline 双刻线 + inset 刻槽影），框四角钉铆钉（.mt-brs-rivet）；
+  标题用 condensed grotesk 大写 + 加宽字距 + mono 项目编号 kicker（"EXPO-58 / HALL 2"式）；
+  三项数字重排为刻线框阵内的参数条目（非横排等权三格），主数字独占一张刻线框 + 黄铜刻度线托底；
+  批注用红色标注章（.mt-brs-stamp：accent-2 红 2px 描边 + rotate(-3deg) 微倾斜 + mono 大写短词），每页至多 2 枚；
+  疏格蓝图网（.mt-brs-grid）只许仪式页背景；
+  深蓝图纸底（--paper #1a2332）+ 黄铜 accent（#b8860b）是工业世界的基底。
+silhouette: 深蓝图纸上黄铜刻线框阵列；直角双刻线矩形块面；重心左上象限（刻线框阵区）；右下标注章或疏格网作平衡。
+info_grammar:
+  cover:    满版深蓝 + 疏格蓝图网仪式背景 + 黄铜刻线整页内框 + 四角铆钉 + condensed 大写巨字标题 + mono kicker
+  toc:      3-5 个刻线框排列，当前章节用红色标注章标记
+  claim:    刻线框阵承载主张句（框内 condensed 大字 + mono 编号 kicker），红色标注章从框角引出批注，铆钉钉框角
+  analysis: 2-4 个同构刻线框在深蓝图纸上，每个承载一段信息，至多一张框用黄铜刻度线焦点
+  data:     三项数字 → 刻线框阵内参数条目排列，主数字独占黄铜刻度线框
+  closing:  深蓝底 + 刻线框呼应封面（缩小或半隐），标注章最后一次出现
+type_scale:            # px@1920x1080 画布基准；下限由骨架 .t-* 的 max() 结构性锁定
+  --t-display: 128px  # condensed grotesk 700 大写承载展馆招牌字；与正文 4.6:1
+  rule: 标题:正文 >=1.8:1；正文层 opacity = 1，禁灰化弱读；黄铜 accent 面积 <=6%（只做刻线/铆钉/刻度/焦点数字）；标注红 <=3% 且单页至多 2 处
+  floor_note: body/heading/subhead/caption/meta 不覆盖，继承骨架 28/64/40/18/15；地板由 max() 保证，无需后拦截门禁
+invariants:
+  - 刻线框 2px solid accent border + 1px outline outline-offset:3px（双刻线 + 刻槽影），直角，无弥散影
+  - 深蓝底（--paper #1a2332）+ 黄铜 accent（#b8860b），accent 面积 <=6%；标注红（#c0392b）面积 <=3%
+  - 铆钉只钉刻线框四角或线端，每容器至多 4 枚，禁漂浮散布
+  - 横排等权三格容器数 = 0
+  - 红色标注章每页至多 2 枚，禁压正文（是批注不是标语）
+  - 疏格蓝图网只许仪式页背景，禁进正文阅读区
+forbidden_defaults: [横向等权三格 KPI, 卡片墙成阵, 居中 hero, 圆角卡, 弥散软影, 渐变色块, 玻璃拟态, 满版黄铜填充, 齿轮/管线 steampunk 元素, 赛博/科幻蓝]
+dna_events: {cover: 强, claim: 中, analysis: 弱, data: 中, toc: 弱, closing: 强}
+```
+
 **Variants 配色变体**
 
 #### 锈红

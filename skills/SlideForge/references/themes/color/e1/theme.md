@@ -114,6 +114,53 @@
 
 - **禁忌**：错位量文字垫 2–3px、色面 4px 烧死——超过即成故障而非工艺；错位块每页 ≤2 处且只垫重点（处处错位即脏污）；套印色面每页 ≤1 面（大面积工艺是主角不是墙纸）；网目调禁铺满版心；**对比度铁律：文字永远落在纸面（paper/paper-tint）上——油墨印纸，riso 世界不存在深色容器**；套印色面上只许压 ≥56px 的粗黑 ink 海报标题（印字于色是海报工艺），正文与标签禁压套印面；禁 ink/ink-tint 深底容器（深色只许来自 multiply 叠印区的视觉后果，不作容器填充）；`.mt-ris-misreg` 是文本载体类母题（加在真实文本上，文本保持可编辑），`.mt-ris-field` 内内容须自带 position 层级，其余母题件一律 `data-editable-skip`
 
+**G10 composition_program**
+
+- **定位**：主题从「可替换参数集」升级为「决定信息如何进入空间的程序」。本组为硬约束，写进页计划表头即整 deck 的构图契约。
+- **灵魂承载**：套印色面（.mt-ris-field）和套色错位叠印块（.mt-ris-misreg）是签名结构件，形状由 CSS 承担（data-editable-skip），其内部承载的文字仍是 data-editable 叶子节点。
+- **DOM 结构测试签署**：删掉 signature_operator，页面回到「标题 + 两段正文 + 横排三格 KPI」，套色错位块、套印色面、裁剪虚线、网目调点块、半调纸纹全部消失，元素数量/分组/顺序/位置**都变** → **PASS**。
+
+```yaml
+
+doctrine: 独立出版的生命力来自印刷事故——套色不准不是 bug 是特色，每页都是贴出来的 zine 拼贴，不是排出来的编辑部版式。
+
+page_composition:
+  skeleton: 微旋转拼贴卡阵——直角纯色块整体 ±1.5° 旋转散布在旧纸面上，不对称平衡
+  grid: {margin: 96px 120px, gutter: 24px}
+  balance: {anchor: 拼贴卡阵(主信息区), counterweight: 套印色面(大面积双版叠印) / 半调纸纹(全场底纹)}
+  whitespace_ratio: ">=30%"
+  flow: "mono kicker 定锚 → 拼贴卡承载核心信息（标题/正文/数据）→ 套色错位块垫重点 → 裁剪虚线分区 → 网目调点块页角装饰 → 荧光戳记收束"
+signature_operator: 把每条信息编译成 zine 页面上的一张拼贴纸片——
+  核心信息装进微旋转拼贴卡（直角纯色块 paper-tint / accent 淡档 / 套印色面 .mt-ris-field，整体 transform:rotate(±1.5°)，像随手贴上去的纸片）；
+  主张句在拼贴卡上粗黑无衬线海报字排，套色错位叠印块（.mt-ris-misreg：主辊+副辊双色错 2-3px multiply 叠印）垫在标题/关键词后；
+  三项数字重排为拼贴卡阵内的错落条目（非横排等权三格），主数字独占一张套印色面卡 + 荧光戳记；
+  裁剪虚线（.mt-ris-cut：dashed 分隔线）做卡间分区，网目调点块（.mt-ris-halftone）只许页角低透明；
+  旧纸面底（--paper #f7f2e6）+ 荧光粉 accent（#FF48B0）+ 蓝副辊（#0078BF）是双墨辊世界。
+silhouette: 旧纸面上微旋转拼贴卡散布；直角色块面 ±1.5° 倾斜；不对称平衡（无居中轴线）；留白来自卡间间隙而非主动负空间。
+info_grammar:
+  cover:    满版旧纸面 + 半调纸纹底 + 荧光专色满版 + 套色错位巨标 + 荧光戳记角标 + scale-pop 蹦贴入场
+  toc:      3-5 张拼贴卡散布，当前章节用 accent 色面标记
+  claim:    拼贴卡阵承载主张句（卡上粗黑海报字 + 套色错位块垫标题），裁剪虚线分卡，荧光戳记做限量标记
+  analysis: 2-4 张同构拼贴卡散布在旧纸面上，每张承载一段信息，至多一张用套印色面焦点
+  data:     三项数字 → 拼贴卡阵内错落条目排列，主数字独占套印色面卡 + 荧光戳记
+  closing:  旧纸面 + 套色错位叠印条带呼应封面（半亮：accent 淡档色块），荧光戳记最后一次出现
+type_scale:            # px@1920x1080 画布基准；下限由骨架 .t-* 的 max() 结构性锁定
+  --t-display: 136px  # 粗黑无衬线 800-900 承载海报标题；与正文 4.9:1
+  rule: 标题:正文 >=1.8:1；正文层 opacity = 1，禁灰化弱读；accent 荧光粉面积 <=10%（只做错位块/戳记/单强调词）；副辊蓝只在套色错位叠印中出现
+  floor_note: body/heading/subhead/caption/meta 不覆盖，继承骨架 28/64/40/18/15；地板由 max() 保证，无需后拦截门禁
+invariants:
+  - 微旋转拼贴卡（直角纯色块 ±1.5° rotate），禁居中排列、禁精密网格对齐
+  - 旧纸面底（--paper #f7f2e6）+ 荧光粉 accent（#FF48B0），accent 面积 <=10%；副辊蓝（#0078BF）只在套色错位中出现
+  - 套色错位块每页 <=2 处且只垫重点；套印色面每页 <=1 面
+  - 横排等权三格容器数 = 0
+  - 禁 masthead/mastfoot（zine 不需要编辑部刊头刊脚）
+  - 禁 hairline 实线分隔（用裁剪虚线或套印色面边缘）
+  - 禁 box-shadow（深度靠套色叠印 multiply 混色）
+  - 禁 ink/ink-tint 深底容器（深色只来自 multiply 叠印的视觉后果）
+forbidden_defaults: [横向等权三格 KPI, 居中 hero, hairline 实线分隔, box-shadow, 精密网格对齐, 圆角卡, 玻璃拟态, 深底容器, 渐变色块, 发丝线]
+dna_events: {cover: 强, claim: 中, analysis: 弱, data: 中, toc: 弱, closing: 强}
+```
+
 **Variants 配色变体**
 
 #### Riso 蓝
