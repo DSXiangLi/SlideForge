@@ -68,7 +68,7 @@
 
 ---
 
-## 3. 自动审计结果（12 项阈值）
+## 3. 自动审计结果（12 项阈值 · v2 根因修复后）
 
 | 项 | 阈值 | 实测 | 状态 |
 |---|---|---|---|
@@ -79,13 +79,15 @@
 | pageErrors | 0 | 0 | ✅ |
 | 裸写 inline font-size | 0 | 0 | ✅ |
 | 字号地板 | 全部 ≥ floor | 0 violations | ✅ |
-| 层级落差 | ≥6:1 | 7.47（最低） | ✅ |
+| 层级落差 | ≥6:1 | 6.4（最低） | ✅ |
 | 九宫格空白 | 0 空格 | 0 | ✅ |
 | 标题 flush | ≤97% | 0 | ✅ |
 | 同组等宽 | gap ≥ 0 | 0 | ✅ |
-| contentOverflow | — | 4（误报） | ⚠️ |
+| contentOverflow | 0 | 0 | ✅ |
 
-> **contentOverflow 4 条说明**：均为 display 字号 line-height（1.15）导致 `scrollHeight` 比 `clientHeight` 大 5-19px，已在容器加 `overflow:visible`，视觉无截断。这不是真正的溢出问题。
+> **v2 修复说明**：v1 审计有 4 条 contentOverflow 误报 + 6 条 containerOverflow + 1 条 textOverlap，
+> 根因是技能文档规则缺陷导致 build.js 代码违规。v2 通过修复 5 处技能文档根因 + 配套修复 build.js，
+> 16 页 × 12 项 = 192 检查全绿。
 
 ---
 
