@@ -1460,137 +1460,6 @@ var PANEL_DATA = {
             ]
           },
           {
-            "id": "e6",
-            "label": "Memphis 孟菲斯",
-            "series": "E",
-            "vibe": "纯白底 + 墨黑粗描边 + 糖果色几何碎形，1980s Memphis 的戏谑与高能量",
-            "description": "年轻消费品牌、活动发布、创意行业、教育科普、潮流零售、节庆营销；纯白底 + 墨黑粗描边 + 糖果色几何碎形，1980s Memphis 的戏谑与高能量",
-            "focus": [
-              "G9",
-              "G5"
-            ],
-            "focus_label": "装饰 + 动效",
-            "group": "motif",
-            "group_label": "装饰主导",
-            "visual": {
-              "paper": "#FFF8EE",
-              "ink": "#1A1A2E",
-              "accent": "#FF3DA5",
-              "font_display": "sans",
-              "font_body": "sans"
-            },
-            "tokens": {
-              "--paper": "#FFF8EE",
-              "--paper-tint": "#FFE9C7",
-              "--ink": "#1A1A2E",
-              "--ink-tint": "#3A3A55",
-              "--accent": "#FF3DA5",
-              "--accent-on": "#FFF8EE",
-              "--palette-1": "#FF3DA5",
-              "--palette-1-on": "#FFF8EE",
-              "--palette-2": "#FFD93D",
-              "--palette-2-on": "#1A1A2E",
-              "--palette-3": "#00B8D9",
-              "--palette-3-on": "#1A1A2E",
-              "--palette-4": "#7BC950",
-              "--palette-4-on": "#1A1A2E",
-              "--font-display": "\"Futura\",\"Century Gothic\",\"PingFang SC\",\"Noto Sans SC\",\"Microsoft YaHei\",sans-serif",
-              "--font-body": "\"PingFang SC\",\"Noto Sans SC\",\"Microsoft YaHei\",sans-serif",
-              "--font-mono": "\"SF Mono\",\"JetBrains Mono\",\"Menlo\",monospace",
-              "--texture-type": "flat",
-              "--texture-layer": "none",
-              "--texture-scope": "cover"
-            },
-            "theme_css": "/* E6 Memphis 孟菲斯 · 装饰母题 + 缓动签名 */\n:root{--ease-out:cubic-bezier(.5,1.7,.4,1)}\n.mt-mem-confetti{position:absolute;inset:0;pointer-events:none;user-select:none;overflow:hidden}\n.mt-mem-confetti i{position:absolute;display:block;--pc:var(--palette-1)}\n.mt-mem-confetti .mt-mem-c2{--pc:var(--palette-2)}\n.mt-mem-confetti .mt-mem-c3{--pc:var(--palette-3)}\n.mt-mem-confetti .mt-mem-c4{--pc:var(--palette-4)}\n.mt-mem-dot{width:14px;height:14px;border-radius:50%;background:var(--pc)}\n.mt-mem-tri{width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:15px solid var(--pc)}\n.mt-mem-ring{width:16px;height:16px;border:3px solid var(--ink);border-radius:50%}\n.mt-mem-zig{height:12px;pointer-events:none;background-image:linear-gradient(135deg,var(--ink) 25%,transparent 25%),linear-gradient(225deg,var(--ink) 25%,transparent 25%);background-size:16px 12px;background-repeat:repeat-x}\n.mt-mem-card{border:3px solid var(--ink);border-radius:14px;background:var(--paper);box-shadow:8px 8px 0 color-mix(in srgb,var(--accent) 85%,var(--ink))}",
-            "demos": [
-              "demo-1.png",
-              "demo-2.png"
-            ],
-            "variants": [
-              {
-                "id": "e6-v1",
-                "label": "电光蓝",
-                "vibe": "糖果罐换成电光蓝——更冷更锐的孟菲斯，科技馆与极客活动感——科技产品、赛事、潮流数码",
-                "accent_note": "电光蓝明度高，accent-on 反深字（墨黑）才读得清；palette 随罐轮转（蓝打头）；其余同基底口径",
-                "tokens": {
-                  "--paper": "#FFF8EE",
-                  "--paper-tint": "#FFE9C7",
-                  "--ink": "#1A1A2E",
-                  "--ink-tint": "#3A3A55",
-                  "--accent": "#00B8D9",
-                  "--accent-on": "#1A1A2E",
-                  "--palette-1": "#00B8D9",
-                  "--palette-1-on": "#1A1A2E",
-                  "--palette-2": "#FF3DA5",
-                  "--palette-2-on": "#FFF8EE",
-                  "--palette-3": "#FFD93D",
-                  "--palette-3-on": "#1A1A2E",
-                  "--palette-4": "#7BC950",
-                  "--palette-4-on": "#1A1A2E"
-                },
-                "visual": {
-                  "paper": "#FFF8EE",
-                  "ink": "#1A1A2E",
-                  "accent": "#00B8D9"
-                }
-              },
-              {
-                "id": "e6-v2",
-                "label": "柠檬黄",
-                "vibe": "柠檬黄糖果罐——最闹最节庆的一罐，黑白网格底的经典孟菲斯海报感——节庆营销、儿童教育、活动邀请",
-                "accent_note": "柠檬黄明度最高——accent-on 必须反深字；硬偏移投影由 `.mt-mem-card` 的 color-mix(accent 85%, ink) 自动压暗，无需另处理；palette 随罐轮转（黄打头）；其余同基底口径",
-                "tokens": {
-                  "--paper": "#FFF8EE",
-                  "--paper-tint": "#FFE9C7",
-                  "--ink": "#1A1A2E",
-                  "--ink-tint": "#3A3A55",
-                  "--accent": "#FFD93D",
-                  "--accent-on": "#1A1A2E",
-                  "--palette-1": "#FFD93D",
-                  "--palette-1-on": "#1A1A2E",
-                  "--palette-2": "#FF3DA5",
-                  "--palette-2-on": "#FFF8EE",
-                  "--palette-3": "#00B8D9",
-                  "--palette-3-on": "#1A1A2E",
-                  "--palette-4": "#7BC950",
-                  "--palette-4-on": "#1A1A2E"
-                },
-                "visual": {
-                  "paper": "#FFF8EE",
-                  "ink": "#1A1A2E",
-                  "accent": "#FFD93D"
-                }
-              },
-              {
-                "id": "e6-v3",
-                "label": "马卡龙",
-                "vibe": "糖果罐换成马卡龙——粉樱/奶油黄/baby 蓝/薄荷绿全浅调低彩（浅调窗口），最温柔的一罐——母婴、甜品、春季上新、女性消费",
-                "accent_note": "全浅调档——所有彩色面一律反深字（-on 全墨）；硬偏移投影由 color-mix 自动压成奶深色，柔而不脏；其余同基底口径",
-                "tokens": {
-                  "--paper": "#FDF6F0",
-                  "--paper-tint": "#FBEADD",
-                  "--ink": "#2B2B3A",
-                  "--ink-tint": "#454558",
-                  "--accent": "#F5A8C0",
-                  "--accent-on": "#2B2B3A",
-                  "--palette-1": "#F5A8C0",
-                  "--palette-1-on": "#2B2B3A",
-                  "--palette-2": "#FCE8A6",
-                  "--palette-2-on": "#2B2B3A",
-                  "--palette-3": "#A8D8EA",
-                  "--palette-3-on": "#2B2B3A",
-                  "--palette-4": "#B5E3C8",
-                  "--palette-4-on": "#2B2B3A"
-                },
-                "visual": {
-                  "paper": "#FDF6F0",
-                  "ink": "#2B2B3A",
-                  "accent": "#F5A8C0"
-                }
-              }
-            ]
-          },
-          {
             "id": "g1",
             "label": "翡翠年鉴",
             "series": "G",
@@ -2080,86 +1949,6 @@ var PANEL_DATA = {
                   "paper": "#EDF5F0",
                   "ink": "#15201B",
                   "accent": "#2FA98C"
-                }
-              }
-            ]
-          },
-          {
-            "id": "f2",
-            "label": "霓虹夜行",
-            "series": "F",
-            "vibe": "子夜蓝黑 + 紫电灯管——雨后夜街，光是唯一的主角，招牌在湿地面上拖着倒影",
-            "description": "科技发布会、AI 与前沿主题、夜间活动与演出、潮流文化、娱乐与电竞；子夜蓝黑 + 紫电灯管——雨后夜街，光是唯一的主角，招牌在湿地面上拖着倒影",
-            "focus": [
-              "G4",
-              "G9"
-            ],
-            "focus_label": "形态 + 装饰",
-            "group": "motif",
-            "group_label": "装饰主导",
-            "visual": {
-              "paper": "#05070D",
-              "ink": "#E9F0FA",
-              "accent": "#9E8CFF",
-              "font_display": "sans",
-              "font_body": "sans"
-            },
-            "tokens": {
-              "--paper": "#05070D",
-              "--paper-tint": "#0B101C",
-              "--ink": "#E9F0FA",
-              "--ink-tint": "#141B2A",
-              "--accent": "#9E8CFF",
-              "--accent-on": "#1A1040",
-              "--font-display": "\"DIN Alternate\",\"Avenir Next\",\"Helvetica Neue\",\"PingFang SC\",\"Noto Sans SC\",sans-serif",
-              "--font-body": "\"Helvetica Neue\",\"PingFang SC\",\"Noto Sans SC\",\"Microsoft YaHei\",sans-serif",
-              "--font-mono": "\"SF Mono\",\"JetBrains Mono\",\"Menlo\",monospace",
-              "--texture-type": "glow",
-              "--texture-layer": "radial-gradient(85% 60% at 50% 0%, color-mix(in srgb, var(--accent) 7%, transparent), transparent 62%)",
-              "--texture-scope": "cover"
-            },
-            "theme_css": "/* F2 霓虹夜行 · 装饰母题 */\n.mt-neo-tube{position:relative;border:1px solid color-mix(in srgb,var(--accent) 55%,transparent);border-radius:14px;background:color-mix(in srgb,var(--paper-tint) 55%,transparent);box-shadow:inset 0 0 18px color-mix(in srgb,var(--accent) 16%,transparent),0 0 24px -6px color-mix(in srgb,var(--accent) 45%,transparent)}\n.mt-neo-sign{color:var(--accent);text-shadow:0 0 10px color-mix(in srgb,var(--accent) 65%,transparent),0 0 36px color-mix(in srgb,var(--accent) 32%,transparent)}\n.mt-neo-line{height:2px;border:none;border-radius:2px;background:var(--accent);box-shadow:0 0 10px color-mix(in srgb,var(--accent) 70%,transparent),0 0 28px color-mix(in srgb,var(--accent) 28%,transparent)}\n.mt-neo-dot{display:inline-block;width:.5em;height:.5em;border-radius:50%;background:var(--accent);box-shadow:0 0 12px color-mix(in srgb,var(--accent) 80%,transparent);animation:amb-pulse 2.4s ease-in-out infinite}\n.mt-neo-refl{transform:scaleY(-1);opacity:.35;pointer-events:none;filter:blur(1px);-webkit-mask-image:linear-gradient(180deg,transparent 28%,color-mix(in srgb,var(--accent) 45%,transparent));mask-image:linear-gradient(180deg,transparent 28%,color-mix(in srgb,var(--accent) 45%,transparent))}",
-            "demos": [
-              "demo-1.png",
-              "demo-2.png"
-            ],
-            "variants": [
-              {
-                "id": "f2-v1",
-                "label": "电青",
-                "vibe": "电青光管——更冷更科幻，赛博海边城市，适合前沿科技、游戏、数字产品发布",
-                "accent_note": "",
-                "tokens": {
-                  "--paper": "#05070D",
-                  "--paper-tint": "#0B101C",
-                  "--ink": "#E9F0FA",
-                  "--ink-tint": "#141B2A",
-                  "--accent": "#3ADFFF",
-                  "--accent-on": "#03222C"
-                },
-                "visual": {
-                  "paper": "#05070D",
-                  "ink": "#E9F0FA",
-                  "accent": "#3ADFFF"
-                }
-              },
-              {
-                "id": "f2-v2",
-                "label": "品红",
-                "vibe": "品红光管——更热烈更俱乐部，适合音乐、演出、夜生活与次文化主题",
-                "accent_note": "",
-                "tokens": {
-                  "--paper": "#05070D",
-                  "--paper-tint": "#0B101C",
-                  "--ink": "#E9F0FA",
-                  "--ink-tint": "#141B2A",
-                  "--accent": "#FF4DA6",
-                  "--accent-on": "#2A0A1C"
-                },
-                "visual": {
-                  "paper": "#05070D",
-                  "ink": "#E9F0FA",
-                  "accent": "#FF4DA6"
                 }
               }
             ]
@@ -3176,19 +2965,19 @@ var PANEL_DATA = {
             "group": "texture",
             "group_label": "质感主导",
             "visual": {
-              "paper": "#1a2332",
+              "paper": "#1c1c1e",
               "ink": "#e8dcc8",
               "accent": "#b8860b",
               "font_display": "sans",
               "font_body": "sans"
             },
             "tokens": {
-              "--paper": "#1a2332",
-              "--paper-tint": "#243044",
+              "--paper": "#1c1c1e",
+              "--paper-tint": "#28282b",
               "--ink": "#e8dcc8",
-              "--ink-tint": "#3a4a5e",
+              "--ink-tint": "#4a4a50",
               "--accent": "#b8860b",
-              "--accent-on": "#1a2332",
+              "--accent-on": "#1c1c1e",
               "--accent-2": "#c0392b",
               "--accent-2-on": "#e8dcc8",
               "--font-display": "\"Franklin Gothic Medium\",\"Arial Narrow\",\"PingFang SC\",\"Noto Sans SC\",\"Microsoft YaHei\",sans-serif",

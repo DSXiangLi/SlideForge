@@ -1,27 +1,27 @@
 # D4 黄铜年代 Brass Age
 
 - **id**：d4
-- **气质**：深蓝图纸 + 黄铜刻线 + 红色标注——1950s 世博会工业乐观主义，钢铁的时代相信未来
+- **气质**：涂漆钢板 + 黄铜刻线 + 红色标注——1950s 世博会工业乐观主义，钢铁的时代相信未来
 - **适用**：科技发布 / 工程 / 制造 / 基础设施 / 航天 / 工业品牌
 - **focus**：G9 + G3
-- **世界参考**：1950s 世界博览会展馆海报与太空时代工业设计——涂漆钢板、黄铜铆钉、蓝图晒图纸、丝网印刷宣传画
+- **世界参考**：1950s 世界博览会展馆海报与太空时代工业设计——涂漆钢板、黄铜铆钉、丝网印刷宣传画
 - **unforgettable**：黄铜刻线框——双线黄铜色刻痕边框，内凹刻槽感，每个容器像从钢板上刻出来的
-- **分化声明**：与 e2 分化于 L1/L2/L3/L4/L5/L6——d4 暖调黄铜 + 深蓝图纸 + 红色标注三墨世界，e2 冷调青蓝 + 白线单墨；d4 标题是 condensed grotesk 恒重工业字，e2 是工程手写体大宽字距；d4 质感是纸纤维颗粒（grain/cover 仪式页），e2 是制图网格纸全页铺底（paper/all）；d4 母题是黄铜铆钉/刻槽线框/红色标注章/疏格蓝图网，e2 是尺寸标注线/双线图框/图框标题栏；d4 容器是黄铜刻线框带内凹刻槽影，e2 是 1px 双线图框无影；d4 动效签名是 wipe-clip 精确揭示 + count-up 工程数据，e2 是 draw-line 绘图笔描绘
-- **material_world**：1950s 世界博览会展馆——涂漆钢板墙面上铆着黄铜配件，蓝图晒图纸钉在制图板上，丝网印刷宣传画盖着微微倾斜的红色批注章（HTML 版是这个世界的线框图，bake 版是这个世界的高清照片）
-- **anti_lazy**：不要因为是工业主题就堆齿轮/管线元素——黄铜年代的语言是刻线、铆钉与图纸，不是 steampunk 齿轮墙；不要把黄铜做成金色渐变金属字——黄铜是配件材料（刻线/铆钉/边框），不是滤镜质感；不要滑向赛博/科幻蓝——这是 1950s 的乐观工业，不是未来主义
+- **分化声明**：与 e2 分化于 L1/L2/L3/L4/L5/L6——d4 暖调黄铜 + 炭灰钢板 + 红色标注三墨世界，e2 冷调青蓝 + 深蓝图纸 + 白线单墨；d4 标题是 condensed grotesk 恒重工业字，e2 是工程手写体大宽字距；d4 质感是钢板漆面微颗粒（grain/cover 仪式页），e2 是制图网格纸全页铺底（paper/all）；d4 母题是黄铜铆钉/刻槽线框/红色标注章/疏格钢板网，e2 是尺寸标注线/双线图框/图框标题栏；d4 容器是黄铜刻线框带内凹刻槽影，e2 是 1px 双线图框无影；d4 动效签名是 wipe-clip 精确揭示 + count-up 工程数据，e2 是 draw-line 绘图笔描绘
+- **material_world**：1950s 世界博览会展馆——涂漆钢板墙面上铆着黄铜配件，丝网印刷宣传画盖着微微倾斜的红色批注章（HTML 版是这个世界的线框图，bake 版是这个世界的高清照片）
+- **anti_lazy**：不要因为是工业主题就堆齿轮/管线元素——黄铜年代的语言是刻线、铆钉与钢板，不是 steampunk 齿轮墙；不要把黄铜做成金色渐变金属字——黄铜是配件材料（刻线/铆钉/边框），不是滤镜质感；不要滑向赛博/科幻蓝——这是 1950s 的乐观工业，不是未来主义；不要用蓝图纸做底色——那是 E2 蓝图的世界，D4 的底是涂漆钢板
 
 **G1 color**
 
 ```css
---paper:#1a2332; --paper-tint:#243044;
---ink:#e8dcc8;   --ink-tint:#3a4a5e;
---accent:#b8860b; --accent-on:#1a2332;
+--paper:#1c1c1e; --paper-tint:#28282b;
+--ink:#e8dcc8;   --ink-tint:#4a4a50;
+--accent:#b8860b; --accent-on:#1c1c1e;
 --accent-2:#c0392b; --accent-2-on:#e8dcc8;
 ```
 
-- **accent 预算**：黄铜是结构金属不是颜料——内容页 accent 面积 ≤6%（刻线框、铆钉、刻度、关键数字），禁大面积黄铜填充；满屏特权：封面/收束页可用满幅刻线框 + 疏格蓝图网仪式背景；首尾闭环：封面黄铜刻线巨框开场 → 收束页同位刻线框（缩小或半隐）呼应。
+- **accent 预算**：黄铜是结构金属不是颜料——内容页 accent 面积 ≤6%（刻线框、铆钉、刻度、关键数字），禁大面积黄铜填充；满屏特权：封面/收束页可用满幅刻线框 + 疏格钢板网仪式背景；首尾闭环：封面黄铜刻线巨框开场 → 收束页同位刻线框（缩小或半隐）呼应。
 - **多色立场**：双色墨封闭色板——`--accent` 黄铜（结构：刻线/铆钉/刻度/焦点数字）+ `--accent-2` 标注红（批注：印章/评审标记/警示注记），禁引入第三彩色；分配规则：黄铜承担结构与焦点、红色只承担批注意图（`.mt-brs-stamp` 与评审标注专用），红色面积 ≤3% 且单页至多 2 处；两色永不做大面积色面。
-- **暗底 token 语义**：`--ink-tint` 是蓝图上的弱墨线色（比 paper 浅的蓝灰），用于次级分隔线/弱化标注，不作正文文字色；正文与标题一律 `--ink`。
+- **暗底 token 语义**：`--ink-tint` 是钢板上的弱刻痕色（比 paper 浅的暖灰），用于次级分隔线/弱化标注，不作正文文字色；正文与标题一律 `--ink`。
 
 **G2 typography**
 
@@ -44,8 +44,8 @@
 --texture-scope: cover;
 ```
 
-- **立场**：蓝图晒图纸的纸纤维 = 材质本体，但只许仪式页铺底（cover 纪律）——正文页的材料感由刻线框/铆钉/印章承担，纸面退后让图纸干净
-- **material**：涂漆钢板 + 黄铜铆钉 + 蓝图晒图纸——钢板漆面平整有微弱方向性反光，黄铜件有金属高光，晒图纸有纤维肌理
+- **立场**：钢板漆面的微颗粒 = 材质本体，但只许仪式页铺底（cover 纪律）——正文页的材料感由刻线框/铆钉/印章承担，钢板面退后保持干净
+- **material**：涂漆钢板 + 黄铜铆钉——钢板漆面平整有微弱方向性反光与橘皮微肌理，黄铜件有金属高光
 - **light**：展馆顶灯——均匀但有微弱方向性（自上而下），金属面有高光，刻槽有内凹阴影
 - **css_recipes**：["engraved-line", "halftone-dots", "aged-fade", "paper-fiber"]
 
@@ -74,39 +74,40 @@
 
 **G9 motif**
 
-- **词汇**：黄铜铆钉（`.mt-brs-rivet`：8px 金属球面渐变圆点，钉在刻线框四角或分隔线端点，每容器至多 4 枚）/ 刻线框（`.mt-brs-engrave`：2px 黄铜 border + 1px outline 双刻线 + inset 刻槽影，容器与整页内框两用）/ 红色标注章（`.mt-brs-stamp`：accent-2 红 2px 描边 + rotate(-3deg) 微倾斜 + mono 大写短词，如 "APPROVED"/"REV.B"——文本载体类母题，文字保持可编辑）/ 疏格蓝图网（`.mt-brs-grid`：56px 单级疏格 ink 6% 线，只许仪式页背景）
+- **词汇**：黄铜铆钉（`.mt-brs-rivet`：8px 金属球面渐变圆点，钉在刻线框四角或分隔线端点，每容器至多 4 枚）/ 刻线框（`.mt-brs-engrave`：2px 黄铜 border + 1px outline 双刻线 + inset 刻槽影，容器与整页内框两用）/ 红色标注章（`.mt-brs-stamp`：accent-2 红 2px 描边 + rotate(-3deg) 微倾斜 + mono 大写短词，如 "APPROVED"/"REV.B"——文本载体类母题，文字保持可编辑）/ 疏格钢板网（`.mt-brs-grid`：56px 单级疏格 ink 5% 线，只许仪式页背景）
 
 ```css
 /* D4 黄铜年代 · 装饰母题 */
 .mt-brs-rivet{position:absolute;width:8px;height:8px;border-radius:50%;pointer-events:none;background:radial-gradient(circle at 34% 30%,color-mix(in srgb,var(--accent) 42%,var(--ink)),var(--accent) 55%,color-mix(in srgb,var(--accent) 52%,var(--paper)));box-shadow:0 1px 1px color-mix(in srgb,var(--paper) 82%,transparent)}
 .mt-brs-engrave{border:2px solid color-mix(in srgb,var(--accent) 72%,transparent);outline:1px solid color-mix(in srgb,var(--accent) 38%,transparent);outline-offset:3px;box-shadow:inset 0 1px 2px color-mix(in srgb,var(--paper) 75%,transparent),inset 0 -1px 0 color-mix(in srgb,var(--accent) 25%,transparent)}
 .mt-brs-stamp{display:inline-block;padding:.32em .85em;border:2px solid color-mix(in srgb,var(--accent-2) 85%,transparent);color:var(--accent-2);font-family:var(--font-mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;transform:rotate(-3deg)}
-.mt-brs-grid{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,color-mix(in srgb,var(--ink) 6%,transparent) 0 1px,transparent 1px 56px),repeating-linear-gradient(90deg,color-mix(in srgb,var(--ink) 6%,transparent) 0 1px,transparent 1px 56px)}
+.mt-brs-grid{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,color-mix(in srgb,var(--ink) 5%,transparent) 0 1px,transparent 1px 56px),repeating-linear-gradient(90deg,color-mix(in srgb,var(--ink) 5%,transparent) 0 1px,transparent 1px 56px)}
 ```
 
-- **禁忌**：铆钉只钉刻线框角或线端，禁漂浮散布、每容器 ≤4 枚；刻线框禁嵌套、禁配弥散影；标注章只许 2–4 个拉丁大写短词、每页至多 2 枚、禁压正文（是批注不是标语）；疏格网只许仪式页背景、禁与 e2 式细格混用；母题件一律 `data-editable-skip`（`.mt-brs-stamp` 为文本载体例外——样式由类承担，文字保持可编辑）
+- **禁忌**：铆钉只钉刻线框角或线端，禁漂浮散布、每容器 ≤4 枚；刻线框禁嵌套、禁配弥散影；标注章只许 2–4 个拉丁大写短词、每页至多 2 枚、禁压正文（是批注不是标语）；疏格钢板网只许仪式页背景、禁与 e2 式制图细格混用；母题件一律 `data-editable-skip`（`.mt-brs-stamp` 为文本载体例外——样式由类承担，文字保持可编辑）
 
 **bake_brief**
 
 ```json
 {
-  "visual_direction": "1950s World's Fair pavilion poster and space-age industrial optimism — lacquered steel panels, brass rivets and engraved trim, cyanotype blueprint paper, silkscreen exhibition graphics, a slightly tilted red annotation stamp, the earnest confidence of an era that believed in the future",
-  "palette_rule": "brass is structural metal, not paint: it appears only as engraved lines, rivets, frames, tick marks and focal numerals (≤6% area); annotation red is a second sealed ink reserved for stamps and review marks only (≤3%, at most two per page); the ground stays deep blueprint navy, text stays warm ivory; forbid large brass fills, gold gradient metallic type, any third chromatic hue, cyber/neon blue, and steampunk brown overload",
+  "visual_direction": "1950s World's Fair pavilion poster and space-age industrial optimism — lacquered steel panels, brass rivets and engraved trim, silkscreen exhibition graphics, a slightly tilted red annotation stamp, the earnest confidence of an era that believed in the future",
+  "palette_rule": "brass is structural metal, not paint: it appears only as engraved lines, rivets, frames, tick marks and focal numerals (≤6% area); annotation red is a second sealed ink reserved for stamps and review marks only (≤3%, at most two per page); the ground stays dark lacquered steel charcoal, text stays warm ivory; forbid large brass fills, gold gradient metallic type, any third chromatic hue, blueprint navy ground (that is E2 territory), cyber/neon blue, and steampunk brown overload",
   "typography_bake": "主标题重构词汇：展馆招牌字——condensed grotesk 恒重大写拉丁，字距拉开如展馆门楣铸字；刻字感——标题笔画边缘带刀刻的微妙锐利感，像从钢板上凿出而非印出；铜版镶嵌——关键词字可嵌入黄铜刻线框内，字面与框有铆钉固定的前后层次；编号前缀——mono 项目编号式 kicker（EXPO-58 / HALL 2 式）钉在标题上方；断行在语义边界，中文标题保持 condensed 气质的紧凑中宫",
-  "uplift": "升维路径（HTML 做不到的物理维度）：涂漆钢板的漆面反光——顶灯下钢板有微弱方向性光泽与漆面橘皮微肌理；黄铜铆钉的球面高光——每颗铆钉有金属的环状反光与铆接阴影；刻线的物理凹槽——刻痕是钢板上的真实凹槽，有槽底暗线与槽缘亮边；蓝图晒图纸的纤维与氨水微痕——纸面有晒图工艺的细微不均；红色标注章的印泥质感——章面边缘有印泥的轻微洇散与压力不均，章体微倾斜",
-  "material_anchor": "lacquered steel panel + brass rivets and engraved trim + cyanotype blueprint paper + silkscreen poster ink + rubber-stamp red annotation",
+  "uplift": "升维路径（HTML 做不到的物理维度）：涂漆钢板的漆面反光——顶灯下钢板有微弱方向性光泽与漆面橘皮微肌理；黄铜铆钉的球面高光——每颗铆钉有金属的环状反光与铆接阴影；刻线的物理凹槽——刻痕是钢板上的真实凹槽，有槽底暗线与槽缘亮边；红色标注章的印泥质感——章面边缘有印泥的轻微洇散与压力不均，章体微倾斜",
+  "material_anchor": "lacquered steel panel + brass rivets and engraved trim + silkscreen poster ink + rubber-stamp red annotation",
   "viewing_sequence": [
-    "第一眼：深蓝图纸上黄铜刻线框与标题剪影——先感到展馆的工业秩序与黄铜光泽",
-    "第二眼：发现铆钉高光、刻槽凹凸、纸纤维与红色批注章——材料的物理细节",
-    "第三眼：阅读参数与数据，感受那个年代对工程的笃定——信息如施工图般可信"
+    "第一眼：深炭钢板上黄铜刻线框与标题剪影——先感到展馆的工业秩序与黄铜光泽",
+    "第二眼：发现铆钉高光、刻槽凹凸、漆面微颗粒与红色批注章——材料的物理细节",
+    "第三眼：阅读参数与数据，感受那个年代对工程的笃定——信息如铭牌般可信"
   ],
   "anti_lazy": [
-    "不要因为是工业主题就堆齿轮/管线元素——黄铜年代的语言是刻线、铆钉与图纸，不是 steampunk 齿轮墙",
+    "不要因为是工业主题就堆齿轮/管线元素——黄铜年代的语言是刻线、铆钉与钢板，不是 steampunk 齿轮墙",
     "不要把黄铜做成金色渐变金属字——黄铜是配件材料（刻线/铆钉/边框），不是滤镜质感",
-    "不要滑向赛博/科幻蓝——这是 1950s 的乐观工业，不是未来主义"
+    "不要滑向赛博/科幻蓝——这是 1950s 的乐观工业，不是未来主义",
+    "不要用蓝图纸做底色——那是 E2 蓝图的世界，D4 的底是涂漆钢板"
   ],
-  "allowed": "brass engraved double-line frames with inner groove shadow, brass rivets pinned at frame corners, slightly tilted red rubber-stamp annotations (two to four uppercase mono words), coarse blueprint grid on ritual backgrounds, tick marks and scale rules, condensed grotesque uppercase Latin display type, mono project-number kickers, specification tables and parameter grids, exploded-diagram and section-view compositions, halftone silkscreen tonal patches",
-  "avoid": "gears and steampunk clutter, gold gradient metallic type, neon or cyberpunk blue, sci-fi HUD elements, rounded corners, diffuse drop shadows, glass morphism, hand-drawn or organic strokes, torn edges, watercolor, photorealistic machinery close-ups, full-bleed brass fills, red used as structural color, page header/footer chrome",
+  "allowed": "brass engraved double-line frames with inner groove shadow, brass rivets pinned at frame corners, slightly tilted red rubber-stamp annotations (two to four uppercase mono words), coarse steel grid on ritual backgrounds, tick marks and scale rules, condensed grotesque uppercase Latin display type, mono project-number kickers, specification tables and parameter grids, exploded-diagram and section-view compositions, halftone silkscreen tonal patches",
+  "avoid": "gears and steampunk clutter, gold gradient metallic type, blueprint navy ground (E2 territory), neon or cyberpunk blue, sci-fi HUD elements, rounded corners, diffuse drop shadows, glass morphism, hand-drawn or organic strokes, torn edges, watercolor, photorealistic machinery close-ups, full-bleed brass fills, red used as structural color, page header/footer chrome",
   "layout_blueprints": {
     "cover": [
       {"position": "page inset edge", "count": 1, "labels": ["黄铜刻线整页内框（2px+1px 双刻线，距页缘约 2.5%）"]},
@@ -114,7 +115,7 @@
       {"position": "top", "count": 1, "labels": ["mono 黄铜 kicker + 项目编号前缀"]},
       {"position": "center", "count": 1, "labels": ["condensed 大写巨字主标题（刻字感）"]},
       {"position": "below title", "count": 2, "labels": ["一行副题", "一行 mono 小字日期/届次"]},
-      {"position": "background", "count": 1, "labels": ["疏格蓝图网（仪式页特权）"]}
+      {"position": "background", "count": 1, "labels": ["疏格钢板网（仪式页特权）"]}
     ],
     "divider": [
       {"position": "page inset edge", "count": 1, "labels": ["黄铜刻线内框 + 四角铆钉"]},
@@ -155,16 +156,16 @@
 
 - **定位**：主题从「可替换参数集」升级为「决定信息如何进入空间的程序」。本组为硬约束，写进页计划表头即整 deck 的构图契约。
 - **灵魂承载**：黄铜刻线框（.mt-brs-engrave）和铆钉（.mt-brs-rivet）是签名结构件，形状由 CSS 承担（data-editable-skip），其内部承载的文字仍是 data-editable 叶子节点。
-- **DOM 结构测试签署**：删掉 signature_operator，页面回到「标题 + 两段正文 + 横排三格 KPI」，黄铜刻线框、铆钉四角、红色标注章、疏格蓝图网全部消失，元素数量/分组/顺序/位置**都变** → **PASS**。
+- **DOM 结构测试签署**：删掉 signature_operator，页面回到「标题 + 两段正文 + 横排三格 KPI」，黄铜刻线框、铆钉四角、红色标注章、疏格钢板网全部消失，元素数量/分组/顺序/位置**都变** → **PASS**。
 
 ```yaml
 
 doctrine: 1950s 世博会的工业乐观主义——钢板上的黄铜刻线是工程的尊严，每条信息都是从钢板上刻出来的精确构件，不是贴上去的便利贴。
 
 page_composition:
-  skeleton: 黄铜刻线框成阵——2px+1px 双刻线直角容器在深蓝图纸上等距阵列，四角钉铆钉
+  skeleton: 黄铜刻线框成阵——2px+1px 双刻线直角容器在涂漆钢板上等距阵列，四角钉铆钉
   grid: {margin: 96px 120px, gutter: 32px}
-  balance: {anchor: 刻线框阵(主信息区), counterweight: 红色标注章(角部批注) / 疏格蓝图网(仪式页背景)}
+  balance: {anchor: 刻线框阵(主信息区), counterweight: 红色标注章(角部批注) / 疏格钢板网(仪式页背景)}
   whitespace_ratio: ">=35%"
   flow: "mono 项目编号 kicker 定锚 → 刻线框承载核心信息（标题/数据/参数）→ 铆钉钉角收边 → 红色标注章做批注 → 底部 mono 小字收束"
 signature_operator: 把每条信息编译成一个从钢板上刻出来的构件——
@@ -172,28 +173,28 @@ signature_operator: 把每条信息编译成一个从钢板上刻出来的构件
   标题用 condensed grotesk 大写 + 加宽字距 + mono 项目编号 kicker（"EXPO-58 / HALL 2"式）；
   三项数字重排为刻线框阵内的参数条目（非横排等权三格），主数字独占一张刻线框 + 黄铜刻度线托底；
   批注用红色标注章（.mt-brs-stamp：accent-2 红 2px 描边 + rotate(-3deg) 微倾斜 + mono 大写短词），每页至多 2 枚；
-  疏格蓝图网（.mt-brs-grid）只许仪式页背景；
-  深蓝图纸底（--paper #1a2332）+ 黄铜 accent（#b8860b）是工业世界的基底。
-silhouette: 深蓝图纸上黄铜刻线框阵列；直角双刻线矩形块面；重心左上象限（刻线框阵区）；右下标注章或疏格网作平衡。
+  疏格钢板网（.mt-brs-grid）只许仪式页背景；
+  涂漆钢板底（--paper #1c1c1e）+ 黄铜 accent（#b8860b）是工业世界的基底。
+silhouette: 深炭钢板上黄铜刻线框阵列；直角双刻线矩形块面；重心左上象限（刻线框阵区）；右下标注章或疏格网作平衡。
 info_grammar:
-  cover:    满版深蓝 + 疏格蓝图网仪式背景 + 黄铜刻线整页内框 + 四角铆钉 + condensed 大写巨字标题 + mono kicker
+  cover:    满版炭灰钢板 + 疏格钢板网仪式背景 + 黄铜刻线整页内框 + 四角铆钉 + condensed 大写巨字标题 + mono kicker
   toc:      3-5 个刻线框排列，当前章节用红色标注章标记
   claim:    刻线框阵承载主张句（框内 condensed 大字 + mono 编号 kicker），红色标注章从框角引出批注，铆钉钉框角
-  analysis: 2-4 个同构刻线框在深蓝图纸上，每个承载一段信息，至多一张框用黄铜刻度线焦点
+  analysis: 2-4 个同构刻线框在涂漆钢板上，每个承载一段信息，至多一张框用黄铜刻度线焦点
   data:     三项数字 → 刻线框阵内参数条目排列，主数字独占黄铜刻度线框
-  closing:  深蓝底 + 刻线框呼应封面（缩小或半隐），标注章最后一次出现
+  closing:  炭灰底 + 刻线框呼应封面（缩小或半隐），标注章最后一次出现
 type_scale:            # px@1920x1080 画布基准；下限由骨架 .t-* 的 max() 结构性锁定
   --t-display: 128px  # condensed grotesk 700 大写承载展馆招牌字；与正文 4.6:1
   rule: 标题:正文 >=1.8:1；正文层 opacity = 1，禁灰化弱读；黄铜 accent 面积 <=6%（只做刻线/铆钉/刻度/焦点数字）；标注红 <=3% 且单页至多 2 处
   floor_note: body/heading/subhead/caption/meta 不覆盖，继承骨架 28/64/40/18/15；地板由 max() 保证，无需后拦截门禁
 invariants:
   - 刻线框 2px solid accent border + 1px outline outline-offset:3px（双刻线 + 刻槽影），直角，无弥散影
-  - 深蓝底（--paper #1a2332）+ 黄铜 accent（#b8860b），accent 面积 <=6%；标注红（#c0392b）面积 <=3%
+  - 炭灰钢板底（--paper #1c1c1e）+ 黄铜 accent（#b8860b），accent 面积 <=6%；标注红（#c0392b）面积 <=3%
   - 铆钉只钉刻线框四角或线端，每容器至多 4 枚，禁漂浮散布
   - 横排等权三格容器数 = 0
   - 红色标注章每页至多 2 枚，禁压正文（是批注不是标语）
-  - 疏格蓝图网只许仪式页背景，禁进正文阅读区
-forbidden_defaults: [横向等权三格 KPI, 卡片墙成阵, 居中 hero, 圆角卡, 弥散软影, 渐变色块, 玻璃拟态, 满版黄铜填充, 齿轮/管线 steampunk 元素, 赛博/科幻蓝]
+  - 疏格钢板网只许仪式页背景，禁进正文阅读区
+forbidden_defaults: [横向等权三格 KPI, 卡片墙成阵, 居中 hero, 圆角卡, 弥散软影, 渐变色块, 玻璃拟态, 满版黄铜填充, 齿轮/管线 steampunk 元素, 赛博/科幻蓝, 蓝图纸底色（E2 领地）]
 dna_events: {cover: 强, claim: 中, analysis: 弱, data: 中, toc: 弱, closing: 强}
 ```
 

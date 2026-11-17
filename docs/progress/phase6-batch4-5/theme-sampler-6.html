@@ -301,18 +301,6 @@ body{
 .mt-art-circle{border:2px dashed color-mix(in srgb,var(--accent) 65%,transparent);border-radius:58% 42% 50% 50%/52% 48% 55% 45%;padding:.4em .9em}
 .mt-art-frame{border:1px solid color-mix(in srgb,var(--ink) 55%,transparent);box-shadow:inset 0 0 0 5px var(--paper),inset 0 0 0 6px color-mix(in srgb,var(--ink) 35%,transparent)}
 
-/* E1 孔版印刷 · 装饰母题（:root 缓动签名 → theme-e1 页内联） */
-.mt-ris-misreg{position:relative;isolation:isolate}
-.mt-ris-misreg::before,.mt-ris-misreg::after{content:"";position:absolute;inset:-.12em -.3em;z-index:-1;mix-blend-mode:multiply}
-.mt-ris-misreg::before{background:color-mix(in srgb,var(--accent) 80%,transparent);transform:translate(-2.5px,2px)}
-.mt-ris-misreg::after{background:color-mix(in srgb,var(--accent-2) 55%,transparent);transform:translate(2.5px,-2px)}
-.mt-ris-field{position:relative;isolation:isolate}
-.mt-ris-field::before,.mt-ris-field::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;mix-blend-mode:multiply}
-.mt-ris-field::before{background:color-mix(in srgb,var(--accent) 75%,transparent);transform:translate(-4px,3px)}
-.mt-ris-field::after{inset:8% 6%;background:color-mix(in srgb,var(--accent-2) 55%,transparent);transform:translate(4px,-3px)}
-.mt-ris-cut{border:none;border-top:1px dashed color-mix(in srgb,var(--ink) 38%,transparent)}
-.mt-ris-halftone{position:absolute;pointer-events:none;background-image:radial-gradient(color-mix(in srgb,var(--accent) 55%,transparent) 1.2px,transparent 1.7px);background-size:9px 9px;opacity:.5}
-
 /* E2 蓝图 · 装饰母题 */
 .mt-bp-frame{position:relative;border:1px solid color-mix(in srgb,var(--ink) 55%,transparent)}
 .mt-bp-frame::before{content:"";position:absolute;inset:5px;border:1px solid color-mix(in srgb,var(--ink) 32%,transparent);pointer-events:none}
@@ -351,18 +339,6 @@ body{
 .mt-con-wedge--ink{background:var(--ink)}
 .mt-con-bar{display:inline-block;width:1.6em;height:.28em;background:var(--ink)}
 .mt-con-bar--accent{background:var(--accent)}
-
-/* E6 Memphis 孟菲斯 · 装饰母题（:root 缓动签名 → theme-e6 页内联） */
-.mt-mem-confetti{position:absolute;inset:0;pointer-events:none;user-select:none;overflow:hidden}
-.mt-mem-confetti i{position:absolute;display:block;--pc:var(--palette-1)}
-.mt-mem-confetti .mt-mem-c2{--pc:var(--palette-2)}
-.mt-mem-confetti .mt-mem-c3{--pc:var(--palette-3)}
-.mt-mem-confetti .mt-mem-c4{--pc:var(--palette-4)}
-.mt-mem-dot{width:14px;height:14px;border-radius:50%;background:var(--pc)}
-.mt-mem-tri{width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:15px solid var(--pc)}
-.mt-mem-ring{width:16px;height:16px;border:3px solid var(--ink);border-radius:50%}
-.mt-mem-zig{height:12px;pointer-events:none;background-image:linear-gradient(135deg,var(--ink) 25%,transparent 25%),linear-gradient(225deg,var(--ink) 25%,transparent 25%);background-size:16px 12px;background-repeat:repeat-x}
-.mt-mem-card{border:3px solid var(--ink);border-radius:14px;background:var(--paper);box-shadow:8px 8px 0 color-mix(in srgb,var(--accent) 85%,var(--ink))}
 
 /* E7 浮世绘 · 装饰母题 */
 .mt-uki-seal{display:inline-flex;align-items:center;justify-content:center;width:2.4em;height:2.4em;background:var(--accent);color:var(--accent-on);font-family:var(--font-display);font-weight:700;font-size:.5em;line-height:1.15;text-align:center;writing-mode:vertical-rl;letter-spacing:.08em;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--accent-on) 40%,transparent)}
@@ -418,14 +394,6 @@ body{
 .mt-gls-card{position:relative;border:1px solid color-mix(in srgb,var(--accent-on) 65%,transparent);border-radius:24px;background:linear-gradient(155deg,color-mix(in srgb,var(--paper) 62%,transparent),color-mix(in srgb,var(--paper) 34%,transparent));backdrop-filter:blur(18px) saturate(150%);-webkit-backdrop-filter:blur(18px) saturate(150%);box-shadow:inset 0 1px 0 color-mix(in srgb,var(--accent-on) 70%,transparent),0 1px 2px color-mix(in srgb,var(--ink) 5%,transparent),0 16px 40px -12px color-mix(in srgb,var(--ink) 20%,transparent)}
 .mt-gls-blob{position:absolute;pointer-events:none;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--accent) 38%,transparent),transparent 70%);filter:blur(48px)}
 .mt-gls-chip{display:inline-flex;align-items:center;gap:.5em;padding:.35em 1em;border-radius:999px;border:1px solid color-mix(in srgb,var(--accent-on) 60%,transparent);background:color-mix(in srgb,var(--paper) 40%,transparent);backdrop-filter:blur(10px) saturate(140%);-webkit-backdrop-filter:blur(10px) saturate(140%);box-shadow:0 4px 14px -6px color-mix(in srgb,var(--ink) 16%,transparent)}
-
-/* F2 霓虹夜行 · 装饰母题 */
-.mt-neo-tube{position:relative;border:1px solid color-mix(in srgb,var(--accent) 55%,transparent);border-radius:14px;background:color-mix(in srgb,var(--paper-tint) 55%,transparent);box-shadow:inset 0 0 18px color-mix(in srgb,var(--accent) 16%,transparent),0 0 24px -6px color-mix(in srgb,var(--accent) 45%,transparent)}
-.mt-neo-sign{color:var(--accent);text-shadow:0 0 10px color-mix(in srgb,var(--accent) 65%,transparent),0 0 36px color-mix(in srgb,var(--accent) 32%,transparent)}
-.mt-neo-line{height:2px;border:none;border-radius:2px;background:var(--accent);box-shadow:0 0 10px color-mix(in srgb,var(--accent) 70%,transparent),0 0 28px color-mix(in srgb,var(--accent) 28%,transparent)}
-.mt-neo-dot{display:inline-block;width:.5em;height:.5em;border-radius:50%;background:var(--accent);box-shadow:0 0 12px color-mix(in srgb,var(--accent) 80%,transparent);animation:amb-pulse 2.4s ease-in-out infinite}
-.mt-neo-refl{transform:scaleY(-1);opacity:.35;pointer-events:none;filter:blur(1px);-webkit-mask-image:linear-gradient(180deg,transparent 28%,color-mix(in srgb,var(--accent) 45%,transparent));mask-image:linear-gradient(180deg,transparent 28%,color-mix(in srgb,var(--accent) 45%,transparent))}
-@media (prefers-reduced-motion: reduce){.mt-neo-dot{animation:none}}
 
 /* G1 翡翠年鉴 · 装饰母题 */
 .mt-emr-seal{width:88px;height:88px;border-radius:50%;border:2px solid var(--accent);box-shadow:inset 0 0 0 5px color-mix(in srgb,var(--accent) 25%,transparent);pointer-events:none}
@@ -510,8 +478,8 @@ html,body{background:#222;height:auto}
 <body>
 <div class="deck" id="deck">
   <div class="slide-slot">
-    <section class="slide texture-on" data-slide-id="theme-d4" style="font-family:var(--font-body);--paper:#1a2332;--paper-tint:#243044;--ink:#e8dcc8;--ink-tint:#3a4a5e;--accent:#b8860b;--accent-on:#1a2332;--accent-2:#c0392b;--accent-2-on:#e8dcc8;--font-display:'Franklin Gothic Medium','Arial Narrow','PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;--font-body:'Helvetica Neue','PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;--font-mono:'SF Mono','JetBrains Mono','Menlo',monospace;--texture-type:grain;--texture-layer:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55 0.75' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23f)' opacity='0.05'/%3E%3C/svg%3E&quot;);--texture-scope:cover">
-      <!-- G9 母题：疏格蓝图网（仪式页背景） -->
+    <section class="slide texture-on" data-slide-id="theme-d4" style="font-family:var(--font-body);--paper:#1c1c1e;--paper-tint:#28282b;--ink:#e8dcc8;--ink-tint:#4a4a50;--accent:#b8860b;--accent-on:#1c1c1e;--accent-2:#c0392b;--accent-2-on:#e8dcc8;--font-display:'Franklin Gothic Medium','Arial Narrow','PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;--font-body:'Helvetica Neue','PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;--font-mono:'SF Mono','JetBrains Mono','Menlo',monospace;--texture-type:grain;--texture-layer:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55 0.75' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23f)' opacity='0.05'/%3E%3C/svg%3E&quot;);--texture-scope:cover">
+      <!-- G9 母题：疏格钢板网（仪式页背景） -->
       <div class="mt-brs-grid" data-editable-skip></div>
       <div style="position:relative;height:100%;display:flex;flex-direction:column;justify-content:center;padding:96px 120px">
         <p data-editable class="reveal" style="font-family:var(--font-mono);font-size:16px;font-weight:600;letter-spacing:.18em;color:var(--accent)">1.1 · 整体特色及优势</p>
@@ -586,7 +554,7 @@ html,body{background:#222;height:auto}
       <!-- 页脚 -->
       <div style="position:absolute;left:120px;right:120px;bottom:30px;display:flex;justify-content:space-between;align-items:baseline;gap:2em;font-family:var(--font-mono);font-size:14px;opacity:.6">
         <span data-editable>山禾集 · 经营情况汇报</span>
-        <span data-editable>D4 · 黄铜年代 · 深蓝图纸</span>
+        <span data-editable>D4 · 黄铜年代 · 涂漆钢板</span>
         <span data-editable>13 / 29</span>
       </div>
     </section>

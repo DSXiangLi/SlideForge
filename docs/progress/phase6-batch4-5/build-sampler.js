@@ -70,8 +70,8 @@ const C = {
 // G10 forbidden: 横向等权三格 KPI, 卡片墙成阵, 居中 hero, 圆角卡, 弥散软影, 满版黄铜填充, 齿轮/管线 steampunk, 赛博/科幻蓝
 // 保留原版 G9 母题：黄铜铆钉、刻线框、红色标注章、疏格蓝图网
 const slideD4 = `  <div class="slide-slot">
-    <section class="slide texture-on" data-slide-id="theme-d4" style="font-family:var(--font-body);--paper:#1a2332;--paper-tint:#243044;--ink:#e8dcc8;--ink-tint:#3a4a5e;--accent:#b8860b;--accent-on:#1a2332;--accent-2:#c0392b;--accent-2-on:#e8dcc8;--font-display:'Franklin Gothic Medium','Arial Narrow','PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;--font-body:'Helvetica Neue','PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;--font-mono:'SF Mono','JetBrains Mono','Menlo',monospace;--texture-type:grain;--texture-layer:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55 0.75' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23f)' opacity='0.05'/%3E%3C/svg%3E&quot;);--texture-scope:cover">
-      <!-- G9 母题：疏格蓝图网（仪式页背景） -->
+    <section class="slide texture-on" data-slide-id="theme-d4" style="font-family:var(--font-body);--paper:#1c1c1e;--paper-tint:#28282b;--ink:#e8dcc8;--ink-tint:#4a4a50;--accent:#b8860b;--accent-on:#1c1c1e;--accent-2:#c0392b;--accent-2-on:#e8dcc8;--font-display:'Franklin Gothic Medium','Arial Narrow','PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;--font-body:'Helvetica Neue','PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;--font-mono:'SF Mono','JetBrains Mono','Menlo',monospace;--texture-type:grain;--texture-layer:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55 0.75' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23f)' opacity='0.05'/%3E%3C/svg%3E&quot;);--texture-scope:cover">
+      <!-- G9 母题：疏格钢板网（仪式页背景） -->
       <div class="mt-brs-grid" data-editable-skip></div>
       <div style="position:relative;height:100%;display:flex;flex-direction:column;justify-content:center;padding:96px 120px">
         <p data-editable class="reveal" style="font-family:var(--font-mono);font-size:16px;font-weight:600;letter-spacing:.18em;color:var(--accent)">${C.eyebrow}</p>
@@ -144,7 +144,7 @@ const slideD4 = `  <div class="slide-slot">
       <!-- 页脚 -->
       <div style="position:absolute;left:120px;right:120px;bottom:30px;display:flex;justify-content:space-between;align-items:baseline;gap:2em;font-family:var(--font-mono);font-size:14px;opacity:.6">
         <span data-editable>山禾集 · 经营情况汇报</span>
-        <span data-editable>D4 · 黄铜年代 · 深蓝图纸</span>
+        <span data-editable>D4 · 黄铜年代 · 涂漆钢板</span>
         <span data-editable>13 / 29</span>
       </div>
     </section>
