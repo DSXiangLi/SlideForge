@@ -171,7 +171,7 @@ type_scale:            # px@1920×1080 画布基准；下限由骨架 .t-* 的 m
   rule: 标题:正文 ≥1.8:1；正文层 opacity = 1，禁灰化弱读；金线 accent 面积 ≤8%（金是线不是面）
   floor_note: body/heading/subhead/caption/meta 不覆盖，继承骨架 28/64/40/18/15；地板由 max() 保证，无需后拦截门禁
 invariants:
-  - 中轴对称：所有主要元素沿中轴左右镜像（analysis 用对称双栏，claim 用中轴金框）
+  - 中轴对称：所有主要元素沿中轴左右镜像（analysis 用对称双栏，claim 用中轴金框）；对称双栏的左右两栏必须 flex:1 等宽，确保中轴元素严格居中（禁用 padding-only 定位替代 flex 等分）
   - 双线金框 ≥1 个/页（border + outline 双 1px 金线，间距 5px，直角中空无填充）
   - 扇形放射 sunburst 每页至多一个、只许页顶/标题区/仪式页背景层
   - 菱形分隔符只许中轴对称位（标题上下居中）

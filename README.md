@@ -100,6 +100,16 @@ The same business page (demo content for "Shanhe Ji", a fictional tea brand; all
 
 > The earlier token-swap samples (the older `p01`–`p29` set) still live in `assets/theme-sampler/`; the eight above are the recompiled versions. Source deck: `tests/decks/theme-sampler/`. The E6/G2/F1 high-density samplers are from the batch-1 v2 acceptance (rev6, 12-item audit all green); C1 uses the original token-swap sample.
 
+### Batch-3 · G10 Contract Acceptance Samples (E2 / E3 / G4 / G5)
+
+Acceptance samples for four themes after the batch-3 G10 `composition_program` pipeline integration and layout rebuild. The same Shanhe Ji business content, recompiled per each theme's G10 `info_grammar.claim` contract: G4 split-screen (yellow/indigo clash); G5 split-screen (midnight blue/moss green clash); E2 title inside a double-line drawing frame, KPI as in-frame mono key:value annotation rows; E3 central gold frame with flanking gold-line wings and symmetric mirrored KPI columns.
+
+| <img src="assets/theme-sampler/v3-g4.png" width="416"> | <img src="assets/theme-sampler/v3-g5.png" width="416"> |
+|---|---|
+| G4 · Indigo & Sun-Yellow · split-screen (yellow/indigo clash) | G5 · Tri-Color Journal · split-screen (midnight blue/moss green clash) |
+| <img src="assets/theme-sampler/v3-e2.png" width="416"> | <img src="assets/theme-sampler/v3-e3.png" width="416"> |
+| E2 · Blueprint · double-line frame array + annotation lines | E3 · Art Deco · central gold frame + symmetric mirrored columns |
+
 ## Page Types in Action
 
 Different page forms from the same generation pipeline: cover doubles as clickable TOC, high-density data pages, chart pages, infographic pages.

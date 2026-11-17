@@ -266,20 +266,20 @@ const slideE3 = `  <div class="slide-slot">
           <p data-editable style="margin-top:10px;font-size:18px;line-height:1.85;opacity:.85">${C.body2}</p>
         </div>
 
-        <!-- G10 data: 对称双栏镜像模块，主数字在中轴金框内 -->
-        <div class="reveal" style="--d:.28s;margin-top:24px;display:flex;justify-content:center;align-items:stretch">
-          <div style="padding:0 40px;text-align:center">
+        <!-- G10 data: 对称双栏镜像模块，主数字在中轴金框内；左右栏 flex:1 等宽确保中轴严格居中 -->
+        <div class="reveal" style="--d:.28s;margin-top:24px;display:flex;justify-content:center;align-items:stretch;max-width:1200px">
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 40px;text-align:center">
             <p data-editable style="font-family:var(--font-display);font-size:46px;font-weight:600;line-height:1.15">${C.kpi2Num}<span style="font-size:22px">${C.kpi2Unit}</span></p>
-            <p data-editable style="margin-top:8px;font-size:16px;line-height:1.55;opacity:.75;max-width:300px">${C.kpi2Label}</p>
+            <p data-editable style="margin-top:8px;font-size:16px;line-height:1.55;opacity:.75">${C.kpi2Label}</p>
           </div>
-          <div class="mt-deco-frame" style="padding:18px 44px;text-align:center">
+          <div class="mt-deco-frame" style="flex:0 0 auto;padding:18px 44px;text-align:center">
             <p data-editable style="font-family:var(--font-display);font-size:52px;font-weight:600;line-height:1.15;color:var(--accent)">${C.kpi1Num}<span style="font-size:24px">${C.kpi1Unit}</span></p>
-            <p data-editable style="margin-top:8px;font-size:16px;line-height:1.55;opacity:.75;max-width:320px">${C.kpi1Label}</p>
+            <p data-editable style="margin-top:8px;font-size:16px;line-height:1.55;opacity:.75;max-width:280px">${C.kpi1Label}</p>
             <p data-editable style="margin-top:6px;font-family:var(--font-mono);font-size:13px;color:var(--accent)">${C.kpi1Tag}</p>
           </div>
-          <div style="padding:0 40px;text-align:center">
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 40px;text-align:center">
             <p data-editable style="font-family:var(--font-display);font-size:46px;font-weight:600;line-height:1.15">${C.kpi3Num}<span style="font-size:22px">${C.kpi3Unit}</span></p>
-            <p data-editable style="margin-top:8px;font-size:16px;line-height:1.55;opacity:.75;max-width:300px">${C.kpi3Label}</p>
+            <p data-editable style="margin-top:8px;font-size:16px;line-height:1.55;opacity:.75">${C.kpi3Label}</p>
           </div>
         </div>
 

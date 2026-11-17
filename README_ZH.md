@@ -100,6 +100,16 @@ HTML、PPTX、Image，这不是三个独立的形态，而是不同条件下可�
 
 > 早期的换皮样张（旧 `p01`–`p29` 一组）仍保留在 `assets/theme-sampler/`；以上八张是重编译版本。源 deck：`tests/decks/theme-sampler/`。E6/G2/F1 的高密度样张来自 batch-1 v2 验收（rev6，12 项审计全绿）；C1 使用原始换皮样张。
 
+### Batch-3 · G10 契约验收样张（E2 / E3 / G4 / G5）
+
+四套主题在 batch-3 中完成 G10 `composition_program` 管线接入与布局重构后的验收样张。同一份山禾集业务内容，按各主题 G10 `info_grammar.claim` 契约重新编译：G4 裂屏对开（黄/靛对撞）；G5 裂屏对开（暗夜蓝/苔绿对撞）；E2 主张句装入双线图框、KPI 以图框内 mono key:value 标注行呈现；E3 中轴金框装主张句 + 两侧金线翼卫 + 对称双栏镜像 KPI。
+
+| <img src="assets/theme-sampler/v3-g4.png" width="416"> | <img src="assets/theme-sampler/v3-g5.png" width="416"> |
+|---|---|
+| G4 · 靛墨黄页 · 裂屏对开（黄/靛对撞） | G5 · 三色旬刊 · 裂屏对开（暗夜蓝/苔绿对撞） |
+| <img src="assets/theme-sampler/v3-e2.png" width="416"> | <img src="assets/theme-sampler/v3-e3.png" width="416"> |
+| E2 · 蓝图 · 双线图框阵列 + 标注线 | E3 · 装饰艺术 · 中轴金框 + 对称双栏镜像 |
+
 ## 页面类型实拍
 
 同一套生成管线产出的不同页面形态：封面即目录（可点击跳转）、高密度数据页、图表页、信息图页。
