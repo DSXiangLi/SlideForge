@@ -57,7 +57,7 @@ HTML、PPTX、Image，这不是三个独立的形态，而是不同条件下可�
 
 | 场景 | 怎么做 |
 |---|---|
-| **从零做一套幻灯片** | 告诉 AI 主题和资料，先在可视化面板上选定风格（30 套主题 × 配色变体，色板/字体/动效所见即所得），AI 在冻结的风格内生成 |
+| **从零做一套幻灯片** | 告诉 AI 主题和资料，先在可视化面板上选定风格（24 套主题 × 配色变体，色板/字体/动效所见即所得），AI 在冻结的风格内生成 |
 | **改造已有 PPTX** | 把 .pptx 交给 AI 转换成网页幻灯片，进入同一套编辑流程 |
 | **导出 PPTX 交付** | 一键导出**双轨产物**：可编辑版（文字、图表在 PowerPoint 里原生可改）+ 保真版（视觉逐像素封存），附 PDF |
 | **嵌入自己的系统** | 幻灯片和编辑器都可 iframe 嵌入，通过 postMessage 协议与宿主通信 |
@@ -84,21 +84,23 @@ HTML、PPTX、Image，这不是三个独立的形态，而是不同条件下可�
 >
 > 两条容易踩的边界：编辑器改的是 **HTML 母版**而非 `.pptx` 二进制，改完需重新导出；「提交批注」「发送给 AI」「导出为 PPTX」是**只入队的意图按钮**，需 agent 认领后才会执行，而「复制…指令」只写剪贴板、不提交意图。
 
-## 主题样张：同一份内容 × 14 套构图程序
+## 主题样张：同一份内容 × 18 套构图程序
 
-同一份业务内容（虚构茶饮品牌「山禾集」，数据均为虚构），交给十四套写入了 G10 `composition_program` 构图契约的主题重新编译。每套主题对「信息如何进入空间」有不同主权，因此差异是结构级的，不是换配色：B1 把整页压进可见的 12 栏网格、右侧竖起数据脊；C3 把内容打印成终端窗口与 `key:value` 输出；E5 让标题骑上 −12° 对角力带；H1 以手卷方式竖排展开、钤朱砂印收束；E6 以 3px 墨粗描边几何色面拼贴出糖果色碰撞；G2 让单栏正文自然流动、关键词垫荧光带、便签浮在右侧标注；F1 在深底上居中悬浮一块磨砂玻璃、四角弥漫柔光斑；C1 在纯黑舞台上落下一块信号橙、巨号页码沉在底缘；G4 裂屏对开、黄面上反白主张句；G5 裂屏对开、暗夜蓝底苔绿字主张句；E2 把主张句装进双线图框、KPI 以 mono key:value 标注行呈现；E3 中轴金框装主张句、两侧金线翼卫、对称双栏镜像 KPI；C2 在暗夜植物园底色上排列图鉴卡阵、编号签与叶脉侧缘；D3 在画布底色上以笔触块标题、虚线圈注与不规则圆角切片组织信息。文字字号只由骨架 `.t-*` 角色类决定，可读性下限在设计层结构性锁定，无需事后门禁。
+同一份业务内容（虚构茶饮品牌「山禾集」，数据均为虚构），交给十八套写入了 G10 `composition_program` 构图契约的主题重新编译。每套主题对「信息如何进入空间」有不同主权，因此差异是结构级的，不是换配色：B1 把整页压进可见的 12 栏网格、右侧竖起数据脊；C3 把内容打印成终端窗口与 `key:value` 输出；E5 让标题骑上 −12° 对角力带；H1 以手卷方式竖排展开、钤朱砂印收束；G2 让单栏正文自然流动、关键词垫荧光带、便签浮在右侧标注；F1 在深底上居中悬浮一块磨砂玻璃、四角弥漫柔光斑；C1 在纯黑舞台上落下一块信号橙、巨号页码沉在底缘；G4 裂屏对开、黄面上反白主张句；G5 裂屏对开、暗夜蓝底苔绿字主张句；E2 把主张句装进双线图框、KPI 以 mono key:value 标注行呈现；E3 中轴金框装主张句、两侧金线翼卫、对称双栏镜像 KPI；C2 在暗夜植物园底色上排列图鉴卡阵、编号签与叶脉侧缘；D3 在画布底色上以笔触块标题、虚线圈注与不规则圆角切片组织信息；A1 让标题以幽灵残影巨字浮于发丝线分栏之后、竖排题字条与墨点角标收束；D2 从琥珀暗房中柔光显影、显影晕即无框容器、胶片齿孔条压住页缘；E4 以红黄蓝三原色几何基本形在画布上不对称构成、2px 粗结构线横贯；E12 以描边平面卡阵与纯墨硬偏移投影铺出丝网印刷的商务粗野海报；G1 以深翡翠绒面满铺为年鉴本体、奶油墨档卡承载信息、金箔奖章钉住唯一焦点。文字字号只由骨架 `.t-*` 角色类决定，可读性下限在设计层结构性锁定，无需事后门禁。
 
 | <img src="assets/theme-sampler/v2-b1.png" width="208"> | <img src="assets/theme-sampler/v2-c3.png" width="208"> | <img src="assets/theme-sampler/v2-e5.png" width="208"> | <img src="assets/theme-sampler/v2-h1.png" width="208"> |
 |---|---|---|---|
 | B1 · 瑞士国际主义 · 12 栏网格 + 数据脊 | C3 · 终端绿 · 终端窗口 + key:value | E5 · 构成主义 · −12° 对角力带 | H1 · 氤氲手卷 · 竖排题字 + 朱砂印 |
-| <img src="assets/theme-sampler/v2-e6.png" width="208"> | <img src="assets/theme-sampler/v2-g2.png" width="208"> | <img src="assets/theme-sampler/v2-f1.png" width="208"> | <img src="assets/theme-sampler/p03-c1.png" width="208"> |
-| E6 · 孟菲斯 · 几何色面拼贴 + 糖果色块 | G2 · 腮红荧光笔 · 单栏流式 + 便签标注 | F1 · 玻璃光 · 居中单玻璃面板 | C1 · 信号黑 · 黑场舞台 + 信号橙 |
+| <img src="assets/theme-sampler/v2-g2.png" width="208"> | <img src="assets/theme-sampler/v2-f1.png" width="208"> | <img src="assets/theme-sampler/p03-c1.png" width="208"> | <img src="assets/theme-sampler/batch5-a1.png" width="208"> |
+| G2 · 腮红荧光笔 · 单栏流式 + 便签标注 | F1 · 玻璃光 · 居中单玻璃面板 | C1 · 信号黑 · 黑场舞台 + 信号橙 | A1 · 电子杂志 · 幽灵残影巨字 + 发丝线分栏 |
 | <img src="assets/theme-sampler/v3-g4.png" width="208"> | <img src="assets/theme-sampler/v3-g5.png" width="208"> | <img src="assets/theme-sampler/v3-e2.png" width="208"> | <img src="assets/theme-sampler/v3-e3.png" width="208"> |
 | G4 · 靛墨黄页 · 裂屏对开（黄/靛对撞） | G5 · 三色旬刊 · 裂屏对开（暗夜蓝/苔绿对撞） | E2 · 蓝图 · 双线图框阵列 + 标注线 | E3 · 装饰艺术 · 中轴金框 + 对称双栏镜像 |
-| <img src="assets/theme-sampler/batch4-c2.png" width="208"> | <img src="assets/theme-sampler/batch4-d3.png" width="208"> | | |
-| C2 · 暗夜植物园 · 图鉴卡阵 + 叶脉侧缘 | D3 · 手绘油彩 · 笔触块标题 + 虚线圈注 | | |
+| <img src="assets/theme-sampler/batch4-c2.png" width="208"> | <img src="assets/theme-sampler/batch4-d3.png" width="208"> | <img src="assets/theme-sampler/batch5-d2.png" width="208"> | <img src="assets/theme-sampler/batch5-e4.png" width="208"> |
+| C2 · 暗夜植物园 · 图鉴卡阵 + 叶脉侧缘 | D3 · 手绘油彩 · 笔触块标题 + 虚线圈注 | D2 · 柔光暗房 · 显影晕无框容器 + 胶片齿孔条 | E4 · 包豪斯 · 三原色基本形构成 + 2px 粗结构线 |
+| <img src="assets/theme-sampler/batch5-e12.png" width="208"> | <img src="assets/theme-sampler/batch5-g1.png" width="208"> | | |
+| E12 · 商务粗野 · 描边平面卡阵 + 纯墨硬偏移投影 | G1 · 翡翠年鉴 · 深翡翠绒面 + 奶油墨档卡 + 金箔奖章 | | |
 
-> 早期的换皮样张（旧 `p01`–`p29` 一组）仍保留在 `assets/theme-sampler/`；以上十四张是重编译版本。源 deck：`tests/decks/theme-sampler/`。E6/G2/F1 的高密度样张来自 batch-1 v2 验收（rev6，12 项审计全绿）；C1 使用原始换皮样张；G4/G5/E2/E3 来自 batch-3 G10 管线接入验收；C2/D3 来自 batch-4 G10 管线验收。
+> 早期的换皮样张（旧 `p01`–`p29` 一组）仍保留在 `assets/theme-sampler/`；以上十八张是重编译版本。源 deck：`tests/decks/theme-sampler/`。G2/F1 的高密度样张来自 batch-1 v2 验收（rev6，12 项审计全绿）；C1 使用原始换皮样张；G4/G5/E2/E3 来自 batch-3 G10 管线接入验收；C2/D3 来自 batch-4 G10 管线验收；A1/D2/E4/E12/G1 来自 batch-5 G10 管线验收。
 
 ## 页面类型实拍
 

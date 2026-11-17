@@ -341,18 +341,6 @@ body{
 .mt-con-bar{display:inline-block;width:1.6em;height:.28em;background:var(--ink)}
 .mt-con-bar--accent{background:var(--accent)}
 
-/* E6 Memphis 孟菲斯 · 装饰母题（:root 缓动签名 → theme-e6 页内联） */
-.mt-mem-confetti{position:absolute;inset:0;pointer-events:none;user-select:none;overflow:hidden}
-.mt-mem-confetti i{position:absolute;display:block;--pc:var(--palette-1)}
-.mt-mem-confetti .mt-mem-c2{--pc:var(--palette-2)}
-.mt-mem-confetti .mt-mem-c3{--pc:var(--palette-3)}
-.mt-mem-confetti .mt-mem-c4{--pc:var(--palette-4)}
-.mt-mem-dot{width:14px;height:14px;border-radius:50%;background:var(--pc)}
-.mt-mem-tri{width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:15px solid var(--pc)}
-.mt-mem-ring{width:16px;height:16px;border:3px solid var(--ink);border-radius:50%}
-.mt-mem-zig{height:12px;pointer-events:none;background-image:linear-gradient(135deg,var(--ink) 25%,transparent 25%),linear-gradient(225deg,var(--ink) 25%,transparent 25%);background-size:16px 12px;background-repeat:repeat-x}
-.mt-mem-card{border:3px solid var(--ink);border-radius:14px;background:var(--paper);box-shadow:8px 8px 0 color-mix(in srgb,var(--accent) 85%,var(--ink))}
-
 /* E7 浮世绘 · 装饰母题 */
 .mt-uki-seal{display:inline-flex;align-items:center;justify-content:center;width:2.4em;height:2.4em;background:var(--accent);color:var(--accent-on);font-family:var(--font-display);font-weight:700;font-size:.5em;line-height:1.15;text-align:center;writing-mode:vertical-rl;letter-spacing:.08em;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--accent-on) 40%,transparent)}
 .mt-uki-wave{height:26px;pointer-events:none;user-select:none;background-image:radial-gradient(circle at 13px 26px,transparent 9px,color-mix(in srgb,var(--ink) 55%,transparent) 9px 10.5px,transparent 10.5px),radial-gradient(circle at 13px 26px,transparent 4px,color-mix(in srgb,var(--ink) 55%,transparent) 4px 5.5px,transparent 5.5px);background-size:26px 26px;background-repeat:repeat-x}
@@ -407,14 +395,6 @@ body{
 .mt-gls-card{position:relative;border:1px solid color-mix(in srgb,var(--accent-on) 65%,transparent);border-radius:24px;background:linear-gradient(155deg,color-mix(in srgb,var(--paper) 62%,transparent),color-mix(in srgb,var(--paper) 34%,transparent));backdrop-filter:blur(18px) saturate(150%);-webkit-backdrop-filter:blur(18px) saturate(150%);box-shadow:inset 0 1px 0 color-mix(in srgb,var(--accent-on) 70%,transparent),0 1px 2px color-mix(in srgb,var(--ink) 5%,transparent),0 16px 40px -12px color-mix(in srgb,var(--ink) 20%,transparent)}
 .mt-gls-blob{position:absolute;pointer-events:none;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--accent) 38%,transparent),transparent 70%);filter:blur(48px)}
 .mt-gls-chip{display:inline-flex;align-items:center;gap:.5em;padding:.35em 1em;border-radius:999px;border:1px solid color-mix(in srgb,var(--accent-on) 60%,transparent);background:color-mix(in srgb,var(--paper) 40%,transparent);backdrop-filter:blur(10px) saturate(140%);-webkit-backdrop-filter:blur(10px) saturate(140%);box-shadow:0 4px 14px -6px color-mix(in srgb,var(--ink) 16%,transparent)}
-
-/* F2 霓虹夜行 · 装饰母题 */
-.mt-neo-tube{position:relative;border:1px solid color-mix(in srgb,var(--accent) 55%,transparent);border-radius:14px;background:color-mix(in srgb,var(--paper-tint) 55%,transparent);box-shadow:inset 0 0 18px color-mix(in srgb,var(--accent) 16%,transparent),0 0 24px -6px color-mix(in srgb,var(--accent) 45%,transparent)}
-.mt-neo-sign{color:var(--accent);text-shadow:0 0 10px color-mix(in srgb,var(--accent) 65%,transparent),0 0 36px color-mix(in srgb,var(--accent) 32%,transparent)}
-.mt-neo-line{height:2px;border:none;border-radius:2px;background:var(--accent);box-shadow:0 0 10px color-mix(in srgb,var(--accent) 70%,transparent),0 0 28px color-mix(in srgb,var(--accent) 28%,transparent)}
-.mt-neo-dot{display:inline-block;width:.5em;height:.5em;border-radius:50%;background:var(--accent);box-shadow:0 0 12px color-mix(in srgb,var(--accent) 80%,transparent);animation:amb-pulse 2.4s ease-in-out infinite}
-.mt-neo-refl{transform:scaleY(-1);opacity:.35;pointer-events:none;filter:blur(1px);-webkit-mask-image:linear-gradient(180deg,transparent 28%,color-mix(in srgb,var(--accent) 45%,transparent));mask-image:linear-gradient(180deg,transparent 28%,color-mix(in srgb,var(--accent) 45%,transparent))}
-@media (prefers-reduced-motion: reduce){.mt-neo-dot{animation:none}}
 
 /* G1 翡翠年鉴 · 装饰母题 */
 .mt-emr-seal{width:88px;height:88px;border-radius:50%;border:2px solid var(--accent);box-shadow:inset 0 0 0 5px color-mix(in srgb,var(--accent) 25%,transparent);pointer-events:none}
@@ -1940,28 +1920,6 @@ body{
     </section>
   </div>
 
-  <!-- 39 · 主题样张 E6 孟菲斯（母题：彩纸屑碎形 ×5 / 粗描边圆角卡 / 之字波浪线；缓动签名内联） -->
-  <div class="slide-slot">
-    <section class="slide cover-page" data-slide-id="theme-e6" style="--paper:#FFF8EE;--paper-tint:#FFE9C7;--ink:#1A1A2E;--ink-tint:#3A3A55;--accent:#FF3DA5;--accent-on:#FFF8EE;--palette-1:#FF3DA5;--palette-1-on:#FFF8EE;--palette-2:#FFD93D;--palette-2-on:#1A1A2E;--palette-3:#00B8D9;--palette-3-on:#1A1A2E;--palette-4:#7BC950;--palette-4-on:#1A1A2E;--font-display:'Futura','Century Gothic','PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;--font-body:'PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;--font-mono:'SF Mono','JetBrains Mono','Menlo',monospace;--texture-type:flat;--texture-layer:none;--texture-scope:cover;--ease-out:cubic-bezier(.5,1.7,.4,1)" data-content-hash="02054970a311">
-      <div class="mt-mem-confetti" data-editable-skip>
-        <i class="mt-mem-dot" style="left:200px;top:200px"></i>
-        <i class="mt-mem-tri mt-mem-c2" style="right:240px;top:176px"></i>
-        <i class="mt-mem-ring" style="left:280px;bottom:220px"></i>
-        <i class="mt-mem-dot mt-mem-c3" style="right:320px;bottom:260px"></i>
-        <i class="mt-mem-tri mt-mem-c4" style="left:560px;top:140px"></i>
-      </div>
-      <div style="position:relative;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--font-body)">
-        <div class="mt-mem-card reveal" style="padding:72px 104px;text-align:center">
-          <p data-editable style="font-family:var(--font-mono);font-size:17px;font-weight:600;letter-spacing:.14em;opacity:.6">THEME SAMPLES · G</p>
-          <h1 data-editable style="margin-top:32px;font-family:var(--font-display);font-size:124px;line-height:1.2;font-weight:800">想象的形状</h1>
-          <p data-editable style="margin-top:28px;font-size:26px;opacity:.78">同一段内容，二十九个世界</p>
-        </div>
-        <div class="mt-mem-zig reveal" data-editable-skip style="--d:.2s;margin-top:64px;width:480px"></div>
-      </div>
-      <p data-editable style="position:absolute;left:120px;bottom:60px;font-family:var(--font-mono);font-size:15px;font-weight:600;opacity:.6">E6 · 孟菲斯 · 糖果粉</p>
-    </section>
-  </div>
-
   <!-- 40 · 主题样张 E7 浮世绘（母题：浪花带页缘 / 姓名印落款 / 竖排题跋——题跋文字可编辑） -->
   <div class="slide-slot">
     <section class="slide cover-page" data-slide-id="theme-e7" style="--paper:#F5EFE2;--paper-tint:#E9DFC9;--ink:#23201B;--ink-tint:#3D3A33;--accent:#B03A2E;--accent-on:#F5EFE2;--font-display:'Songti SC','Noto Serif SC','STSong',serif;--font-body:'Songti SC','Noto Serif SC','STSong',serif;--font-mono:'SF Mono','JetBrains Mono','Menlo',monospace;--texture-type:paper;--texture-layer:radial-gradient(90% 70% at 20% 15%,color-mix(in srgb,var(--ink) 3%,transparent),transparent 60%),radial-gradient(80% 70% at 80% 90%,color-mix(in srgb,var(--ink) 2%,transparent),transparent 65%);--texture-scope:all" data-content-hash="0fd57f081ee6">
@@ -2096,23 +2054,6 @@ body{
         </div>
       </div>
       <p data-editable style="position:absolute;left:120px;bottom:60px;font-family:var(--font-mono);font-size:15px;font-weight:500;opacity:.55">F1 · 浮光玻璃 · 晨雾蓝</p>
-    </section>
-  </div>
-
-  <!-- 47 · 主题样张 F2 霓虹夜行 · 霓紫（母题：rim-glow 灯管卡 / 发光字 / 标题雨后倒影 / 光管线 / 呼吸点；flicker-in 通电点亮；发光严格单色 accent） -->
-  <div class="slide-slot">
-    <section class="slide cover-page" data-slide-id="theme-f2" style="--paper:#05070D;--paper-tint:#0B101C;--ink:#E9F0FA;--ink-tint:#141B2A;--accent:#9E8CFF;--accent-on:#1A1040;--font-display:'DIN Alternate','Avenir Next','Helvetica Neue','PingFang SC','Noto Sans SC',sans-serif;--font-body:'Helvetica Neue','PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;--font-mono:'SF Mono','JetBrains Mono','Menlo',monospace;--texture-type:glow;--texture-layer:radial-gradient(85% 60% at 50% 0%,color-mix(in srgb,var(--accent) 7%,transparent),transparent 62%);--texture-scope:cover" data-content-hash="72a53fa52155">
-      <div style="position:relative;height:100%;display:flex;flex-direction:column;justify-content:center;font-family:var(--font-body)">
-        <p data-editable class="reveal" style="font-family:var(--font-mono);font-size:18px;font-weight:500;letter-spacing:.12em;opacity:.55"><span class="mt-neo-dot" data-editable-skip style="margin-right:.7em"></span>THEME SAMPLES · G</p>
-        <h1 data-editable class="mt-neo-sign" data-anim="flicker-in" style="margin-top:44px;font-family:var(--font-display);font-size:120px;line-height:1.3;font-weight:600">想象的形状</h1>
-        <p class="mt-neo-sign mt-neo-refl" data-editable-skip aria-hidden="true" style="margin-top:8px;font-family:var(--font-display);font-size:120px;line-height:1.3;font-weight:600">想象的形状</p>
-        <hr class="mt-neo-line reveal" data-editable-skip style="--d:.22s;margin:32px 0 0;width:320px">
-        <p data-editable class="reveal" style="--d:.3s;margin-top:36px;font-size:26px;line-height:1.7;opacity:.78">同一段内容，二十九个世界</p>
-        <div class="mt-neo-tube reveal" style="--d:.4s;margin-top:56px;width:760px;padding:26px 36px">
-          <p data-editable style="font-family:var(--font-mono);font-size:20px;letter-spacing:.06em">SIGNAL / 24 WORLDS RENDERED</p>
-        </div>
-      </div>
-      <p data-editable style="position:absolute;left:120px;bottom:60px;font-family:var(--font-mono);font-size:15px;font-weight:500;opacity:.55">F2 · 霓虹夜行 · 霓紫</p>
     </section>
   </div>
 
