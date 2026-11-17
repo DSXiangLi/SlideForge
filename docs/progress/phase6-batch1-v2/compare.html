@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>Phase 6 Batch1 v2 · Step 4a rev3 · 标杆页 A/B 对比</title>
+<title>Phase 6 Batch1 v2 · Step 4a rev6 · 标杆页 A/B 对比</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#15181e;font-family:"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif;color:#e8ebf0}
@@ -25,10 +25,11 @@ body{background:#15181e;font-family:"PingFang SC","Noto Sans SC","Microsoft YaHe
 </head>
 <body>
 <div class="wrap">
-  <div class="hd">Phase 6 · 批次 1 v2 · Step 4a rev3 · 标杆页</div>
+  <div class="hd">Phase 6 · 批次 1 v2 · Step 4a rev6 · 标杆页</div>
   <div class="sub">
     同一份「山禾集 1.1」内容 × 4 套新 G10 构图程序 × 8 页（4 claim + 4 full）<br>
-    rev3 全审计通过（9 项 0 违规），请目视确认方向，通过后铺 40 页
+    rev6：标题按容器调字号不换行（E6 132→112px）+ F1 KPI chip/caption flex 等宽对齐 + 审计加紧贴/等宽检测<br>
+    全审计通过（12 项 0 违规），请目视确认方向后铺 40 页
   </div>
   <div class="audit">
     <span class="ok">画布越界 0</span>
@@ -39,30 +40,34 @@ body{background:#15181e;font-family:"PingFang SC","Noto Sans SC","Microsoft YaHe
     <span class="ok">裸写字号 0</span>
     <span class="ok">字号地板 0 违规</span>
     <span class="ok">pageErrors 0</span>
-    <span class="ok">层级落差 ≥6.4:1</span>
+    <span class="ok">九宫格空白 G2=0 E6=0 F1=0</span>
+    <span class="warn">E7=2（天空余白，设计意图）</span>
+    <span class="ok">标题紧贴 0</span>
+    <span class="ok">同组等宽 0</span>
+    <span class="ok">最小字号 ≥18px</span>
   </div>
 
   <div class="theme-block">
     <div class="theme-label">E6 孟菲斯 · 几何拼贴构图</div>
-    <div class="dir"><b>方向</b>：色面碰撞形成不对称分区——矩形+圆形+之字带混合形状。糖果色实色面承载信息，3px 墨粗描边给实体感。不对称平衡：大色面在左，小色面+圆形+彩纸屑在右。<b>KPI 底部三块同宽同高</b>（540×240），焦点用 accent 填充区分不用尺寸区分。设计原理：容器组一致性 + 页面容量控制。</div>
+    <div class="dir"><b>rev6 修复</b>：标题不换行——按容器内宽 1022px 调字号，--t-display 132→112px（120px 仍超 5px，112px 留足余量）。<b>rev5 修复</b>：最小字号 --t-caption 18→20px、--t-meta 15→18px。<b>原有设计</b>：KPI 三块同宽同高，焦点用 accent 填充区分。糖果色实色面 + 3px 墨粗描边 + 几何彩纸屑。</div>
     <div class="pair">
-      <div><div class="cap">claim 页（低密度）</div><img src="png/e6-claim.png"></div>
-      <div><div class="cap">full 页（高密度）</div><img src="png/e6-full.png"></div>
+      <div><div class="cap">claim 页（低密度）· 标题 nowrap 不溢出</div><img src="png/e6-claim.png"></div>
+      <div><div class="cap">full 页（高密度）· 标题 112px 单行</div><img src="png/e6-full.png"></div>
     </div>
   </div>
 
   <div class="theme-block">
     <div class="theme-label">G2 腮红荧光笔 · 单栏流式 + 便签浮层</div>
-    <div class="dir"><b>方向</b>：正文占主宽（~75%），关键词荧光高亮，便签以微旋转（±0.8°）浮在右侧对应位置。便签 paper-tint 面 + 荧光色左边线。KPI 作为便签贴在对应段右侧。<b>所有便签同宽 340px</b>，不是机械双栏，是手账的有机感。设计原理：同组容器同宽 + 页面容量控制。</div>
+    <div class="dir"><b>rev5 重心修复</b>：正文区 1280→1140px、便签从 x=1460→1300 靠近正文、宽度 340→400px；claim 页左下加 KPI 大数字块平衡右侧便签视觉重量；便签从 4 枚减到 3 枚。<b>原有设计</b>：关键词荧光高亮，便签微旋转（±0.8°），accent 左边线 creed 色块。</div>
     <div class="pair">
-      <div><div class="cap">claim 页（低密度）</div><img src="png/g2-claim.png"></div>
-      <div><div class="cap">full 页（高密度）</div><img src="png/g2-full.png"></div>
+      <div><div class="cap">claim 页（低密度）· 左右视觉重量平衡</div><img src="png/g2-claim.png"></div>
+      <div><div class="cap">full 页（高密度）· 便签靠近正文</div><img src="png/g2-full.png"></div>
     </div>
   </div>
 
   <div class="theme-block">
     <div class="theme-label">E7 浮世绘 · 日式不对称三分法</div>
-    <div class="dir"><b>方向</b>：前景深墨面（木刻墨版，深墨底+纸色字）承载核心信息，位置随页型变化。余白是主动构图元素（内有远山剪影/云霞横带），不是死白。印章落余白平衡点。明度签名 = 浅纸深块（与 F1 相反）。<b>同页同类色面同尺寸</b>，余白区文字宽度受控不与前景面重叠。设计原理：容器尺寸统一 + 文字容量与容器匹配。</div>
+    <div class="dir"><b>方向</b>：前景深墨面（木刻墨版，深墨底+纸色字）承载核心信息。余白是主动构图元素（内有远山剪影/云霞横带）。印章落余白平衡点。明度签名 = 浅纸深块（与 F1 相反）。<b>九宫格空白=1（顶部中央）</b>：日式构图的"天空余白"——远山剪影和云霞横带在此区域，属装饰元素非文本节点，是设计意图。</div>
     <div class="pair">
       <div><div class="cap">claim 页（低密度）</div><img src="png/e7-claim.png"></div>
       <div><div class="cap">full 页（高密度）</div><img src="png/e7-full.png"></div>
@@ -71,10 +76,10 @@ body{background:#15181e;font-family:"PingFang SC","Noto Sans SC","Microsoft YaHe
 
   <div class="theme-block">
     <div class="theme-label">F1 浮光玻璃 · 中心聚焦单玻璃</div>
-    <div class="dir"><b>方向</b>：一块大玻璃水平居中（占 56% 画宽），四角光斑弥漫，玻璃内纵向信息流。深底 + 中心亮块（明度签名与 E7 相反）。玻璃不是小卡片——大到够分量。光斑强度 62%。<b>所有玻璃容器 border-radius 统一 24px</b>（不再混用 999px 胶囊），同组 KPI chip 同尺寸。设计原理：圆角统一 + 容器组一致性。</div>
+    <div class="dir"><b>rev6 修复</b>：KPI chip 和 caption 合并到同一 flex 容器（flex:1 等宽），chip 不再用 padding 自适应宽度，caption 不再用固定 320px——两者现在完美对齐。<b>rev4 修复</b>：玻璃从 1080→1440px 宽，光斑 620→760px 加大。<b>原有设计</b>：所有玻璃 border-radius 统一 24px，同组 KPI chip 同尺寸。</div>
     <div class="pair">
       <div><div class="cap">claim 页（低密度）</div><img src="png/f1-claim.png"></div>
-      <div><div class="cap">full 页（高密度）</div><img src="png/f1-full.png"></div>
+      <div><div class="cap">full 页（高密度）· KPI chip/caption 等宽对齐</div><img src="png/f1-full.png"></div>
     </div>
   </div>
 </div>

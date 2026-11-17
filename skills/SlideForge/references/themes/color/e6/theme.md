@@ -108,7 +108,7 @@
 
 ```css
 /* E6 Memphis 孟菲斯 · 装饰母题 + 缓动签名 */
-:root{--ease-out:cubic-bezier(.5,1.7,.4,1);--t-display:132px}
+:root{--ease-out:cubic-bezier(.5,1.7,.4,1);--t-display:112px;--t-caption:20px;--t-meta:18px}
 .mt-mem-confetti{position:absolute;inset:0;pointer-events:none;user-select:none;overflow:hidden}
 .mt-mem-confetti i{position:absolute;display:block;--pc:var(--palette-1)}
 .mt-mem-confetti .mt-mem-c2{--pc:var(--palette-2)}

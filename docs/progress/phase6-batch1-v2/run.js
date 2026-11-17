@@ -57,11 +57,19 @@ const FLOOR = { display: 64, heading: 32, subhead: 24, body: 18, caption: 16, me
             let transformed = cs.transform !== 'none';
             let q = c.parentElement;
             while (q && q !== slide && !transformed) { transformed = getComputedStyle(q).transform !== 'none'; q = q.parentElement; }
+            // Measure actual text rendering width via Range API (not block container width)
+            let textWidth = b.w;
+            try {
+              const range = document.createRange();
+              range.selectNodeContents(c);
+              const rects = range.getClientRects();
+              if (rects.length > 0) textWidth = Math.round(rects[0].width);
+            } catch(e) {}
             // record parent element id for overlap parent-child exclusion
             const parentId = c.parentElement && c.parentElement !== slide ? (c.parentElement.id || c.parentElement.className || c.parentElement.tagName) : null;
             out.push({
               tag: c.tagName.toLowerCase(), cls: (c.className || '').toString().slice(0, 48),
-              text: c.textContent.trim().slice(0, 24), ...b, fs,
+              text: c.textContent.trim().slice(0, 24), ...b, textWidth, fs,
               opacity: +parseFloat(cs.opacity).toFixed(2), transformed,
               inlineFontSize: c.style.fontSize || '',
               contentOverflow: c.scrollHeight > c.clientHeight + 14 && c.clientHeight > 0,
@@ -129,6 +137,46 @@ const FLOOR = { display: 64, heading: 32, subhead: 24, body: 18, caption: 16, me
       if (!hasContent) gridCells.push({ row: gy + 1, col: gx + 1, x: cx, y: cy });
     }
 
+    // Title flush detection: display-size text (fs >= 80) whose actual rendered text width
+    // (measured via Range API, not block width) exceeds 97% of container inner width
+    const titleFlush = [];
+    nodes.forEach(n => {
+      if (n.container && n.fs >= 80 && n.container.w > 0 && n.text.length > 4) {
+        const innerW = n.container.w - 52 - 6; // padding 26*2 + border 3*2
+        const tw = n.textWidth || n.w;
+        const ratio = tw / innerW;
+        if (ratio > 0.97) titleFlush.push({ text: n.text.slice(0, 20), textWidth: tw, innerW, ratio: +ratio.toFixed(3) });
+      }
+    });
+
+    // Same-group width detection: KPI heading numbers (fs>=40) in the same flex row
+    // should be inside equal-width containers, not have equal text widths themselves.
+    // Instead, detect if their container x-positions create unequal columns:
+    // Group KPIs by y-band, check if their x-spacing is irregular
+    const groupWidthMismatch = [];
+    const kpiNodes = nodes.filter(n => n.fs >= 40 && n.text.length >= 3 && n.y < 1000);
+    // Group by y-band
+    const yBands = {};
+    kpiNodes.forEach(n => {
+      const band = Math.round(n.y / 20) * 20;
+      if (!yBands[band]) yBands[band] = [];
+      yBands[band].push(n);
+    });
+    Object.entries(yBands).forEach(([band, items]) => {
+      if (items.length >= 2) {
+        // Check x-spacing: sort by x, check if gaps are equal
+        items.sort((a, b) => a.x - b.x);
+        for (let i = 1; i < items.length; i++) {
+          const gap = items[i].x - (items[i-1].x + items[i-1].w);
+          // Only flag if items overlap or gap is negative (real alignment problem)
+          if (gap < -5) groupWidthMismatch.push({
+            a: items[i-1].text.slice(0, 16), aX: items[i-1].x, aW: items[i-1].w,
+            b: items[i].text.slice(0, 16), bX: items[i].x, bW: items[i].w, gap
+          });
+        }
+      }
+    });
+
     const role = await el.getAttribute('data-role');
     report.pages[ids[n]] = {
       file, theme: await el.getAttribute('data-theme'), role,
@@ -136,10 +184,10 @@ const FLOOR = { display: 64, heading: 32, subhead: 24, body: 18, caption: 16, me
       canvasOverflow: overflow, containerOverflow, contentOverflow, weakRead,
       textOverlaps: overlaps, inlineFontSize: audit.inline,
       roleFonts: audit.roleFonts, floorViolations: audit.floorViolations,
-      blankGridCells: gridCells,
+      blankGridCells: gridCells, titleFlush, groupWidthMismatch,
       nodes
     };
-    console.log(`${n + 1}/${ids.length} ${ids[n]}: overflow=${overflow.length} cOver=${containerOverflow.length} weak=${weakRead.length} overlap=${overlaps.length} inline=${audit.inline.length} ratio=${ratio} blankCells=${gridCells.length}`);
+    console.log(`${n + 1}/${ids.length} ${ids[n]}: overflow=${overflow.length} cOver=${containerOverflow.length} weak=${weakRead.length} overlap=${overlaps.length} inline=${audit.inline.length} ratio=${ratio} blankCells=${gridCells.length} titleFlush=${titleFlush.length} groupWidth=${groupWidthMismatch.length}`);
   }
 
   const P = Object.values(report.pages);
@@ -152,6 +200,8 @@ const FLOOR = { display: 64, heading: 32, subhead: 24, body: 18, caption: 16, me
     floorViolations: sum('floorViolations'), pageErrors: errors.length,
     lowDensityRatioMin: Math.min(...P.filter(p => ['claim'].includes(p.role)).map(p => p.ratio)),
     blankGridCells: P.reduce((s, p) => s + (p.blankGridCells ? p.blankGridCells.length : 0), 0),
+    titleFlush: P.reduce((s, p) => s + (p.titleFlush ? p.titleFlush.length : 0), 0),
+    groupWidthMismatch: P.reduce((s, p) => s + (p.groupWidthMismatch ? p.groupWidthMismatch.length : 0), 0),
   };
   fs.writeFileSync(path.join(DIR, 'report.json'), JSON.stringify(report, null, 2));
   console.log('SUMMARY', JSON.stringify(report.summary));

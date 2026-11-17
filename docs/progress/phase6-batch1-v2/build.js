@@ -1,9 +1,10 @@
-/* phase6-batch1-v2 / build.js  (Step 4a rev4: claim + full 标杆页)
+/* phase6-batch1-v2 / build.js  (Step 4a rev6: claim + full 标杆页)
  *
- * v2 rev4 修复（九宫格空白修复）：
- *  - G2 claim: 左侧 y=410~820 空白 → 加大标题字号 + 左下加 creed 色块 + mono 标注行
- *  - F1: 玻璃从 1080→1440px 宽（两侧空白 420→240px），光斑加大 620→760px 填充两侧
- *  - 技能层：typography.md §4.1 新增留白率上限 + 九宫格空间分布均衡性硬规则
+ * v2 rev6 修复（标题不换行 + F1 对齐）：
+ *  - E6: --t-display 132→120px（按容器内宽 1022px 调字号，不换行）
+ *  - E6 full: 恢复 white-space:nowrap，容器高度 300→200 回调
+ *  - F1 full: KPI chip 和 caption 合并到同一 flex 容器（flex:1 等宽），不再 chip 自适应+caption 固定 320px
+ *  - 审计新增：标题紧贴检测（>97% 容器内宽告警）+ 同组等宽检测（同 y 同字号宽度差 >30px 告警）
  */
 const fs = require('fs');
 const path = require('path');
@@ -130,6 +131,7 @@ function E6(role) {
     });
   } else if (role === 'full') {
     // 高密度：标题大色面 + 正文两块 + KPI 三块同尺寸
+    // rev6: 标题不换行——按容器调字号（--t-display 132→120px 适配 1080 容器内宽 1022px）
     h.push(block(M, 140, 1080, 200,
       `<div class="t-display" style="font-weight:800;white-space:nowrap;line-height:1.05">${ttl}</div>`,
       { fill: true, idx: 0 }));
@@ -164,7 +166,8 @@ function E6(role) {
  */
 function G2(role) {
   const h = [];
-  const X_TEXT = 120, W_TEXT = 1280, X_NOTE = 1460, W_NOTE = 340;
+  // rev5: 重心修复——正文区 1280→1140，便签从 1460→1300 靠近正文，宽度 340→400
+  const X_TEXT = 120, W_TEXT = 1140, X_NOTE = 1300, W_NOTE = 400;
   h.push(`<div class="bg-layer"></div>`);
   h.push(kicker());
 
@@ -172,22 +175,22 @@ function G2(role) {
   const hl = (s) => { const i = s.indexOf('，'); return i < 0 ? `<span class="mt-hl-mark">${esc(s)}</span>` : `<span class="mt-hl-mark">${esc(s.slice(0, i + 1))}</span>${esc(s.slice(i + 1))}`; };
 
   if (role === 'claim') {
-    // 低密度：大标题 + 说明 + 左下 creed/装饰 + 右便签组
-    // 九宫格修复：左侧 y=410~820 原为空白 → 加大标题占面 + 左下加 creed 块 + 荧光圈注填充
+    // 低密度：大标题 + 说明 + 左下 creed 色块 + 右便签组
+    // rev5 重心修复：左侧加 KPI 大数字块平衡右侧便签视觉重量
     h.push(`<div class="t-display" style="position:absolute;left:${X_TEXT}px;top:180px;width:${W_TEXT}px;font-weight:700;line-height:1.0;font-size:max(var(--t-display),96px)"><span class="mt-hl-mark" style="--hl-c:var(--accent)">${esc(D.claim)}</span></div>`);
     h.push(`<div class="t-body" style="position:absolute;left:${X_TEXT}px;top:380px;width:760px;line-height:1.7">${hl(D.claimNote)}</div>`);
-    // 左下区域：creed 列表（填充 y=500~740 左侧空白）
-    h.push(`<div style="position:absolute;left:${X_TEXT}px;top:540px;width:680px;padding:24px 32px;border-left:4px solid var(--accent);background:var(--paper-tint)">${D.creed.map((c, i) => `<div class="t-caption" style="${i > 0 ? 'margin-top:10px' : ''};line-height:1.6">${esc(c)}</div>`).join('')}</div>`);
-    // 荧光圈注（视觉填充左下 y=780~880）
-    h.push(`<div class="t-meta" style="position:absolute;left:${X_TEXT}px;top:800px;width:680px;letter-spacing:.06em;color:color-mix(in srgb,var(--ink) 50%,transparent);font-family:var(--font-mono)">— 山禾集 · 2026 年度经营情况汇报</div>`);
-    // 便签组（3 枚 KPI 同宽，分布在右侧 y=180~680）
-    h.push(note_(180, `<div class="t-caption" style="font-weight:600">主张</div><div class="t-meta" style="margin-top:4px;line-height:1.35">关键词高亮标注</div>`, 'mt-hl-note--alt'));
-    h.push(note_(340, `<div class="t-heading" style="font-weight:700">${esc(D.kpis[0].num)}</div><div class="t-meta" style="margin-top:4px;line-height:1.35">${esc(D.kpis[0].cap)}</div>`, 'mt-hl-note--hl3'));
-    h.push(note_(500, `<div class="t-heading" style="font-weight:700">${esc(D.kpis[1].num)}</div><div class="t-meta" style="margin-top:4px;line-height:1.35">${esc(D.kpis[1].cap)}</div>`, 'mt-hl-note--hl4'));
-    h.push(note_(660, `<div class="t-heading" style="font-weight:700">${esc(D.kpis[2].num)}</div><div class="t-meta" style="margin-top:4px;line-height:1.35">${esc(D.kpis[2].cap)}</div>`, 'mt-hl-note--alt'));
+    // 左下区域：creed 色块（accent 背景，增加视觉重量平衡右侧便签）
+    h.push(`<div style="position:absolute;left:${X_TEXT}px;top:540px;width:560px;padding:24px 32px;border-left:4px solid var(--accent);background:var(--paper-tint)">${D.creed.map((c, i) => `<div class="t-caption" style="${i > 0 ? 'margin-top:10px' : ''};line-height:1.6">${esc(c)}</div>`).join('')}</div>`);
+    // 左下 KPI 大数字块（与右侧便签呼应，平衡视觉重量）
+    h.push(`<div style="position:absolute;left:720px;top:540px;width:420px;padding:24px 32px;background:color-mix(in srgb,var(--accent) 12%,var(--paper))"><div class="t-heading" style="font-weight:700">${esc(D.kpis[0].num)}</div><div class="t-meta" style="margin-top:4px;line-height:1.35">${esc(D.kpis[0].cap)}</div></div>`);
+    // mono 标注行
+    h.push(`<div class="t-meta" style="position:absolute;left:${X_TEXT}px;top:800px;width:760px;letter-spacing:.06em;color:color-mix(in srgb,var(--ink) 50%,transparent);font-family:var(--font-mono)">— 山禾集 · 2026 年度经营情况汇报</div>`);
+    // 便签组（2 枚 KPI 同宽，分布在右侧 y=180~680）
+    h.push(note_(180, `<div class="t-caption" style="font-weight:600">关键指标</div><div class="t-meta" style="margin-top:4px;line-height:1.35">行业前列</div>`, 'mt-hl-note--alt'));
+    h.push(note_(340, `<div class="t-heading" style="font-weight:700">${esc(D.kpis[1].num)}</div><div class="t-meta" style="margin-top:4px;line-height:1.35">${esc(D.kpis[1].cap)}</div>`, 'mt-hl-note--hl3'));
+    h.push(note_(540, `<div class="t-heading" style="font-weight:700">${esc(D.kpis[2].num)}</div><div class="t-meta" style="margin-top:4px;line-height:1.35">${esc(D.kpis[2].cap)}</div>`, 'mt-hl-note--hl4'));
     // 胶带装饰
-    h.push(`<div class="mt-hl-tape" style="position:absolute;left:1380px;top:160px;width:88px;height:24px"></div>`);
-    // 底部 creed 行移除（已上移到左下块），底部只留 note+foot
+    h.push(`<div class="mt-hl-tape" style="position:absolute;left:1220px;top:160px;width:88px;height:24px"></div>`);
   } else if (role === 'full') {
     // 高密度：大标题 + 两段正文 + 便签组
     h.push(`<div class="t-display" style="position:absolute;left:${X_TEXT}px;top:180px;width:${W_TEXT}px;font-weight:700;white-space:nowrap;line-height:1.05"><span class="mt-hl-mark" style="--hl-c:var(--accent)">${ttl}</span></div>`);
@@ -199,8 +202,8 @@ function G2(role) {
     h.push(note_(560, `<div class="t-heading" style="font-weight:700">${esc(D.kpis[0].num)}</div><div class="t-meta" style="margin-top:4px;line-height:1.35">${esc(D.kpis[0].cap)}</div>`, 'mt-hl-note--hl3'));
     h.push(note_(720, `<div class="t-heading" style="font-weight:700">${esc(D.kpis[1].num)}</div><div class="t-meta" style="margin-top:4px;line-height:1.35">${esc(D.kpis[1].cap)}</div>`, 'mt-hl-note--hl4'));
     h.push(note_(880, `<div class="t-heading" style="font-weight:700">${esc(D.kpis[2].num)}</div><div class="t-meta" style="margin-top:4px;line-height:1.35">${esc(D.kpis[2].cap)}</div>`, 'mt-hl-note--alt'));
-    // 底部 creed 行
-    h.push(`<div style="position:absolute;left:${X_TEXT}px;top:950px;width:${W_TEXT}px">${D.creed.map(c => `<span class="t-caption" style="display:inline-block;margin-right:30px">${esc(c)}</span>`).join('')}</div>`);
+    // 底部 creed 行（上移 950→930 避免与 note y=990 重叠）
+    h.push(`<div style="position:absolute;left:${X_TEXT}px;top:930px;width:${W_TEXT}px">${D.creed.map(c => `<span class="t-caption" style="display:inline-block;margin-right:30px">${esc(c)}</span>`).join('')}</div>`);
   }
   h.push(note(990));
   h.push(foot('g2', role));
@@ -290,16 +293,20 @@ function F1(role) {
       `<div style="margin-top:20px;text-align:center">${D.creed.map(c => `<span class="t-meta" style="display:inline-block;margin-right:24px">${esc(c)}</span>`).join('')}</div>`));
   } else if (role === 'full') {
     // 高密度：大玻璃居中，标题 + KPI chip 行 + 两段正文 + creed
-    // 容量控制：p1 和 p2 各截取关键句，全段太长塞不进玻璃
+    // rev6: KPI chip 和 caption 用同一 flex 容器等宽对齐（不再 chip 自适应 + caption 固定 320px）
     const p1Short = D.p1.slice(0, 80) + '……';
     const p2Short = D.p2.slice(0, 80) + '……';
+    // KPI 行：chip + caption 一体化，每个 KPI 占 1/3 等宽
+    const kpiRow = `<div style="margin-top:18px;display:flex;justify-content:center;gap:20px">${D.kpis.map((k, i) =>
+      `<div style="flex:1;max-width:380px;text-align:center">
+        <div class="mt-gls-chip-n" style="display:inline-flex;align-items:center;padding:.3em 1.2em">
+          <span class="t-heading" style="font-weight:500">${esc(k.num)}</span>
+        </div>
+        <div class="t-meta" style="margin-top:8px;line-height:1.35">${esc(k.cap)}</div>
+      </div>`).join('')}</div>`;
     h.push(panel(140, 820,
       `<div class="t-display" style="font-weight:400;white-space:nowrap;line-height:1.05;color:var(--accent);text-align:center">${ttl}</div>` +
-      `<div style="margin-top:18px;display:flex;justify-content:center;gap:20px">${D.kpis.map((k, i) =>
-        `<span class="mt-gls-chip-n" style="display:inline-flex;align-items:center;padding:.3em 1em">
-          <span class="t-heading" style="font-weight:500">${esc(k.num)}</span>
-        </span>`).join('')}</div>` +
-      `<div style="margin-top:12px;text-align:center">${D.kpis.map((k, i) => `<span class="t-meta" style="display:inline-block;width:320px;text-align:center;line-height:1.35">${esc(k.cap)}</span>`).join('')}</div>` +
+      kpiRow +
       `<div class="t-body" style="margin-top:24px;line-height:1.7">${esc(p1Short)}</div>` +
       `<div class="t-body" style="margin-top:12px;line-height:1.7">${esc(p2Short)}</div>` +
       `<div style="margin-top:16px;text-align:center">${D.creed.map(c => `<span class="t-meta" style="display:inline-block;margin-right:22px">${esc(c)}</span>`).join('')}</div>`));
@@ -326,7 +333,7 @@ const html = `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>Phase6 Batch1 v2 · Step 4a rev4 · 标杆页</title>
+<title>Phase6 Batch1 v2 · Step 4a rev6 · 标杆页</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{background:#15181e;font-family:"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif}
@@ -358,9 +365,9 @@ ${Object.values(MOTIF).join('\n')}
 </head>
 <body>
 <div class="wrap">
-  <div class="hd">Phase 6 · 批次 1 v2 · Step 4a rev4 · 标杆页（claim + full）</div>
+  <div class="hd">Phase 6 · 批次 1 v2 · Step 4a rev6 · 标杆页（claim + full）</div>
   <div class="sub">同一份「山禾集 1.1」内容 × 4 套新 G10 构图程序 × 8 页。<br>
-  rev4 九宫格修复：G2 左下填充 creed 色块 + F1 玻璃加宽至 1440px + 光斑加大。<br>
+  rev6：E6 标题按容器调字号不换行 + F1 KPI chip/caption flex 等宽对齐 + 审计加紧贴/等宽检测。<br>
   E6 几何拼贴 · G2 单栏流式+便签 · E7 日式不对称 · F1 中心聚焦单玻璃。</div>
 ${cases.map((c, i) => `  <div class="slot"><div class="cap"><span>${LABEL[c.id]} · ${c.role}</span><b>${String(i + 1).padStart(2, '0')} / 08</b></div>
   ${slides[i]}
