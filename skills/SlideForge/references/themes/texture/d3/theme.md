@@ -84,6 +84,53 @@
 
 - **禁忌**：笔触块每页 ≤2 处且只垫重点（处处笔触即脏）；虚线圈注禁圈长段落（只圈词/短语）；母题件一律 `data-editable-skip`
 
+**G10 composition_program**
+
+- **定位**：主题从「可替换参数集」升级为「决定信息如何进入空间的程序」。本组为硬约束，写进页计划表头即整 deck 的构图契约。
+- **灵魂承载**：笔触块（.mt-art-brush）和画框装裱（.mt-art-frame）是签名结构件，形状由 CSS 承担（data-editable-skip），其内部承载的文字仍是 data-editable 叶子节点。
+- **DOM 结构测试签署**：删掉 signature_operator，页面回到「标题 + 两段正文 + 横排三格 KPI」，笔触块标题、虚线圈注、不规则圆角切片、画框装裱全部消失，元素数量/分组/顺序/位置**都变** → **PASS**。
+
+```yaml
+
+doctrine: 画室速写本——暖灰画纸上，每条信息是一笔抹上去的油彩，铅笔虚线圈住关键词，画框装裱数字像画册里的展品标签。
+
+page_composition:
+  skeleton: 笔触块标题 + 不规则圆角切片右栏 + 画框装裱 KPI 底栏
+  grid: {margin: 96px 120px, gutter: 24px}
+  balance: {anchor: 笔触块标题区(左上), counterweight: 不规则圆角切片(右侧) / 画框 KPI 栏(底部)}
+  whitespace_ratio: ">=35%"
+  flow: "笔触块垫标题定锚 → 正文在切片内流动 → 虚线圈注圈关键词 → 画框装裱数字收底"
+signature_operator: 把每条信息编译成画室速写——
+  核心主张句用笔触块（.mt-art-brush）垫底、楷体大字写在画纸上，像一笔抹上去的油彩标题；
+  辅助说明装进不规则圆角切片（border-radius 有机不对称），像撕下来的画纸贴在右侧；
+  关键词用虚线圈注（.mt-art-circle dashed 不规则圆角框）圈住，像铅笔随手批注；
+  三项数字重排为画框装裱条目（.mt-art-frame 细双线装裱），横贯底部、主数字画框略宽（flex:1.4），非等权；
+  笔触块每页 ≤2 处，只垫标题和主数字；画纸暖灰底 + 赭石 accent 是常态，封面可略浓。
+silhouette: 暖灰画纸 + 赭石笔触块标题居左上；右侧不规则圆角切片承载正文；底部画框 KPI 横贯。重心偏上。
+info_grammar:
+  cover:    满版画纸 + 大笔触块垫标题 + 虚线圈注圈副标题关键词
+  toc:      3-5 个不规则圆角切片排列，当前章节用 accent 圈注标记
+  claim:    笔触块垫主张句标题（左上），不规则圆角切片承载正文说明 + 虚线圈注关键词（右侧），画框装裱 KPI 横贯底部
+  analysis: 2-4 个画框装裱信息块在画纸上排列，至多一块用笔触块焦点
+  data:     三项数字 → 画框装裱条目排列（主数字 flex:1.4 略宽 + 笔触块垫数字），非横排等权三格
+  closing:  画纸 + 大笔触块呼应封面（可略浓），虚线圈注最后一次出现
+type_scale:            # px@1920x1080 画布基准；下限由骨架 .t-* 的 max() 结构性锁定
+  --t-display: 96px  # 楷体 500-600 承载笔触块标题；与正文 3.4:1
+  rule: 标题:正文 >=1.8:1；正文层 opacity = 1，禁灰化弱读；accent 赭石面积 <=10%（笔触块/圈注/主数字）
+  floor_note: body/heading/subhead/caption/meta 不覆盖，继承骨架 28/64/40/18/15；地板由 max() 保证，无需后拦截门禁
+invariants:
+  - 笔触块每页 ≤2 处，只垫标题和主数字（.mt-art-brush ::before 有机边缘色块）
+  - 虚线圈注只圈词/短语，禁圈长段落（.mt-art-circle dashed 不规则圆角框）
+  - 不规则圆角容器使用有机不对称 border-radius（如 14px 18px 12px 20px），禁全等圆角
+  - 画框装裱 KPI 主数字画框 flex:1.4 略宽于其他（flex:1），非等权三格
+  - 暖灰画纸底（--paper #e9e5da）+ 赭石 accent（#a05f3c），accent 面积 <=10%
+  - 横排等权三格容器数 = 0
+forbidden_defaults: [横向等权三格 KPI, 全等圆角, 弥散软影, hairline 分割, 渐变色块, 玻璃拟态, 直角硬卡]
+dna_events: {cover: 强, claim: 中, analysis: 弱, data: 中, toc: 弱, closing: 强}
+```
+
+---
+
 **Variants 配色变体**
 
 #### 雾蓝
