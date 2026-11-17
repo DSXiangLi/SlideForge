@@ -57,7 +57,7 @@ Without an agent the editor stands alone; with one, every request you submit on 
 
 | Scenario | How |
 |---|---|
-| **Build a deck from scratch** | Give the AI your topic and material, pick a style on a visual panel first (29 themes × color variants — swatches, fonts, and motion are WYSIWYG); the AI generates within the frozen style |
+| **Build a deck from scratch** | Give the AI your topic and material, pick a style on a visual panel first (30 themes × color variants — swatches, fonts, and motion are WYSIWYG); the AI generates within the frozen style |
 | **Rework an existing PPTX** | Hand the .pptx to the AI for conversion into web slides, then enter the same editing flow |
 | **Export PPTX for delivery** | One click produces **dual-track artifacts**: an editable version (text and charts are native in PowerPoint) + a fidelity version (visuals sealed pixel-perfect), plus a PDF |
 | **Embed into your own system** | Both slides and editor are iframe-embeddable, talking to the host over a postMessage protocol |
@@ -84,17 +84,21 @@ The three clips above cover edit-in-place / lasso annotation / briefing / export
 >
 > Two boundaries worth knowing: the editor modifies the **HTML master**, not the `.pptx` binary, so a re-export is needed afterwards; "Submit annotation", "Send to AI" and "Export as PPTX" are **intent buttons that only enqueue** — an agent must claim them before anything runs — while "Copy … instruction" only writes to the clipboard and submits no intent.
 
-## Theme Gallery: One Deck × 4 Composition Programs
+## Theme Gallery: One Deck × 8 Composition Programs
 
-The same business page (demo content for "Shanhe Ji", a fictional tea brand; all data is fictional) rebuilt by four themes that each carry a written G10 `composition_program` contract. Each theme owns *how information enters the space*, so the difference is structural, not a palette swap: B1 presses the page into a visible 12-column grid with a vertical data spine; C3 prints it as terminal windows with `key:value` output; E5 carries the title on a −12° force band; H1 unrolls it as a handscroll with vertical titles and a cinnabar seal. Text sizes come from the skeleton's `.t-*` role classes, so readability floors hold by construction rather than by a post-hoc gate.
+The same business page (demo content for "Shanhe Ji", a fictional tea brand; all data is fictional) rebuilt by eight themes that each carry a written G10 `composition_program` contract. Each theme owns *how information enters the space*, so the difference is structural, not a palette swap: B1 presses the page into a visible 12-column grid with a vertical data spine; C3 prints it as terminal windows with `key:value` output; E5 carries the title on a −12° force band; H1 unrolls it as a handscroll with vertical titles and a cinnabar seal; E6 collages candy-colored blocks with 3px ink borders; G2 flows single-column text with highlighter marks and sticky-note annotations; F1 centers a single frosted-glass panel with diffuse corner light blobs; C1 drops a signal-orange block on a black keynote stage. Text sizes come from the skeleton's `.t-*` role classes, so readability floors hold by construction rather than by a post-hoc gate.
 
 | <img src="assets/theme-sampler/v2-b1.png" width="416"> | <img src="assets/theme-sampler/v2-c3.png" width="416"> |
 |---|---|
 | B1 · Swiss International · 12-column grid + data spine | C3 · Terminal Green · terminal windows + key:value |
 | <img src="assets/theme-sampler/v2-e5.png" width="416"> | <img src="assets/theme-sampler/v2-h1.png" width="416"> |
 | E5 · Constructivism · −12° force band | H1 · Ink Scroll · vertical titles + cinnabar seal |
+| <img src="assets/theme-sampler/v2-e6.png" width="416"> | <img src="assets/theme-sampler/v2-g2.png" width="416"> |
+| E6 · Memphis · geometric collage + candy blocks | G2 · Blush Highlighter · single-column flow + sticky notes |
+| <img src="assets/theme-sampler/v2-f1.png" width="416"> | <img src="assets/theme-sampler/p03-c1.png" width="416"> |
+| F1 · Glass Light · centered single glass panel | C1 · Signal Black · black stage + signal orange keynote |
 
-> The earlier token-swap samples (the older `p01`–`p29` set) still live in `assets/theme-sampler/`; the four above are the recompiled versions. Source deck: `tests/decks/theme-sampler/`.
+> The earlier token-swap samples (the older `p01`–`p29` set) still live in `assets/theme-sampler/`; the eight above are the recompiled versions. Source deck: `tests/decks/theme-sampler/`. The E6/G2/F1 high-density samplers are from the batch-1 v2 acceptance (rev6, 12-item audit all green); C1 uses the original token-swap sample.
 
 ## Page Types in Action
 
