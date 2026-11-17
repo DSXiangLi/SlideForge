@@ -1,112 +1,280 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<title>Phase6 Batch3 · A/B 灰度盲测</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-html,body{background:#0e1014;font-family:"PingFang SC","Noto Sans SC",sans-serif;color:#e8ebf0}
-.wrap{padding:30px 0 80px}
-.hd{text-align:center;margin-bottom:8px;font-size:22px;font-weight:600}
-.sub{color:#8b93a3;text-align:center;margin-bottom:28px;font-size:13px;line-height:1.7}
-.group{margin:0 auto 40px;max-width:1920px}
-.group-hd{color:#dbe0ea;font-size:16px;font-weight:600;margin-bottom:12px;padding-left:4px}
-.row{display:flex;gap:12px;justify-content:center}
-.cell{flex:none}
-.cell-lbl{color:#9aa3b4;font-size:12px;letter-spacing:.06em;margin-bottom:6px;text-align:center}
-.img-wrap{width:480px;height:270px;overflow:hidden;border:1px solid #2a2e36}
-.img-wrap img{width:1920px;height:1080px;transform:scale(.25);transform-origin:top left;filter:grayscale(100%) contrast(1.1)}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <div class="hd">Phase 6 · 批次 3 · 灰度盲测</div>
-  <div class="sub">4 套主题 × 4 页型 = 16 页，去色灰度 + 缩略图并排。<br>遮住主题名后，能否从灰度结构辨认出每套主题的 signature_operator？</div>
-
-  <div class="group">
-    <div class="group-hd">页型：cover</div>
-    <div class="row">
-      <div class="cell">
-        <div class="cell-lbl">G4 靛墨黄页</div>
-        <div class="img-wrap"><img src="png/g4-cover.png" alt="g4-cover"></div>
-      </div>
-      <div class="cell">
-        <div class="cell-lbl">G5 三色旬刊</div>
-        <div class="img-wrap"><img src="png/g5-cover.png" alt="g5-cover"></div>
-      </div>
-      <div class="cell">
-        <div class="cell-lbl">E2 蓝图</div>
-        <div class="img-wrap"><img src="png/e2-cover.png" alt="e2-cover"></div>
-      </div>
-      <div class="cell">
-        <div class="cell-lbl">E3 装饰艺术</div>
-        <div class="img-wrap"><img src="png/e3-cover.png" alt="e3-cover"></div>
-      </div>
+<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Batch3 Compare</title><style>*{margin:0;padding:0;box-sizing:border-box}body{background:#15181e;font-family:sans-serif;padding:30px}h1{color:#e8ebf0;text-align:center;margin-bottom:8px;font-size:22px}.sub{color:#8b93a3;text-align:center;margin-bottom:28px;font-size:13px;line-height:1.7}</style></head><body><h1>Phase 6 · 批次 3 · 灰度盲测对比</h1><div class="sub">同内容 × 4 套主题 × 4 页型 = 16 页，灰度模式下去色后比较构图骨架与层级</div><div style="display:flex;gap:20px;justify-content:center;margin-bottom:30px"><div style="display:flex;flex-direction:column;align-items:center"><div style="color:#9aa3b4;font-size:14px;margin-bottom:8px">G4 靛墨黄页 · cover</div><div style="filter:grayscale(100%);width:960px;overflow:hidden;border:1px solid #2a2e3a"><section class="slide g4" id="s-g4-cover" data-theme="g4" data-role="cover" style='--paper:#E9E5DB; --paper-tint:#DDD8CB; --ink:#1B2566;   --ink-tint:#2A3374; --accent:#F1EE2E; --accent-on:#1B2566; --accent-2:#E26B4A; --accent-2-on:#FAF1E2; ;--font-display:"Helvetica Neue","Arial Black","PingFang SC","Noto Sans SC",sans-serif; --font-body:"Helvetica Neue","PingFang SC","Noto Sans SC",sans-serif; --font-mono:"SF Mono","JetBrains Mono","Menlo",monospace; ;font-family:var(--font-body)'>
+<div class="bg-layer" style="background:var(--accent)" data-editable-skip></div>
+<div class="t-meta" style="position:absolute;left:120px;top:96px;width:400px;height:30px;color:var(--accent-on);opacity:.9;letter-spacing:.1em">1.1 · 整体特色及优势</div>
+<div class="t-meta" style="position:absolute;left:820px;top:96px;width:400px;height:30px;color:var(--accent-on);opacity:.9;letter-spacing:.1em;text-align:center">山禾集 · 经营情况汇报 · 2026</div>
+<div class="t-meta" style="position:absolute;left:1500px;top:96px;width:300px;height:30px;color:var(--accent-on);opacity:.9;font-family:var(--font-mono);letter-spacing:.14em">EXHIBITION · 2026</div>
+<div class="t-display" style="position:absolute;left:120px;top:360px;width:1680px;height:220px;font-weight:900;color:var(--accent-on);font-size:max(var(--t-display),128px);white-space:nowrap">一杯好茶&nbsp;&nbsp;山野作答</div>
+<div class="t-subhead" style="position:absolute;left:120px;top:600px;width:800px;height:48px;color:var(--accent-on);font-weight:700;letter-spacing:.04em">山禾集 · 经营情况汇报 · 2026</div>
+<div class="mt-bie-num" style="position:absolute;left:1740px;top:900px;width:120px;height:120px;font-size:var(--t-display);display:flex;align-items:center;justify-content:center" data-editable-skip>01</div>
+<div class="mt-bie-band" style="position:absolute;left:0;right:0;top:880px;height:14px" data-editable-skip></div>
+<div class="t-caption" style="position:absolute;left:120px;top:920px;width:800px;height:30px;color:var(--accent-on);opacity:.9">经营理念：当季鲜茶，日常相伴。</div>
+<div class="mastfoot"><span>山禾集 · 经营情况汇报</span><span>G4 靛墨黄页 · cover</span><span>—</span></div>
+</section></div></div><div style="display:flex;flex-direction:column;align-items:center"><div style="color:#9aa3b4;font-size:14px;margin-bottom:8px">G4 靛墨黄页 · claim</div><div style="filter:grayscale(100%);width:960px;overflow:hidden;border:1px solid #2a2e3a"><section class="slide g4" id="s-g4-claim" data-theme="g4" data-role="claim" style='--paper:#E9E5DB; --paper-tint:#DDD8CB; --ink:#1B2566;   --ink-tint:#2A3374; --accent:#F1EE2E; --accent-on:#1B2566; --accent-2:#E26B4A; --accent-2-on:#FAF1E2; ;--font-display:"Helvetica Neue","Arial Black","PingFang SC","Noto Sans SC",sans-serif; --font-body:"Helvetica Neue","PingFang SC","Noto Sans SC",sans-serif; --font-mono:"SF Mono","JetBrains Mono","Menlo",monospace; ;font-family:var(--font-body)'>
+<div class="bg-layer" data-editable-skip>
+      <div style="position:absolute;left:0px;top:0px;width:1920px;height:480px;background:var(--accent)"></div>
+      <div style="position:absolute;left:0px;top:480px;width:1920px;height:600px;background:var(--paper)"></div>
     </div>
-  </div>
-  <div class="group">
-    <div class="group-hd">页型：claim</div>
-    <div class="row">
-      <div class="cell">
-        <div class="cell-lbl">G4 靛墨黄页</div>
-        <div class="img-wrap"><img src="png/g4-claim.png" alt="g4-claim"></div>
+<div class="t-meta" style="position:absolute;left:120px;top:60px;letter-spacing:.1em">1.1 · 整体特色及优势</div>
+<div class="t-display" style="position:absolute;left:120px;top:160px;width:1680px;height:180px;font-weight:900;color:var(--accent-on);font-size:max(var(--t-display),128px);white-space:nowrap">从茶园到门店</div>
+<div class="t-body" style="position:absolute;left:120px;top:350px;width:1000px;height:80px;color:var(--accent-on)">一杯好茶的答案，写在每一片叶子的来路上。</div>
+<div style="position:absolute;left:120px;top:540px;width:1000px;height:2px;background:var(--ink);height:1.5px" data-editable-skip></div>
+<div class="t-body" style="position:absolute;left:120px;top:570px;width:760px;height:200px">山禾集深耕新式茶饮行业，同时通过全资子公司山禾供应链管理有限公司协同布局上游茶园直采业务。通过多年不懈努力，山禾集秉持"当季鲜茶，日常相伴"的经营理念，建立起从……</div>
+<div style="position:absolute;left:1100px;top:490px;width:560px;height:170px;border:1.5px solid var(--ink);padding:28px 32px;background:var(--accent)">
+        <div class="t-heading" style="font-weight:800;color:var(--accent-on)">8,637家</div>
+        <div class="t-meta" style="margin-top:6px;color:var(--accent-on)">山禾集全国门店总数</div>
       </div>
-      <div class="cell">
-        <div class="cell-lbl">G5 三色旬刊</div>
-        <div class="img-wrap"><img src="png/g5-claim.png" alt="g5-claim"></div>
+<div style="position:absolute;left:1100px;top:665px;width:560px;height:170px;border:1.5px solid var(--ink);padding:28px 32px;background:var(--paper-tint)">
+        <div class="t-heading" style="font-weight:800;">2.8亿杯</div>
+        <div class="t-meta" style="margin-top:6px;">累计售出茶饮</div>
       </div>
-      <div class="cell">
-        <div class="cell-lbl">E2 蓝图</div>
-        <div class="img-wrap"><img src="png/e2-claim.png" alt="e2-claim"></div>
+<div style="position:absolute;left:1100px;top:840px;width:560px;height:170px;border:1.5px solid var(--ink);padding:28px 32px;background:var(--paper-tint)">
+        <div class="t-heading" style="font-weight:800;">361家</div>
+        <div class="t-meta" style="margin-top:6px;">城市旗舰店总数</div>
       </div>
-      <div class="cell">
-        <div class="cell-lbl">E3 装饰艺术</div>
-        <div class="img-wrap"><img src="png/e3-claim.png" alt="e3-claim"></div>
+<div class="mt-bie-num" style="position:absolute;left:1740px;top:900px;width:120px;height:120px;font-size:var(--t-display);display:flex;align-items:center;justify-content:center" data-editable-skip>02</div>
+<div class="mt-bie-band" style="position:absolute;left:0;right:0;top:500px;height:14px" data-editable-skip></div>
+<div class="mastfoot"><span>山禾集 · 经营情况汇报</span><span>G4 靛墨黄页 · claim</span><span>—</span></div>
+</section></div></div></div><div style="display:flex;gap:20px;justify-content:center;margin-bottom:30px"><div style="display:flex;flex-direction:column;align-items:center"><div style="color:#9aa3b4;font-size:14px;margin-bottom:8px">G4 靛墨黄页 · analysis</div><div style="filter:grayscale(100%);width:960px;overflow:hidden;border:1px solid #2a2e3a"><section class="slide g4" id="s-g4-analysis" data-theme="g4" data-role="analysis" style='--paper:#E9E5DB; --paper-tint:#DDD8CB; --ink:#1B2566;   --ink-tint:#2A3374; --accent:#F1EE2E; --accent-on:#1B2566; --accent-2:#E26B4A; --accent-2-on:#FAF1E2; ;--font-display:"Helvetica Neue","Arial Black","PingFang SC","Noto Sans SC",sans-serif; --font-body:"Helvetica Neue","PingFang SC","Noto Sans SC",sans-serif; --font-mono:"SF Mono","JetBrains Mono","Menlo",monospace; ;font-family:var(--font-body)'>
+<div class="t-meta" style="position:absolute;left:120px;top:96px;letter-spacing:.1em">1.1 · 整体特色及优势</div>
+<div class="t-display" style="position:absolute;left:120px;top:180px;width:1680px;height:140px;font-weight:900;white-space:nowrap">一杯好茶&nbsp;&nbsp;山野作答</div>
+<div class="mt-bie-wedge" style="position:absolute;left:1740px;top:180px;width:120px;height:120px" data-editable-skip></div>
+<div style="position:absolute;left:120px;top:360px;width:520px;height:300px;border:1.5px solid var(--ink);padding:24px 28px;background:var(--paper)">
+        <div class="t-body">山禾集深耕新式茶饮行业，同时通过全资子公司山禾供应链管理有限公司协同布局上游茶园直采业务。通过多年不懈努力，山禾集秉持"当季鲜茶，日常相伴"的经营理念，建立起从……</div>
       </div>
+<div style="position:absolute;left:700px;top:360px;width:520px;height:300px;border:1.5px solid var(--ink);padding:24px 28px;background:var(--accent);color:var(--accent-on)">
+        <div class="t-body">经营理念：当季鲜茶，日常相伴。 使命：为大众提供新鲜、健康、平价的日常茶饮。</div>
+      </div>
+<div style="position:absolute;left:1280px;top:360px;width:520px;height:300px;border:1.5px solid var(--ink);padding:24px 28px;background:var(--paper)">
+        <div class="t-body">近年来山禾集门店网络稳步扩张，行业排名持续提升。2019年，山禾集全国门店总数突破八千家，跻身行业头部梯队。截至2026年6月30日，山禾集全国门店总数8,63……</div>
+      </div>
+<div style="position:absolute;left:120px;top:720px;width:1080px;height:30px"><span class="t-caption" style="display:inline-block;margin-right:34px">经营理念：当季鲜茶，日常相伴。</span><span class="t-caption" style="display:inline-block;margin-right:34px">使命：为大众提供新鲜、健康、平价的日常茶饮。</span><span class="t-caption" style="display:inline-block;margin-right:34px">愿景：成为持续领先的新式茶饮品牌。</span></div>
+<div style="position:absolute;left:120px;top:790px;width:510px;height:140px;border:1.5px solid var(--ink);padding:28px 32px;background:var(--accent);color:var(--accent-on)">
+        <div class="t-heading" style="font-weight:800">8,637家</div>
+        <div class="t-meta" style="margin-top:6px">山禾集全国门店总数</div>
+      </div>
+<div style="position:absolute;left:670px;top:790px;width:510px;height:140px;border:1.5px solid var(--ink);padding:28px 32px;">
+        <div class="t-heading" style="font-weight:800">2.8亿杯</div>
+        <div class="t-meta" style="margin-top:6px">累计售出茶饮</div>
+      </div>
+<div style="position:absolute;left:1220px;top:790px;width:510px;height:140px;border:1.5px solid var(--ink);padding:28px 32px;">
+        <div class="t-heading" style="font-weight:800">361家</div>
+        <div class="t-meta" style="margin-top:6px">城市旗舰店总数</div>
+      </div>
+<div class="mt-bie-num" style="position:absolute;left:1740px;top:950px;width:120px;height:120px;font-size:var(--t-display);display:flex;align-items:center;justify-content:center" data-editable-skip>03</div>
+<div class="t-meta note" style="position:absolute;left:120px;top:990px">* 注：山禾集为虚构演示品牌，文中数据均为虚构，仅用于主题样式对比展示。</div>
+<div class="mastfoot"><span>山禾集 · 经营情况汇报</span><span>G4 靛墨黄页 · analysis</span><span>—</span></div>
+</section></div></div><div style="display:flex;flex-direction:column;align-items:center"><div style="color:#9aa3b4;font-size:14px;margin-bottom:8px">G4 靛墨黄页 · data</div><div style="filter:grayscale(100%);width:960px;overflow:hidden;border:1px solid #2a2e3a"><section class="slide g4" id="s-g4-data" data-theme="g4" data-role="data" style='--paper:#E9E5DB; --paper-tint:#DDD8CB; --ink:#1B2566;   --ink-tint:#2A3374; --accent:#F1EE2E; --accent-on:#1B2566; --accent-2:#E26B4A; --accent-2-on:#FAF1E2; ;--font-display:"Helvetica Neue","Arial Black","PingFang SC","Noto Sans SC",sans-serif; --font-body:"Helvetica Neue","PingFang SC","Noto Sans SC",sans-serif; --font-mono:"SF Mono","JetBrains Mono","Menlo",monospace; ;font-family:var(--font-body)'>
+<div class="t-meta" style="position:absolute;left:120px;top:96px;letter-spacing:.1em">1.1 · 整体特色及优势</div>
+<div class="t-display" style="position:absolute;left:120px;top:180px;width:1680px;height:140px;font-weight:900;white-space:nowrap">数据宣言</div>
+<div class="mt-bie-wedge" style="position:absolute;left:1740px;top:180px;width:120px;height:120px" data-editable-skip></div>
+<div style="position:absolute;left:120px;top:340px;width:1080px;height:520px;background:var(--accent);padding:44px 56px;overflow:visible">
+      <div class="t-meta" style="color:var(--accent-on);letter-spacing:.12em;font-family:var(--font-mono);margin-bottom:16px">KEY METRIC</div>
+      <div class="t-display" style="font-weight:900;color:var(--accent-on);font-size:max(var(--t-display),128px);white-space:nowrap;overflow:visible;height:170px">8,637家</div>
+      <div class="t-subhead" style="color:var(--accent-on);margin-top:16px;font-weight:700">山禾集全国门店总数</div>
+      <div class="t-meta" style="color:var(--accent-on);margin-top:8px;opacity:.8">行业前列</div>
     </div>
-  </div>
-  <div class="group">
-    <div class="group-hd">页型：analysis</div>
-    <div class="row">
-      <div class="cell">
-        <div class="cell-lbl">G4 靛墨黄页</div>
-        <div class="img-wrap"><img src="png/g4-analysis.png" alt="g4-analysis"></div>
+<div style="position:absolute;left:1240px;top:380px;width:560px;height:190px;border:1.5px solid var(--ink);padding:28px 32px;background:var(--paper-tint)">
+        <div class="t-heading" style="font-weight:800">2.8亿杯</div>
+        <div class="t-meta" style="margin-top:8px">累计售出茶饮</div>
       </div>
-      <div class="cell">
-        <div class="cell-lbl">G5 三色旬刊</div>
-        <div class="img-wrap"><img src="png/g5-analysis.png" alt="g5-analysis"></div>
+<div style="position:absolute;left:1240px;top:590px;width:560px;height:190px;border:1.5px solid var(--ink);padding:28px 32px;background:var(--paper-tint)">
+        <div class="t-heading" style="font-weight:800">361家</div>
+        <div class="t-meta" style="margin-top:8px">城市旗舰店总数</div>
       </div>
-      <div class="cell">
-        <div class="cell-lbl">E2 蓝图</div>
-        <div class="img-wrap"><img src="png/e2-analysis.png" alt="e2-analysis"></div>
-      </div>
-      <div class="cell">
-        <div class="cell-lbl">E3 装饰艺术</div>
-        <div class="img-wrap"><img src="png/e3-analysis.png" alt="e3-analysis"></div>
-      </div>
+<div class="t-body" style="position:absolute;left:120px;top:880px;width:1080px;height:120px">近年来山禾集门店网络稳步扩张，行业排名持续提升。2019年，山禾集全国门店总数突破八千家，跻身行业头部梯队。截至2026年6月30日，山禾集全国门店总数8,637家（含直营门店1,653家，子公司山禾……</div>
+<div class="mt-bie-num" style="position:absolute;left:1740px;top:900px;width:120px;height:120px;font-size:var(--t-display);display:flex;align-items:center;justify-content:center" data-editable-skip>04</div>
+<div class="t-meta note" style="position:absolute;left:120px;top:1010px">* 注：山禾集为虚构演示品牌，文中数据均为虚构，仅用于主题样式对比展示。</div>
+<div class="mastfoot"><span>山禾集 · 经营情况汇报</span><span>G4 靛墨黄页 · data</span><span>—</span></div>
+</section></div></div></div><div style="display:flex;gap:20px;justify-content:center;margin-bottom:30px"><div style="display:flex;flex-direction:column;align-items:center"><div style="color:#9aa3b4;font-size:14px;margin-bottom:8px">G5 三色旬刊 · cover</div><div style="filter:grayscale(100%);width:960px;overflow:hidden;border:1px solid #2a2e3a"><section class="slide g5" id="s-g5-cover" data-theme="g5" data-role="cover" style='--paper:#E4C9A8; --paper-tint:#8BAE6F; --ink:#1A2B3D;   --ink-tint:#121E2D; --accent:#8BAE6F; --accent-on:#1A2B3D; ;--font-display:"Didot","Bodoni MT","Songti SC","Noto Serif SC",serif; --font-body:"Songti SC","Noto Serif SC","STSong",serif; --font-mono:"SF Mono","JetBrains Mono","Menlo",monospace; ;font-family:var(--font-body)'>
+<div class="bg-layer" style="background:var(--ink)" data-editable-skip></div>
+<span class="mt-tri-tag" style="position:absolute;left:120px;top:96px" data-editable-skip>VOL.07 / NO.128</span>
+<div class="t-display" style="position:absolute;left:120px;top:320px;width:1680px;height:220px;font-weight:700;color:var(--accent);font-size:max(var(--t-display),112px);white-space:nowrap">一杯好茶&nbsp;&nbsp;山野作答</div>
+<div class="t-subhead" style="position:absolute;left:120px;top:560px;width:800px;height:48px;color:var(--paper);font-weight:500">山禾集 · 经营情况汇报 · 2026</div>
+<div class="mt-tri-band" style="position:absolute;left:0;right:0;top:640px" data-editable-skip></div>
+<div class="t-caption" style="position:absolute;left:120px;top:700px;width:800px;height:30px;color:var(--accent);opacity:.9">经营理念：当季鲜茶，日常相伴。</div>
+<div class="mt-tri-pill-lg" style="position:absolute;left:120px;top:800px" data-editable-skip>2026</div>
+<div class="mastfoot"><span>山禾集 · 经营情况汇报</span><span>G5 三色旬刊 · cover</span><span>—</span></div>
+</section></div></div><div style="display:flex;flex-direction:column;align-items:center"><div style="color:#9aa3b4;font-size:14px;margin-bottom:8px">G5 三色旬刊 · claim</div><div style="filter:grayscale(100%);width:960px;overflow:hidden;border:1px solid #2a2e3a"><section class="slide g5" id="s-g5-claim" data-theme="g5" data-role="claim" style='--paper:#E4C9A8; --paper-tint:#8BAE6F; --ink:#1A2B3D;   --ink-tint:#121E2D; --accent:#8BAE6F; --accent-on:#1A2B3D; ;--font-display:"Didot","Bodoni MT","Songti SC","Noto Serif SC",serif; --font-body:"Songti SC","Noto Serif SC","STSong",serif; --font-mono:"SF Mono","JetBrains Mono","Menlo",monospace; ;font-family:var(--font-body)'>
+<div class="bg-layer" data-editable-skip>
+      <div style="position:absolute;left:0px;top:0px;width:960px;height:1080px;background:var(--ink)"></div>
+      <div style="position:absolute;left:960px;top:0px;width:960px;height:1080px;background:var(--accent)"></div>
     </div>
-  </div>
-  <div class="group">
-    <div class="group-hd">页型：data</div>
-    <div class="row">
-      <div class="cell">
-        <div class="cell-lbl">G4 靛墨黄页</div>
-        <div class="img-wrap"><img src="png/g4-data.png" alt="g4-data"></div>
+<span class="mt-tri-tag" style="position:absolute;left:120px;top:80px" data-editable-skip>VOL.07 / NO.128</span>
+<div class="t-display" style="position:absolute;left:120px;top:220px;width:760px;height:180px;font-weight:700;color:var(--accent);font-size:max(var(--t-display),112px);white-space:nowrap">从茶园到门店</div>
+<div class="t-body" style="position:absolute;left:120px;top:420px;width:760px;height:120px;color:var(--accent);opacity:.9">一杯好茶的答案，写在每一片叶子的来路上。</div>
+<div class="t-body" style="position:absolute;left:1020px;top:220px;width:760px;height:200px;color:var(--ink)">山禾集深耕新式茶饮行业，同时通过全资子公司山禾供应链管理有限公司协同布局上游茶园直采业务。通过多年不懈努力，山禾集秉持"当季鲜茶，日常相伴"的经营理念，建立起从茶园到门店的全链路品控流程，持续为消费者……</div>
+<div style="position:absolute;left:1020px;top:420px;width:760px;height:170px;background:var(--paper);color:var(--ink);padding:28px 32px">
+        <div class="t-heading" style="font-weight:600">8,637家</div>
+        <div class="t-meta" style="margin-top:6px">山禾集全国门店总数</div>
       </div>
-      <div class="cell">
-        <div class="cell-lbl">G5 三色旬刊</div>
-        <div class="img-wrap"><img src="png/g5-data.png" alt="g5-data"></div>
+<div style="position:absolute;left:1020px;top:595px;width:760px;height:170px;background:var(--paper);color:var(--ink);padding:28px 32px">
+        <div class="t-heading" style="font-weight:600">2.8亿杯</div>
+        <div class="t-meta" style="margin-top:6px">累计售出茶饮</div>
       </div>
-      <div class="cell">
-        <div class="cell-lbl">E2 蓝图</div>
-        <div class="img-wrap"><img src="png/e2-data.png" alt="e2-data"></div>
+<div style="position:absolute;left:1020px;top:770px;width:760px;height:170px;background:var(--paper);color:var(--ink);padding:28px 32px">
+        <div class="t-heading" style="font-weight:600">361家</div>
+        <div class="t-meta" style="margin-top:6px">城市旗舰店总数</div>
       </div>
-      <div class="cell">
-        <div class="cell-lbl">E3 装饰艺术</div>
-        <div class="img-wrap"><img src="png/e3-data.png" alt="e3-data"></div>
+<div class="mt-tri-band" style="position:absolute;left:0;right:0;top:1000px" data-editable-skip></div>
+<div class="mastfoot"><span>山禾集 · 经营情况汇报</span><span>G5 三色旬刊 · claim</span><span>—</span></div>
+</section></div></div></div><div style="display:flex;gap:20px;justify-content:center;margin-bottom:30px"><div style="display:flex;flex-direction:column;align-items:center"><div style="color:#9aa3b4;font-size:14px;margin-bottom:8px">G5 三色旬刊 · analysis</div><div style="filter:grayscale(100%);width:960px;overflow:hidden;border:1px solid #2a2e3a"><section class="slide g5" id="s-g5-analysis" data-theme="g5" data-role="analysis" style='--paper:#E4C9A8; --paper-tint:#8BAE6F; --ink:#1A2B3D;   --ink-tint:#121E2D; --accent:#8BAE6F; --accent-on:#1A2B3D; ;--font-display:"Didot","Bodoni MT","Songti SC","Noto Serif SC",serif; --font-body:"Songti SC","Noto Serif SC","STSong",serif; --font-mono:"SF Mono","JetBrains Mono","Menlo",monospace; ;font-family:var(--font-body)'>
+<div class="t-meta" style="position:absolute;left:120px;top:96px;letter-spacing:.1em">1.1 · 整体特色及优势</div>
+<div class="t-display" style="position:absolute;left:120px;top:180px;width:1680px;height:140px;font-weight:700;white-space:nowrap">一杯好茶&nbsp;&nbsp;山野作答</div>
+<span class="mt-tri-tag" style="position:absolute;left:1500px;top:96px" data-editable-skip>NO.128</span>
+<div style="position:absolute;left:120px;top:360px;width:520px;height:320px;background:var(--paper);color:var(--ink);padding:24px 28px">
+        <div class="t-body">山禾集深耕新式茶饮行业，同时通过全资子公司山禾供应链管理有限公司协同布局上游茶园直采业务。通过多年不懈努力，山禾集秉持"当季鲜茶，日常相伴"的经营理念，建立起从……</div>
       </div>
+<div style="position:absolute;left:700px;top:360px;width:520px;height:320px;background:var(--accent);color:var(--ink);padding:24px 28px">
+        <div class="t-body">经营理念：当季鲜茶，日常相伴。 使命：为大众提供新鲜、健康、平价的日常茶饮。</div>
+      </div>
+<div style="position:absolute;left:1280px;top:360px;width:520px;height:320px;background:var(--ink);color:var(--accent);padding:24px 28px">
+        <div class="t-body">近年来山禾集门店网络稳步扩张，行业排名持续提升。2019年，山禾集全国门店总数突破八千家，跻身行业头部梯队。截至2026年6月30日，山禾集全国门店总数8,63……</div>
+      </div>
+<div style="position:absolute;left:120px;top:730px;width:1080px;height:30px"><span class="t-caption" style="display:inline-block;margin-right:30px">经营理念：当季鲜茶，日常相伴。</span><span class="t-caption" style="display:inline-block;margin-right:30px">使命：为大众提供新鲜、健康、平价的日常茶饮。</span><span class="t-caption" style="display:inline-block;margin-right:30px">愿景：成为持续领先的新式茶饮品牌。</span></div>
+<div style="position:absolute;left:1240px;top:730px;width:560px;display:flex;flex-direction:column;gap:12px">
+      <div class="t-meta" style="color:var(--ink)">8,637家 — 山禾集全国门店总数</div><div class="t-meta" style="color:var(--ink)">2.8亿杯 — 累计售出茶饮</div><div class="t-meta" style="color:var(--ink)">361家 — 城市旗舰店总数</div>
     </div>
-  </div>
-</div>
-</body>
-</html>
+<div class="mt-tri-band" style="position:absolute;left:0;right:0;top:960px" data-editable-skip></div>
+<div class="t-meta note" style="position:absolute;left:120px;top:980px">* 注：山禾集为虚构演示品牌，文中数据均为虚构，仅用于主题样式对比展示。</div>
+<div class="mastfoot"><span>山禾集 · 经营情况汇报</span><span>G5 三色旬刊 · analysis</span><span>—</span></div>
+</section></div></div><div style="display:flex;flex-direction:column;align-items:center"><div style="color:#9aa3b4;font-size:14px;margin-bottom:8px">G5 三色旬刊 · data</div><div style="filter:grayscale(100%);width:960px;overflow:hidden;border:1px solid #2a2e3a"><section class="slide g5" id="s-g5-data" data-theme="g5" data-role="data" style='--paper:#E4C9A8; --paper-tint:#8BAE6F; --ink:#1A2B3D;   --ink-tint:#121E2D; --accent:#8BAE6F; --accent-on:#1A2B3D; ;--font-display:"Didot","Bodoni MT","Songti SC","Noto Serif SC",serif; --font-body:"Songti SC","Noto Serif SC","STSong",serif; --font-mono:"SF Mono","JetBrains Mono","Menlo",monospace; ;font-family:var(--font-body)'>
+<div class="t-meta" style="position:absolute;left:120px;top:96px;letter-spacing:.1em">1.1 · 整体特色及优势</div>
+<div class="t-display" style="position:absolute;left:120px;top:180px;width:1680px;height:140px;font-weight:700;white-space:nowrap">数据宣言</div>
+<span class="mt-tri-tag" style="position:absolute;left:1500px;top:96px" data-editable-skip>NO.128</span>
+<div style="position:absolute;left:120px;top:360px;width:520px;height:400px;background:var(--ink);color:var(--accent);padding:36px 40px;display:flex;flex-direction:column;justify-content:center">
+        <div class="t-meta" style="font-family:var(--font-mono);letter-spacing:.12em;margin-bottom:16px;opacity:.7">METRIC 01</div>
+        <div class="t-heading" style="font-weight:600;font-size:max(var(--t-heading),48px);white-space:nowrap">8,637家</div>
+        <div class="t-body" style="margin-top:14px">山禾集全国门店总数</div>
+      </div>
+<div style="position:absolute;left:670px;top:360px;width:520px;height:400px;background:var(--accent);color:var(--ink);padding:36px 40px;display:flex;flex-direction:column;justify-content:center">
+        <div class="t-meta" style="font-family:var(--font-mono);letter-spacing:.12em;margin-bottom:16px;opacity:.7">METRIC 02</div>
+        <div class="t-heading" style="font-weight:600;font-size:max(var(--t-heading),48px);white-space:nowrap">2.8亿杯</div>
+        <div class="t-body" style="margin-top:14px">累计售出茶饮</div>
+      </div>
+<div style="position:absolute;left:1220px;top:360px;width:520px;height:400px;background:var(--paper);color:var(--ink);padding:36px 40px;display:flex;flex-direction:column;justify-content:center">
+        <div class="t-meta" style="font-family:var(--font-mono);letter-spacing:.12em;margin-bottom:16px;opacity:.7">METRIC 03</div>
+        <div class="t-heading" style="font-weight:600;font-size:max(var(--t-heading),48px);white-space:nowrap">361家</div>
+        <div class="t-body" style="margin-top:14px">城市旗舰店总数</div>
+      </div>
+<div class="t-body" style="position:absolute;left:120px;top:800px;width:1680px;height:120px">近年来山禾集门店网络稳步扩张，行业排名持续提升。2019年，山禾集全国门店总数突破八千家，跻身行业头部梯队。截至2026年6月30日，山禾集全国门店总数8,637家（含直营门店1,653家，子公司山禾供应链合作门店432家），其中标准门店8……</div>
+<div class="mt-tri-band" style="position:absolute;left:0;right:0;top:940px" data-editable-skip></div>
+<div class="t-meta note" style="position:absolute;left:120px;top:960px">* 注：山禾集为虚构演示品牌，文中数据均为虚构，仅用于主题样式对比展示。</div>
+<div class="mastfoot"><span>山禾集 · 经营情况汇报</span><span>G5 三色旬刊 · data</span><span>—</span></div>
+</section></div></div></div><div style="display:flex;gap:20px;justify-content:center;margin-bottom:30px"><div style="display:flex;flex-direction:column;align-items:center"><div style="color:#9aa3b4;font-size:14px;margin-bottom:8px">E2 蓝图 · cover</div><div style="filter:grayscale(100%);width:960px;overflow:hidden;border:1px solid #2a2e3a"><section class="slide e2" id="s-e2-cover" data-theme="e2" data-role="cover" style='--paper:#14304a; --paper-tint:#1b3d5c; --ink:#f2f6f9;   --ink-tint:#0f2438; --accent:#35C8E8; --accent-on:#0e2a3f; ;--font-display:"Helvetica Neue","PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif; --font-body:"Helvetica Neue","PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif; --font-mono:"SF Mono","JetBrains Mono","Menlo",monospace; ;font-family:var(--font-body)'>
+<div class="bg-layer" data-editable-skip></div>
+<div class="t-meta" style="position:absolute;left:120px;top:80px;width:400px;height:30px;font-family:var(--font-mono);letter-spacing:.14em;color:var(--accent)">DWG-A1 · SCALE 1:50</div>
+<div class="t-display" style="position:absolute;left:120px;top:300px;width:1680px;height:220px;font-weight:600;white-space:nowrap;font-size:max(var(--t-display),104px)">一杯好茶&nbsp;&nbsp;山野作答</div>
+<div class="t-subhead" style="position:absolute;left:120px;top:540px;width:800px;height:48px;font-weight:500;letter-spacing:.04em">山禾集 · 经营情况汇报 · 2026</div>
+<div class="mt-bp-dim" style="position:absolute;left:120px;top:620px;width:800px" data-editable-skip><i></i>W = 1920px<i></i></div>
+<div class="mt-bp-tag" style="position:absolute;left:1480px;top:920px;width:320px;height:autopx" data-editable-skip><span>DWG-A1</span><span>1:50</span><span>2026</span></div>
+<div class="t-caption" style="position:absolute;left:120px;top:700px;width:800px;height:30px;font-family:var(--font-mono);opacity:.9">经营理念：当季鲜茶，日常相伴。</div>
+<div class="mastfoot"><span>山禾集 · 经营情况汇报</span><span>E2 蓝图 · cover</span><span>—</span></div>
+</section></div></div><div style="display:flex;flex-direction:column;align-items:center"><div style="color:#9aa3b4;font-size:14px;margin-bottom:8px">E2 蓝图 · claim</div><div style="filter:grayscale(100%);width:960px;overflow:hidden;border:1px solid #2a2e3a"><section class="slide e2" id="s-e2-claim" data-theme="e2" data-role="claim" style='--paper:#14304a; --paper-tint:#1b3d5c; --ink:#f2f6f9;   --ink-tint:#0f2438; --accent:#35C8E8; --accent-on:#0e2a3f; ;--font-display:"Helvetica Neue","PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif; --font-body:"Helvetica Neue","PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif; --font-mono:"SF Mono","JetBrains Mono","Menlo",monospace; ;font-family:var(--font-body)'>
+<div class="bg-layer" data-editable-skip></div>
+<div class="t-meta" style="position:absolute;left:120px;top:80px;width:400px;height:30px;font-family:var(--font-mono);letter-spacing:.14em;color:var(--accent)">DWG-A2 · CLAIM</div>
+<div class="mt-bp-frame" style="position:absolute;left:120px;top:160px;width:1080px;height:360px;padding:40px 44px;overflow:visible"><div class="t-display" style="font-weight:600;font-size:max(var(--t-display),88px);white-space:nowrap">从茶园到门店</div><div class="t-body" style="margin-top:20px">一杯好茶的答案，写在每一片叶子的来路上。</div></div>
+<div class="mt-bp-dim" style="position:absolute;left:120px;top:540px;width:1080px" data-editable-skip><i></i>1080px<i></i></div>
+<div class="mt-bp-frame" style="position:absolute;left:1240px;top:160px;width:560px;height:360px;padding:24px 28px;overflow:visible"><div class="t-meta" style="font-family:var(--font-mono);letter-spacing:.12em;color:var(--accent);margin-bottom:16px">STAT --BRIEF</div><div class="t-body" style="font-family:var(--font-mono)"><span style="color:var(--accent)">8,637家</span> 山禾集全国门店总数</div><div class="t-body" style="font-family:var(--font-mono)"><span style="color:var(--accent)">2.8亿杯</span> 累计售出茶饮</div><div class="t-body" style="font-family:var(--font-mono)"><span style="color:var(--accent)">361家</span> 城市旗舰店总数</div></div>
+<div class="mt-bp-dim" style="position:absolute;left:1240px;top:540px;width:560px" data-editable-skip><i></i>560px<i></i></div>
+<div class="mt-bp-frame" style="position:absolute;left:120px;top:580px;width:1680px;height:200px;padding:24px 28px;overflow:visible"><div class="t-body">山禾集深耕新式茶饮行业，同时通过全资子公司山禾供应链管理有限公司协同布局上游茶园直采业务。通过多年不懈努力，山禾集秉持"当季鲜茶，日常相伴"的经营理念，建立起从茶园到门店的全链路品控流程，持续为消费者创造价值，赢得了广大茶饮爱好者的喜爱。……</div></div>
+<div class="mt-bp-tag" style="position:absolute;left:1480px;top:960px;width:320px;height:autopx" data-editable-skip><span>DWG-A2</span><span>1:100</span><span>2026</span></div>
+<div class="mastfoot"><span>山禾集 · 经营情况汇报</span><span>E2 蓝图 · claim</span><span>—</span></div>
+</section></div></div></div><div style="display:flex;gap:20px;justify-content:center;margin-bottom:30px"><div style="display:flex;flex-direction:column;align-items:center"><div style="color:#9aa3b4;font-size:14px;margin-bottom:8px">E2 蓝图 · analysis</div><div style="filter:grayscale(100%);width:960px;overflow:hidden;border:1px solid #2a2e3a"><section class="slide e2" id="s-e2-analysis" data-theme="e2" data-role="analysis" style='--paper:#14304a; --paper-tint:#1b3d5c; --ink:#f2f6f9;   --ink-tint:#0f2438; --accent:#35C8E8; --accent-on:#0e2a3f; ;--font-display:"Helvetica Neue","PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif; --font-body:"Helvetica Neue","PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif; --font-mono:"SF Mono","JetBrains Mono","Menlo",monospace; ;font-family:var(--font-body)'>
+<div class="bg-layer" data-editable-skip></div>
+<div class="t-meta" style="position:absolute;left:120px;top:80px;width:400px;height:30px;font-family:var(--font-mono);letter-spacing:.14em;color:var(--accent)">DWG-A3 · ANALYSIS</div>
+<div class="t-display" style="position:absolute;left:120px;top:160px;width:1680px;height:120px;font-weight:600;white-space:nowrap">一杯好茶&nbsp;&nbsp;山野作答</div>
+<div class="mt-bp-frame" style="position:absolute;left:120px;top:320px;width:520px;height:320px;padding:24px 28px;overflow:visible"><div class="t-meta" style="font-family:var(--font-mono);letter-spacing:.12em;color:var(--accent);margin-bottom:12px">SECTION 01</div><div class="t-body">山禾集深耕新式茶饮行业，同时通过全资子公司山禾供应链管理有限公司协同布局上游茶园直采业务。通过多年不懈努力，山禾集秉持"……</div></div>
+<div class="mt-bp-frame" style="position:absolute;left:670px;top:320px;width:520px;height:320px;padding:24px 28px;overflow:visible"><div class="t-meta" style="font-family:var(--font-mono);letter-spacing:.12em;color:var(--accent);margin-bottom:12px">SECTION 02</div><div class="t-body">经营理念：当季鲜茶，日常相伴。 使命：为大众提供新鲜、健康、平价的日常茶饮。</div></div>
+<div class="mt-bp-frame" style="position:absolute;left:1220px;top:320px;width:520px;height:320px;padding:24px 28px;overflow:visible"><div class="t-meta" style="font-family:var(--font-mono);letter-spacing:.12em;color:var(--accent);margin-bottom:12px">SECTION 03</div><div class="t-body">近年来山禾集门店网络稳步扩张，行业排名持续提升。2019年，山禾集全国门店总数突破八千家，跻身行业头部梯队。截至2026……</div></div>
+<div class="mt-bp-dim" style="position:absolute;left:120px;top:660px;width:1680px" data-editable-skip><i></i>3 × 520 + 2 × 30 = 1620px<i></i></div>
+<div class="mt-bp-frame" style="position:absolute;left:120px;top:700px;width:520px;height:160px;padding:24px 28px;overflow:visible"><div class="t-meta" style="font-family:var(--font-mono);color:var(--accent)">8,637家</div><div class="t-caption" style="margin-top:6px">山禾集全国门店总数</div></div>
+<div class="mt-bp-frame" style="position:absolute;left:670px;top:700px;width:520px;height:160px;padding:24px 28px;overflow:visible"><div class="t-meta" style="font-family:var(--font-mono);color:var(--accent)">2.8亿杯</div><div class="t-caption" style="margin-top:6px">累计售出茶饮</div></div>
+<div class="mt-bp-frame" style="position:absolute;left:1220px;top:700px;width:520px;height:160px;padding:24px 28px;overflow:visible"><div class="t-meta" style="font-family:var(--font-mono);color:var(--accent)">361家</div><div class="t-caption" style="margin-top:6px">城市旗舰店总数</div></div>
+<div class="mt-bp-tag" style="position:absolute;left:1480px;top:960px;width:320px;height:autopx" data-editable-skip><span>DWG-A3</span><span>1:200</span><span>2026</span></div>
+<div class="t-meta note" style="position:absolute;left:120px;top:980px">* 注：山禾集为虚构演示品牌，文中数据均为虚构，仅用于主题样式对比展示。</div>
+<div class="mastfoot"><span>山禾集 · 经营情况汇报</span><span>E2 蓝图 · analysis</span><span>—</span></div>
+</section></div></div><div style="display:flex;flex-direction:column;align-items:center"><div style="color:#9aa3b4;font-size:14px;margin-bottom:8px">E2 蓝图 · data</div><div style="filter:grayscale(100%);width:960px;overflow:hidden;border:1px solid #2a2e3a"><section class="slide e2" id="s-e2-data" data-theme="e2" data-role="data" style='--paper:#14304a; --paper-tint:#1b3d5c; --ink:#f2f6f9;   --ink-tint:#0f2438; --accent:#35C8E8; --accent-on:#0e2a3f; ;--font-display:"Helvetica Neue","PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif; --font-body:"Helvetica Neue","PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif; --font-mono:"SF Mono","JetBrains Mono","Menlo",monospace; ;font-family:var(--font-body)'>
+<div class="bg-layer" data-editable-skip></div>
+<div class="t-meta" style="position:absolute;left:120px;top:80px;width:400px;height:30px;font-family:var(--font-mono);letter-spacing:.14em;color:var(--accent)">DWG-A4 · DATA</div>
+<div class="t-display" style="position:absolute;left:120px;top:160px;width:1680px;height:120px;font-weight:600;white-space:nowrap">数据宣言</div>
+<div class="mt-bp-frame" style="position:absolute;left:120px;top:320px;width:1080px;height:400px;padding:40px 44px;overflow:visible"><div class="t-meta" style="font-family:var(--font-mono);letter-spacing:.12em;color:var(--accent);margin-bottom:16px">KEY METRIC</div><div class="t-display" style="font-weight:600;font-size:max(var(--t-display),88px);white-space:nowrap">8,637家</div><div class="t-subhead" style="margin-top:14px;font-weight:500">山禾集全国门店总数</div><div class="t-meta" style="margin-top:8px;font-family:var(--font-mono);color:var(--accent)">行业前列</div></div>
+<div class="mt-bp-dim" style="position:absolute;left:120px;top:740px;width:1080px" data-editable-skip><i></i>1080px<i></i></div>
+<div class="mt-bp-frame" style="position:absolute;left:1240px;top:320px;width:560px;height:170px;padding:24px 28px;overflow:visible"><div class="t-meta" style="font-family:var(--font-mono);color:var(--accent)">2.8亿杯</div><div class="t-caption" style="margin-top:6px">累计售出茶饮</div></div>
+<div class="mt-bp-frame" style="position:absolute;left:1240px;top:520px;width:560px;height:170px;padding:24px 28px;overflow:visible"><div class="t-meta" style="font-family:var(--font-mono);color:var(--accent)">361家</div><div class="t-caption" style="margin-top:6px">城市旗舰店总数</div></div>
+<div class="mt-bp-dim" style="position:absolute;left:1240px;top:740px;width:560px" data-editable-skip><i></i>560px<i></i></div>
+<div class="mt-bp-frame" style="position:absolute;left:120px;top:760px;width:1680px;height:140px;padding:24px 28px;overflow:visible"><div class="t-body">近年来山禾集门店网络稳步扩张，行业排名持续提升。2019年，山禾集全国门店总数突破八千家，跻身行业头部梯队。截至2026年6月30日，山禾集全国门店总数8,637家（含直营门店1,653家，子公司山禾……</div></div>
+<div class="mt-bp-tag" style="position:absolute;left:1480px;top:960px;width:320px;height:autopx" data-editable-skip><span>DWG-A4</span><span>1:50</span><span>2026</span></div>
+<div class="mastfoot"><span>山禾集 · 经营情况汇报</span><span>E2 蓝图 · data</span><span>—</span></div>
+</section></div></div></div><div style="display:flex;gap:20px;justify-content:center;margin-bottom:30px"><div style="display:flex;flex-direction:column;align-items:center"><div style="color:#9aa3b4;font-size:14px;margin-bottom:8px">E3 装饰艺术 · cover</div><div style="filter:grayscale(100%);width:960px;overflow:hidden;border:1px solid #2a2e3a"><section class="slide e3" id="s-e3-cover" data-theme="e3" data-role="cover" style='--paper:#111110; --paper-tint:#1b1b18; --ink:#f0e9d6;   --ink-tint:#0a0a09; --accent:#c9a227; --accent-on:#111110; ;--font-display:"Songti SC","Noto Serif SC","STSong",serif; --font-body:"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif; --font-mono:"SF Mono","JetBrains Mono","Menlo",monospace; ;font-family:var(--font-body)'>
+<div class="mt-deco-frame" style="position:absolute;left:2%;top:2%;right:2%;bottom:2%;pointer-events:none" data-editable-skip></div>
+<div class="mt-deco-sun" style="position:absolute;left:50%;top:60px;transform:translateX(-50%);opacity:.35" data-editable-skip></div>
+<div class="mt-deco-divider" style="position:absolute;left:50%;top:280px;transform:translateX(-50%);width:300px" data-editable-skip><span class="mt-deco-rhombus"></span></div>
+<div class="t-meta" style="position:absolute;left:50%;top:330px;transform:translateX(-50%);letter-spacing:.3em;text-transform:uppercase;font-family:var(--font-mono);color:var(--accent)">1.1 · 整体特色及优势</div>
+<div class="mt-deco-divider" style="position:absolute;left:50%;top:380px;transform:translateX(-50%);width:300px" data-editable-skip><span class="mt-deco-rhombus"></span></div>
+<div class="t-display" style="position:absolute;left:50%;top:430px;transform:translateX(-50%);font-weight:700;text-align:center;white-space:nowrap;font-size:max(var(--t-display),96px)">一杯好茶&nbsp;&nbsp;山野作答</div>
+<div class="mt-deco-divider" style="position:absolute;left:50%;top:620px;transform:translateX(-50%);width:300px" data-editable-skip><span class="mt-deco-rhombus"></span></div>
+<div class="t-subhead" style="position:absolute;left:50%;top:660px;transform:translateX(-50%);text-align:center;font-weight:500">山禾集 · 经营情况汇报 · 2026</div>
+<div class="t-caption" style="position:absolute;left:50%;top:740px;transform:translateX(-50%);text-align:center;opacity:.9">经营理念：当季鲜茶，日常相伴。</div>
+<div style="position:absolute;left:120px;top:80px;width:1px;height:200px;background:color-mix(in srgb,var(--accent) 50%,transparent)" data-editable-skip></div>
+<div class="t-meta" style="position:absolute;left:80px;top:300px;width:100px;text-align:center;font-family:var(--font-mono);color:var(--accent);letter-spacing:.14em;writing-mode:vertical-rl">2026</div>
+<div style="position:absolute;right:120px;top:80px;width:1px;height:200px;background:color-mix(in srgb,var(--accent) 50%,transparent)" data-editable-skip></div>
+<div class="t-meta" style="position:absolute;right:80px;top:300px;width:100px;text-align:center;font-family:var(--font-mono);color:var(--accent);letter-spacing:.14em;writing-mode:vertical-rl">EXHIBITION</div>
+<div class="mastfoot"><span>山禾集 · 经营情况汇报</span><span>E3 装饰艺术 · cover</span><span>—</span></div>
+</section></div></div><div style="display:flex;flex-direction:column;align-items:center"><div style="color:#9aa3b4;font-size:14px;margin-bottom:8px">E3 装饰艺术 · claim</div><div style="filter:grayscale(100%);width:960px;overflow:hidden;border:1px solid #2a2e3a"><section class="slide e3" id="s-e3-claim" data-theme="e3" data-role="claim" style='--paper:#111110; --paper-tint:#1b1b18; --ink:#f0e9d6;   --ink-tint:#0a0a09; --accent:#c9a227; --accent-on:#111110; ;--font-display:"Songti SC","Noto Serif SC","STSong",serif; --font-body:"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif; --font-mono:"SF Mono","JetBrains Mono","Menlo",monospace; ;font-family:var(--font-body)'>
+<div class="mt-deco-sun" style="position:absolute;left:50%;top:40px;transform:translateX(-50%);opacity:.35" data-editable-skip></div>
+<div class="mt-deco-divider" style="position:absolute;left:50%;top:200px;transform:translateX(-50%);width:300px" data-editable-skip><span class="mt-deco-rhombus"></span></div>
+<div class="mt-deco-frame" style="position:absolute;left:460px;top:250px;width:1000px;height:300px;padding:44px 48px;overflow:visible"><div class="t-display" style="font-weight:700;text-align:center;font-size:max(var(--t-display),112px);white-space:nowrap">从茶园到门店</div><div class="t-body" style="margin-top:16px;text-align:center">一杯好茶的答案，写在每一片叶子的来路上。</div></div>
+<div class="mt-deco-divider" style="position:absolute;left:50%;top:580px;transform:translateX(-50%);width:300px" data-editable-skip><span class="mt-deco-rhombus"></span></div>
+<div class="mt-deco-frame" style="position:absolute;left:120px;top:640px;width:760px;height:260px;padding:28px 36px;overflow:visible"><div class="t-meta" style="font-family:var(--font-mono);letter-spacing:.12em;color:var(--accent);margin-bottom:12px">CONTEXT</div><div class="t-body">山禾集深耕新式茶饮行业，同时通过全资子公司山禾供应链管理有限公司协同布局上游茶园直采业务。通过多年不懈努力，山禾集秉持"……</div></div>
+<div class="mt-deco-frame" style="position:absolute;left:1040px;top:640px;width:760px;height:260px;padding:28px 36px;overflow:visible"><div class="t-meta" style="font-family:var(--font-mono);letter-spacing:.12em;color:var(--accent);margin-bottom:12px">CREED</div><div class="t-body">经营理念：当季鲜茶，日常相伴。 使命：为大众提供新鲜、健康、平价的日常茶饮。</div></div>
+<div class="mt-deco-divider" style="position:absolute;left:50%;top:890px;transform:translateX(-50%);width:300px" data-editable-skip><span class="mt-deco-rhombus"></span></div>
+<div style="position:absolute;left:460px;top:920px;width:280px;text-align:center">
+        <div class="t-heading" style="font-weight:700">8,637家</div>
+        <div class="t-meta" style="margin-top:6px;opacity:.8">山禾集全国门店总数</div>
+      </div>
+<div style="position:absolute;left:820px;top:920px;width:280px;text-align:center">
+        <div class="t-heading" style="font-weight:700">2.8亿杯</div>
+        <div class="t-meta" style="margin-top:6px;opacity:.8">累计售出茶饮</div>
+      </div>
+<div style="position:absolute;left:1180px;top:920px;width:280px;text-align:center">
+        <div class="t-heading" style="font-weight:700">361家</div>
+        <div class="t-meta" style="margin-top:6px;opacity:.8">城市旗舰店总数</div>
+      </div>
+<div class="mastfoot"><span>山禾集 · 经营情况汇报</span><span>E3 装饰艺术 · claim</span><span>—</span></div>
+</section></div></div></div><div style="display:flex;gap:20px;justify-content:center;margin-bottom:30px"><div style="display:flex;flex-direction:column;align-items:center"><div style="color:#9aa3b4;font-size:14px;margin-bottom:8px">E3 装饰艺术 · analysis</div><div style="filter:grayscale(100%);width:960px;overflow:hidden;border:1px solid #2a2e3a"><section class="slide e3" id="s-e3-analysis" data-theme="e3" data-role="analysis" style='--paper:#111110; --paper-tint:#1b1b18; --ink:#f0e9d6;   --ink-tint:#0a0a09; --accent:#c9a227; --accent-on:#111110; ;--font-display:"Songti SC","Noto Serif SC","STSong",serif; --font-body:"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif; --font-mono:"SF Mono","JetBrains Mono","Menlo",monospace; ;font-family:var(--font-body)'>
+<div class="mt-deco-divider" style="position:absolute;left:50%;top:120px;transform:translateX(-50%);width:300px" data-editable-skip><span class="mt-deco-rhombus"></span></div>
+<div class="t-display" style="position:absolute;left:50%;top:160px;transform:translateX(-50%);font-weight:700;text-align:center;white-space:nowrap">一杯好茶&nbsp;&nbsp;山野作答</div>
+<div class="mt-deco-divider" style="position:absolute;left:50%;top:300px;transform:translateX(-50%);width:300px" data-editable-skip><span class="mt-deco-rhombus"></span></div>
+<div class="mt-deco-frame" style="position:absolute;left:120px;top:350px;width:760px;height:360px;padding:28px 36px;overflow:visible"><div class="t-meta" style="font-family:var(--font-mono);letter-spacing:.12em;color:var(--accent);margin-bottom:12px">SECTION A</div><div class="t-body">山禾集深耕新式茶饮行业，同时通过全资子公司山禾供应链管理有限公司协同布局上游茶园直采业务。通过多年不懈努力，山禾集秉持"当季鲜茶，日常相伴"的经营理念，建立起从茶园到门店的全链路品控流程，持续为消费者……</div><div class="t-caption" style="margin-top:16px;opacity:.9">经营理念：当季鲜茶，日常相伴。</div></div>
+<div class="mt-deco-frame" style="position:absolute;left:1040px;top:350px;width:760px;height:360px;padding:28px 36px;overflow:visible"><div class="t-meta" style="font-family:var(--font-mono);letter-spacing:.12em;color:var(--accent);margin-bottom:12px">SECTION B</div><div class="t-body">近年来山禾集门店网络稳步扩张，行业排名持续提升。2019年，山禾集全国门店总数突破八千家，跻身行业头部梯队。截至2026年6月30日，山禾集全国门店总数8,637家（含直营门店1,653家，子公司山禾……</div><div class="t-caption" style="margin-top:16px;opacity:.9">使命：为大众提供新鲜、健康、平价的日常茶饮。</div></div>
+<div class="mt-deco-divider" style="position:absolute;left:50%;top:740px;transform:translateX(-50%);width:300px" data-editable-skip><span class="mt-deco-rhombus"></span></div>
+<div style="position:absolute;left:460px;top:780px;width:280px;text-align:center">
+        <div class="t-heading" style="font-weight:700">8,637家</div>
+        <div class="t-meta" style="margin-top:6px;opacity:.8">山禾集全国门店总数</div>
+      </div>
+<div style="position:absolute;left:820px;top:780px;width:280px;text-align:center">
+        <div class="t-heading" style="font-weight:700">2.8亿杯</div>
+        <div class="t-meta" style="margin-top:6px;opacity:.8">累计售出茶饮</div>
+      </div>
+<div style="position:absolute;left:1180px;top:780px;width:280px;text-align:center">
+        <div class="t-heading" style="font-weight:700">361家</div>
+        <div class="t-meta" style="margin-top:6px;opacity:.8">城市旗舰店总数</div>
+      </div>
+<div class="t-meta note" style="position:absolute;left:120px;top:960px">* 注：山禾集为虚构演示品牌，文中数据均为虚构，仅用于主题样式对比展示。</div>
+<div class="mastfoot"><span>山禾集 · 经营情况汇报</span><span>E3 装饰艺术 · analysis</span><span>—</span></div>
+</section></div></div><div style="display:flex;flex-direction:column;align-items:center"><div style="color:#9aa3b4;font-size:14px;margin-bottom:8px">E3 装饰艺术 · data</div><div style="filter:grayscale(100%);width:960px;overflow:hidden;border:1px solid #2a2e3a"><section class="slide e3" id="s-e3-data" data-theme="e3" data-role="data" style='--paper:#111110; --paper-tint:#1b1b18; --ink:#f0e9d6;   --ink-tint:#0a0a09; --accent:#c9a227; --accent-on:#111110; ;--font-display:"Songti SC","Noto Serif SC","STSong",serif; --font-body:"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif; --font-mono:"SF Mono","JetBrains Mono","Menlo",monospace; ;font-family:var(--font-body)'>
+<div class="mt-deco-sun" style="position:absolute;left:50%;top:40px;transform:translateX(-50%);opacity:.35" data-editable-skip></div>
+<div style="position:absolute;left:120px;top:80px;width:1px;height:180px;background:color-mix(in srgb,var(--accent) 50%,transparent)" data-editable-skip></div>
+<div class="t-meta" style="position:absolute;left:80px;top:280px;width:100px;text-align:center;font-family:var(--font-mono);color:var(--accent);letter-spacing:.14em;writing-mode:vertical-rl">DATA</div>
+<div style="position:absolute;right:120px;top:80px;width:1px;height:180px;background:color-mix(in srgb,var(--accent) 50%,transparent)" data-editable-skip></div>
+<div class="t-meta" style="position:absolute;right:80px;top:280px;width:100px;text-align:center;font-family:var(--font-mono);color:var(--accent);letter-spacing:.14em;writing-mode:vertical-rl">REPORT</div>
+<div class="mt-deco-divider" style="position:absolute;left:50%;top:140px;transform:translateX(-50%);width:300px" data-editable-skip><span class="mt-deco-rhombus"></span></div>
+<div class="t-display" style="position:absolute;left:50%;top:180px;transform:translateX(-50%);font-weight:700;text-align:center;white-space:nowrap">数据宣言</div>
+<div class="mt-deco-divider" style="position:absolute;left:50%;top:320px;transform:translateX(-50%);width:300px" data-editable-skip><span class="mt-deco-rhombus"></span></div>
+<div class="mt-deco-frame" style="position:absolute;left:560px;top:360px;width:800px;height:300px;padding:44px 48px;overflow:visible"><div class="t-meta" style="font-family:var(--font-mono);letter-spacing:.12em;color:var(--accent);margin-bottom:12px;text-align:center">KEY METRIC</div><div class="t-display" style="font-weight:700;text-align:center;font-size:max(var(--t-display),112px);white-space:nowrap">8,637家</div><div class="t-subhead" style="margin-top:14px;text-align:center;font-weight:500">山禾集全国门店总数</div></div>
+<div class="mt-deco-divider" style="position:absolute;left:50%;top:690px;transform:translateX(-50%);width:300px" data-editable-skip><span class="mt-deco-rhombus"></span></div>
+<div class="mt-deco-frame" style="position:absolute;left:120px;top:740px;width:520px;height:160px;padding:28px 36px;overflow:visible"><div class="t-heading" style="font-weight:700;text-align:center">2.8亿杯</div><div class="t-meta" style="margin-top:6px;text-align:center;opacity:.9">累计售出茶饮</div></div>
+<div class="mt-deco-frame" style="position:absolute;left:1280px;top:740px;width:520px;height:160px;padding:28px 36px;overflow:visible"><div class="t-heading" style="font-weight:700;text-align:center">361家</div><div class="t-meta" style="margin-top:6px;text-align:center;opacity:.9">城市旗舰店总数</div></div>
+<div class="t-meta note" style="position:absolute;left:120px;top:940px">* 注：山禾集为虚构演示品牌，文中数据均为虚构，仅用于主题样式对比展示。</div>
+<div class="mastfoot"><span>山禾集 · 经营情况汇报</span><span>E3 装饰艺术 · data</span><span>—</span></div>
+</section></div></div></div></body></html>

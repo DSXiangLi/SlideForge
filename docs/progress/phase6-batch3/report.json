@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-17T01:11:31.020Z",
+  "generated": "2026-11-17T01:54:29.227Z",
   "canvas": [
     1920,
     1080
@@ -104,7 +104,7 @@
           "x": 120,
           "y": 360,
           "w": 1680,
-          "h": 200,
+          "h": 220,
           "textWidth": 1109,
           "fs": 128,
           "opacity": 1,
@@ -112,8 +112,8 @@
           "inlineFontSize": "max(var(--t-display),128px)",
           "contentOverflow": false,
           "scroll": [
-            200,
-            200
+            220,
+            220
           ],
           "container": null,
           "containerOverflow": false,
@@ -124,7 +124,7 @@
           "cls": "t-subhead",
           "text": "山禾集 · 经营情况汇报 · 2026",
           "x": 120,
-          "y": 580,
+          "y": 600,
           "w": 800,
           "h": 48,
           "textWidth": 577,
@@ -190,9 +190,9 @@
           "cls": "",
           "text": "山禾集 · 经营情况汇报",
           "x": 120,
-          "y": 1035,
+          "y": 1036,
           "w": 167,
-          "h": 21,
+          "h": 20,
           "textWidth": 167,
           "fs": 15,
           "opacity": 1,
@@ -200,8 +200,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            20,
+            20
           ],
           "container": null,
           "containerOverflow": false,
@@ -212,9 +212,9 @@
           "cls": "",
           "text": "G4 靛墨黄页 · cover",
           "x": 959,
-          "y": 1035,
+          "y": 1036,
           "w": 160,
-          "h": 21,
+          "h": 20,
           "textWidth": 160,
           "fs": 15,
           "opacity": 1,
@@ -222,8 +222,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            20,
+            20
           ],
           "container": null,
           "containerOverflow": false,
@@ -234,9 +234,9 @@
           "cls": "",
           "text": "—",
           "x": 1791,
-          "y": 1035,
+          "y": 1037,
           "w": 9,
-          "h": 21,
+          "h": 18,
           "textWidth": 9,
           "fs": 15,
           "opacity": 1,
@@ -244,8 +244,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            18,
+            18
           ],
           "container": null,
           "containerOverflow": false,
@@ -307,7 +307,7 @@
           "x": 120,
           "y": 160,
           "w": 1680,
-          "h": 160,
+          "h": 180,
           "textWidth": 768,
           "fs": 128,
           "opacity": 1,
@@ -315,8 +315,8 @@
           "inlineFontSize": "max(var(--t-display),128px)",
           "contentOverflow": false,
           "scroll": [
-            160,
-            160
+            180,
+            180
           ],
           "container": null,
           "containerOverflow": false,
@@ -327,7 +327,7 @@
           "cls": "t-body",
           "text": "一杯好茶的答案，写在每一片叶子的来路上。",
           "x": 120,
-          "y": 340,
+          "y": 350,
           "w": 1000,
           "h": 80,
           "textWidth": 560,
@@ -370,10 +370,10 @@
           "tag": "div",
           "cls": "t-heading",
           "text": "8,637家",
-          "x": 1125,
-          "y": 587,
-          "w": 510,
-          "h": 70,
+          "x": 1133,
+          "y": 519,
+          "w": 494,
+          "h": 80,
           "textWidth": 256,
           "fs": 64,
           "opacity": 1,
@@ -381,14 +381,14 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            80,
-            70
+            85,
+            80
           ],
           "container": {
             "x": 1100,
-            "y": 570,
+            "y": 490,
             "w": 560,
-            "h": 110
+            "h": 170
           },
           "containerOverflow": false,
           "parentId": "DIV"
@@ -397,10 +397,10 @@
           "tag": "div",
           "cls": "t-meta",
           "text": "山禾集全国门店总数",
-          "x": 1125,
-          "y": 661,
-          "w": 510,
-          "h": 20,
+          "x": 1133,
+          "y": 605,
+          "w": 494,
+          "h": 21,
           "textWidth": 135,
           "fs": 15,
           "opacity": 1,
@@ -408,14 +408,14 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            20,
-            20
+            21,
+            21
           ],
           "container": {
             "x": 1100,
-            "y": 570,
+            "y": 490,
             "w": 560,
-            "h": 110
+            "h": 170
           },
           "containerOverflow": false,
           "parentId": "DIV"
@@ -424,10 +424,10 @@
           "tag": "div",
           "cls": "t-heading",
           "text": "2.8亿杯",
-          "x": 1125,
-          "y": 717,
-          "w": 510,
-          "h": 70,
+          "x": 1133,
+          "y": 694,
+          "w": 494,
+          "h": 80,
           "textWidth": 235,
           "fs": 64,
           "opacity": 1,
@@ -435,14 +435,14 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            80,
-            70
+            85,
+            80
           ],
           "container": {
             "x": 1100,
-            "y": 700,
+            "y": 665,
             "w": 560,
-            "h": 110
+            "h": 170
           },
           "containerOverflow": false,
           "parentId": "DIV"
@@ -451,10 +451,10 @@
           "tag": "div",
           "cls": "t-meta",
           "text": "累计售出茶饮",
-          "x": 1125,
-          "y": 791,
-          "w": 510,
-          "h": 20,
+          "x": 1133,
+          "y": 780,
+          "w": 494,
+          "h": 21,
           "textWidth": 90,
           "fs": 15,
           "opacity": 1,
@@ -462,14 +462,14 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            20,
-            20
+            21,
+            21
           ],
           "container": {
             "x": 1100,
-            "y": 700,
+            "y": 665,
             "w": 560,
-            "h": 110
+            "h": 170
           },
           "containerOverflow": false,
           "parentId": "DIV"
@@ -478,10 +478,10 @@
           "tag": "div",
           "cls": "t-heading",
           "text": "361家",
-          "x": 1125,
-          "y": 847,
-          "w": 510,
-          "h": 70,
+          "x": 1133,
+          "y": 869,
+          "w": 494,
+          "h": 80,
           "textWidth": 192,
           "fs": 64,
           "opacity": 1,
@@ -489,14 +489,14 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            80,
-            70
+            85,
+            80
           ],
           "container": {
             "x": 1100,
-            "y": 830,
+            "y": 840,
             "w": 560,
-            "h": 110
+            "h": 170
           },
           "containerOverflow": false,
           "parentId": "DIV"
@@ -505,10 +505,10 @@
           "tag": "div",
           "cls": "t-meta",
           "text": "城市旗舰店总数",
-          "x": 1125,
-          "y": 921,
-          "w": 510,
-          "h": 20,
+          "x": 1133,
+          "y": 955,
+          "w": 494,
+          "h": 21,
           "textWidth": 105,
           "fs": 15,
           "opacity": 1,
@@ -516,14 +516,14 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            20,
-            20
+            21,
+            21
           ],
           "container": {
             "x": 1100,
-            "y": 830,
+            "y": 840,
             "w": 560,
-            "h": 110
+            "h": 170
           },
           "containerOverflow": false,
           "parentId": "DIV"
@@ -555,9 +555,9 @@
           "cls": "",
           "text": "山禾集 · 经营情况汇报",
           "x": 120,
-          "y": 1035,
+          "y": 1036,
           "w": 167,
-          "h": 21,
+          "h": 20,
           "textWidth": 167,
           "fs": 15,
           "opacity": 1,
@@ -565,8 +565,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            20,
+            20
           ],
           "container": null,
           "containerOverflow": false,
@@ -577,9 +577,9 @@
           "cls": "",
           "text": "G4 靛墨黄页 · claim",
           "x": 959,
-          "y": 1035,
+          "y": 1036,
           "w": 160,
-          "h": 21,
+          "h": 20,
           "textWidth": 160,
           "fs": 15,
           "opacity": 1,
@@ -587,8 +587,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            20,
+            20
           ],
           "container": null,
           "containerOverflow": false,
@@ -599,9 +599,9 @@
           "cls": "",
           "text": "—",
           "x": 1791,
-          "y": 1035,
+          "y": 1037,
           "w": 9,
-          "h": 21,
+          "h": 18,
           "textWidth": 9,
           "fs": 15,
           "opacity": 1,
@@ -609,8 +609,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            18,
+            18
           ],
           "container": null,
           "containerOverflow": false,
@@ -673,7 +673,7 @@
           "x": 120,
           "y": 180,
           "w": 1680,
-          "h": 120,
+          "h": 140,
           "textWidth": 832,
           "fs": 96,
           "opacity": 1,
@@ -681,8 +681,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            120,
-            120
+            140,
+            140
           ],
           "container": null,
           "containerOverflow": false,
@@ -695,7 +695,7 @@
           "x": 149,
           "y": 385,
           "w": 462,
-          "h": 238,
+          "h": 224,
           "textWidth": 448,
           "fs": 28,
           "opacity": 1,
@@ -703,8 +703,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            238,
-            238
+            224,
+            224
           ],
           "container": {
             "x": 120,
@@ -722,7 +722,7 @@
           "x": 729,
           "y": 385,
           "w": 462,
-          "h": 143,
+          "h": 134,
           "textWidth": 456,
           "fs": 28,
           "opacity": 1,
@@ -730,8 +730,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            143,
-            143
+            134,
+            134
           ],
           "container": {
             "x": 700,
@@ -749,7 +749,7 @@
           "x": 1309,
           "y": 385,
           "w": 462,
-          "h": 238,
+          "h": 224,
           "textWidth": 448,
           "fs": 28,
           "opacity": 1,
@@ -757,8 +757,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            238,
-            238
+            224,
+            224
           ],
           "container": {
             "x": 1280,
@@ -790,7 +790,7 @@
           "container": {
             "x": 120,
             "y": 720,
-            "w": 1680,
+            "w": 1080,
             "h": 30
           },
           "containerOverflow": false,
@@ -817,7 +817,7 @@
           "container": {
             "x": 120,
             "y": 720,
-            "w": 1680,
+            "w": 1080,
             "h": 30
           },
           "containerOverflow": false,
@@ -844,7 +844,7 @@
           "container": {
             "x": 120,
             "y": 720,
-            "w": 1680,
+            "w": 1080,
             "h": 30
           },
           "containerOverflow": false,
@@ -854,10 +854,10 @@
           "tag": "div",
           "cls": "t-heading",
           "text": "8,637家",
-          "x": 145,
-          "y": 809,
-          "w": 470,
-          "h": 70,
+          "x": 153,
+          "y": 819,
+          "w": 444,
+          "h": 80,
           "textWidth": 256,
           "fs": 64,
           "opacity": 1,
@@ -865,14 +865,14 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            80,
-            70
+            85,
+            80
           ],
           "container": {
             "x": 120,
             "y": 790,
-            "w": 520,
-            "h": 130
+            "w": 510,
+            "h": 140
           },
           "containerOverflow": false,
           "parentId": "DIV"
@@ -881,10 +881,10 @@
           "tag": "div",
           "cls": "t-meta",
           "text": "山禾集全国门店总数",
-          "x": 145,
-          "y": 885,
-          "w": 470,
-          "h": 20,
+          "x": 153,
+          "y": 905,
+          "w": 444,
+          "h": 21,
           "textWidth": 135,
           "fs": 15,
           "opacity": 1,
@@ -892,14 +892,14 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            20,
-            20
+            21,
+            21
           ],
           "container": {
             "x": 120,
             "y": 790,
-            "w": 520,
-            "h": 130
+            "w": 510,
+            "h": 140
           },
           "containerOverflow": false,
           "parentId": "DIV"
@@ -908,10 +908,10 @@
           "tag": "div",
           "cls": "t-heading",
           "text": "2.8亿杯",
-          "x": 725,
-          "y": 809,
-          "w": 470,
-          "h": 70,
+          "x": 703,
+          "y": 819,
+          "w": 444,
+          "h": 80,
           "textWidth": 235,
           "fs": 64,
           "opacity": 1,
@@ -919,14 +919,14 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            80,
-            70
+            85,
+            80
           ],
           "container": {
-            "x": 700,
+            "x": 670,
             "y": 790,
-            "w": 520,
-            "h": 130
+            "w": 510,
+            "h": 140
           },
           "containerOverflow": false,
           "parentId": "DIV"
@@ -935,10 +935,10 @@
           "tag": "div",
           "cls": "t-meta",
           "text": "累计售出茶饮",
-          "x": 725,
-          "y": 885,
-          "w": 470,
-          "h": 20,
+          "x": 703,
+          "y": 905,
+          "w": 444,
+          "h": 21,
           "textWidth": 90,
           "fs": 15,
           "opacity": 1,
@@ -946,14 +946,14 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            20,
-            20
+            21,
+            21
           ],
           "container": {
-            "x": 700,
+            "x": 670,
             "y": 790,
-            "w": 520,
-            "h": 130
+            "w": 510,
+            "h": 140
           },
           "containerOverflow": false,
           "parentId": "DIV"
@@ -962,10 +962,10 @@
           "tag": "div",
           "cls": "t-heading",
           "text": "361家",
-          "x": 1305,
-          "y": 809,
-          "w": 470,
-          "h": 70,
+          "x": 1253,
+          "y": 819,
+          "w": 444,
+          "h": 80,
           "textWidth": 192,
           "fs": 64,
           "opacity": 1,
@@ -973,14 +973,14 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            80,
-            70
+            85,
+            80
           ],
           "container": {
-            "x": 1280,
+            "x": 1220,
             "y": 790,
-            "w": 520,
-            "h": 130
+            "w": 510,
+            "h": 140
           },
           "containerOverflow": false,
           "parentId": "DIV"
@@ -989,10 +989,10 @@
           "tag": "div",
           "cls": "t-meta",
           "text": "城市旗舰店总数",
-          "x": 1305,
-          "y": 885,
-          "w": 470,
-          "h": 20,
+          "x": 1253,
+          "y": 905,
+          "w": 444,
+          "h": 21,
           "textWidth": 105,
           "fs": 15,
           "opacity": 1,
@@ -1000,14 +1000,14 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            20,
-            20
+            21,
+            21
           ],
           "container": {
-            "x": 1280,
+            "x": 1220,
             "y": 790,
-            "w": 520,
-            "h": 130
+            "w": 510,
+            "h": 140
           },
           "containerOverflow": false,
           "parentId": "DIV"
@@ -1017,7 +1017,7 @@
           "cls": "mt-bie-num",
           "text": "03",
           "x": 1740,
-          "y": 900,
+          "y": 950,
           "w": 120,
           "h": 120,
           "textWidth": 106,
@@ -1039,7 +1039,7 @@
           "cls": "t-meta note",
           "text": "* 注：山禾集为虚构演示品牌，文中数据均为虚构，",
           "x": 120,
-          "y": 960,
+          "y": 990,
           "w": 520,
           "h": 21,
           "textWidth": 520,
@@ -1061,9 +1061,9 @@
           "cls": "",
           "text": "山禾集 · 经营情况汇报",
           "x": 120,
-          "y": 1035,
+          "y": 1036,
           "w": 167,
-          "h": 21,
+          "h": 20,
           "textWidth": 167,
           "fs": 15,
           "opacity": 1,
@@ -1071,8 +1071,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            20,
+            20
           ],
           "container": null,
           "containerOverflow": false,
@@ -1083,9 +1083,9 @@
           "cls": "",
           "text": "G4 靛墨黄页 · analysis",
           "x": 946,
-          "y": 1035,
+          "y": 1036,
           "w": 186,
-          "h": 21,
+          "h": 20,
           "textWidth": 186,
           "fs": 15,
           "opacity": 1,
@@ -1093,8 +1093,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            20,
+            20
           ],
           "container": null,
           "containerOverflow": false,
@@ -1105,9 +1105,9 @@
           "cls": "",
           "text": "—",
           "x": 1791,
-          "y": 1035,
+          "y": 1037,
           "w": 9,
-          "h": 21,
+          "h": 18,
           "textWidth": 9,
           "fs": 15,
           "opacity": 1,
@@ -1115,8 +1115,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            18,
+            18
           ],
           "container": null,
           "containerOverflow": false,
@@ -1134,57 +1134,7 @@
       "ratio": 8.53,
       "canvasOverflow": [],
       "containerOverflow": [],
-      "contentOverflow": [
-        {
-          "tag": "div",
-          "cls": "t-display",
-          "text": "8,637家",
-          "x": 180,
-          "y": 465,
-          "w": 960,
-          "h": 128,
-          "textWidth": 512,
-          "fs": 128,
-          "opacity": 1,
-          "transformed": false,
-          "inlineFontSize": "max(var(--t-display),128px)",
-          "contentOverflow": true,
-          "scroll": [
-            154,
-            128
-          ],
-          "container": {
-            "x": 120,
-            "y": 380,
-            "w": 1080,
-            "h": 420
-          },
-          "containerOverflow": false,
-          "parentId": "DIV"
-        },
-        {
-          "tag": "div",
-          "cls": "t-body",
-          "text": "近年来山禾集门店网络稳步扩张，行业排名持续提升。",
-          "x": 120,
-          "y": 830,
-          "w": 1080,
-          "h": 120,
-          "textWidth": 1070,
-          "fs": 28,
-          "opacity": 1,
-          "transformed": false,
-          "inlineFontSize": "",
-          "contentOverflow": true,
-          "scroll": [
-            143,
-            120
-          ],
-          "container": null,
-          "containerOverflow": false,
-          "parentId": null
-        }
-      ],
+      "contentOverflow": [],
       "weakRead": [],
       "textOverlaps": [],
       "inlineFontSize": [],
@@ -1229,7 +1179,7 @@
           "x": 120,
           "y": 180,
           "w": 1680,
-          "h": 120,
+          "h": 140,
           "textWidth": 384,
           "fs": 96,
           "opacity": 1,
@@ -1237,8 +1187,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            120,
-            120
+            140,
+            140
           ],
           "container": null,
           "containerOverflow": false,
@@ -1248,9 +1198,9 @@
           "tag": "div",
           "cls": "t-meta",
           "text": "KEY METRIC",
-          "x": 180,
-          "y": 428,
-          "w": 960,
+          "x": 176,
+          "y": 384,
+          "w": 968,
           "h": 21,
           "textWidth": 100,
           "fs": 15,
@@ -1264,9 +1214,9 @@
           ],
           "container": {
             "x": 120,
-            "y": 380,
+            "y": 340,
             "w": 1080,
-            "h": 420
+            "h": 520
           },
           "containerOverflow": false,
           "parentId": "DIV"
@@ -1275,25 +1225,25 @@
           "tag": "div",
           "cls": "t-display",
           "text": "8,637家",
-          "x": 180,
-          "y": 465,
-          "w": 960,
-          "h": 128,
+          "x": 176,
+          "y": 421,
+          "w": 968,
+          "h": 170,
           "textWidth": 512,
           "fs": 128,
           "opacity": 1,
           "transformed": false,
           "inlineFontSize": "max(var(--t-display),128px)",
-          "contentOverflow": true,
+          "contentOverflow": false,
           "scroll": [
-            154,
-            128
+            170,
+            170
           ],
           "container": {
             "x": 120,
-            "y": 380,
+            "y": 340,
             "w": 1080,
-            "h": 420
+            "h": 520
           },
           "containerOverflow": false,
           "parentId": "DIV"
@@ -1302,9 +1252,9 @@
           "tag": "div",
           "cls": "t-subhead",
           "text": "山禾集全国门店总数",
-          "x": 180,
-          "y": 609,
-          "w": 960,
+          "x": 176,
+          "y": 607,
+          "w": 968,
           "h": 52,
           "textWidth": 360,
           "fs": 40,
@@ -1318,9 +1268,9 @@
           ],
           "container": {
             "x": 120,
-            "y": 380,
+            "y": 340,
             "w": 1080,
-            "h": 420
+            "h": 520
           },
           "containerOverflow": false,
           "parentId": "DIV"
@@ -1329,9 +1279,9 @@
           "tag": "div",
           "cls": "t-meta",
           "text": "行业前列",
-          "x": 180,
-          "y": 669,
-          "w": 960,
+          "x": 176,
+          "y": 667,
+          "w": 968,
           "h": 21,
           "textWidth": 60,
           "fs": 15,
@@ -1345,9 +1295,9 @@
           ],
           "container": {
             "x": 120,
-            "y": 380,
+            "y": 340,
             "w": 1080,
-            "h": 420
+            "h": 520
           },
           "containerOverflow": false,
           "parentId": "DIV"
@@ -1356,10 +1306,10 @@
           "tag": "div",
           "cls": "t-heading",
           "text": "2.8亿杯",
-          "x": 1269,
-          "y": 405,
-          "w": 502,
-          "h": 70,
+          "x": 1273,
+          "y": 409,
+          "w": 494,
+          "h": 80,
           "textWidth": 235,
           "fs": 64,
           "opacity": 1,
@@ -1367,8 +1317,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            80,
-            70
+            85,
+            80
           ],
           "container": {
             "x": 1240,
@@ -1383,10 +1333,10 @@
           "tag": "div",
           "cls": "t-meta",
           "text": "累计售出茶饮",
-          "x": 1269,
-          "y": 483,
-          "w": 502,
-          "h": 20,
+          "x": 1273,
+          "y": 497,
+          "w": 494,
+          "h": 21,
           "textWidth": 90,
           "fs": 15,
           "opacity": 1,
@@ -1394,8 +1344,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            20,
-            20
+            21,
+            21
           ],
           "container": {
             "x": 1240,
@@ -1410,10 +1360,10 @@
           "tag": "div",
           "cls": "t-heading",
           "text": "361家",
-          "x": 1269,
-          "y": 615,
-          "w": 502,
-          "h": 70,
+          "x": 1273,
+          "y": 619,
+          "w": 494,
+          "h": 80,
           "textWidth": 192,
           "fs": 64,
           "opacity": 1,
@@ -1421,8 +1371,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            80,
-            70
+            85,
+            80
           ],
           "container": {
             "x": 1240,
@@ -1437,10 +1387,10 @@
           "tag": "div",
           "cls": "t-meta",
           "text": "城市旗舰店总数",
-          "x": 1269,
-          "y": 693,
-          "w": 502,
-          "h": 20,
+          "x": 1273,
+          "y": 707,
+          "w": 494,
+          "h": 21,
           "textWidth": 105,
           "fs": 15,
           "opacity": 1,
@@ -1448,8 +1398,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            20,
-            20
+            21,
+            21
           ],
           "container": {
             "x": 1240,
@@ -1465,7 +1415,7 @@
           "cls": "t-body",
           "text": "近年来山禾集门店网络稳步扩张，行业排名持续提升。",
           "x": 120,
-          "y": 830,
+          "y": 880,
           "w": 1080,
           "h": 120,
           "textWidth": 1070,
@@ -1473,9 +1423,9 @@
           "opacity": 1,
           "transformed": false,
           "inlineFontSize": "",
-          "contentOverflow": true,
+          "contentOverflow": false,
           "scroll": [
-            143,
+            134,
             120
           ],
           "container": null,
@@ -1509,7 +1459,7 @@
           "cls": "t-meta note",
           "text": "* 注：山禾集为虚构演示品牌，文中数据均为虚构，",
           "x": 120,
-          "y": 960,
+          "y": 1010,
           "w": 520,
           "h": 21,
           "textWidth": 520,
@@ -1531,9 +1481,9 @@
           "cls": "",
           "text": "山禾集 · 经营情况汇报",
           "x": 120,
-          "y": 1035,
+          "y": 1036,
           "w": 167,
-          "h": 21,
+          "h": 20,
           "textWidth": 167,
           "fs": 15,
           "opacity": 1,
@@ -1541,8 +1491,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            20,
+            20
           ],
           "container": null,
           "containerOverflow": false,
@@ -1553,9 +1503,9 @@
           "cls": "",
           "text": "G4 靛墨黄页 · data",
           "x": 964,
-          "y": 1035,
+          "y": 1036,
           "w": 151,
-          "h": 21,
+          "h": 20,
           "textWidth": 151,
           "fs": 15,
           "opacity": 1,
@@ -1563,8 +1513,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            20,
+            20
           ],
           "container": null,
           "containerOverflow": false,
@@ -1575,9 +1525,9 @@
           "cls": "",
           "text": "—",
           "x": 1791,
-          "y": 1035,
+          "y": 1037,
           "w": 9,
-          "h": 21,
+          "h": 18,
           "textWidth": 9,
           "fs": 15,
           "opacity": 1,
@@ -1585,8 +1535,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            18,
+            18
           ],
           "container": null,
           "containerOverflow": false,
@@ -1647,7 +1597,7 @@
           "x": 120,
           "y": 320,
           "w": 1680,
-          "h": 200,
+          "h": 220,
           "textWidth": 951,
           "fs": 112,
           "opacity": 1,
@@ -1655,8 +1605,8 @@
           "inlineFontSize": "max(var(--t-display),112px)",
           "contentOverflow": false,
           "scroll": [
-            200,
-            200
+            220,
+            220
           ],
           "container": null,
           "containerOverflow": false,
@@ -1667,7 +1617,7 @@
           "cls": "t-subhead",
           "text": "山禾集 · 经营情况汇报 · 2026",
           "x": 120,
-          "y": 540,
+          "y": 560,
           "w": 800,
           "h": 48,
           "textWidth": 499,
@@ -1733,9 +1683,9 @@
           "cls": "",
           "text": "山禾集 · 经营情况汇报",
           "x": 120,
-          "y": 1035,
+          "y": 1036,
           "w": 167,
-          "h": 21,
+          "h": 20,
           "textWidth": 167,
           "fs": 15,
           "opacity": 1,
@@ -1743,8 +1693,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            20,
+            20
           ],
           "container": null,
           "containerOverflow": false,
@@ -1755,9 +1705,9 @@
           "cls": "",
           "text": "G5 三色旬刊 · cover",
           "x": 959,
-          "y": 1035,
+          "y": 1036,
           "w": 160,
-          "h": 21,
+          "h": 20,
           "textWidth": 160,
           "fs": 15,
           "opacity": 1,
@@ -1765,8 +1715,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            20,
+            20
           ],
           "container": null,
           "containerOverflow": false,
@@ -1777,9 +1727,9 @@
           "cls": "",
           "text": "—",
           "x": 1791,
-          "y": 1035,
+          "y": 1037,
           "w": 9,
-          "h": 21,
+          "h": 18,
           "textWidth": 9,
           "fs": 15,
           "opacity": 1,
@@ -1787,8 +1737,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            18,
+            18
           ],
           "container": null,
           "containerOverflow": false,
@@ -1850,7 +1800,7 @@
           "x": 120,
           "y": 220,
           "w": 760,
-          "h": 160,
+          "h": 180,
           "textWidth": 672,
           "fs": 112,
           "opacity": 1,
@@ -1858,8 +1808,8 @@
           "inlineFontSize": "max(var(--t-display),112px)",
           "contentOverflow": false,
           "scroll": [
-            160,
-            160
+            180,
+            180
           ],
           "container": null,
           "containerOverflow": false,
@@ -1870,7 +1820,7 @@
           "cls": "t-body",
           "text": "一杯好茶的答案，写在每一片叶子的来路上。",
           "x": 120,
-          "y": 400,
+          "y": 420,
           "w": 760,
           "h": 120,
           "textWidth": 560,
@@ -1913,10 +1863,10 @@
           "tag": "div",
           "cls": "t-heading",
           "text": "8,637家",
-          "x": 1048,
-          "y": 480,
-          "w": 704,
-          "h": 70,
+          "x": 1052,
+          "y": 448,
+          "w": 696,
+          "h": 80,
           "textWidth": 207,
           "fs": 64,
           "opacity": 1,
@@ -1924,14 +1874,14 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            73,
-            70
+            80,
+            80
           ],
           "container": {
             "x": 1020,
-            "y": 460,
+            "y": 420,
             "w": 760,
-            "h": 120
+            "h": 170
           },
           "containerOverflow": false,
           "parentId": "DIV"
@@ -1940,10 +1890,10 @@
           "tag": "div",
           "cls": "t-meta",
           "text": "山禾集全国门店总数",
-          "x": 1048,
-          "y": 556,
-          "w": 704,
-          "h": 20,
+          "x": 1052,
+          "y": 534,
+          "w": 696,
+          "h": 21,
           "textWidth": 135,
           "fs": 15,
           "opacity": 1,
@@ -1951,14 +1901,14 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            20,
-            20
+            21,
+            21
           ],
           "container": {
             "x": 1020,
-            "y": 460,
+            "y": 420,
             "w": 760,
-            "h": 120
+            "h": 170
           },
           "containerOverflow": false,
           "parentId": "DIV"
@@ -1967,10 +1917,10 @@
           "tag": "div",
           "cls": "t-heading",
           "text": "2.8亿杯",
-          "x": 1048,
-          "y": 620,
-          "w": 704,
-          "h": 70,
+          "x": 1052,
+          "y": 623,
+          "w": 696,
+          "h": 80,
           "textWidth": 208,
           "fs": 64,
           "opacity": 1,
@@ -1978,14 +1928,14 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            73,
-            70
+            80,
+            80
           ],
           "container": {
             "x": 1020,
-            "y": 600,
+            "y": 595,
             "w": 760,
-            "h": 120
+            "h": 170
           },
           "containerOverflow": false,
           "parentId": "DIV"
@@ -1994,10 +1944,10 @@
           "tag": "div",
           "cls": "t-meta",
           "text": "累计售出茶饮",
-          "x": 1048,
-          "y": 696,
-          "w": 704,
-          "h": 20,
+          "x": 1052,
+          "y": 709,
+          "w": 696,
+          "h": 21,
           "textWidth": 90,
           "fs": 15,
           "opacity": 1,
@@ -2005,14 +1955,14 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            20,
-            20
+            21,
+            21
           ],
           "container": {
             "x": 1020,
-            "y": 600,
+            "y": 595,
             "w": 760,
-            "h": 120
+            "h": 170
           },
           "containerOverflow": false,
           "parentId": "DIV"
@@ -2021,10 +1971,10 @@
           "tag": "div",
           "cls": "t-heading",
           "text": "361家",
-          "x": 1048,
-          "y": 760,
-          "w": 704,
-          "h": 70,
+          "x": 1052,
+          "y": 798,
+          "w": 696,
+          "h": 80,
           "textWidth": 158,
           "fs": 64,
           "opacity": 1,
@@ -2032,14 +1982,14 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            73,
-            70
+            80,
+            80
           ],
           "container": {
             "x": 1020,
-            "y": 740,
+            "y": 770,
             "w": 760,
-            "h": 120
+            "h": 170
           },
           "containerOverflow": false,
           "parentId": "DIV"
@@ -2048,10 +1998,10 @@
           "tag": "div",
           "cls": "t-meta",
           "text": "城市旗舰店总数",
-          "x": 1048,
-          "y": 836,
-          "w": 704,
-          "h": 20,
+          "x": 1052,
+          "y": 884,
+          "w": 696,
+          "h": 21,
           "textWidth": 105,
           "fs": 15,
           "opacity": 1,
@@ -2059,14 +2009,14 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            20,
-            20
+            21,
+            21
           ],
           "container": {
             "x": 1020,
-            "y": 740,
+            "y": 770,
             "w": 760,
-            "h": 120
+            "h": 170
           },
           "containerOverflow": false,
           "parentId": "DIV"
@@ -2076,9 +2026,9 @@
           "cls": "",
           "text": "山禾集 · 经营情况汇报",
           "x": 120,
-          "y": 1035,
+          "y": 1036,
           "w": 167,
-          "h": 21,
+          "h": 20,
           "textWidth": 167,
           "fs": 15,
           "opacity": 1,
@@ -2086,8 +2036,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            20,
+            20
           ],
           "container": null,
           "containerOverflow": false,
@@ -2098,9 +2048,9 @@
           "cls": "",
           "text": "G5 三色旬刊 · claim",
           "x": 959,
-          "y": 1035,
+          "y": 1036,
           "w": 160,
-          "h": 21,
+          "h": 20,
           "textWidth": 160,
           "fs": 15,
           "opacity": 1,
@@ -2108,8 +2058,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            20,
+            20
           ],
           "container": null,
           "containerOverflow": false,
@@ -2120,9 +2070,9 @@
           "cls": "",
           "text": "—",
           "x": 1791,
-          "y": 1035,
+          "y": 1037,
           "w": 9,
-          "h": 21,
+          "h": 18,
           "textWidth": 9,
           "fs": 15,
           "opacity": 1,
@@ -2130,8 +2080,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            18,
+            18
           ],
           "container": null,
           "containerOverflow": false,
@@ -2193,7 +2143,7 @@
           "x": 120,
           "y": 180,
           "w": 1680,
-          "h": 120,
+          "h": 140,
           "textWidth": 815,
           "fs": 96,
           "opacity": 1,
@@ -2201,8 +2151,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            120,
-            120
+            140,
+            140
           ],
           "container": null,
           "containerOverflow": false,
@@ -2237,7 +2187,7 @@
           "x": 148,
           "y": 384,
           "w": 464,
-          "h": 238,
+          "h": 224,
           "textWidth": 448,
           "fs": 28,
           "opacity": 1,
@@ -2245,8 +2195,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            238,
-            238
+            224,
+            224
           ],
           "container": {
             "x": 120,
@@ -2264,7 +2214,7 @@
           "x": 728,
           "y": 384,
           "w": 464,
-          "h": 143,
+          "h": 134,
           "textWidth": 455,
           "fs": 28,
           "opacity": 1,
@@ -2272,8 +2222,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            143,
-            143
+            134,
+            134
           ],
           "container": {
             "x": 700,
@@ -2291,7 +2241,7 @@
           "x": 1308,
           "y": 384,
           "w": 464,
-          "h": 238,
+          "h": 224,
           "textWidth": 448,
           "fs": 28,
           "opacity": 1,
@@ -2299,8 +2249,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            238,
-            238
+            224,
+            224
           ],
           "container": {
             "x": 1280,
@@ -2398,7 +2348,7 @@
           "text": "8,637家 — 山禾集全国门店总数",
           "x": 1240,
           "y": 730,
-          "w": 204,
+          "w": 560,
           "h": 21,
           "textWidth": 204,
           "fs": 15,
@@ -2412,15 +2362,15 @@
           ],
           "container": null,
           "containerOverflow": false,
-          "parentId": null
+          "parentId": "DIV"
         },
         {
           "tag": "div",
           "cls": "t-meta",
           "text": "2.8亿杯 — 累计售出茶饮",
           "x": 1240,
-          "y": 800,
-          "w": 160,
+          "y": 763,
+          "w": 560,
           "h": 21,
           "textWidth": 160,
           "fs": 15,
@@ -2434,15 +2384,15 @@
           ],
           "container": null,
           "containerOverflow": false,
-          "parentId": null
+          "parentId": "DIV"
         },
         {
           "tag": "div",
           "cls": "t-meta",
           "text": "361家 — 城市旗舰店总数",
           "x": 1240,
-          "y": 870,
-          "w": 164,
+          "y": 796,
+          "w": 560,
           "h": 21,
           "textWidth": 164,
           "fs": 15,
@@ -2456,7 +2406,7 @@
           ],
           "container": null,
           "containerOverflow": false,
-          "parentId": null
+          "parentId": "DIV"
         },
         {
           "tag": "div",
@@ -2485,9 +2435,9 @@
           "cls": "",
           "text": "山禾集 · 经营情况汇报",
           "x": 120,
-          "y": 1035,
+          "y": 1036,
           "w": 167,
-          "h": 21,
+          "h": 20,
           "textWidth": 167,
           "fs": 15,
           "opacity": 1,
@@ -2495,8 +2445,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            20,
+            20
           ],
           "container": null,
           "containerOverflow": false,
@@ -2507,9 +2457,9 @@
           "cls": "",
           "text": "G5 三色旬刊 · analysis",
           "x": 946,
-          "y": 1035,
+          "y": 1036,
           "w": 186,
-          "h": 21,
+          "h": 20,
           "textWidth": 186,
           "fs": 15,
           "opacity": 1,
@@ -2517,8 +2467,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            20,
+            20
           ],
           "container": null,
           "containerOverflow": false,
@@ -2529,9 +2479,9 @@
           "cls": "",
           "text": "—",
           "x": 1791,
-          "y": 1035,
+          "y": 1037,
           "w": 9,
-          "h": 21,
+          "h": 18,
           "textWidth": 9,
           "fs": 15,
           "opacity": 1,
@@ -2539,8 +2489,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            18,
+            18
           ],
           "container": null,
           "containerOverflow": false,
@@ -2602,7 +2552,7 @@
           "x": 120,
           "y": 180,
           "w": 1680,
-          "h": 120,
+          "h": 140,
           "textWidth": 384,
           "fs": 96,
           "opacity": 1,
@@ -2610,8 +2560,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            120,
-            120
+            140,
+            140
           ],
           "container": null,
           "containerOverflow": false,
@@ -2644,7 +2594,7 @@
           "cls": "t-meta",
           "text": "METRIC 01",
           "x": 160,
-          "y": 483,
+          "y": 472,
           "w": 440,
           "h": 21,
           "textWidth": 90,
@@ -2671,9 +2621,9 @@
           "cls": "t-heading",
           "text": "8,637家",
           "x": 160,
-          "y": 520,
+          "y": 509,
           "w": 440,
-          "h": 64,
+          "h": 80,
           "textWidth": 207,
           "fs": 64,
           "opacity": 1,
@@ -2681,8 +2631,8 @@
           "inlineFontSize": "max(var(--t-heading),48px)",
           "contentOverflow": false,
           "scroll": [
-            70,
-            64
+            80,
+            80
           ],
           "container": {
             "x": 120,
@@ -2698,9 +2648,9 @@
           "cls": "t-body",
           "text": "山禾集全国门店总数",
           "x": 160,
-          "y": 598,
+          "y": 603,
           "w": 440,
-          "h": 39,
+          "h": 45,
           "textWidth": 252,
           "fs": 28,
           "opacity": 1,
@@ -2708,8 +2658,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            39,
-            39
+            45,
+            45
           ],
           "container": {
             "x": 120,
@@ -2725,7 +2675,7 @@
           "cls": "t-meta",
           "text": "METRIC 02",
           "x": 710,
-          "y": 483,
+          "y": 472,
           "w": 440,
           "h": 21,
           "textWidth": 90,
@@ -2752,9 +2702,9 @@
           "cls": "t-heading",
           "text": "2.8亿杯",
           "x": 710,
-          "y": 520,
+          "y": 509,
           "w": 440,
-          "h": 64,
+          "h": 80,
           "textWidth": 208,
           "fs": 64,
           "opacity": 1,
@@ -2762,8 +2712,8 @@
           "inlineFontSize": "max(var(--t-heading),48px)",
           "contentOverflow": false,
           "scroll": [
-            70,
-            64
+            80,
+            80
           ],
           "container": {
             "x": 670,
@@ -2779,9 +2729,9 @@
           "cls": "t-body",
           "text": "累计售出茶饮",
           "x": 710,
-          "y": 598,
+          "y": 603,
           "w": 440,
-          "h": 39,
+          "h": 45,
           "textWidth": 168,
           "fs": 28,
           "opacity": 1,
@@ -2789,8 +2739,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            39,
-            39
+            45,
+            45
           ],
           "container": {
             "x": 670,
@@ -2806,7 +2756,7 @@
           "cls": "t-meta",
           "text": "METRIC 03",
           "x": 1260,
-          "y": 483,
+          "y": 472,
           "w": 440,
           "h": 21,
           "textWidth": 90,
@@ -2833,9 +2783,9 @@
           "cls": "t-heading",
           "text": "361家",
           "x": 1260,
-          "y": 520,
+          "y": 509,
           "w": 440,
-          "h": 64,
+          "h": 80,
           "textWidth": 158,
           "fs": 64,
           "opacity": 1,
@@ -2843,8 +2793,8 @@
           "inlineFontSize": "max(var(--t-heading),48px)",
           "contentOverflow": false,
           "scroll": [
-            70,
-            64
+            80,
+            80
           ],
           "container": {
             "x": 1220,
@@ -2860,9 +2810,9 @@
           "cls": "t-body",
           "text": "城市旗舰店总数",
           "x": 1260,
-          "y": 598,
+          "y": 603,
           "w": 440,
-          "h": 39,
+          "h": 45,
           "textWidth": 196,
           "fs": 28,
           "opacity": 1,
@@ -2870,8 +2820,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            39,
-            39
+            45,
+            45
           ],
           "container": {
             "x": 1220,
@@ -2931,9 +2881,9 @@
           "cls": "",
           "text": "山禾集 · 经营情况汇报",
           "x": 120,
-          "y": 1035,
+          "y": 1036,
           "w": 167,
-          "h": 21,
+          "h": 20,
           "textWidth": 167,
           "fs": 15,
           "opacity": 1,
@@ -2941,8 +2891,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            20,
+            20
           ],
           "container": null,
           "containerOverflow": false,
@@ -2953,9 +2903,9 @@
           "cls": "",
           "text": "G5 三色旬刊 · data",
           "x": 964,
-          "y": 1035,
+          "y": 1036,
           "w": 151,
-          "h": 21,
+          "h": 20,
           "textWidth": 151,
           "fs": 15,
           "opacity": 1,
@@ -2963,8 +2913,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            20,
+            20
           ],
           "container": null,
           "containerOverflow": false,
@@ -2975,9 +2925,9 @@
           "cls": "",
           "text": "—",
           "x": 1791,
-          "y": 1035,
+          "y": 1037,
           "w": 9,
-          "h": 21,
+          "h": 18,
           "textWidth": 9,
           "fs": 15,
           "opacity": 1,
@@ -2985,8 +2935,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            18,
+            18
           ],
           "container": null,
           "containerOverflow": false,
@@ -2999,9 +2949,9 @@
       "theme": "e2",
       "role": "cover",
       "textNodes": 11,
-      "minFont": 11,
+      "minFont": 14,
       "maxFont": 104,
-      "ratio": 9.45,
+      "ratio": 7.43,
       "canvasOverflow": [],
       "containerOverflow": [],
       "contentOverflow": [],
@@ -3048,7 +2998,7 @@
           "x": 120,
           "y": 300,
           "w": 1680,
-          "h": 200,
+          "h": 220,
           "textWidth": 894,
           "fs": 104,
           "opacity": 1,
@@ -3056,8 +3006,8 @@
           "inlineFontSize": "max(var(--t-display),104px)",
           "contentOverflow": false,
           "scroll": [
-            200,
-            200
+            220,
+            220
           ],
           "container": null,
           "containerOverflow": false,
@@ -3068,7 +3018,7 @@
           "cls": "t-subhead",
           "text": "山禾集 · 经营情况汇报 · 2026",
           "x": 120,
-          "y": 520,
+          "y": 540,
           "w": 800,
           "h": 48,
           "textWidth": 551,
@@ -3092,16 +3042,16 @@
           "x": 120,
           "y": 620,
           "w": 800,
-          "h": 14,
-          "textWidth": 350,
-          "fs": 12,
+          "h": 17,
+          "textWidth": 342,
+          "fs": 14,
           "opacity": 1,
           "transformed": false,
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            14,
-            14
+            17,
+            17
           ],
           "container": null,
           "containerOverflow": false,
@@ -3113,10 +3063,10 @@
           "text": "DWG-A1",
           "x": 1481,
           "y": 921,
-          "w": 65,
+          "w": 83,
           "h": 159,
-          "textWidth": 46,
-          "fs": 11,
+          "textWidth": 58,
+          "fs": 14,
           "opacity": 1,
           "transformed": false,
           "inlineFontSize": "",
@@ -3133,12 +3083,12 @@
           "tag": "span",
           "cls": "",
           "text": "1:50",
-          "x": 1546,
+          "x": 1564,
           "y": 921,
-          "w": 51,
+          "w": 65,
           "h": 159,
-          "textWidth": 30,
-          "fs": 11,
+          "textWidth": 39,
+          "fs": 14,
           "opacity": 1,
           "transformed": false,
           "inlineFontSize": "",
@@ -3155,12 +3105,12 @@
           "tag": "span",
           "cls": "",
           "text": "2026",
-          "x": 1597,
+          "x": 1629,
           "y": 921,
-          "w": 51,
+          "w": 65,
           "h": 159,
-          "textWidth": 30,
-          "fs": 11,
+          "textWidth": 39,
+          "fs": 14,
           "opacity": 1,
           "transformed": false,
           "inlineFontSize": "",
@@ -3200,9 +3150,9 @@
           "cls": "",
           "text": "山禾集 · 经营情况汇报",
           "x": 120,
-          "y": 1035,
+          "y": 1036,
           "w": 167,
-          "h": 21,
+          "h": 20,
           "textWidth": 167,
           "fs": 15,
           "opacity": 1,
@@ -3210,8 +3160,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            20,
+            20
           ],
           "container": null,
           "containerOverflow": false,
@@ -3222,9 +3172,9 @@
           "cls": "",
           "text": "E2 蓝图 · cover",
           "x": 975,
-          "y": 1035,
+          "y": 1036,
           "w": 129,
-          "h": 21,
+          "h": 20,
           "textWidth": 129,
           "fs": 15,
           "opacity": 1,
@@ -3232,8 +3182,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            20,
+            20
           ],
           "container": null,
           "containerOverflow": false,
@@ -3244,9 +3194,9 @@
           "cls": "",
           "text": "—",
           "x": 1791,
-          "y": 1035,
+          "y": 1037,
           "w": 9,
-          "h": 21,
+          "h": 18,
           "textWidth": 9,
           "fs": 15,
           "opacity": 1,
@@ -3254,8 +3204,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            18,
+            18
           ],
           "container": null,
           "containerOverflow": false,
@@ -3268,40 +3218,12 @@
       "theme": "e2",
       "role": "claim",
       "textNodes": 19,
-      "minFont": 11,
+      "minFont": 14,
       "maxFont": 96,
-      "ratio": 8.73,
+      "ratio": 6.86,
       "canvasOverflow": [],
       "containerOverflow": [],
-      "contentOverflow": [
-        {
-          "tag": "div",
-          "cls": "t-display",
-          "text": "从茶园到门店",
-          "x": 149,
-          "y": 185,
-          "w": 1022,
-          "h": 96,
-          "textWidth": 576,
-          "fs": 96,
-          "opacity": 1,
-          "transformed": false,
-          "inlineFontSize": "max(var(--t-display),88px)",
-          "contentOverflow": true,
-          "scroll": [
-            111,
-            96
-          ],
-          "container": {
-            "x": 120,
-            "y": 160,
-            "w": 1080,
-            "h": 340
-          },
-          "containerOverflow": false,
-          "parentId": "mt-bp-frame"
-        }
-      ],
+      "contentOverflow": [],
       "weakRead": [],
       "textOverlaps": [],
       "inlineFontSize": [],
@@ -3341,25 +3263,25 @@
           "tag": "div",
           "cls": "t-display",
           "text": "从茶园到门店",
-          "x": 149,
-          "y": 185,
-          "w": 1022,
-          "h": 96,
+          "x": 165,
+          "y": 201,
+          "w": 990,
+          "h": 110,
           "textWidth": 576,
           "fs": 96,
           "opacity": 1,
           "transformed": false,
           "inlineFontSize": "max(var(--t-display),88px)",
-          "contentOverflow": true,
+          "contentOverflow": false,
           "scroll": [
-            111,
-            96
+            118,
+            110
           ],
           "container": {
             "x": 120,
             "y": 160,
             "w": 1080,
-            "h": 340
+            "h": 360
           },
           "containerOverflow": false,
           "parentId": "mt-bp-frame"
@@ -3368,9 +3290,9 @@
           "tag": "div",
           "cls": "t-body",
           "text": "一杯好茶的答案，写在每一片叶子的来路上。",
-          "x": 149,
-          "y": 301,
-          "w": 1022,
+          "x": 165,
+          "y": 331,
+          "w": 990,
           "h": 45,
           "textWidth": 560,
           "fs": 28,
@@ -3386,7 +3308,7 @@
             "x": 120,
             "y": 160,
             "w": 1080,
-            "h": 340
+            "h": 360
           },
           "containerOverflow": false,
           "parentId": "mt-bp-frame"
@@ -3396,18 +3318,18 @@
           "cls": "mt-bp-dim",
           "text": "1080px",
           "x": 120,
-          "y": 520,
+          "y": 540,
           "w": 1080,
-          "h": 14,
-          "textWidth": 506,
-          "fs": 12,
+          "h": 17,
+          "textWidth": 501,
+          "fs": 14,
           "opacity": 1,
           "transformed": false,
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            14,
-            14
+            17,
+            17
           ],
           "container": null,
           "containerOverflow": false,
@@ -3435,7 +3357,7 @@
             "x": 1240,
             "y": 160,
             "w": 560,
-            "h": 340
+            "h": 360
           },
           "containerOverflow": false,
           "parentId": "mt-bp-frame"
@@ -3447,7 +3369,7 @@
           "x": 1269,
           "y": 222,
           "w": 502,
-          "h": 50,
+          "h": 45,
           "textWidth": 105,
           "fs": 28,
           "opacity": 1,
@@ -3455,14 +3377,14 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            50,
-            50
+            45,
+            45
           ],
           "container": {
             "x": 1240,
             "y": 160,
             "w": 560,
-            "h": 340
+            "h": 360
           },
           "containerOverflow": false,
           "parentId": "mt-bp-frame"
@@ -3472,7 +3394,7 @@
           "cls": "",
           "text": "8,637家",
           "x": 1269,
-          "y": 230,
+          "y": 227,
           "w": 105,
           "h": 33,
           "textWidth": 105,
@@ -3489,7 +3411,7 @@
             "x": 1240,
             "y": 160,
             "w": 560,
-            "h": 340
+            "h": 360
           },
           "containerOverflow": false,
           "parentId": "t-body"
@@ -3499,9 +3421,9 @@
           "cls": "t-body",
           "text": "2.8亿杯 累计售出茶饮",
           "x": 1269,
-          "y": 272,
+          "y": 267,
           "w": 502,
-          "h": 50,
+          "h": 45,
           "textWidth": 102,
           "fs": 28,
           "opacity": 1,
@@ -3509,14 +3431,14 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            50,
-            50
+            45,
+            45
           ],
           "container": {
             "x": 1240,
             "y": 160,
             "w": 560,
-            "h": 340
+            "h": 360
           },
           "containerOverflow": false,
           "parentId": "mt-bp-frame"
@@ -3526,7 +3448,7 @@
           "cls": "",
           "text": "2.8亿杯",
           "x": 1269,
-          "y": 280,
+          "y": 272,
           "w": 102,
           "h": 33,
           "textWidth": 102,
@@ -3543,7 +3465,7 @@
             "x": 1240,
             "y": 160,
             "w": 560,
-            "h": 340
+            "h": 360
           },
           "containerOverflow": false,
           "parentId": "t-body"
@@ -3553,9 +3475,9 @@
           "cls": "t-body",
           "text": "361家 城市旗舰店总数",
           "x": 1269,
-          "y": 323,
+          "y": 312,
           "w": 502,
-          "h": 50,
+          "h": 45,
           "textWidth": 74,
           "fs": 28,
           "opacity": 1,
@@ -3563,14 +3485,14 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            50,
-            50
+            45,
+            45
           ],
           "container": {
             "x": 1240,
             "y": 160,
             "w": 560,
-            "h": 340
+            "h": 360
           },
           "containerOverflow": false,
           "parentId": "mt-bp-frame"
@@ -3580,7 +3502,7 @@
           "cls": "",
           "text": "361家",
           "x": 1269,
-          "y": 331,
+          "y": 317,
           "w": 74,
           "h": 33,
           "textWidth": 74,
@@ -3597,7 +3519,7 @@
             "x": 1240,
             "y": 160,
             "w": 560,
-            "h": 340
+            "h": 360
           },
           "containerOverflow": false,
           "parentId": "t-body"
@@ -3607,18 +3529,18 @@
           "cls": "mt-bp-dim",
           "text": "560px",
           "x": 1240,
-          "y": 520,
+          "y": 540,
           "w": 560,
-          "h": 14,
-          "textWidth": 250,
-          "fs": 12,
+          "h": 17,
+          "textWidth": 245,
+          "fs": 14,
           "opacity": 1,
           "transformed": false,
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            14,
-            14
+            17,
+            17
           ],
           "container": null,
           "containerOverflow": false,
@@ -3631,7 +3553,7 @@
           "x": 149,
           "y": 605,
           "w": 1622,
-          "h": 143,
+          "h": 134,
           "textWidth": 1596,
           "fs": 28,
           "opacity": 1,
@@ -3639,8 +3561,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            143,
-            143
+            134,
+            134
           ],
           "container": {
             "x": 120,
@@ -3657,10 +3579,10 @@
           "text": "DWG-A2",
           "x": 1481,
           "y": 961,
-          "w": 65,
+          "w": 83,
           "h": 119,
-          "textWidth": 46,
-          "fs": 11,
+          "textWidth": 58,
+          "fs": 14,
           "opacity": 1,
           "transformed": false,
           "inlineFontSize": "",
@@ -3677,12 +3599,12 @@
           "tag": "span",
           "cls": "",
           "text": "1:100",
-          "x": 1546,
+          "x": 1564,
           "y": 961,
-          "w": 59,
+          "w": 74,
           "h": 119,
-          "textWidth": 38,
-          "fs": 11,
+          "textWidth": 48,
+          "fs": 14,
           "opacity": 1,
           "transformed": false,
           "inlineFontSize": "",
@@ -3699,12 +3621,12 @@
           "tag": "span",
           "cls": "",
           "text": "2026",
-          "x": 1605,
+          "x": 1639,
           "y": 961,
-          "w": 51,
+          "w": 65,
           "h": 119,
-          "textWidth": 30,
-          "fs": 11,
+          "textWidth": 39,
+          "fs": 14,
           "opacity": 1,
           "transformed": false,
           "inlineFontSize": "",
@@ -3722,9 +3644,9 @@
           "cls": "",
           "text": "山禾集 · 经营情况汇报",
           "x": 120,
-          "y": 1035,
+          "y": 1036,
           "w": 167,
-          "h": 21,
+          "h": 20,
           "textWidth": 167,
           "fs": 15,
           "opacity": 1,
@@ -3732,8 +3654,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            20,
+            20
           ],
           "container": null,
           "containerOverflow": false,
@@ -3744,9 +3666,9 @@
           "cls": "",
           "text": "E2 蓝图 · claim",
           "x": 975,
-          "y": 1035,
+          "y": 1036,
           "w": 129,
-          "h": 21,
+          "h": 20,
           "textWidth": 129,
           "fs": 15,
           "opacity": 1,
@@ -3754,8 +3676,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            20,
+            20
           ],
           "container": null,
           "containerOverflow": false,
@@ -3766,9 +3688,9 @@
           "cls": "",
           "text": "—",
           "x": 1791,
-          "y": 1035,
+          "y": 1037,
           "w": 9,
-          "h": 21,
+          "h": 18,
           "textWidth": 9,
           "fs": 15,
           "opacity": 1,
@@ -3776,8 +3698,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            18,
+            18
           ],
           "container": null,
           "containerOverflow": false,
@@ -3790,9 +3712,9 @@
       "theme": "e2",
       "role": "analysis",
       "textNodes": 22,
-      "minFont": 11,
+      "minFont": 14,
       "maxFont": 96,
-      "ratio": 8.73,
+      "ratio": 6.86,
       "canvasOverflow": [],
       "containerOverflow": [],
       "contentOverflow": [],
@@ -3839,7 +3761,7 @@
           "x": 120,
           "y": 160,
           "w": 1680,
-          "h": 100,
+          "h": 120,
           "textWidth": 825,
           "fs": 96,
           "opacity": 1,
@@ -3847,8 +3769,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            113,
-            100
+            120,
+            120
           ],
           "container": null,
           "containerOverflow": false,
@@ -3888,7 +3810,7 @@
           "x": 149,
           "y": 378,
           "w": 462,
-          "h": 190,
+          "h": 179,
           "textWidth": 448,
           "fs": 28,
           "opacity": 1,
@@ -3896,8 +3818,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            190,
-            190
+            179,
+            179
           ],
           "container": {
             "x": 120,
@@ -3942,7 +3864,7 @@
           "x": 699,
           "y": 378,
           "w": 462,
-          "h": 143,
+          "h": 134,
           "textWidth": 456,
           "fs": 28,
           "opacity": 1,
@@ -3950,8 +3872,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            143,
-            143
+            134,
+            134
           ],
           "container": {
             "x": 670,
@@ -3996,7 +3918,7 @@
           "x": 1249,
           "y": 378,
           "w": 462,
-          "h": 190,
+          "h": 179,
           "textWidth": 448,
           "fs": 28,
           "opacity": 1,
@@ -4004,8 +3926,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            190,
-            190
+            179,
+            179
           ],
           "container": {
             "x": 1220,
@@ -4023,16 +3945,16 @@
           "x": 120,
           "y": 660,
           "w": 1680,
-          "h": 14,
-          "textWidth": 730,
-          "fs": 12,
+          "h": 17,
+          "textWidth": 712,
+          "fs": 14,
           "opacity": 1,
           "transformed": false,
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            14,
-            14
+            17,
+            17
           ],
           "container": null,
           "containerOverflow": false,
@@ -4072,7 +3994,7 @@
           "x": 149,
           "y": 752,
           "w": 462,
-          "h": 25,
+          "h": 27,
           "textWidth": 162,
           "fs": 18,
           "opacity": 1,
@@ -4080,8 +4002,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            25,
-            25
+            27,
+            27
           ],
           "container": {
             "x": 120,
@@ -4126,7 +4048,7 @@
           "x": 699,
           "y": 752,
           "w": 462,
-          "h": 25,
+          "h": 27,
           "textWidth": 108,
           "fs": 18,
           "opacity": 1,
@@ -4134,8 +4056,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            25,
-            25
+            27,
+            27
           ],
           "container": {
             "x": 670,
@@ -4180,7 +4102,7 @@
           "x": 1249,
           "y": 752,
           "w": 462,
-          "h": 25,
+          "h": 27,
           "textWidth": 126,
           "fs": 18,
           "opacity": 1,
@@ -4188,8 +4110,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            25,
-            25
+            27,
+            27
           ],
           "container": {
             "x": 1220,
@@ -4206,10 +4128,10 @@
           "text": "DWG-A3",
           "x": 1481,
           "y": 961,
-          "w": 65,
+          "w": 83,
           "h": 119,
-          "textWidth": 46,
-          "fs": 11,
+          "textWidth": 58,
+          "fs": 14,
           "opacity": 1,
           "transformed": false,
           "inlineFontSize": "",
@@ -4226,12 +4148,12 @@
           "tag": "span",
           "cls": "",
           "text": "1:200",
-          "x": 1546,
+          "x": 1564,
           "y": 961,
-          "w": 59,
+          "w": 74,
           "h": 119,
-          "textWidth": 38,
-          "fs": 11,
+          "textWidth": 48,
+          "fs": 14,
           "opacity": 1,
           "transformed": false,
           "inlineFontSize": "",
@@ -4248,12 +4170,12 @@
           "tag": "span",
           "cls": "",
           "text": "2026",
-          "x": 1605,
+          "x": 1639,
           "y": 961,
-          "w": 51,
+          "w": 65,
           "h": 119,
-          "textWidth": 30,
-          "fs": 11,
+          "textWidth": 39,
+          "fs": 14,
           "opacity": 1,
           "transformed": false,
           "inlineFontSize": "",
@@ -4293,9 +4215,9 @@
           "cls": "",
           "text": "山禾集 · 经营情况汇报",
           "x": 120,
-          "y": 1035,
+          "y": 1036,
           "w": 167,
-          "h": 21,
+          "h": 20,
           "textWidth": 167,
           "fs": 15,
           "opacity": 1,
@@ -4303,8 +4225,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            20,
+            20
           ],
           "container": null,
           "containerOverflow": false,
@@ -4315,9 +4237,9 @@
           "cls": "",
           "text": "E2 蓝图 · analysis",
           "x": 962,
-          "y": 1035,
+          "y": 1036,
           "w": 155,
-          "h": 21,
+          "h": 20,
           "textWidth": 155,
           "fs": 15,
           "opacity": 1,
@@ -4325,8 +4247,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            20,
+            20
           ],
           "container": null,
           "containerOverflow": false,
@@ -4337,9 +4259,9 @@
           "cls": "",
           "text": "—",
           "x": 1791,
-          "y": 1035,
+          "y": 1037,
           "w": 9,
-          "h": 21,
+          "h": 18,
           "textWidth": 9,
           "fs": 15,
           "opacity": 1,
@@ -4347,8 +4269,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            18,
+            18
           ],
           "container": null,
           "containerOverflow": false,
@@ -4361,40 +4283,12 @@
       "theme": "e2",
       "role": "data",
       "textNodes": 19,
-      "minFont": 11,
+      "minFont": 14,
       "maxFont": 96,
-      "ratio": 8.73,
+      "ratio": 6.86,
       "canvasOverflow": [],
       "containerOverflow": [],
-      "contentOverflow": [
-        {
-          "tag": "div",
-          "cls": "t-display",
-          "text": "8,637家",
-          "x": 149,
-          "y": 382,
-          "w": 1022,
-          "h": 96,
-          "textWidth": 360,
-          "fs": 96,
-          "opacity": 1,
-          "transformed": false,
-          "inlineFontSize": "max(var(--t-display),88px)",
-          "contentOverflow": true,
-          "scroll": [
-            111,
-            96
-          ],
-          "container": {
-            "x": 120,
-            "y": 320,
-            "w": 1080,
-            "h": 380
-          },
-          "containerOverflow": false,
-          "parentId": "mt-bp-frame"
-        }
-      ],
+      "contentOverflow": [],
       "weakRead": [],
       "textOverlaps": [],
       "inlineFontSize": [],
@@ -4439,7 +4333,7 @@
           "x": 120,
           "y": 160,
           "w": 1680,
-          "h": 100,
+          "h": 120,
           "textWidth": 384,
           "fs": 96,
           "opacity": 1,
@@ -4447,8 +4341,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            113,
-            100
+            120,
+            120
           ],
           "container": null,
           "containerOverflow": false,
@@ -4458,9 +4352,9 @@
           "tag": "div",
           "cls": "t-meta",
           "text": "KEY METRIC",
-          "x": 149,
-          "y": 345,
-          "w": 1022,
+          "x": 165,
+          "y": 361,
+          "w": 990,
           "h": 21,
           "textWidth": 100,
           "fs": 15,
@@ -4476,7 +4370,7 @@
             "x": 120,
             "y": 320,
             "w": 1080,
-            "h": 380
+            "h": 400
           },
           "containerOverflow": false,
           "parentId": "mt-bp-frame"
@@ -4485,25 +4379,25 @@
           "tag": "div",
           "cls": "t-display",
           "text": "8,637家",
-          "x": 149,
-          "y": 382,
-          "w": 1022,
-          "h": 96,
+          "x": 165,
+          "y": 398,
+          "w": 990,
+          "h": 110,
           "textWidth": 360,
           "fs": 96,
           "opacity": 1,
           "transformed": false,
           "inlineFontSize": "max(var(--t-display),88px)",
-          "contentOverflow": true,
+          "contentOverflow": false,
           "scroll": [
-            111,
-            96
+            118,
+            110
           ],
           "container": {
             "x": 120,
             "y": 320,
             "w": 1080,
-            "h": 380
+            "h": 400
           },
           "containerOverflow": false,
           "parentId": "mt-bp-frame"
@@ -4512,9 +4406,9 @@
           "tag": "div",
           "cls": "t-subhead",
           "text": "山禾集全国门店总数",
-          "x": 149,
-          "y": 492,
-          "w": 1022,
+          "x": 165,
+          "y": 522,
+          "w": 990,
           "h": 52,
           "textWidth": 360,
           "fs": 40,
@@ -4530,7 +4424,7 @@
             "x": 120,
             "y": 320,
             "w": 1080,
-            "h": 380
+            "h": 400
           },
           "containerOverflow": false,
           "parentId": "mt-bp-frame"
@@ -4539,9 +4433,9 @@
           "tag": "div",
           "cls": "t-meta",
           "text": "行业前列",
-          "x": 149,
-          "y": 552,
-          "w": 1022,
+          "x": 165,
+          "y": 582,
+          "w": 990,
           "h": 21,
           "textWidth": 60,
           "fs": 15,
@@ -4557,7 +4451,7 @@
             "x": 120,
             "y": 320,
             "w": 1080,
-            "h": 380
+            "h": 400
           },
           "containerOverflow": false,
           "parentId": "mt-bp-frame"
@@ -4567,18 +4461,18 @@
           "cls": "mt-bp-dim",
           "text": "1080px",
           "x": 120,
-          "y": 720,
+          "y": 740,
           "w": 1080,
-          "h": 14,
-          "textWidth": 506,
-          "fs": 12,
+          "h": 17,
+          "textWidth": 501,
+          "fs": 14,
           "opacity": 1,
           "transformed": false,
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            14,
-            14
+            17,
+            17
           ],
           "container": null,
           "containerOverflow": false,
@@ -4618,7 +4512,7 @@
           "x": 1269,
           "y": 372,
           "w": 502,
-          "h": 25,
+          "h": 27,
           "textWidth": 108,
           "fs": 18,
           "opacity": 1,
@@ -4626,8 +4520,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            25,
-            25
+            27,
+            27
           ],
           "container": {
             "x": 1240,
@@ -4672,7 +4566,7 @@
           "x": 1269,
           "y": 572,
           "w": 502,
-          "h": 25,
+          "h": 27,
           "textWidth": 126,
           "fs": 18,
           "opacity": 1,
@@ -4680,8 +4574,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            25,
-            25
+            27,
+            27
           ],
           "container": {
             "x": 1240,
@@ -4697,18 +4591,18 @@
           "cls": "mt-bp-dim",
           "text": "560px",
           "x": 1240,
-          "y": 720,
+          "y": 740,
           "w": 560,
-          "h": 14,
-          "textWidth": 250,
-          "fs": 12,
+          "h": 17,
+          "textWidth": 245,
+          "fs": 14,
           "opacity": 1,
           "transformed": false,
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            14,
-            14
+            17,
+            17
           ],
           "container": null,
           "containerOverflow": false,
@@ -4721,7 +4615,7 @@
           "x": 149,
           "y": 785,
           "w": 1622,
-          "h": 95,
+          "h": 90,
           "textWidth": 1615,
           "fs": 28,
           "opacity": 1,
@@ -4729,8 +4623,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            95,
-            95
+            90,
+            90
           ],
           "container": {
             "x": 120,
@@ -4747,10 +4641,10 @@
           "text": "DWG-A4",
           "x": 1481,
           "y": 961,
-          "w": 65,
+          "w": 83,
           "h": 119,
-          "textWidth": 46,
-          "fs": 11,
+          "textWidth": 58,
+          "fs": 14,
           "opacity": 1,
           "transformed": false,
           "inlineFontSize": "",
@@ -4767,12 +4661,12 @@
           "tag": "span",
           "cls": "",
           "text": "1:50",
-          "x": 1546,
+          "x": 1564,
           "y": 961,
-          "w": 51,
+          "w": 65,
           "h": 119,
-          "textWidth": 30,
-          "fs": 11,
+          "textWidth": 39,
+          "fs": 14,
           "opacity": 1,
           "transformed": false,
           "inlineFontSize": "",
@@ -4789,12 +4683,12 @@
           "tag": "span",
           "cls": "",
           "text": "2026",
-          "x": 1597,
+          "x": 1629,
           "y": 961,
-          "w": 51,
+          "w": 65,
           "h": 119,
-          "textWidth": 30,
-          "fs": 11,
+          "textWidth": 39,
+          "fs": 14,
           "opacity": 1,
           "transformed": false,
           "inlineFontSize": "",
@@ -4812,9 +4706,9 @@
           "cls": "",
           "text": "山禾集 · 经营情况汇报",
           "x": 120,
-          "y": 1035,
+          "y": 1036,
           "w": 167,
-          "h": 21,
+          "h": 20,
           "textWidth": 167,
           "fs": 15,
           "opacity": 1,
@@ -4822,8 +4716,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            20,
+            20
           ],
           "container": null,
           "containerOverflow": false,
@@ -4834,9 +4728,9 @@
           "cls": "",
           "text": "E2 蓝图 · data",
           "x": 979,
-          "y": 1035,
+          "y": 1036,
           "w": 120,
-          "h": 21,
+          "h": 20,
           "textWidth": 120,
           "fs": 15,
           "opacity": 1,
@@ -4844,8 +4738,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            20,
+            20
           ],
           "container": null,
           "containerOverflow": false,
@@ -4856,9 +4750,9 @@
           "cls": "",
           "text": "—",
           "x": 1791,
-          "y": 1035,
+          "y": 1037,
           "w": 9,
-          "h": 21,
+          "h": 18,
           "textWidth": 9,
           "fs": 15,
           "opacity": 1,
@@ -4866,8 +4760,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            18,
+            18
           ],
           "container": null,
           "containerOverflow": false,
@@ -4881,8 +4775,8 @@
       "role": "cover",
       "textNodes": 9,
       "minFont": 15,
-      "maxFont": 120,
-      "ratio": 8,
+      "maxFont": 96,
+      "ratio": 6.4,
       "canvasOverflow": [],
       "containerOverflow": [],
       "contentOverflow": [],
@@ -4890,7 +4784,7 @@
       "textOverlaps": [],
       "inlineFontSize": [],
       "roleFonts": {
-        "display": 120,
+        "display": 96,
         "subhead": 40,
         "caption": 18,
         "meta": 15
@@ -4926,19 +4820,19 @@
           "tag": "div",
           "cls": "t-display",
           "text": "一杯好茶  山野作答",
-          "x": 480,
+          "x": 552,
           "y": 430,
-          "w": 960,
-          "h": 240,
-          "textWidth": 900,
-          "fs": 120,
+          "w": 816,
+          "h": 110,
+          "textWidth": 816,
+          "fs": 96,
           "opacity": 1,
           "transformed": true,
-          "inlineFontSize": "max(var(--t-display),120px)",
+          "inlineFontSize": "max(var(--t-display),96px)",
           "contentOverflow": false,
           "scroll": [
-            247,
-            240
+            110,
+            110
           ],
           "container": null,
           "containerOverflow": false,
@@ -4949,7 +4843,7 @@
           "cls": "t-subhead",
           "text": "山禾集 · 经营情况汇报 · 2026",
           "x": 682,
-          "y": 640,
+          "y": 660,
           "w": 555,
           "h": 52,
           "textWidth": 555,
@@ -4971,7 +4865,7 @@
           "cls": "t-caption",
           "text": "经营理念：当季鲜茶，日常相伴。",
           "x": 825,
-          "y": 720,
+          "y": 740,
           "w": 270,
           "h": 27,
           "textWidth": 270,
@@ -5037,9 +4931,9 @@
           "cls": "",
           "text": "山禾集 · 经营情况汇报",
           "x": 120,
-          "y": 1035,
+          "y": 1036,
           "w": 167,
-          "h": 21,
+          "h": 20,
           "textWidth": 167,
           "fs": 15,
           "opacity": 1,
@@ -5047,8 +4941,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            20,
+            20
           ],
           "container": null,
           "containerOverflow": false,
@@ -5059,9 +4953,9 @@
           "cls": "",
           "text": "E3 装饰艺术 · cover",
           "x": 959,
-          "y": 1035,
+          "y": 1036,
           "w": 160,
-          "h": 21,
+          "h": 20,
           "textWidth": 160,
           "fs": 15,
           "opacity": 1,
@@ -5069,8 +4963,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            20,
+            20
           ],
           "container": null,
           "containerOverflow": false,
@@ -5081,9 +4975,9 @@
           "cls": "",
           "text": "—",
           "x": 1791,
-          "y": 1035,
+          "y": 1037,
           "w": 9,
-          "h": 21,
+          "h": 18,
           "textWidth": 9,
           "fs": 15,
           "opacity": 1,
@@ -5091,8 +4985,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            18,
+            18
           ],
           "container": null,
           "containerOverflow": false,
@@ -5129,10 +5023,10 @@
           "tag": "div",
           "cls": "t-display",
           "text": "从茶园到门店",
-          "x": 497,
-          "y": 279,
-          "w": 926,
-          "h": 112,
+          "x": 509,
+          "y": 295,
+          "w": 902,
+          "h": 129,
           "textWidth": 672,
           "fs": 112,
           "opacity": 1,
@@ -5140,14 +5034,14 @@
           "inlineFontSize": "max(var(--t-display),112px)",
           "contentOverflow": false,
           "scroll": [
-            118,
-            112
+            129,
+            129
           ],
           "container": {
             "x": 460,
             "y": 250,
             "w": 1000,
-            "h": 280
+            "h": 300
           },
           "containerOverflow": false,
           "parentId": "mt-deco-frame"
@@ -5156,9 +5050,9 @@
           "tag": "div",
           "cls": "t-body",
           "text": "一杯好茶的答案，写在每一片叶子的来路上。",
-          "x": 497,
-          "y": 407,
-          "w": 926,
+          "x": 509,
+          "y": 440,
+          "w": 902,
           "h": 45,
           "textWidth": 560,
           "fs": 28,
@@ -5174,7 +5068,7 @@
             "x": 460,
             "y": 250,
             "w": 1000,
-            "h": 280
+            "h": 300
           },
           "containerOverflow": false,
           "parentId": "mt-deco-frame"
@@ -5184,7 +5078,7 @@
           "cls": "t-meta",
           "text": "CONTEXT",
           "x": 157,
-          "y": 649,
+          "y": 669,
           "w": 686,
           "h": 21,
           "textWidth": 70,
@@ -5199,7 +5093,7 @@
           ],
           "container": {
             "x": 120,
-            "y": 620,
+            "y": 640,
             "w": 760,
             "h": 260
           },
@@ -5211,7 +5105,7 @@
           "cls": "t-body",
           "text": "山禾集深耕新式茶饮行业，同时通过全资子公司山禾供",
           "x": 157,
-          "y": 682,
+          "y": 702,
           "w": 686,
           "h": 134,
           "textWidth": 672,
@@ -5226,7 +5120,7 @@
           ],
           "container": {
             "x": 120,
-            "y": 620,
+            "y": 640,
             "w": 760,
             "h": 260
           },
@@ -5238,7 +5132,7 @@
           "cls": "t-meta",
           "text": "CREED",
           "x": 1077,
-          "y": 649,
+          "y": 669,
           "w": 686,
           "h": 21,
           "textWidth": 50,
@@ -5253,7 +5147,7 @@
           ],
           "container": {
             "x": 1040,
-            "y": 620,
+            "y": 640,
             "w": 760,
             "h": 260
           },
@@ -5265,7 +5159,7 @@
           "cls": "t-body",
           "text": "经营理念：当季鲜茶，日常相伴。 使命：为大众提供",
           "x": 1077,
-          "y": 682,
+          "y": 702,
           "w": 686,
           "h": 90,
           "textWidth": 680,
@@ -5280,7 +5174,7 @@
           ],
           "container": {
             "x": 1040,
-            "y": 620,
+            "y": 640,
             "w": 760,
             "h": 260
           },
@@ -5292,9 +5186,9 @@
           "cls": "t-heading",
           "text": "8,637家",
           "x": 460,
-          "y": 900,
+          "y": 920,
           "w": 280,
-          "h": 70,
+          "h": 80,
           "textWidth": 198,
           "fs": 64,
           "opacity": 1,
@@ -5302,8 +5196,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            71,
-            70
+            80,
+            80
           ],
           "container": null,
           "containerOverflow": false,
@@ -5314,9 +5208,9 @@
           "cls": "t-meta",
           "text": "山禾集全国门店总数",
           "x": 460,
-          "y": 976,
+          "y": 1006,
           "w": 280,
-          "h": 20,
+          "h": 21,
           "textWidth": 135,
           "fs": 15,
           "opacity": 0.8,
@@ -5324,8 +5218,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            20,
-            20
+            21,
+            21
           ],
           "container": null,
           "containerOverflow": false,
@@ -5336,9 +5230,9 @@
           "cls": "t-heading",
           "text": "2.8亿杯",
           "x": 820,
-          "y": 900,
+          "y": 920,
           "w": 280,
-          "h": 70,
+          "h": 80,
           "textWidth": 202,
           "fs": 64,
           "opacity": 1,
@@ -5346,8 +5240,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            71,
-            70
+            80,
+            80
           ],
           "container": null,
           "containerOverflow": false,
@@ -5358,9 +5252,9 @@
           "cls": "t-meta",
           "text": "累计售出茶饮",
           "x": 820,
-          "y": 976,
+          "y": 1006,
           "w": 280,
-          "h": 20,
+          "h": 21,
           "textWidth": 90,
           "fs": 15,
           "opacity": 0.8,
@@ -5368,8 +5262,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            20,
-            20
+            21,
+            21
           ],
           "container": null,
           "containerOverflow": false,
@@ -5380,9 +5274,9 @@
           "cls": "t-heading",
           "text": "361家",
           "x": 1180,
-          "y": 900,
+          "y": 920,
           "w": 280,
-          "h": 70,
+          "h": 80,
           "textWidth": 154,
           "fs": 64,
           "opacity": 1,
@@ -5390,8 +5284,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            71,
-            70
+            80,
+            80
           ],
           "container": null,
           "containerOverflow": false,
@@ -5402,9 +5296,9 @@
           "cls": "t-meta",
           "text": "城市旗舰店总数",
           "x": 1180,
-          "y": 976,
+          "y": 1006,
           "w": 280,
-          "h": 20,
+          "h": 21,
           "textWidth": 105,
           "fs": 15,
           "opacity": 0.8,
@@ -5412,8 +5306,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            20,
-            20
+            21,
+            21
           ],
           "container": null,
           "containerOverflow": false,
@@ -5424,9 +5318,9 @@
           "cls": "",
           "text": "山禾集 · 经营情况汇报",
           "x": 120,
-          "y": 1035,
+          "y": 1036,
           "w": 167,
-          "h": 21,
+          "h": 20,
           "textWidth": 167,
           "fs": 15,
           "opacity": 1,
@@ -5434,8 +5328,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            20,
+            20
           ],
           "container": null,
           "containerOverflow": false,
@@ -5446,9 +5340,9 @@
           "cls": "",
           "text": "E3 装饰艺术 · claim",
           "x": 959,
-          "y": 1035,
+          "y": 1036,
           "w": 160,
-          "h": 21,
+          "h": 20,
           "textWidth": 160,
           "fs": 15,
           "opacity": 1,
@@ -5456,8 +5350,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            20,
+            20
           ],
           "container": null,
           "containerOverflow": false,
@@ -5468,9 +5362,9 @@
           "cls": "",
           "text": "—",
           "x": 1791,
-          "y": 1035,
+          "y": 1037,
           "w": 9,
-          "h": 21,
+          "h": 18,
           "textWidth": 9,
           "fs": 15,
           "opacity": 1,
@@ -5478,8 +5372,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            18,
+            18
           ],
           "container": null,
           "containerOverflow": false,
@@ -5520,7 +5414,7 @@
           "x": 552,
           "y": 160,
           "w": 816,
-          "h": 101,
+          "h": 110,
           "textWidth": 816,
           "fs": 96,
           "opacity": 1,
@@ -5528,8 +5422,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            104,
-            101
+            110,
+            110
           ],
           "container": null,
           "containerOverflow": false,
@@ -5569,7 +5463,7 @@
           "x": 157,
           "y": 412,
           "w": 686,
-          "h": 238,
+          "h": 224,
           "textWidth": 672,
           "fs": 28,
           "opacity": 1,
@@ -5577,8 +5471,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            238,
-            238
+            224,
+            224
           ],
           "container": {
             "x": 120,
@@ -5594,7 +5488,7 @@
           "cls": "t-caption",
           "text": "经营理念：当季鲜茶，日常相伴。",
           "x": 157,
-          "y": 666,
+          "y": 652,
           "w": 686,
           "h": 27,
           "textWidth": 270,
@@ -5650,7 +5544,7 @@
           "x": 1077,
           "y": 412,
           "w": 686,
-          "h": 190,
+          "h": 179,
           "textWidth": 672,
           "fs": 28,
           "opacity": 1,
@@ -5658,8 +5552,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            190,
-            190
+            179,
+            179
           ],
           "container": {
             "x": 1040,
@@ -5675,7 +5569,7 @@
           "cls": "t-caption",
           "text": "使命：为大众提供新鲜、健康、平价的日常茶饮。",
           "x": 1077,
-          "y": 618,
+          "y": 607,
           "w": 686,
           "h": 27,
           "textWidth": 396,
@@ -5704,7 +5598,7 @@
           "x": 460,
           "y": 780,
           "w": 280,
-          "h": 70,
+          "h": 80,
           "textWidth": 198,
           "fs": 64,
           "opacity": 1,
@@ -5712,8 +5606,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            71,
-            70
+            80,
+            80
           ],
           "container": null,
           "containerOverflow": false,
@@ -5724,9 +5618,9 @@
           "cls": "t-meta",
           "text": "山禾集全国门店总数",
           "x": 460,
-          "y": 856,
+          "y": 866,
           "w": 280,
-          "h": 20,
+          "h": 21,
           "textWidth": 135,
           "fs": 15,
           "opacity": 0.8,
@@ -5734,8 +5628,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            20,
-            20
+            21,
+            21
           ],
           "container": null,
           "containerOverflow": false,
@@ -5748,7 +5642,7 @@
           "x": 820,
           "y": 780,
           "w": 280,
-          "h": 70,
+          "h": 80,
           "textWidth": 202,
           "fs": 64,
           "opacity": 1,
@@ -5756,8 +5650,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            71,
-            70
+            80,
+            80
           ],
           "container": null,
           "containerOverflow": false,
@@ -5768,9 +5662,9 @@
           "cls": "t-meta",
           "text": "累计售出茶饮",
           "x": 820,
-          "y": 856,
+          "y": 866,
           "w": 280,
-          "h": 20,
+          "h": 21,
           "textWidth": 90,
           "fs": 15,
           "opacity": 0.8,
@@ -5778,8 +5672,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            20,
-            20
+            21,
+            21
           ],
           "container": null,
           "containerOverflow": false,
@@ -5792,7 +5686,7 @@
           "x": 1180,
           "y": 780,
           "w": 280,
-          "h": 70,
+          "h": 80,
           "textWidth": 154,
           "fs": 64,
           "opacity": 1,
@@ -5800,8 +5694,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            71,
-            70
+            80,
+            80
           ],
           "container": null,
           "containerOverflow": false,
@@ -5812,9 +5706,9 @@
           "cls": "t-meta",
           "text": "城市旗舰店总数",
           "x": 1180,
-          "y": 856,
+          "y": 866,
           "w": 280,
-          "h": 20,
+          "h": 21,
           "textWidth": 105,
           "fs": 15,
           "opacity": 0.8,
@@ -5822,8 +5716,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            20,
-            20
+            21,
+            21
           ],
           "container": null,
           "containerOverflow": false,
@@ -5856,9 +5750,9 @@
           "cls": "",
           "text": "山禾集 · 经营情况汇报",
           "x": 120,
-          "y": 1035,
+          "y": 1036,
           "w": 167,
-          "h": 21,
+          "h": 20,
           "textWidth": 167,
           "fs": 15,
           "opacity": 1,
@@ -5866,8 +5760,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            20,
+            20
           ],
           "container": null,
           "containerOverflow": false,
@@ -5878,9 +5772,9 @@
           "cls": "",
           "text": "E3 装饰艺术 · analysis",
           "x": 946,
-          "y": 1035,
+          "y": 1036,
           "w": 186,
-          "h": 21,
+          "h": 20,
           "textWidth": 186,
           "fs": 15,
           "opacity": 1,
@@ -5888,8 +5782,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            20,
+            20
           ],
           "container": null,
           "containerOverflow": false,
@@ -5900,9 +5794,9 @@
           "cls": "",
           "text": "—",
           "x": 1791,
-          "y": 1035,
+          "y": 1037,
           "w": 9,
-          "h": 21,
+          "h": 18,
           "textWidth": 9,
           "fs": 15,
           "opacity": 1,
@@ -5910,8 +5804,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            18,
+            18
           ],
           "container": null,
           "containerOverflow": false,
@@ -5995,7 +5889,7 @@
           "x": 768,
           "y": 180,
           "w": 384,
-          "h": 101,
+          "h": 110,
           "textWidth": 384,
           "fs": 96,
           "opacity": 1,
@@ -6003,8 +5897,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            104,
-            101
+            110,
+            110
           ],
           "container": null,
           "containerOverflow": false,
@@ -6014,9 +5908,9 @@
           "tag": "div",
           "cls": "t-meta",
           "text": "KEY METRIC",
-          "x": 597,
-          "y": 389,
-          "w": 726,
+          "x": 609,
+          "y": 405,
+          "w": 702,
           "h": 21,
           "textWidth": 100,
           "fs": 15,
@@ -6032,7 +5926,7 @@
             "x": 560,
             "y": 360,
             "w": 800,
-            "h": 280
+            "h": 300
           },
           "containerOverflow": false,
           "parentId": "mt-deco-frame"
@@ -6041,10 +5935,10 @@
           "tag": "div",
           "cls": "t-display",
           "text": "8,637家",
-          "x": 597,
-          "y": 422,
-          "w": 726,
-          "h": 112,
+          "x": 609,
+          "y": 438,
+          "w": 702,
+          "h": 129,
           "textWidth": 347,
           "fs": 112,
           "opacity": 1,
@@ -6052,14 +5946,14 @@
           "inlineFontSize": "max(var(--t-display),112px)",
           "contentOverflow": false,
           "scroll": [
-            118,
-            112
+            129,
+            129
           ],
           "container": {
             "x": 560,
             "y": 360,
             "w": 800,
-            "h": 280
+            "h": 300
           },
           "containerOverflow": false,
           "parentId": "mt-deco-frame"
@@ -6068,9 +5962,9 @@
           "tag": "div",
           "cls": "t-subhead",
           "text": "山禾集全国门店总数",
-          "x": 597,
-          "y": 548,
-          "w": 726,
+          "x": 609,
+          "y": 581,
+          "w": 702,
           "h": 52,
           "textWidth": 360,
           "fs": 40,
@@ -6086,7 +5980,7 @@
             "x": 560,
             "y": 360,
             "w": 800,
-            "h": 280
+            "h": 300
           },
           "containerOverflow": false,
           "parentId": "mt-deco-frame"
@@ -6096,9 +5990,9 @@
           "cls": "t-heading",
           "text": "2.8亿杯",
           "x": 157,
-          "y": 749,
+          "y": 769,
           "w": 446,
-          "h": 70,
+          "h": 80,
           "textWidth": 202,
           "fs": 64,
           "opacity": 1,
@@ -6106,12 +6000,12 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            71,
-            70
+            80,
+            80
           ],
           "container": {
             "x": 120,
-            "y": 720,
+            "y": 740,
             "w": 520,
             "h": 160
           },
@@ -6123,9 +6017,9 @@
           "cls": "t-meta",
           "text": "累计售出茶饮",
           "x": 157,
-          "y": 825,
+          "y": 855,
           "w": 446,
-          "h": 20,
+          "h": 21,
           "textWidth": 90,
           "fs": 15,
           "opacity": 0.9,
@@ -6133,12 +6027,12 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            20,
-            20
+            21,
+            21
           ],
           "container": {
             "x": 120,
-            "y": 720,
+            "y": 740,
             "w": 520,
             "h": 160
           },
@@ -6150,9 +6044,9 @@
           "cls": "t-heading",
           "text": "361家",
           "x": 1317,
-          "y": 749,
+          "y": 769,
           "w": 446,
-          "h": 70,
+          "h": 80,
           "textWidth": 154,
           "fs": 64,
           "opacity": 1,
@@ -6160,12 +6054,12 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            71,
-            70
+            80,
+            80
           ],
           "container": {
             "x": 1280,
-            "y": 720,
+            "y": 740,
             "w": 520,
             "h": 160
           },
@@ -6177,9 +6071,9 @@
           "cls": "t-meta",
           "text": "城市旗舰店总数",
           "x": 1317,
-          "y": 825,
+          "y": 855,
           "w": 446,
-          "h": 20,
+          "h": 21,
           "textWidth": 105,
           "fs": 15,
           "opacity": 0.9,
@@ -6187,12 +6081,12 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            20,
-            20
+            21,
+            21
           ],
           "container": {
             "x": 1280,
-            "y": 720,
+            "y": 740,
             "w": 520,
             "h": 160
           },
@@ -6204,7 +6098,7 @@
           "cls": "t-meta note",
           "text": "* 注：山禾集为虚构演示品牌，文中数据均为虚构，",
           "x": 120,
-          "y": 920,
+          "y": 940,
           "w": 521,
           "h": 21,
           "textWidth": 521,
@@ -6226,9 +6120,9 @@
           "cls": "",
           "text": "山禾集 · 经营情况汇报",
           "x": 120,
-          "y": 1035,
+          "y": 1036,
           "w": 167,
-          "h": 21,
+          "h": 20,
           "textWidth": 167,
           "fs": 15,
           "opacity": 1,
@@ -6236,8 +6130,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            20,
+            20
           ],
           "container": null,
           "containerOverflow": false,
@@ -6248,9 +6142,9 @@
           "cls": "",
           "text": "E3 装饰艺术 · data",
           "x": 964,
-          "y": 1035,
+          "y": 1036,
           "w": 151,
-          "h": 21,
+          "h": 20,
           "textWidth": 151,
           "fs": 15,
           "opacity": 1,
@@ -6258,8 +6152,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            20,
+            20
           ],
           "container": null,
           "containerOverflow": false,
@@ -6270,9 +6164,9 @@
           "cls": "",
           "text": "—",
           "x": 1791,
-          "y": 1035,
+          "y": 1037,
           "w": 9,
-          "h": 21,
+          "h": 18,
           "textWidth": 9,
           "fs": 15,
           "opacity": 1,
@@ -6280,8 +6174,8 @@
           "inlineFontSize": "",
           "contentOverflow": false,
           "scroll": [
-            21,
-            21
+            18,
+            18
           ],
           "container": null,
           "containerOverflow": false,
@@ -6295,13 +6189,13 @@
     "pages": 16,
     "canvasOverflow": 0,
     "containerOverflow": 0,
-    "contentOverflow": 4,
+    "contentOverflow": 0,
     "weakRead": 0,
     "textOverlaps": 0,
     "inlineFontSize": 0,
     "floorViolations": 0,
     "pageErrors": 0,
-    "lowDensityRatioMin": 7.47,
+    "lowDensityRatioMin": 6.86,
     "blankGridCells": 0,
     "titleFlush": 0,
     "groupWidthMismatch": 0

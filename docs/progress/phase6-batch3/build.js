@@ -3,6 +3,12 @@
  * 4 套主题 × 4 页型（cover/claim/analysis/data）= 16 页基线
  * G4 靛墨黄页 · G5 三色旬刊 · E2 蓝图 · E3 装饰艺术
  * 每套按 G10 signature_operator 重编译 DOM（不是换 token 换皮）
+ *
+ * v2（根因修复后）：
+ * - 移除所有 inline line-height 覆盖（typography.md §6 硬规则）
+ * - 容器 padding 按 components.md §12 硬规则 9 分档
+ * - display 标题加 white-space:nowrap（typography.md §1 硬规则）
+ * - 同组并列容器用 flex/grid 对齐（components.md §13 硬规则 5）
  */
 const fs = require('fs');
 const path = require('path');
@@ -107,8 +113,8 @@ function G4(role) {
     h.push(`<div class="t-meta" style="${pos(M, 96, 400, 30)};color:var(--accent-on);opacity:.9;letter-spacing:.1em">${esc(D.kicker)}</div>`);
     h.push(`<div class="t-meta" style="${pos(820, 96, 400, 30)};color:var(--accent-on);opacity:.9;letter-spacing:.1em;text-align:center">${esc(D.subtitle)}</div>`);
     h.push(`<div class="t-meta" style="${pos(1500, 96, 300, 30)};color:var(--accent-on);opacity:.9;font-family:var(--font-mono);letter-spacing:.14em">EXHIBITION · 2026</div>`);
-    h.push(`<div class="t-display" style="${pos(M, 360, CW, 200)};font-weight:900;line-height:1.0;color:var(--accent-on);font-size:max(var(--t-display),128px)">${ttl}</div>`);
-    h.push(`<div class="t-subhead" style="${pos(M, 580, 800, 48)};color:var(--accent-on);font-weight:700;letter-spacing:.04em">${esc(D.subtitle)}</div>`);
+    h.push(`<div class="t-display" style="${pos(M, 360, CW, 220)};font-weight:900;color:var(--accent-on);font-size:max(var(--t-display),128px);white-space:nowrap">${ttl}</div>`);
+    h.push(`<div class="t-subhead" style="${pos(M, 600, 800, 48)};color:var(--accent-on);font-weight:700;letter-spacing:.04em">${esc(D.subtitle)}</div>`);
     h.push(num(1740, 900, '01'));
     h.push(band(880));
     h.push(`<div class="t-caption" style="${pos(M, 920, 800, 30)};color:var(--accent-on);opacity:.9">${esc(D.creed[0])}</div>`);
@@ -120,18 +126,18 @@ function G4(role) {
     </div>`);
     h.push(kicker(60));
     // 上半：黄面上的主张句
-    h.push(`<div class="t-display" style="${pos(M, 160, CW, 160)};font-weight:900;line-height:1.0;color:var(--accent-on);font-size:max(var(--t-display),128px)">${esc(D.claim)}</div>`);
-    h.push(`<div class="t-body" style="${pos(M, 340, 1000, 80)};color:var(--accent-on);line-height:1.6">${esc(D.claimNote)}</div>`);
+    h.push(`<div class="t-display" style="${pos(M, 160, CW, 180)};font-weight:900;color:var(--accent-on);font-size:max(var(--t-display),128px);white-space:nowrap">${esc(D.claim)}</div>`);
+    h.push(`<div class="t-body" style="${pos(M, 350, 1000, 80)};color:var(--accent-on)">${esc(D.claimNote)}</div>`);
     // 下半：纸底上的说明 + KPI
     h.push(`<div style="${pos(M, 540, 1000, 2)};background:var(--ink);height:1.5px" data-editable-skip></div>`);
-    h.push(`<div class="t-body" style="${pos(M, 570, 760, 200)};line-height:1.7">${esc(D.p1.slice(0, 80))}……</div>`);
-    // KPI：靛蓝线框纵向排列
+    h.push(`<div class="t-body" style="${pos(M, 570, 760, 200)}">${esc(D.p1.slice(0, 80))}……</div>`);
+    // KPI：靛蓝线框纵向排列（padding ≥28px for heading 档，容器高度需容纳 heading+meta）
     D.kpis.forEach((k, i) => {
-      const y = 570 + i * 130;
+      const y = 490 + i * 175;
       const isFocus = i === 0;
-      h.push(`<div style="${pos(1100, y, 560, 110)};border:1.5px solid var(--ink);padding:16px 24px;${isFocus ? 'background:var(--accent)' : 'background:var(--paper-tint)'}">
-        <div class="t-heading" style="font-weight:800;line-height:1.1;${isFocus ? 'color:var(--accent-on)' : ''}">${esc(k.num)}</div>
-        <div class="t-meta" style="margin-top:4px;line-height:1.35;${isFocus ? 'color:var(--accent-on)' : ''}">${esc(k.cap)}</div>
+      h.push(`<div style="${pos(1100, y, 560, 170)};border:1.5px solid var(--ink);padding:28px 32px;${isFocus ? 'background:var(--accent)' : 'background:var(--paper-tint)'}">
+        <div class="t-heading" style="font-weight:800;${isFocus ? 'color:var(--accent-on)' : ''}">${esc(k.num)}</div>
+        <div class="t-meta" style="margin-top:6px;${isFocus ? 'color:var(--accent-on)' : ''}">${esc(k.cap)}</div>
       </div>`);
     });
     h.push(num(1740, 900, '02'));
@@ -139,7 +145,7 @@ function G4(role) {
   } else if (role === 'analysis') {
     // 靛蓝线框分区在纸底上
     h.push(kicker());
-    h.push(`<div class="t-display" style="${pos(M, 180, CW, 120)};font-weight:900;line-height:1.05;white-space:nowrap">${ttl}</div>`);
+    h.push(`<div class="t-display" style="${pos(M, 180, CW, 140)};font-weight:900;white-space:nowrap">${ttl}</div>`);
     h.push(wedge(1740, 180, 120, 120));
     // 3 个靛蓝线框分区，至多一个黄面焦点
     const blocks = [
@@ -149,44 +155,44 @@ function G4(role) {
     ];
     blocks.forEach(b => {
       h.push(`<div style="${pos(b.x, b.y, b.w, b.h)};border:1.5px solid var(--ink);padding:24px 28px;${b.focus ? 'background:var(--accent);color:var(--accent-on)' : 'background:var(--paper)'}">
-        <div class="t-body" style="line-height:1.7">${esc(b.text)}</div>
+        <div class="t-body">${esc(b.text)}</div>
       </div>`);
     });
     // 底部 creed 行
-    h.push(`<div style="${pos(M, 720, CW, 30)}">${D.creed.map(c => `<span class="t-caption" style="display:inline-block;margin-right:34px">${esc(c)}</span>`).join('')}</div>`);
-    // 底部 KPI 行：靛蓝线框
+    h.push(`<div style="${pos(M, 720, 1080, 30)}">${D.creed.map(c => `<span class="t-caption" style="display:inline-block;margin-right:34px">${esc(c)}</span>`).join('')}</div>`);
+    // 底部 KPI 行：靛蓝线框（padding ≥28px for heading 档）
     D.kpis.forEach((k, i) => {
-      const x = M + i * 580;
-      h.push(`<div style="${pos(x, 790, 520, 130)};border:1.5px solid var(--ink);padding:18px 24px;${i === 0 ? 'background:var(--accent);color:var(--accent-on)' : ''}">
-        <div class="t-heading" style="font-weight:800;line-height:1.1">${esc(k.num)}</div>
-        <div class="t-meta" style="margin-top:6px;line-height:1.35">${esc(k.cap)}</div>
+      const x = M + i * 550;
+      h.push(`<div style="${pos(x, 790, 510, 140)};border:1.5px solid var(--ink);padding:28px 32px;${i === 0 ? 'background:var(--accent);color:var(--accent-on)' : ''}">
+        <div class="t-heading" style="font-weight:800">${esc(k.num)}</div>
+        <div class="t-meta" style="margin-top:6px">${esc(k.cap)}</div>
       </div>`);
     });
-    h.push(num(1740, 900, '03'));
-    h.push(note(960));
+    h.push(num(1740, 950, '03'));
+    h.push(note(990));
   } else if (role === 'data') {
     // 靛蓝线框 + 黄面焦点
     h.push(kicker());
-    h.push(`<div class="t-display" style="${pos(M, 180, CW, 120)};font-weight:900;line-height:1.05">数据宣言</div>`);
+    h.push(`<div class="t-display" style="${pos(M, 180, CW, 140)};font-weight:900;white-space:nowrap">数据宣言</div>`);
     h.push(wedge(1740, 180, 120, 120));
-    // 主 KPI：大黄面焦点
-    h.push(`<div style="${pos(M, 380, 1080, 420)};background:var(--accent);padding:48px 60px;overflow:visible">
+    // 主 KPI：大黄面焦点（display 内容 → padding ≥ 40px）
+    h.push(`<div style="${pos(M, 340, 1080, 520)};background:var(--accent);padding:44px 56px;overflow:visible">
       <div class="t-meta" style="color:var(--accent-on);letter-spacing:.12em;font-family:var(--font-mono);margin-bottom:16px">KEY METRIC</div>
-      <div class="t-display" style="font-weight:900;line-height:1.0;color:var(--accent-on);font-size:max(var(--t-display),128px)">${esc(D.kpis[0].num)}</div>
+      <div class="t-display" style="font-weight:900;color:var(--accent-on);font-size:max(var(--t-display),128px);white-space:nowrap;overflow:visible;height:170px">${esc(D.kpis[0].num)}</div>
       <div class="t-subhead" style="color:var(--accent-on);margin-top:16px;font-weight:700">${esc(D.kpis[0].cap)}</div>
       <div class="t-meta" style="color:var(--accent-on);margin-top:8px;opacity:.8">${esc(D.kpis[0].tag)}</div>
     </div>`);
-    // 辅助 KPI：靛蓝线框纵向
+    // 辅助 KPI：靛蓝线框纵向（padding ≥28px for heading 档）
     D.kpis.slice(1).forEach((k, i) => {
       const y = 380 + i * 210;
-      h.push(`<div style="${pos(1240, y, 560, 190)};border:1.5px solid var(--ink);padding:24px 28px;background:var(--paper-tint)">
-        <div class="t-heading" style="font-weight:800;line-height:1.1">${esc(k.num)}</div>
-        <div class="t-meta" style="margin-top:8px;line-height:1.35">${esc(k.cap)}</div>
+      h.push(`<div style="${pos(1240, y, 560, 190)};border:1.5px solid var(--ink);padding:28px 32px;background:var(--paper-tint)">
+        <div class="t-heading" style="font-weight:800">${esc(k.num)}</div>
+        <div class="t-meta" style="margin-top:8px">${esc(k.cap)}</div>
       </div>`);
     });
-    h.push(`<div class="t-body" style="${pos(M, 830, 1080, 120)};line-height:1.7">${esc(D.p2.slice(0, 100))}……</div>`);
+    h.push(`<div class="t-body" style="${pos(M, 880, 1080, 120)}">${esc(D.p2.slice(0, 100))}……</div>`);
     h.push(num(1740, 900, '04'));
-    h.push(note(960));
+    h.push(note(1010));
   }
   h.push(foot('g4', role));
   return h.join('\n');
@@ -210,8 +216,8 @@ function G5(role) {
     // 满屏暗夜蓝底 + 苔绿巨标
     h.push(`<div class="bg-layer" style="background:var(--ink)" data-editable-skip></div>`);
     h.push(tag(M, 96, 'VOL.07 / NO.128'));
-    h.push(`<div class="t-display" style="${pos(M, 320, CW, 200)};font-weight:700;line-height:1.0;color:var(--accent);font-size:max(var(--t-display),112px)">${ttl}</div>`);
-    h.push(`<div class="t-subhead" style="${pos(M, 540, 800, 48)};color:var(--paper);font-weight:500">${esc(D.subtitle)}</div>`);
+    h.push(`<div class="t-display" style="${pos(M, 320, CW, 220)};font-weight:700;color:var(--accent);font-size:max(var(--t-display),112px);white-space:nowrap">${ttl}</div>`);
+    h.push(`<div class="t-subhead" style="${pos(M, 560, 800, 48)};color:var(--paper);font-weight:500">${esc(D.subtitle)}</div>`);
     h.push(triBand(640));
     h.push(`<div class="t-caption" style="${pos(M, 700, 800, 30)};color:var(--accent);opacity:.9">${esc(D.creed[0])}</div>`);
     h.push(`<div class="mt-tri-pill-lg" style="position:absolute;left:${M}px;top:800px" data-editable-skip>2026</div>`);
@@ -223,22 +229,23 @@ function G5(role) {
     </div>`);
     h.push(tag(M, 80, 'VOL.07 / NO.128'));
     // 左侧：暗夜蓝底苔绿字——主张句
-    h.push(`<div class="t-display" style="${pos(M, 220, 760, 160)};font-weight:700;line-height:1.0;color:var(--accent);font-size:max(var(--t-display),112px)">${esc(D.claim)}</div>`);
-    h.push(`<div class="t-body" style="${pos(M, 400, 760, 120)};color:var(--accent);line-height:1.7;opacity:.9">${esc(D.claimNote)}</div>`);
+    h.push(`<div class="t-display" style="${pos(M, 220, 760, 180)};font-weight:700;color:var(--accent);font-size:max(var(--t-display),112px);white-space:nowrap">${esc(D.claim)}</div>`);
+    h.push(`<div class="t-body" style="${pos(M, 420, 760, 120)};color:var(--accent);opacity:.9">${esc(D.claimNote)}</div>`);
     // 右侧：苔绿底暗夜蓝字——说明 + KPI
-    h.push(`<div class="t-body" style="${pos(1020, 220, 760, 200)};color:var(--ink);line-height:1.7">${esc(D.p1.slice(0, 100))}……</div>`);
+    h.push(`<div class="t-body" style="${pos(1020, 220, 760, 200)};color:var(--ink)">${esc(D.p1.slice(0, 100))}……</div>`);
+    // KPI 容器（heading 档 padding ≥ 28px，容器高度需容纳 heading+meta）
     D.kpis.forEach((k, i) => {
-      const y = 460 + i * 140;
-      h.push(`<div style="${pos(1020, y, 760, 120)};background:var(--paper);color:var(--ink);padding:20px 28px">
-        <div class="t-heading" style="font-weight:600;line-height:1.1">${esc(k.num)}</div>
-        <div class="t-meta" style="margin-top:6px;line-height:1.35">${esc(k.cap)}</div>
+      const y = 420 + i * 175;
+      h.push(`<div style="${pos(1020, y, 760, 170)};background:var(--paper);color:var(--ink);padding:28px 32px">
+        <div class="t-heading" style="font-weight:600">${esc(k.num)}</div>
+        <div class="t-meta" style="margin-top:6px">${esc(k.cap)}</div>
       </div>`);
     });
     h.push(triBand(1000));
   } else if (role === 'analysis') {
     // 三色反转面分区
     h.push(kicker());
-    h.push(`<div class="t-display" style="${pos(M, 180, CW, 120)};font-weight:700;line-height:1.05;white-space:nowrap">${ttl}</div>`);
+    h.push(`<div class="t-display" style="${pos(M, 180, CW, 140)};font-weight:700;white-space:nowrap">${ttl}</div>`);
     h.push(tag(1500, 96, 'NO.128'));
     // 3 块三色反转面（赭石底/苔绿底/暗夜蓝底 轮转）
     const blocks = [
@@ -248,22 +255,21 @@ function G5(role) {
     ];
     blocks.forEach(b => {
       h.push(`<div style="${pos(b.x, b.y, b.w, b.h)};background:${b.bg};color:${b.fg};padding:24px 28px">
-        <div class="t-body" style="line-height:1.7">${esc(b.text)}</div>
+        <div class="t-body">${esc(b.text)}</div>
       </div>`);
     });
-    // 底部 creed + KPI
+    // 底部 creed 行
     h.push(`<div style="${pos(M, 730, 1080, 30)}">${D.creed.map(c => `<span class="t-caption" style="display:inline-block;margin-right:30px">${esc(c)}</span>`).join('')}</div>`);
-    D.kpis.forEach((k, i) => {
-      const x = 1240 + i * 0;
-      const y = 730 + i * 80;
-      h.push(`<div class="t-meta" style="position:absolute;left:${1240}px;top:${730 + i * 70}px;color:var(--ink)">${esc(k.num)} — ${esc(k.cap)}</div>`);
-    });
+    // 底部 KPI：用 flex 布局对齐，不逐个绝对定位（§13 硬规则 5）
+    h.push(`<div style="position:absolute;left:1240px;top:730px;width:560px;display:flex;flex-direction:column;gap:12px">
+      ${D.kpis.map(k => `<div class="t-meta" style="color:var(--ink)">${esc(k.num)} — ${esc(k.cap)}</div>`).join('')}
+    </div>`);
     h.push(triBand(960));
     h.push(note(980));
   } else if (role === 'data') {
     // 三色反转面并置数字
     h.push(kicker());
-    h.push(`<div class="t-display" style="${pos(M, 180, CW, 120)};font-weight:700;line-height:1.05">数据宣言</div>`);
+    h.push(`<div class="t-display" style="${pos(M, 180, CW, 140)};font-weight:700;white-space:nowrap">数据宣言</div>`);
     h.push(tag(1500, 96, 'NO.128'));
     // 3 块三色反转面并置（暗夜蓝底/苔绿底/赭石底）
     const KW = 520, KH = 400, KY = 360, KG = 30;
@@ -277,11 +283,11 @@ function G5(role) {
       const c = colors[i];
       h.push(`<div style="${pos(x, KY, 520, KH)};background:${c.bg};color:${c.fg};padding:36px 40px;display:flex;flex-direction:column;justify-content:center">
         <div class="t-meta" style="font-family:var(--font-mono);letter-spacing:.12em;margin-bottom:16px;opacity:.7">METRIC ${String(i + 1).padStart(2, '0')}</div>
-        <div class="t-heading" style="font-weight:600;line-height:1.0;font-size:max(var(--t-heading),48px)">${esc(k.num)}</div>
-        <div class="t-body" style="margin-top:14px;line-height:1.4">${esc(k.cap)}</div>
+        <div class="t-heading" style="font-weight:600;font-size:max(var(--t-heading),48px);white-space:nowrap">${esc(k.num)}</div>
+        <div class="t-body" style="margin-top:14px">${esc(k.cap)}</div>
       </div>`);
     });
-    h.push(`<div class="t-body" style="${pos(M, 800, CW, 120)};line-height:1.7">${esc(D.p2.slice(0, 120))}……</div>`);
+    h.push(`<div class="t-body" style="${pos(M, 800, CW, 120)}">${esc(D.p2.slice(0, 120))}……</div>`);
     h.push(triBand(940));
     h.push(note(960));
   }
@@ -307,78 +313,80 @@ function E2(role) {
   };
   // 尺寸标注线
   const dim = (x, y, w, label) => `<div class="mt-bp-dim" style="position:absolute;left:${x}px;top:${y}px;width:${w}px" data-editable-skip><i></i>${esc(label)}<i></i></div>`;
-  // 双线图框
-  const frame = (x, y, w, h2, inner) => `<div class="mt-bp-frame" style="${pos(x, y, w, h2)};padding:24px 28px;overflow:visible">${inner}</div>`;
+  // 双线图框（默认 padding 24px 28px for body 级内容；display 级用 frameD）
+  const frame = (x, y, w, h2, inner, pad) => `<div class="mt-bp-frame" style="${pos(x, y, w, h2)};padding:${pad || '24px 28px'};overflow:visible">${inner}</div>`;
 
   if (role === 'cover') {
     h.push(grid());
     h.push(`<div class="t-meta" style="${pos(M, 80, 400, 30)};font-family:var(--font-mono);letter-spacing:.14em;color:var(--accent)">DWG-A1 · SCALE 1:50</div>`);
-    h.push(`<div class="t-display" style="${pos(M, 300, CW, 200)};font-weight:600;line-height:1.0;white-space:nowrap;font-size:max(var(--t-display),104px)">${ttl}</div>`);
-    h.push(`<div class="t-subhead" style="${pos(M, 520, 800, 48)};font-weight:500;letter-spacing:.04em">${esc(D.subtitle)}</div>`);
+    h.push(`<div class="t-display" style="${pos(M, 300, CW, 220)};font-weight:600;white-space:nowrap;font-size:max(var(--t-display),104px)">${ttl}</div>`);
+    h.push(`<div class="t-subhead" style="${pos(M, 540, 800, 48)};font-weight:500;letter-spacing:.04em">${esc(D.subtitle)}</div>`);
     h.push(dim(M, 620, 800, 'W = 1920px'));
     h.push(titleBar(1480, 920, 320, ['DWG-A1', '1:50', '2026']));
     h.push(`<div class="t-caption" style="${pos(M, 700, 800, 30)};font-family:var(--font-mono);opacity:.9">${esc(D.creed[0])}</div>`);
   } else if (role === 'claim') {
     h.push(grid());
     h.push(`<div class="t-meta" style="${pos(M, 80, 400, 30)};font-family:var(--font-mono);letter-spacing:.14em;color:var(--accent)">DWG-A2 · CLAIM</div>`);
-    // 主图框
-    h.push(frame(M, 160, 1080, 340,
-      `<div class="t-display" style="font-weight:600;line-height:1.0;font-size:max(var(--t-display),88px)">${esc(D.claim)}</div>` +
-      `<div class="t-body" style="margin-top:20px;line-height:1.6">${esc(D.claimNote)}</div>`));
-    h.push(dim(M, 520, 1080, '1080px'));
-    // 右侧图框：KPI 标注
-    h.push(frame(1240, 160, 560, 340,
+    // 主图框（含 display 级文字 → padding ≥ 40px）
+    h.push(frame(M, 160, 1080, 360,
+      `<div class="t-display" style="font-weight:600;font-size:max(var(--t-display),88px);white-space:nowrap">${esc(D.claim)}</div>` +
+      `<div class="t-body" style="margin-top:20px">${esc(D.claimNote)}</div>`,
+      '40px 44px'));
+    h.push(dim(M, 540, 1080, '1080px'));
+    // 右侧图框：KPI 标注（body 级 → padding ≥ 20px）
+    h.push(frame(1240, 160, 560, 360,
       `<div class="t-meta" style="font-family:var(--font-mono);letter-spacing:.12em;color:var(--accent);margin-bottom:16px">STAT --BRIEF</div>` +
-      D.kpis.map(k => `<div class="t-body" style="line-height:1.8;font-family:var(--font-mono)"><span style="color:var(--accent)">${esc(k.num)}</span> ${esc(k.cap)}</div>`).join('')
-    ));
-    h.push(dim(1240, 520, 560, '560px'));
-    // 底部说明
-    h.push(frame(M, 580, 1680, 200, `<div class="t-body" style="line-height:1.7">${esc(D.p1.slice(0, 120))}……</div>`));
+      D.kpis.map(k => `<div class="t-body" style="font-family:var(--font-mono)"><span style="color:var(--accent)">${esc(k.num)}</span> ${esc(k.cap)}</div>`).join(''),
+      '24px 28px'));
+    h.push(dim(1240, 540, 560, '560px'));
+    // 底部说明（body 级 → padding ≥ 20px）
+    h.push(frame(M, 580, 1680, 200, `<div class="t-body">${esc(D.p1.slice(0, 120))}……</div>`, '24px 28px'));
     h.push(titleBar(1480, 960, 320, ['DWG-A2', '1:100', '2026']));
   } else if (role === 'analysis') {
     h.push(grid());
     h.push(`<div class="t-meta" style="${pos(M, 80, 400, 30)};font-family:var(--font-mono);letter-spacing:.14em;color:var(--accent)">DWG-A3 · ANALYSIS</div>`);
-    h.push(`<div class="t-display" style="${pos(M, 160, CW, 100)};font-weight:600;line-height:1.05;white-space:nowrap">${ttl}</div>`);
-    // 3 个同构双线图框成阵
+    h.push(`<div class="t-display" style="${pos(M, 160, CW, 120)};font-weight:600;white-space:nowrap">${ttl}</div>`);
+    // 3 个同构双线图框成阵（body 级 → padding ≥ 20px）
     const FW = 520, FH = 320, FY = 320, FG = 30;
     const texts = [D.p1.slice(0, 60) + '……', D.creed[0] + ' ' + D.creed[1], D.p2.slice(0, 60) + '……'];
     texts.forEach((txt, i) => {
       const x = M + i * (FW + FG);
       h.push(frame(x, FY, FW, FH,
         `<div class="t-meta" style="font-family:var(--font-mono);letter-spacing:.12em;color:var(--accent);margin-bottom:12px">SECTION ${String(i + 1).padStart(2, '0')}</div>` +
-        `<div class="t-body" style="line-height:1.7">${esc(txt)}</div>`));
+        `<div class="t-body">${esc(txt)}</div>`));
     });
     h.push(dim(M, 660, 1680, '3 × 520 + 2 × 30 = 1620px'));
-    // 底部 KPI 图框
+    // 底部 KPI 图框（caption 级 → padding ≥ 16px）
     D.kpis.forEach((k, i) => {
       const x = M + i * (FW + FG);
       h.push(frame(x, 700, FW, 160,
         `<div class="t-meta" style="font-family:var(--font-mono);color:var(--accent)">${esc(k.num)}</div>` +
-        `<div class="t-caption" style="margin-top:6px;line-height:1.4">${esc(k.cap)}</div>`));
+        `<div class="t-caption" style="margin-top:6px">${esc(k.cap)}</div>`));
     });
     h.push(titleBar(1480, 960, 320, ['DWG-A3', '1:200', '2026']));
     h.push(note(980));
   } else if (role === 'data') {
     h.push(grid());
     h.push(`<div class="t-meta" style="${pos(M, 80, 400, 30)};font-family:var(--font-mono);letter-spacing:.14em;color:var(--accent)">DWG-A4 · DATA</div>`);
-    h.push(`<div class="t-display" style="${pos(M, 160, CW, 100)};font-weight:600;line-height:1.05">数据宣言</div>`);
-    // 主 KPI 图框（大）
-    h.push(frame(M, 320, 1080, 380,
+    h.push(`<div class="t-display" style="${pos(M, 160, CW, 120)};font-weight:600;white-space:nowrap">数据宣言</div>`);
+    // 主 KPI 图框（大）（含 display 级 → padding ≥ 40px）
+    h.push(frame(M, 320, 1080, 400,
       `<div class="t-meta" style="font-family:var(--font-mono);letter-spacing:.12em;color:var(--accent);margin-bottom:16px">KEY METRIC</div>` +
-      `<div class="t-display" style="font-weight:600;line-height:1.0;font-size:max(var(--t-display),88px)">${esc(D.kpis[0].num)}</div>` +
+      `<div class="t-display" style="font-weight:600;font-size:max(var(--t-display),88px);white-space:nowrap">${esc(D.kpis[0].num)}</div>` +
       `<div class="t-subhead" style="margin-top:14px;font-weight:500">${esc(D.kpis[0].cap)}</div>` +
-      `<div class="t-meta" style="margin-top:8px;font-family:var(--font-mono);color:var(--accent)">${esc(D.kpis[0].tag)}</div>`));
-    h.push(dim(M, 720, 1080, '1080px'));
-    // 辅助 KPI 图框
+      `<div class="t-meta" style="margin-top:8px;font-family:var(--font-mono);color:var(--accent)">${esc(D.kpis[0].tag)}</div>`,
+      '40px 44px'));
+    h.push(dim(M, 740, 1080, '1080px'));
+    // 辅助 KPI 图框（caption 级 → padding ≥ 16px）
     D.kpis.slice(1).forEach((k, i) => {
       const y = 320 + i * 200;
       h.push(frame(1240, y, 560, 170,
         `<div class="t-meta" style="font-family:var(--font-mono);color:var(--accent)">${esc(k.num)}</div>` +
-        `<div class="t-caption" style="margin-top:6px;line-height:1.4">${esc(k.cap)}</div>`));
+        `<div class="t-caption" style="margin-top:6px">${esc(k.cap)}</div>`));
     });
-    h.push(dim(1240, 720, 560, '560px'));
-    // 底部说明
-    h.push(frame(M, 760, 1680, 140, `<div class="t-body" style="line-height:1.7">${esc(D.p2.slice(0, 100))}……</div>`));
+    h.push(dim(1240, 740, 560, '560px'));
+    // 底部说明（body 级 → padding ≥ 20px）
+    h.push(frame(M, 760, 1680, 140, `<div class="t-body">${esc(D.p2.slice(0, 100))}……</div>`));
     h.push(titleBar(1480, 960, 320, ['DWG-A4', '1:50', '2026']));
   }
   h.push(foot('e2', role));
@@ -396,8 +404,8 @@ function E3(role) {
   const h = [];
   // 菱形分隔
   const divider = (y) => `<div class="mt-deco-divider" style="position:absolute;left:50%;top:${y}px;transform:translateX(-50%);width:300px" data-editable-skip><span class="mt-deco-rhombus"></span></div>`;
-  // 双线金框
-  const goldFrame = (x, y, w, h2, inner) => `<div class="mt-deco-frame" style="${pos(x, y, w, h2)};padding:28px 36px;overflow:visible">${inner}</div>`;
+  // 双线金框（默认 padding 28px 36px for body/heading 级；display 级用 goldFrameD）
+  const goldFrame = (x, y, w, h2, inner, pad) => `<div class="mt-deco-frame" style="${pos(x, y, w, h2)};padding:${pad || '28px 36px'};overflow:visible">${inner}</div>`;
   // sunburst
   const sun = (y) => `<div class="mt-deco-sun" style="position:absolute;left:50%;top:${y}px;transform:translateX(-50%);opacity:.35" data-editable-skip></div>`;
 
@@ -409,12 +417,12 @@ function E3(role) {
     // kicker
     h.push(`<div class="t-meta" style="position:absolute;left:50%;top:330px;transform:translateX(-50%);letter-spacing:.3em;text-transform:uppercase;font-family:var(--font-mono);color:var(--accent)">${esc(D.kicker)}</div>`);
     h.push(divider(380));
-    // 中轴标题
-    h.push(`<div class="t-display" style="position:absolute;left:50%;top:430px;transform:translateX(-50%);font-weight:700;line-height:1.0;text-align:center;font-size:max(var(--t-display),120px)">${ttl}</div>`);
-    h.push(divider(600));
+    // 中轴标题（nowrap + 按容器调字号）
+    h.push(`<div class="t-display" style="position:absolute;left:50%;top:430px;transform:translateX(-50%);font-weight:700;text-align:center;white-space:nowrap;font-size:max(var(--t-display),96px)">${ttl}</div>`);
+    h.push(divider(620));
     // 副标题
-    h.push(`<div class="t-subhead" style="position:absolute;left:50%;top:640px;transform:translateX(-50%);text-align:center;font-weight:500">${esc(D.subtitle)}</div>`);
-    h.push(`<div class="t-caption" style="position:absolute;left:50%;top:720px;transform:translateX(-50%);text-align:center;opacity:.9">${esc(D.creed[0])}</div>`);
+    h.push(`<div class="t-subhead" style="position:absolute;left:50%;top:660px;transform:translateX(-50%);text-align:center;font-weight:500">${esc(D.subtitle)}</div>`);
+    h.push(`<div class="t-caption" style="position:absolute;left:50%;top:740px;transform:translateX(-50%);text-align:center;opacity:.9">${esc(D.creed[0])}</div>`);
     // 左右对称装饰：金线竖条 + 日期（上移到顶部填充空白格）
     h.push(`<div style="position:absolute;left:120px;top:80px;width:1px;height:200px;background:color-mix(in srgb,var(--accent) 50%,transparent)" data-editable-skip></div>`);
     h.push(`<div class="t-meta" style="position:absolute;left:80px;top:300px;width:100px;text-align:center;font-family:var(--font-mono);color:var(--accent);letter-spacing:.14em;writing-mode:vertical-rl">2026</div>`);
@@ -423,47 +431,48 @@ function E3(role) {
   } else if (role === 'claim') {
     h.push(sun(40));
     h.push(divider(200));
-    // 中轴金框装主张句
-    h.push(goldFrame(460, 250, 1000, 280,
-      `<div class="t-display" style="font-weight:700;line-height:1.0;text-align:center;font-size:max(var(--t-display),112px)">${esc(D.claim)}</div>` +
-      `<div class="t-body" style="margin-top:16px;text-align:center;line-height:1.6">${esc(D.claimNote)}</div>`));
-    h.push(divider(560));
-    // 两侧对称说明
-    h.push(goldFrame(M, 620, 760, 260,
+    // 中轴金框装主张句（display 级 → padding ≥ 40px）
+    h.push(goldFrame(460, 250, 1000, 300,
+      `<div class="t-display" style="font-weight:700;text-align:center;font-size:max(var(--t-display),112px);white-space:nowrap">${esc(D.claim)}</div>` +
+      `<div class="t-body" style="margin-top:16px;text-align:center">${esc(D.claimNote)}</div>`,
+      '44px 48px'));
+    h.push(divider(580));
+    // 两侧对称说明（body 级 → padding ≥ 20px）
+    h.push(goldFrame(M, 640, 760, 260,
       `<div class="t-meta" style="font-family:var(--font-mono);letter-spacing:.12em;color:var(--accent);margin-bottom:12px">CONTEXT</div>` +
-      `<div class="t-body" style="line-height:1.6">${esc(D.p1.slice(0, 60))}……</div>`));
-    h.push(goldFrame(1040, 620, 760, 260,
+      `<div class="t-body">${esc(D.p1.slice(0, 60))}……</div>`));
+    h.push(goldFrame(1040, 640, 760, 260,
       `<div class="t-meta" style="font-family:var(--font-mono);letter-spacing:.12em;color:var(--accent);margin-bottom:12px">CREED</div>` +
-      `<div class="t-body" style="line-height:1.6">${esc(D.creed[0])} ${esc(D.creed[1])}</div>`));
-    h.push(divider(870));
-    // 底部 KPI 对称排列
+      `<div class="t-body">${esc(D.creed[0])} ${esc(D.creed[1])}</div>`));
+    h.push(divider(890));
+    // 底部 KPI 对称排列（heading 级 → 无边框纯文字，不受 padding 下限约束）
     D.kpis.forEach((k, i) => {
       const x = 460 + i * 360;
-      h.push(`<div style="position:absolute;left:${x}px;top:900px;width:280px;text-align:center">
-        <div class="t-heading" style="font-weight:700;line-height:1.1">${esc(k.num)}</div>
-        <div class="t-meta" style="margin-top:6px;line-height:1.35;opacity:.8">${esc(k.cap)}</div>
+      h.push(`<div style="position:absolute;left:${x}px;top:920px;width:280px;text-align:center">
+        <div class="t-heading" style="font-weight:700">${esc(k.num)}</div>
+        <div class="t-meta" style="margin-top:6px;opacity:.8">${esc(k.cap)}</div>
       </div>`);
     });
   } else if (role === 'analysis') {
     h.push(divider(120));
-    h.push(`<div class="t-display" style="position:absolute;left:50%;top:160px;transform:translateX(-50%);font-weight:700;line-height:1.05;text-align:center;white-space:nowrap">${ttl}</div>`);
+    h.push(`<div class="t-display" style="position:absolute;left:50%;top:160px;transform:translateX(-50%);font-weight:700;text-align:center;white-space:nowrap">${ttl}</div>`);
     h.push(divider(300));
-    // 中轴对称双栏
+    // 中轴对称双栏（body 级 → padding ≥ 20px）
     h.push(goldFrame(M, 350, 760, 360,
       `<div class="t-meta" style="font-family:var(--font-mono);letter-spacing:.12em;color:var(--accent);margin-bottom:12px">SECTION A</div>` +
-      `<div class="t-body" style="line-height:1.7">${esc(D.p1.slice(0, 100))}……</div>` +
-      `<div class="t-caption" style="margin-top:16px;line-height:1.5;opacity:.9">${esc(D.creed[0])}</div>`));
+      `<div class="t-body">${esc(D.p1.slice(0, 100))}……</div>` +
+      `<div class="t-caption" style="margin-top:16px;opacity:.9">${esc(D.creed[0])}</div>`));
     h.push(goldFrame(1040, 350, 760, 360,
       `<div class="t-meta" style="font-family:var(--font-mono);letter-spacing:.12em;color:var(--accent);margin-bottom:12px">SECTION B</div>` +
-      `<div class="t-body" style="line-height:1.7">${esc(D.p2.slice(0, 100))}……</div>` +
-      `<div class="t-caption" style="margin-top:16px;line-height:1.5;opacity:.9">${esc(D.creed[1])}</div>`));
+      `<div class="t-body">${esc(D.p2.slice(0, 100))}……</div>` +
+      `<div class="t-caption" style="margin-top:16px;opacity:.9">${esc(D.creed[1])}</div>`));
     h.push(divider(740));
-    // 底部对称 KPI
+    // 底部对称 KPI（纯文字无容器，不受 padding 下限约束）
     D.kpis.forEach((k, i) => {
       const x = 460 + i * 360;
       h.push(`<div style="position:absolute;left:${x}px;top:780px;width:280px;text-align:center">
-        <div class="t-heading" style="font-weight:700;line-height:1.1">${esc(k.num)}</div>
-        <div class="t-meta" style="margin-top:6px;line-height:1.35;opacity:.8">${esc(k.cap)}</div>
+        <div class="t-heading" style="font-weight:700">${esc(k.num)}</div>
+        <div class="t-meta" style="margin-top:6px;opacity:.8">${esc(k.cap)}</div>
       </div>`);
     });
     h.push(note(960));
@@ -475,23 +484,23 @@ function E3(role) {
     h.push(`<div style="position:absolute;right:120px;top:80px;width:1px;height:180px;background:color-mix(in srgb,var(--accent) 50%,transparent)" data-editable-skip></div>`);
     h.push(`<div class="t-meta" style="position:absolute;right:80px;top:280px;width:100px;text-align:center;font-family:var(--font-mono);color:var(--accent);letter-spacing:.14em;writing-mode:vertical-rl">REPORT</div>`);
     h.push(divider(140));
-    h.push(`<div class="t-display" style="position:absolute;left:50%;top:180px;transform:translateX(-50%);font-weight:700;line-height:1.05;text-align:center">数据宣言</div>`);
+    h.push(`<div class="t-display" style="position:absolute;left:50%;top:180px;transform:translateX(-50%);font-weight:700;text-align:center;white-space:nowrap">数据宣言</div>`);
     h.push(divider(320));
-    // 中轴主 KPI 金框
-    h.push(goldFrame(560, 360, 800, 280,
+    // 中轴主 KPI 金框（display 级 → padding ≥ 40px）
+    h.push(goldFrame(560, 360, 800, 300,
       `<div class="t-meta" style="font-family:var(--font-mono);letter-spacing:.12em;color:var(--accent);margin-bottom:12px;text-align:center">KEY METRIC</div>` +
-      `<div class="t-display" style="font-weight:700;line-height:1.0;text-align:center;font-size:max(var(--t-display),112px)">${esc(D.kpis[0].num)}</div>` +
-      `<div class="t-subhead" style="margin-top:14px;text-align:center;font-weight:500">${esc(D.kpis[0].cap)}</div>`));
-    h.push(divider(670));
-    // 两侧对称辅助 KPI 金框
-    h.push(goldFrame(M, 720, 520, 160,
-      `<div class="t-heading" style="font-weight:700;line-height:1.1;text-align:center">${esc(D.kpis[1].num)}</div>` +
-      `<div class="t-meta" style="margin-top:6px;text-align:center;line-height:1.35;opacity:.9">${esc(D.kpis[1].cap)}</div>`));
-    h.push(goldFrame(1280, 720, 520, 160,
-      `<div class="t-heading" style="font-weight:700;line-height:1.1;text-align:center">${esc(D.kpis[2].num)}</div>` +
-      `<div class="t-meta" style="margin-top:6px;text-align:center;line-height:1.35;opacity:.9">${esc(D.kpis[2].cap)}</div>`));
-    // 两侧对称辅助 KPI
-    h.push(note(920));
+      `<div class="t-display" style="font-weight:700;text-align:center;font-size:max(var(--t-display),112px);white-space:nowrap">${esc(D.kpis[0].num)}</div>` +
+      `<div class="t-subhead" style="margin-top:14px;text-align:center;font-weight:500">${esc(D.kpis[0].cap)}</div>`,
+      '44px 48px'));
+    h.push(divider(690));
+    // 两侧对称辅助 KPI 金框（heading 级 → padding ≥ 28px）
+    h.push(goldFrame(M, 740, 520, 160,
+      `<div class="t-heading" style="font-weight:700;text-align:center">${esc(D.kpis[1].num)}</div>` +
+      `<div class="t-meta" style="margin-top:6px;text-align:center;opacity:.9">${esc(D.kpis[1].cap)}</div>`));
+    h.push(goldFrame(1280, 740, 520, 160,
+      `<div class="t-heading" style="font-weight:700;text-align:center">${esc(D.kpis[2].num)}</div>` +
+      `<div class="t-meta" style="margin-top:6px;text-align:center;opacity:.9">${esc(D.kpis[2].cap)}</div>`));
+    h.push(note(940));
   }
   h.push(foot('e3', role));
   return h.join('\n');
@@ -533,7 +542,7 @@ html,body{background:#15181e;font-family:"PingFang SC","Noto Sans SC","Microsoft
 .slide .note{position:absolute;left:120px}
 .slide .mastfoot{position:absolute;left:120px;right:120px;bottom:24px;display:flex;justify-content:space-between;align-items:center;
   border-top:1px solid color-mix(in srgb,var(--ink) 22%,transparent);padding-top:12px;font-family:var(--font-mono);
-  font-size:max(var(--t-meta),14px);line-height:1.4;letter-spacing:.04em;opacity:.6}
+  font-size:max(var(--t-meta),14px);letter-spacing:.04em;opacity:.6}
 .g4 .t-display,.g4 .t-heading,.g4 .t-subhead{font-family:var(--font-display)}
 .g5 .t-display,.g5 .t-heading,.g5 .t-subhead{font-family:var(--font-display)}
 .e2 .t-display,.e2 .t-heading,.e2 .t-subhead{font-family:var(--font-display)}
