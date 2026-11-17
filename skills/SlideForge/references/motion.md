@@ -131,7 +131,7 @@ v3 把"动效怎么被触发"提升为一等维度。**族前缀即触发器自�
 | `amb-pulse` 呼吸 | ambience | 呼吸点、状态灯 | 循环 4s | 全主题 | 不透明度摆幅 ≤.4 |
 | `amb-drift` 漂移 | ambience | 水印、背景图形 | 循环 9s | 全主题 | 位移 ≤10px |
 | `amb-glow` 辉光呼吸 | ambience | 氛围光斑 | 循环 6s | dramatic/calm 亲和 | 透明度 + 1.05 缩放 |
-| `amb-noise` 噪点 | ambience | 纸纹/胶片感背景 | 步进 1.4s | 纸感/印刷主题（E1/E7）亲和；flat 系（B/C1）禁 | steps(2) 抖动背景位，作用于自带纹理背景的元素 |
+| `amb-noise` 噪点 | ambience | 纸纹/胶片感背景 | 步进 1.4s | 纸感/印刷主题（E7）亲和；flat 系（B/C1）禁 | steps(2) 抖动背景位，作用于自带纹理背景的元素 |
 | `amb-gradient-blob` 渐变球 | ambience | 封面/收束的氛围主体 | 循环 16s | dramatic/calm 亲和 | 位移 ≤24px、缩放 ≤1.06（上限烧死） |
 | `amb-kenburns` 缓推镜 | ambience | 封面大图、背景照片 | 循环 26s 往返 | editorial/dramatic 亲和 | scale 1→1.08 + 微位移，作用于 img/背景容器 |
 | `amb-marquee` 走马灯 | ambience | 装饰条带（logo 墙/关键词带） | 循环 ≥12s | playful/techy 亲和；editorial 禁 | 生成侧把内容写两遍，translateX −50% 无缝循环 |

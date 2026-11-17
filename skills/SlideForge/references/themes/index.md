@@ -12,7 +12,7 @@
 
 | 分类 | 设计轴 | 含义 | 主题数 |
 |---|---|---|---|
-| 色法 | 色彩关系 | 色彩搭配/面积/叠印是主设计语言 | 7 |
+| 色法 | 色彩关系 | 色彩搭配/面积/叠印是主设计语言 | 6 |
 | 线法 | 线条/网格 | 线条、网格、分割线是主设计语言 | 4 |
 | 空间 | 空间构成 | 留白、几何构成、容器布局是主设计语言 | 5 |
 | 质感 | 材质触感 | 物质纹理、印刷质感是主设计语言 | 6 |
@@ -21,7 +21,7 @@
 
 | 分类 | 主题 | demo |
 |---|---|---|
-| **色法** | [C1 信号黑](color/c1/theme.md) · [E1 孔版印刷](color/e1/theme.md) · [E6 孟菲斯](color/e6/theme.md) · [G1 翡翠年鉴](color/g1/theme.md) · [G2 腮红荧光笔](color/g2/theme.md) · [G4 靛墨黄页](color/g4/theme.md) · [G5 三色旬刊](color/g5/theme.md) | 每个主题目录内含 ≥2 张 demo PNG |
+| **色法** | [C1 信号黑](color/c1/theme.md) · [E6 孟菲斯](color/e6/theme.md) · [G1 翡翠年鉴](color/g1/theme.md) · [G2 腮红荧光笔](color/g2/theme.md) · [G4 靛墨黄页](color/g4/theme.md) · [G5 三色旬刊](color/g5/theme.md) | 每个主题目录内含 ≥2 张 demo PNG |
 | **线法** | [B1 瑞士国际主义](line/b1/theme.md) · [E2 蓝图](line/e2/theme.md) · [E8 号外报纸](line/e8/theme.md) · [E11 票据](line/e11/theme.md) | 同上 |
 | **空间** | [A1 电子杂志](space/a1/theme.md) · [E3 装饰艺术](space/e3/theme.md) · [E4 包豪斯](space/e4/theme.md) · [E5 构成主义](space/e5/theme.md) · [E12 商务粗野](space/e12/theme.md) | 同上 |
 | **质感** | [C2 暗夜植物园](texture/c2/theme.md) · [D3 手绘油彩](texture/d3/theme.md) · [D4 黄铜年代](texture/d4/theme.md) · [E7 浮世绘](texture/e7/theme.md) · [E9 地质地层](texture/e9/theme.md) · [H1 氤氲手卷](texture/h1/theme.md) | 同上 |
@@ -43,7 +43,7 @@
 | L5 容器风格 | 圆角策略、hairline/分割线风格、阴影策略、**容器造型语言**（直角纯色/圆角弥散/描边窗口/玻璃/撕边……） | G4 shape | 可选 |
 | L6 动效签名 | 气质六选 + 强度上限 + 禁用 recipe + **锚点偏好** + **节奏偏移** + **缓动签名** + **fx 许可**（canvas 仪式层白名单，缺省全禁；见 `motion.md` §4/§6） | G5 motion | 可选 |
 | L7 构图倾向 | 特别适合 / 禁止的信息图结构族与组件 + **谱系偏好与禁忌**（构图谱系见 `components.md` §11） | G8 component | 可选 |
-| L4 装饰母题 | 主题自己的装饰词汇（**不是全都用 + 号和 hairline**：risograph 用套色错位、蓝图用标注引线、终端用 ASCII 框……）+ 主题自带 CSS 块 | G9 motif | 可选 |
+| L4 装饰母题 | 主题自己的装饰词汇（**不是全都用 + 号和 hairline**：蓝图用标注引线、终端用 ASCII 框、黄铜用铆钉刻线……）+ 主题自带 CSS 块 | G9 motif | 可选 |
 | L8 构图程序 | 主题的构图 DNA——从「可替换参数集」升级为「决定信息如何进入空间的程序」。字段：`doctrine`（世界观一句话）/ `page_composition`（骨架 skeleton + 网格 grid + 平衡 balance + 留白 whitespace_ratio + 信息流 flow）/ `signature_operator`（信息编译规则——每条信息如何变成视觉元素）/ `silhouette`（剪影特征）/ `info_grammar`（每页类型构图契约：cover/toc/claim/analysis/data/closing 各一条）/ `type_scale`（`--t-*` 令牌源）/ `invariants`（每页硬约束列表）/ `forbidden_defaults`（禁止的默认模板列表）/ `dna_events`（每页型 DNA 强度）。SKILL.md Step 1/2/4 硬规则消费：Step 2 读取 G10 作为构图契约，Step 1 页计划表标注 `info_grammar` 页型，Step 4 逐页遵守 `signature_operator`/`invariants`/`forbidden_defaults`/`info_grammar`。无 G10 的主题走骨架缺省（`components.md` §11 构图谱系 + `motifs.md` 驱动）。 | G10 composition_program | 有则必填完整（9 子字段全有）；暂可选（铺量后一视同仁） |
 | — 烙入简报 | 整页生图风格圣经（七层栈的**生图翻译层**，不进 HTML 产物）：`visual_direction`（一句英文定调）/ `palette_rule`（色彩行为负向规则，不含色值——色值主权在 G1）/ `typography_bake`（标题重构词汇，按主题气质定制）/ `uplift`（**升维路径**：该主题从扁平 HTML 到图像级画面时获得的物理维度——材质/光影/纵深/肌理，必须落到具体名目，禁"高级感""电影感"类泛词）/ `allowed` / `avoid` / `layout_blueprints`（页角色 → 位置×数量×标签，至少 cover/divider/key-message/analysis 四角色）/ `rendering_constraints`（≥8 条负向约束，含主题专属禁令）；消费方 `compile-bake-prompts.py`，逐字段可执行颗粒度（可直接注入生成指令） | bake_brief | 试点主题必填（e3/c3/a1），其余暂可选（铺量后一视同仁） |
 
@@ -126,7 +126,7 @@
 | 高冲击 keynote | C1 信号黑 |
 | 沉浸暗场 / 影像 / 晚间发布 | D2 柔光暗房 |
 | 出版 / 长篇叙事 / 品牌故事 | E8 号外报纸 或 E7 浮世绘 |
-| 独立出版 / zine / 创意印刷 | E1 孔版印刷 |
+| 独立出版 / zine / 创意印刷 | E8 号外报纸 或 G5 三色旬刊 |
 | 工程 / 制造 / 技术方案 | E2 蓝图 |
 | 工业发布 / 航天 / 基础设施 / 工业品牌 | D4 黄铜年代 |
 | 奢华 / 庆典 / 品牌盛典 | E3 装饰艺术 |

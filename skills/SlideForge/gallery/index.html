@@ -302,18 +302,6 @@ body{
 .mt-art-circle{border:2px dashed color-mix(in srgb,var(--accent) 65%,transparent);border-radius:58% 42% 50% 50%/52% 48% 55% 45%;padding:.4em .9em}
 .mt-art-frame{border:1px solid color-mix(in srgb,var(--ink) 55%,transparent);box-shadow:inset 0 0 0 5px var(--paper),inset 0 0 0 6px color-mix(in srgb,var(--ink) 35%,transparent)}
 
-/* E1 孔版印刷 · 装饰母题（:root 缓动签名 → theme-e1 页内联） */
-.mt-ris-misreg{position:relative;isolation:isolate}
-.mt-ris-misreg::before,.mt-ris-misreg::after{content:"";position:absolute;inset:-.12em -.3em;z-index:-1;mix-blend-mode:multiply}
-.mt-ris-misreg::before{background:color-mix(in srgb,var(--accent) 80%,transparent);transform:translate(-2.5px,2px)}
-.mt-ris-misreg::after{background:color-mix(in srgb,var(--accent-2) 55%,transparent);transform:translate(2.5px,-2px)}
-.mt-ris-field{position:relative;isolation:isolate}
-.mt-ris-field::before,.mt-ris-field::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;mix-blend-mode:multiply}
-.mt-ris-field::before{background:color-mix(in srgb,var(--accent) 75%,transparent);transform:translate(-4px,3px)}
-.mt-ris-field::after{inset:8% 6%;background:color-mix(in srgb,var(--accent-2) 55%,transparent);transform:translate(4px,-3px)}
-.mt-ris-cut{border:none;border-top:1px dashed color-mix(in srgb,var(--ink) 38%,transparent)}
-.mt-ris-halftone{position:absolute;pointer-events:none;background-image:radial-gradient(color-mix(in srgb,var(--accent) 55%,transparent) 1.2px,transparent 1.7px);background-size:9px 9px;opacity:.5}
-
 /* E2 蓝图 · 装饰母题 */
 .mt-bp-frame{position:relative;border:1px solid color-mix(in srgb,var(--ink) 55%,transparent)}
 .mt-bp-frame::before{content:"";position:absolute;inset:5px;border:1px solid color-mix(in srgb,var(--ink) 32%,transparent);pointer-events:none}
@@ -1887,22 +1875,6 @@ body{
         <p data-editable class="reveal" style="--d:.26s;margin-top:48px;font-size:26px;opacity:.78">同一段内容，二十九个世界</p>
       </div>
       <p data-editable style="position:absolute;left:120px;bottom:60px;font-family:var(--font-mono);font-size:15px;font-weight:500;opacity:.55">D2 · 柔光暗房 · 琥珀</p>
-    </section>
-  </div>
-
-  <!-- 33 · 主题样张 E1 孔版印刷（母题：套色错位叠印块 / 裁剪虚线 / 网目调点块；缓动签名内联） -->
-  <div class="slide-slot">
-    <section class="slide cover-page" data-slide-id="theme-e1" style="--paper:#f7f2e6;--paper-tint:#ece5d3;--ink:#221d16;--ink-tint:#332c22;--accent:#FF48B0;--accent-on:#fdfaf3;--accent-2:#0078BF;--accent-2-on:#f2f8fc;--font-display:'Helvetica Neue','Arial Black','PingFang SC','Noto Sans SC',sans-serif;--font-body:'Helvetica Neue','PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;--font-mono:'Courier New','SF Mono','JetBrains Mono',monospace;--texture-type:grain;--texture-layer:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22240%22 height=%22240%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.9%22 numOctaves=%222%22 stitchTiles=%22stitch%22/%3E%3CfeColorMatrix type=%22saturate%22 values=%220%22/%3E%3C/filter%3E%3Crect width=%22240%22 height=%22240%22 filter=%22url(%23n)%22 opacity=%220.05%22/%3E%3C/svg%3E'),radial-gradient(70% 60% at 75% 85%,color-mix(in srgb,var(--accent) 4%,transparent),transparent 65%);--texture-scope:all;--ease-out:cubic-bezier(.3,1.4,.4,1)" data-content-hash="5d88041a356d">
-      <div class="mt-ris-halftone" data-editable-skip style="right:120px;top:96px;width:220px;height:160px"></div>
-      <div style="position:relative;height:100%;display:flex;flex-direction:column;justify-content:center;font-family:var(--font-body)">
-        <div class="reveal"><span style="display:inline-block;background:var(--paper-tint);padding:10px 22px;transform:rotate(-1.5deg)"><span data-editable style="font-family:var(--font-mono);font-size:17px;font-weight:600;letter-spacing:.12em">THEME SAMPLES · G</span></span></div>
-        <div class="mt-ris-field reveal" style="--d:.12s;margin-top:48px;align-self:flex-start;padding:36px 44px">
-          <h1 data-editable style="position:relative;font-family:var(--font-display);font-size:150px;line-height:1.2;font-weight:800">想象的形状</h1>
-        </div>
-        <hr class="mt-ris-cut reveal" data-editable-skip style="--d:.22s;margin-top:48px;width:640px">
-        <p data-editable class="reveal" style="--d:.3s;margin-top:32px;font-size:26px;line-height:1.7;opacity:.78">同一段内容，二十九个世界</p>
-      </div>
-      <p data-editable style="position:absolute;left:120px;bottom:60px;font-family:var(--font-mono);font-size:15px;font-weight:600;opacity:.6">E1 · 孔版印刷 · 荧光粉</p>
     </section>
   </div>
 

@@ -87,7 +87,7 @@
 .mt-uki-band{position:absolute;left:0;right:0;height:10px;pointer-events:none}
 ```
 
-- **禁忌**：姓名印每页至多一方且只在末版右端；浪花带/云霞带合计每页 2 条且横贯全宽、禁进图表区；**禁竖排题跋分列、禁上下金轴与卷轴（H1 氤氲手卷词汇）**；**禁同形重影叠印（E1 孔版印刷词汇）**；.mt-uki-inscription 是文本载体类母题，文本保持可编辑；其余母题件一律 data-editable-skip
+- **禁忌**：姓名印每页至多一方且只在末版右端；浪花带/云霞带合计每页 2 条且横贯全宽、禁进图表区；**禁竖排题跋分列、禁上下金轴与卷轴（H1 氤氲手卷词汇）**；**禁同形重影叠印（非本世界词汇）**；.mt-uki-inscription 是文本载体类母题，文本保持可编辑；其余母题件一律 data-editable-skip
 
 **G10 composition_program**
 

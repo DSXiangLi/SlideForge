@@ -82,6 +82,54 @@
 
 - **禁忌**：硬投影一律 `var(--ink)`（墨填色件除外，换 accent）；每页母题件 1–3 件；爆炸星只许仪式页；正圆环/圆盘以外禁任何曲线形（波浪/有机形属奶油与孟菲斯）；母题件一律 `data-editable-skip`（`.mt-nb-chip` 文本除外）
 
+**G10 composition_program**
+
+- **定位**：主题从「可替换参数集」升级为「决定信息如何进入空间的程序」。本组为硬约束，写进页计划表头即整 deck 的构图契约。
+- **灵魂承载**：纯墨硬偏移投影（`box-shadow: 8px 8px 0 var(--ink)`）是签名——每个描边色块/照片卡都拖着一块没对准的纯墨硬影，像丝网套色没对准。贴纸 chip（.mt-nb-chip 2.5px 描边 + accent 底 + 5px 硬影）是文本载体类。
+- **DOM 结构测试签署**：删掉 signature_operator，页面回到「居中标题 + 两段正文 + 横排三格 KPI」，描边平面卡阵、硬偏移投影、贴纸 chip、爆炸星、3px 墨结构线全部消失，元素数量/分组/顺序/位置**都变** → **PASS**。
+
+```yaml
+
+doctrine: 丝网印刷工坊——奶油纸上，每个色块拖着一块没对准的纯墨硬影，粗墨框是承重墙，贴纸标签是文本载体，商务驯化版的粗野主义。
+
+page_composition:
+  skeleton: 描边平面卡阵——2.5px ink 描边直角卡 + 纯墨硬偏移投影 + 3px 墨结构线横贯 + 贴纸 chip 标签
+  grid: {margin: 96px 120px, gutter: 24px}
+  balance: {anchor: 标题区(左上), counterweight: 焦点色块(右) / 描边圆环构成件}
+  whitespace_ratio: ">=30%"
+  flow: "3px 墨结构线定锚 → 极粗标题 + accent 荧光标记 → 描边平面卡阵承载正文 → 焦点卡(8px 硬影)钉焦点 → mono 字段注记收束"
+signature_operator: 把每条信息编译成丝网印刷——
+  核心主张句用极粗无衬线（display 800）+ accent 荧光标记（.tt-mark 压题关键词）+ 标题前 24px accent 描边色块引子；
+  正文装进描边平面卡阵（2.5px ink 描边 + paper-tint/paper 底，无投影），3–6 格成阵；
+  三项数字不做横排等权三格——主数字独占一个焦点卡（+8px 墨硬投影，800 极粗巨字 + accent 色块引子），辅数字在描边平面卡中；
+  贴纸 chip（.mt-nb-chip 2.5px 描边 + accent 底 + 5px 硬影）承载关键词/标签，文本保持 data-editable；
+  3px 墨结构线（.mt-nb-line）横贯做功能分隔；
+  描边圆环/实心圆盘作背景构成件，每页 1–3 件；
+  爆炸星（.mt-nb-star 十二角 clip-path）只许仪式页焦点位。
+silhouette: 奶油纸 + 极粗墨字标题 + 描边平面卡阵 + 每块拖着纯墨硬影 + 3px 结构线横贯。重心偏左上。
+info_grammar:
+  cover:    mono 字段行 + 极粗巨字标题（关键词压荧光标记）+ accent 焦点色块或爆炸星 + 描边圆环构成件 + 3px 墨结构线
+  toc:      3–5 个描边平面卡排列，当前章节用 accent 色块引子标记
+  claim:    极粗标题 + 荧光标记主张句（左上），描边平面卡阵承载正文（右侧），主数字独占焦点卡（底部，8px 硬影），3px 墨结构线横贯
+  analysis: 3–6 格描边平面卡阵（2.5px 墨框、直角），至多一个焦点卡（+8px 墨硬影），mono 字段注记
+  data:     主数字独占焦点卡（800 极粗巨字 + 8px 硬影 + accent 色块引子），非横排等权三格
+  closing:  五色方块列 + 爆炸星呼应封面
+type_scale:            # px@1920x1080 画布基准；下限由骨架 .t-* 的 max() 结构性锁定
+  --t-display: 96px  # 极粗无衬线 800；与正文 3.4:1
+  rule: 标题:正文 >=1.8:1；正文层 opacity = 1；字重不倒挂（大字 800 极粗）；accent 面积 <=10%
+  floor_note: body/heading/subhead/caption/meta 不覆盖，继承骨架 28/64/40/18/15；地板由 max() 保证，无需后拦截门禁
+invariants:
+  - 硬偏移投影唯一形态 = `box-shadow: Npx Npx 0 var(--ink)`（4/5/8/12px 档），禁弥散阴影
+  - 直角 0 圆角——圆角属于孟菲斯/奶油
+  - 描边平面卡 2.5px ink 描边 + paper-tint/paper 底，焦点卡 +8px 硬影（单页至多一个）
+  - 3px 墨结构线横贯做功能分隔，禁发丝线 hairline
+  - 每页母题件 1–3 件，爆炸星只许仪式页
+  - 单页单 accent 纪律——多彩感由变体即五色承载，禁单页混用多色
+  - 横排等权三格容器数 = 0
+forbidden_defaults: [横向等权三格 KPI, 圆角, 弥散软影, 渐变色块, 玻璃拟态, 发丝线 hairline, 彩纸屑, 之字线, Ghost 残影, 加号角标]
+dna_events: {cover: 强, claim: 中, analysis: 弱, data: 中, toc: 弱, closing: 强}
+```
+
 **bake_brief**
 
 ```json

@@ -78,6 +78,54 @@
 
 - **禁忌**：Ghost 字禁与标题同区抢焦、禁内容页连用超过两页；母题件一律 `data-editable-skip`
 
+**G10 composition_program**
+
+- **定位**：主题从「可替换参数集」升级为「决定信息如何进入空间的程序」。本组为硬约束，写进页计划表头即整 deck 的构图契约。
+- **灵魂承载**：Ghost 残影巨字（.mt-ghost）是签名结构件——超大低透明描边字作页面背景层，与标题错位相切，翻页即杂志封面感。竖排题字条（.mt-vquote）是侧缘刊名注脚。
+- **DOM 结构测试签署**：删掉 signature_operator，页面回到「居中标题 + 两段正文 + 横排三格 KPI」，Ghost 残影巨字、竖排题字条、墨点角标、hairline 分栏全部消失，元素数量/分组/顺序/位置**都变** → **PASS**。
+
+```yaml
+
+doctrine: 杂志编辑部——暖米白纸面上，每条信息是编辑部排版的一个版面，Ghost 残影巨字如上一页透印过来的墨痕，衬线标题左对齐成块。
+
+page_composition:
+  skeleton: 杂志版面——衬线巨字标题左对齐语义断行块 + Ghost 残影背景层 + hairline 分栏 + 竖排题字条
+  grid: {margin: 96px 120px, gutter: 48px}
+  balance: {anchor: 标题块(左上中), counterweight: Ghost 残影字(右背景) / 竖排题字条(右缘)}
+  whitespace_ratio: ">=40%"
+  flow: "刊名栏小字定锚 → 衬线巨字标题语义断行 → Ghost 残影作背景层 → hairline 分栏正文 → 竖排题字条收束侧缘"
+signature_operator: 把每条信息编译成杂志版面——
+  核心主张句用衬线巨字（display 600–700）左对齐语义断行成块，不居中；
+  Ghost 残影单字（.mt-ghost 低透明描边，1px -webkit-text-stroke）作背景层，与标题错位相切，每页至多一个、只作背景不抢焦；
+  正文用 hairline 分栏（2–3 栏 1px ink 18% transparent 分隔），栏内左对齐；
+  三项数字不做横排等权三格——主数字独占一段衬线巨字（与标题同字号档），辅以墨点角标（.mt-dot 5px 实心方点）引出标签；
+  竖排题字条（.mt-vquote writing-mode vertical-rl mono 小字）钉在页面侧缘，作刊名注脚；
+  暗色反白页（.slide.dark ink 底 paper 字）是封面/收束特权，内容页纯纸面。
+silhouette: 暖米白纸面 + 左对齐衬线巨字标题块 + 右背景 Ghost 残影单字 + 侧缘竖排小字。重心偏左。
+info_grammar:
+  cover:    暗色反白页（ink 底 paper 字）+ 衬线巨字标题左对齐 + Ghost 残影单字背景层 + 竖排题字条
+  toc:      2–3 栏 hairline 分隔列表，每项墨点角标引出，当前章节用 ink 档面标记
+  claim:    衬线巨字主张句左对齐语义断行（左上），Ghost 残影核心词作背景层（右侧），正文 hairline 分栏（下方），竖排题字条钉侧缘
+  analysis: 2–3 栏 hairline 分栏杂志版面，栏内一句放大衬线引文（pull quote），墨点角标列表
+  data:     主数字衬线巨字独占一段（与标题同字号档）+ 墨点角标引标签，非横排等权三格
+  closing:  暗色反白页呼应封面 + Ghost 残影最后一次出现
+type_scale:            # px@1920x1080 画布基准；下限由骨架 .t-* 的 max() 结构性锁定
+  --t-display: 96px  # 衬线 600–700 承载杂志标题；与正文 3.4:1
+  rule: 标题:正文 >=1.8:1；正文层 opacity = 1，禁灰化弱读；accent==ink 无彩色预算问题；留白 >=40%
+  floor_note: body/heading/subhead/caption/meta 不覆盖，继承骨架 28/64/40/18/15；地板由 max() 保证，无需后拦截门禁
+invariants:
+  - Ghost 残影每页至多一个、只作背景不抢焦（z-index:0，1px 描边 ink 22% transparent）
+  - 标题左对齐语义断行成块，禁居中
+  - hairline 分栏用 1px solid color-mix(in srgb, var(--ink) 18%, transparent)
+  - 暗色反白页只给封面/收束，内容页纯纸面
+  - 横排等权三格容器数 = 0
+  - 竖排题字条只钉侧缘，禁横排
+forbidden_defaults: [横向等权三格 KPI, 居中 hero, 圆角卡, 弥散软影, 渐变色块, 玻璃拟态, 满版色块, 第三彩色]
+dna_events: {cover: 强, claim: 中, analysis: 弱, data: 中, toc: 弱, closing: 强}
+```
+
+---
+
 **bake_brief**
 
 ```json

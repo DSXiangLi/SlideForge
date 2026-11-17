@@ -80,6 +80,54 @@
 
 - **禁忌**：发光字只给标题/关键数字（正文发光即噪）；灯管卡每页 ≤4；发光严格单色；`.mt-neo-dot` 每页 ≤3 枚；倒影每页至多一段、只许接在发光招牌/标题正下方（不发光的东西没有倒影）；母题件一律 `data-editable-skip`
 
+**G10 composition_program**
+
+- **定位**：主题从「可替换参数集」升级为「决定信息如何进入空间的程序」。本组为硬约束，写进页计划表头即整 deck 的构图契约。
+- **灵魂承载**：灯管卡（.mt-neo-tube）是容器本体——rim-glow 三件套（inset 1px 亮边 + inset 内发光 + 外侧光晕）像灯管弯成的框。发光字（.mt-neo-sign 同色双晕 text-shadow）只给标题与关键数字。雨后倒影（.mt-neo-refl）只接在发光体正下方。
+- **DOM 结构测试签署**：删掉 signature_operator，页面回到「居中标题 + 两段正文 + 横排三格 KPI」，灯管卡、发光字、光管分隔线、呼吸指示点、雨后倒影全部消失，元素数量/分组/顺序/位置**都变** → **PASS**。
+
+```yaml
+
+doctrine: 雨后夜街——子夜蓝黑深渊里，霓虹灯管是唯一的主角，招牌在湿地面上拖着倒影，光是唯一的主角。
+
+page_composition:
+  skeleton: 灯管卡阵——rim-glow 容器成阵 + 发光字标题 + 光管分隔线 + 雨后倒影（仪式页）
+  grid: {margin: 96px 120px, gutter: 32px}
+  balance: {anchor: 发光标题区(上), counterweight: 灯管卡正文区(下) / 呼吸指示点}
+  whitespace_ratio: ">=40%"
+  flow: "顶部冷辉定锚 → 发光字标题（同色双晕）→ 灯管卡承载正文（rim-glow 容器）→ 光管分隔线 → 倒影收束（仪式页）"
+signature_operator: 把每条信息编译成霓虹夜街——
+  核心主张句用发光字（.mt-neo-sign 同色双晕 text-shadow，accent 紫电色），标题 500–600 恒重（灯管线宽均匀）；
+  正文装进灯管卡（.mt-neo-tube rim-glow 容器——accent 半透描边 + 内发光 + 外晕），每页 ≤4 个；
+  三项数字不做横排等权三格——主数字用发光字独占一段（.mt-neo-sign 大数字），辅数字在灯管卡中；
+  光管分隔线（.mt-neo-line 发光灯管横线）替代墨线做功能分隔；
+  呼吸指示点（.mt-neo-dot amb-pulse 2.4s）标记在线状态/重点，每页 ≤3 枚；
+  雨后倒影（.mt-neo-refl scaleY(-1) + 渐隐 mask）只接在发光招牌/标题正下方，只给仪式页；
+  发光严格单色系——全页发光色只许 accent 一种。
+silhouette: 子夜蓝黑深渊 + 发光字标题 + 灯管卡正文阵 + 光管分隔线。重心偏上（光从上方投下）。
+info_grammar:
+  cover:    暗底 + 顶部冷辉 + 发光巨字标题 + 雨后倒影（标题正下方）+ 齿孔无（暗场留白）
+  toc:      3–5 个灯管卡排列，当前章节用呼吸指示点标记
+  claim:    发光字主张句标题（上方，同色双晕），灯管卡承载正文（下方，rim-glow 容器），主数字用发光字独占一段，光管分隔线
+  analysis: 2–4 个灯管卡在暗底上，每个承载一段信息，至多一个用 accent 发光焦点
+  data:     主数字用发光字独占（.mt-neo-sign 大数字），非横排等权三格
+  closing:  暗底 + 发光半亮呼应封面 + 倒影最后一次出现
+type_scale:            # px@1920x1080 画布基准；下限由骨架 .t-* 的 max() 结构性锁定
+  --t-display: 96px  # 几何无衬线 500–600 恒重；与正文 3.4:1
+  rule: 标题:正文 >=1.8:1；正文层 opacity = 1；发光体面积 <=12% 且严格单色系
+  floor_note: body/heading/subhead/caption/meta 不覆盖，继承骨架 28/64/40/18/15；地板由 max() 保证，无需后拦截门禁
+invariants:
+  - 灯管卡每页 ≤4（rim-glow 容器——inset 1px 亮边 + inset 内发光 + 外侧光晕）
+  - 发光字只给标题/关键数字，正文禁发光
+  - 发光严格单色——全页发光色只许 accent 一种
+  - 雨后倒影每页至多一段、只接在发光体正下方
+  - 呼吸指示点每页 ≤3 枚
+  - 深渊留白——暗底需要大面积留白，禁密集网格矩阵连页
+  - 横排等权三格容器数 = 0
+forbidden_defaults: [横向等权三格 KPI, 居中 hero, 墨色 hairline, 弥散软影, 渐变色块, 玻璃拟态, 满版色块, 多色发光, 实心亮底卡]
+dna_events: {cover: 强, claim: 中, analysis: 弱, data: 中, toc: 弱, closing: 强}
+```
+
 **Variants 配色变体**
 
 #### 电青

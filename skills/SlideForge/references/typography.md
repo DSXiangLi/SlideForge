@@ -156,7 +156,7 @@
 | `.tt-strike` | 加粗删除线 | `line-through` `.07em` | 反差数据带的 from 值（¥2,000→¥0 的 ¥2,000）、被否定的旧方案 | 禁用于正文句子；只删"被取代物" |
 | `.tt-mark` | 荧光笔标记 | accent 45% 底纹下 62% | 关键词、结论句中的记忆点 | 每段至多一处；accent 预算计入 |
 | `.tt-uline` | 粗下划线 | `inset 0 -.12em` accent 条 | 标题内 accent 关键词（demo 的 em 下划线） | 与链接样式混淆处禁用 |
-| `.tt-shadow` | 错版叠印（双色阴影错位，印刷套不准美学） | `text-shadow: .05em .05em 0 var(--tt-c)`（accent 影 + ink 字） | display 标题/大数字；e1 孔版/e8 报纸亲和 | 小字禁用（<32px 糊）；暗底主题慎用（叠印发脏） |
+| `.tt-shadow` | 错版叠印（双色阴影错位，印刷套不准美学） | `text-shadow: .05em .05em 0 var(--tt-c)`（accent 影 + ink 字） | display 标题/大数字；e8 报纸亲和 | 小字禁用（<32px 糊）；暗底主题慎用（叠印发脏） |
 | `.tt-glow` | 发光字 | `text-shadow: 0 0 .4em color-mix(accent 55%)` | 暗色主题的标题/关键数字；c1/c2/d2/e10 亲和 | 亮底禁用（光无从谈起）；每页至多一处；正文禁用 |
 | `.tt-cond` | 窄体拉伸（穷人版 condensed） | `transform: scaleY(1.22)`，inline-block 化 | display 巨字模拟窄体性格（离线替代联网窄体） | 【transform 互斥】与 data-anim 位移类/data-ptr/data-scroll 不同元素；正文禁用 |
 
