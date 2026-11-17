@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<title>Theme Sampler · Batch 4-5 · G10 契约布局 + 山禾集内容</title>
+<style>
+/* ============================================================
+   SLOT: theme tokens
+   从 references/themes.md 选定主题后，整套替换以下变量。
+   禁止混搭、禁止修改色值。
+   G3 质感主题会额外携带 --texture-type / --texture-layer /
+   --texture-scope 三个 token，复制时一并带入（v4 起
+   --texture-scope 是许可声明，配给机制见框架层"背景配给制"）。
+
+   【画廊豁免 · 仅属本文件】画廊是多主题 sampler：:root 为
+   主主题 B1 克莱因蓝，单页用 section 级 style 覆盖整套 token
+   演示其它主题。普通 deck 禁止中途换主题（themes.md 禁忌）。
+
+   【G/I/J/J2 期样张页组 · 仅属本文件】末尾 29 页（theme-a1 … theme-g5）
+   是主题七层表达力栈的渲染验收物：同一封面文案 × 29 套 section 级
+   token 全量注入（六色 + 三字体 + 三 texture + 缓动签名）；各主题
+   G9 母题 css（.mt-* 规则，不含 :root{} 行，类名全库唯一无冲突）
+   按同一豁免合入下方 <style>（themes.md G9 纪律，逐字复制）。
+   ============================================================ */
+:root{
+  /* 主题色（主主题：B1 克莱因蓝） */
+  --paper:#fafaf8;
+  --paper-tint:#f0f0ee;
+  --ink:#0a0a0a;
+  --ink-tint:#1a1a1a;
+  --accent:#002FA7;
+  --accent-on:#ffffff;
+  /* 字体栈（系统栈，离线可用） */
+  --font-display:"Helvetica Neue","PingFang SC","Noto Sans SC",sans-serif;
+  --font-body:"Helvetica Neue","PingFang SC","Noto Sans SC",sans-serif;
+  --font-mono:"SF Mono","JetBrains Mono","Menlo",monospace;
+  /* 画布内边距（画布坐标系 px） */
+  --slide-pad:96px 120px;
+  /* G3 质感立场（B1：flat 即质感立场） */
+  --texture-type:flat;
+  --texture-layer:none;
+  --texture-scope:cover;
+  /* 图表 token（themes.md 统一推导规则） */
+  --chart-grid:color-mix(in srgb, var(--ink) 12%, transparent);
+  --chart-label:color-mix(in srgb, var(--ink) 60%, transparent);
+  --chart-series-1:var(--accent);
+  --chart-series-2:color-mix(in srgb, var(--accent) 55%, var(--paper));
+  --chart-series-3:color-mix(in srgb, var(--accent) 32%, var(--paper));
+  --chart-series-4:color-mix(in srgb, var(--ink) 18%, var(--paper));
+  --chart-bar-radius:0;
+  --chart-stroke:2.5px;
+}
+
+/* ============================================================
+   框架层 · 禁止修改
+   处理：16:9 固定画布缩放、竖向滚动、键盘翻页、
+   入场动效（含运行时拆字引擎）、质感槽位与背景配给制、
+   刊头家具样式（masthead/mastfoot）、reduced-motion 降级、打印。
+   ============================================================ */
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  background:#111;
+  font-family:var(--font-body);
+  -webkit-font-smoothing:antialiased;
+  overscroll-behavior:none;
+}
+.deck{
+  height:100vh;
+  height:100dvh;
+  overflow-y:auto;
+  scroll-snap-type:y proximity;
+}
+.slide-slot{
+  width:100%;
+  height:calc(1080px * var(--slide-scale, .5));
+  margin:12px 0;
+  display:flex;
+  justify-content:center;
+  scroll-snap-align:start;
+  content-visibility:auto;
+}
+.slide{
+  width:1920px;
+  height:1080px;
+  flex:none;
+  position:relative;
+  overflow:hidden;
+  transform:scale(var(--slide-scale, .5));
+  transform-origin:top center;
+  background:var(--paper);
+  color:var(--ink);
+  padding:var(--slide-pad);
+}
+/* 暗色页变体 */
+.slide.dark{background:var(--ink);color:var(--paper)}
+
+/* 质感槽位与背景配给制（skeleton v4 · 高级感要素 7）：
+   --texture-layer 默认不渲染——只铺两类页面：
+   仪式页（封面/章节/封底，生成侧标 .cover-page）与显式声明的正文页
+   （生成侧逐页加 .texture-on；纪律见 references/motion.md §4）。
+   主题的 --texture-scope 是许可声明而非开关：cover=只许仪式页（缺省
+   立场），all=允许正文页铺（仍需逐页 .texture-on 落码，骨架不自动
+   全铺）。无质感主题（flat）该层为 none，零成本。 */
+.slide::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:none;
+}
+.slide.cover-page::before,.slide.texture-on::before{background:var(--texture-layer,none)}
+
+/* 刊头家具（skeleton v4 · 高级感要素 6）：页眉（左 kicker 位 /
+   右页码或日期位）与页脚 hairline 元信息行。样式在框架层烧死
+   （mono、大写、加宽字距、低透明、hairline 分隔线）；结构与内容是
+   可选 SLOT——生成侧逐页决定放不放、放什么，整件可省略（仪式页
+   通常省略：仪式感来自留白，不来自家具）。家具定位在画布内边距带
+   （--slide-pad:96px 120px）内，不与正文争版面。
+   家具内容若是中文，生成侧须把 letter-spacing 归零（中文不加宽字距）。 */
+.masthead{
+  position:absolute;top:40px;left:120px;right:120px;
+  display:flex;justify-content:space-between;align-items:baseline;gap:2em;
+  font-family:var(--font-mono);font-size:15px;font-weight:500;
+  letter-spacing:.22em;text-transform:uppercase;opacity:.6;
+}
+.mastfoot{
+  position:absolute;left:120px;right:120px;bottom:34px;
+  display:flex;justify-content:space-between;align-items:baseline;gap:2em;
+  padding-top:16px;border-top:1px solid color-mix(in srgb, currentColor 22%, transparent);
+  font-family:var(--font-mono);font-size:14px;font-weight:500;
+  letter-spacing:.18em;text-transform:uppercase;opacity:.55;
+}
+
+/* 动效缓动 token（skeleton v3）：全 deck 只用这三种缓动，禁止逐页自定义。
+   出 = 入场显影；变 = 变换/移动；环 = 循环 ambience。规则见 references/motion.md */
+:root{
+  --ease-out:cubic-bezier(.22,1,.36,1);
+  --ease-shift:cubic-bezier(.7,0,.2,1);
+  --ease-loop:ease-in-out;
+}
+
+/* 入场动效：给元素加 class="reveal"，可用 style="--d:.15s" 做阶梯延迟。
+   .js 门槛：无 JS 环境（打印预览器/抓取器）下内容直接可见，动效只是增强。 */
+.js .reveal{opacity:0;transform:translateY(24px);transition:opacity .6s var(--ease-out),transform .6s var(--ease-out);transition-delay:var(--d,0s)}
+.js .slide.in-view .reveal{opacity:1;transform:none}
+
+/* 语义动效：section[data-animate] 选配方，元素 [data-anim] 标角色。
+   配方只调节奏与方向；框架 JS 在加载时为每个 [data-anim] 分配序号 --i。
+   规则与词汇表见 references/motion.md。 */
+.js [data-anim]{opacity:0;transform:translateY(24px);transition:opacity .6s var(--ease-out),transform .6s var(--ease-out);transition-delay:calc(var(--i,0)*75ms)}
+.js [data-anim="left"]{transform:translateX(-40px)}
+.js [data-anim="right"]{transform:translateX(40px)}
+.js [data-anim="line"]{transform:scaleX(0);transform-origin:left}
+.js [data-animate="hero"] [data-anim]{transition-duration:1s;transition-delay:calc(var(--i,0)*160ms)}
+.js [data-animate="quote"] [data-anim]{transition-duration:.55s;transition-delay:calc(var(--i,0)*220ms)}
+.js .slide.in-view [data-anim]{opacity:1;transform:none}
+
+/* flicker-in 通电点亮（skeleton v7.6，霓虹/灯管世界签名入场；本画廊框架是 v4，
+   无此规则，此处内联兜底，与 v7.6 骨架定义一致）：inview 一次性，
+   steps 明暗抖动数次后常亮，模拟气体放电稳定过程；无 JS/reduced-motion 时直接可见。 */
+.js [data-anim="flicker-in"]{transform:none;transition:none}
+.js .slide.in-view [data-anim="flicker-in"]{animation:flicker-in 1.1s steps(1,end) both}
+@keyframes flicker-in{0%{opacity:0}14%{opacity:.9}22%{opacity:.15}34%{opacity:1}46%{opacity:.3}60%{opacity:1}74%{opacity:.55}100%{opacity:1}}
+
+/* ---- skeleton v3 recipe ---- */
+/* chars/words/shatter：文件中是纯文本，框架 JS 入场时拆成 .sp-unit 序列、
+   动画完成后还原为纯文本。容器只做快速整体淡入，逐字运动由 span 承担。 */
+.js [data-anim="chars"],.js [data-anim="words"],.js [data-anim="shatter"]{transform:none;transition:opacity .3s ease}
+.js .split-anim .sp-unit{display:inline-block;opacity:0;transform:translateY(.55em);transition:opacity .5s var(--ease-out),transform .55s var(--ease-out);transition-delay:calc(var(--j,0)*45ms)}
+.js [data-anim="words"].split-anim .sp-unit{transition-delay:calc(var(--j,0)*90ms)}
+.js [data-anim="shatter"].split-anim .sp-unit{transform:translate(var(--sx,0),var(--sy,1em)) rotate(var(--sr,0deg));transition-duration:.5s,.75s;transition-delay:calc(var(--j,0)*40ms)}
+.js .slide.in-view .split-anim .sp-unit{opacity:1;transform:none}
+/* count-up：数字滚动。保留整体淡入、去掉位移；数值滚动由框架 JS 驱动
+   （读元素文本终值，从 0 或 data-from 起滚），文本始终是纯文本。 */
+.js [data-anim="count-up"]{transform:none}
+/* draw-line：SVG 描边描绘。框架 JS 加载时量长藏线，入场时归零描出。 */
+.js [data-anim="draw-line"]{opacity:1;transform:none;transition:stroke-dashoffset 1.1s var(--ease-out);transition-delay:calc(var(--i,0)*75ms)}
+/* fill-bar：横向填充（进度/占比/横条图）。 */
+.js [data-anim="fill-bar"]{transform:scaleX(0);transform-origin:left center;transition:opacity .5s var(--ease-out),transform 1s var(--ease-out);transition-delay:calc(var(--i,0)*75ms)}
+
+/* mend-bar：双态修复条（K 期 · 抄自 skeleton v7 data 族，本画廊是 v4 无此规则，
+   为 p47 指标卡实例内联于此；reduced-motion 与打印终态见对应 media 块）。
+   入视口先填充到 --from（警示渐变），1.8s 后收窄到 --val 并切换 accent 纯态。 */
+[data-anim="mend-bar"]{transform-origin:left center;transform:scaleX(calc(var(--val,100)/100));background:var(--accent)}
+.js [data-anim="mend-bar"]{transform:scaleX(0);background:linear-gradient(90deg,#ff3355,#ff6b2e 45%,#ffd93e);transition:transform 1.5s var(--ease-shift),background 1s ease 1.8s}
+.js .slide.in-view [data-anim="mend-bar"]{transform:scaleX(calc(var(--from,100)/100));background:var(--accent);animation:mend-final 1.2s var(--ease-shift) 1.8s forwards}
+@keyframes mend-final{to{transform:scaleX(calc(var(--val,100)/100))}}
+
+/* 文字效果词汇 .tt-*（v7.1/v7.2，逐字抄自骨架——本画廊是 v4 无此规则，
+   为 p52 文字呈现实例内联于此；规则见 references/typography.md §7）。
+   纯 CSS、文字保持纯文本可编辑；--tt-c 是效果色槽位。 */
+.tt-outline{--tt-c:var(--ink);color:transparent;-webkit-text-stroke:1.5px var(--tt-c)}
+.tt-strike{text-decoration:line-through;text-decoration-thickness:.07em;text-decoration-color:var(--tt-c,currentColor)}
+.tt-mark{background:linear-gradient(transparent 62%,color-mix(in srgb,var(--accent) 45%,transparent) 62%)}
+.tt-uline{box-shadow:inset 0 -.12em 0 0 var(--accent)}
+.tt-shadow{--tt-c:var(--accent);text-shadow:.05em .05em 0 var(--tt-c)}
+.tt-glow{text-shadow:0 0 .4em color-mix(in srgb,var(--accent) 55%,transparent)}
+.tt-cond{display:inline-block;transform:scaleY(1.22);transform-origin:bottom left}
+
+/* 装饰线词汇 .rl-*（v7.2，逐字抄自骨架——同上，为 p53 装饰线实例内联；
+   规则见 references/components.md §14。全部装饰件，产物标 data-editable-skip）。 */
+.rl-dashed{height:0;border-top:1px dashed color-mix(in srgb,var(--ink) 35%,transparent)}
+.rl-ticks{height:10px;background-image:repeating-linear-gradient(90deg,color-mix(in srgb,var(--ink) 45%,transparent) 0 1px,transparent 1px 12px);background-size:100% 6px;background-repeat:no-repeat;background-position:bottom}
+.rl-leader{display:flex;align-items:baseline;gap:.5em}
+.rl-leader::before{content:"";order:2;flex:1;border-bottom:2px dotted color-mix(in srgb,var(--ink) 35%,transparent);transform:translateY(-.2em)}
+.rl-fade{height:1px;border:none;background:linear-gradient(90deg,color-mix(in srgb,var(--ink) 35%,transparent),transparent)}
+.rl-corners{position:relative}
+.rl-corners::before,.rl-corners::after{content:"";position:absolute;width:14px;height:14px;border-color:color-mix(in srgb,var(--ink) 45%,transparent);border-style:solid}
+.rl-corners::before{top:-1px;left:-1px;border-width:1px 0 0 1px}
+.rl-corners::after{bottom:-1px;right:-1px;border-width:0 1px 1px 0}
+
+/* 背景 ambience：只允许背景层/水印/呼吸点，强度上限烧死在参数里
+   （位移 ≤10px、不透明度摆幅 ≤.4、循环周期 ≥3s），不承载信息。 */
+@keyframes amb-pulse{0%,100%{opacity:.6}50%{opacity:1}}
+@keyframes amb-drift{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(10px,-8px,0)}}
+@keyframes amb-glow{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:.85;transform:scale(1.05)}}
+.js .amb-pulse{animation:amb-pulse 4s var(--ease-loop) infinite}
+.js .amb-drift{animation:amb-drift 9s var(--ease-loop) infinite}
+.js .amb-glow{animation:amb-glow 6s var(--ease-loop) infinite}
+
+@media (prefers-reduced-motion: reduce){
+  .js .reveal,.js [data-anim]{opacity:1;transform:none;transition:none}
+  .js .slide.in-view [data-anim="flicker-in"]{animation:none;opacity:1}
+  .js .split-anim .sp-unit{opacity:1;transform:none;transition:none}
+  .js .amb-pulse,.js .amb-drift,.js .amb-glow{animation:none}
+  .js [data-anim="mend-bar"]{transform:scaleX(calc(var(--val,100)/100));background:var(--accent);animation:none;transition:none}
+}
+
+/* 界面 chrome：页码指示（在缩放画布之外） */
+.deck-chrome{
+  position:fixed;
+  right:20px;
+  bottom:16px;
+  font-family:var(--font-mono);
+  font-size:12px;
+  letter-spacing:.08em;
+  color:#888;
+  user-select:none;
+  pointer-events:none;
+  z-index:10;
+}
+
+/* ============================================================
+   G 期主题样张 · 母题 CSS 合入区（仅属画廊豁免）
+   以下来自 references/themes.md 各主题 G9 css 块，逐字复制，
+   只收 .mt-* 规则——:root{} 缓动签名转写为对应样张页 section
+   的内联自定义属性（见 theme-b1/c1/d2 页 style）。
+   ============================================================ */
+
+/* A1 电子杂志 · 装饰母题 */
+.mt-ghost{position:absolute;z-index:0;pointer-events:none;user-select:none;font-family:var(--font-display);font-weight:600;line-height:1;color:transparent;-webkit-text-stroke:1px color-mix(in srgb,var(--ink) 22%,transparent)}
+.mt-vquote{writing-mode:vertical-rl;font-family:var(--font-mono);font-size:13px;letter-spacing:.35em;opacity:.5;pointer-events:none}
+.mt-dot{display:inline-block;width:5px;height:5px;background:var(--ink)}
+
+/* B1 瑞士国际主义 · 装饰母题（:root 缓动签名 → theme-b1 页内联） */
+.mt-cross{position:absolute;width:14px;height:14px;pointer-events:none;opacity:.55}
+.mt-cross::before,.mt-cross::after{content:"";position:absolute;background:var(--ink)}
+.mt-cross::before{left:50%;top:0;bottom:0;width:1px;margin-left:-.5px}
+.mt-cross::after{top:50%;left:0;right:0;height:1px;margin-top:-.5px}
+.mt-grid-dots{position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(color-mix(in srgb,var(--ink) 18%,transparent) 1px,transparent 1.5px);background-size:24px 24px}
+.mt-swatch{display:inline-flex;align-items:center;justify-content:center;min-width:2.2em;height:2.2em;background:var(--accent);color:var(--accent-on);font-family:var(--font-mono);font-weight:600}
+
+/* C1 信号黑 · 装饰母题（:root 缓动签名 → theme-c1 页内联） */
+.mt-sig-bar{display:block;width:64px;height:10px;background:var(--accent)}
+.mt-sig-folio{position:absolute;right:2%;bottom:-.16em;z-index:0;pointer-events:none;user-select:none;font-family:var(--font-display);font-weight:900;font-size:30vh;line-height:.8;color:color-mix(in srgb,var(--ink) 7%,transparent)}
+.mt-sig-mark{display:inline-block;width:.55em;height:.55em;background:var(--accent)}
+
+/* C2 暗夜植物园 · 装饰母题 */
+.mt-bot-tag{display:inline-flex;align-items:center;gap:.7em;padding:.3em .9em;border:1px solid color-mix(in srgb,var(--ink) 32%,transparent);font-family:var(--font-mono);font-size:12px;letter-spacing:.22em;color:color-mix(in srgb,var(--ink) 78%,transparent)}
+.mt-bot-tag::before{content:"";width:4px;height:4px;background:var(--accent)}
+.mt-bot-plate{position:relative;border:1px solid color-mix(in srgb,var(--ink) 28%,transparent)}
+.mt-bot-plate>.mt-bot-tag{position:absolute;top:-1px;left:-1px;background:var(--paper)}
+.mt-bot-lead{display:flex;align-items:center;gap:12px;font-family:var(--font-mono);font-size:12px;letter-spacing:.14em;color:color-mix(in srgb,var(--ink) 60%,transparent)}
+.mt-bot-lead::before{content:"";flex:none;width:5px;height:5px;border:1px solid var(--accent);border-radius:50%}
+.mt-bot-lead::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,color-mix(in srgb,var(--ink) 38%,transparent),transparent)}
+.mt-bot-latin{font-family:var(--font-display);font-style:italic;letter-spacing:.04em;color:color-mix(in srgb,var(--ink) 68%,transparent)}
+.mt-bot-vein{position:absolute;pointer-events:none;width:90px;height:100%;opacity:.5;background:repeating-linear-gradient(160deg,transparent 0 26px,color-mix(in srgb,var(--ink) 26%,transparent) 26px 27px),linear-gradient(90deg,transparent calc(50% - .5px),color-mix(in srgb,var(--ink) 26%,transparent) calc(50% - .5px) calc(50% + .5px),transparent calc(50% + .5px))}
+
+/* C3 终端绿 · 装饰母题（光标跳闪复用骨架 tw-caret keyframes，主题块不自带 @keyframes；
+   画廊是 skeleton v4、无该 keyframes，此处内联兜底，与 v5.1 骨架定义一致） */
+@keyframes tw-caret{50%{opacity:0}}
+.mt-term-box{position:relative;border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);box-shadow:0 0 28px -2px color-mix(in srgb,var(--accent) 45%,transparent),inset 0 0 16px color-mix(in srgb,var(--accent) 10%,transparent)}
+.mt-term-box::before{content:"+";position:absolute;top:-.6em;left:-.35em;color:var(--accent);font-family:var(--font-mono);line-height:1}
+.mt-term-box::after{content:"+";position:absolute;bottom:-.6em;right:-.35em;color:var(--accent);font-family:var(--font-mono);line-height:1}
+.mt-term-caret{display:inline-block;width:.55em;height:1em;margin-left:.08em;background:var(--accent);vertical-align:-.12em;box-shadow:0 0 12px color-mix(in srgb,var(--accent) 85%,transparent);animation:tw-caret 1s steps(1) infinite}
+.mt-term-glow{text-shadow:0 0 16px color-mix(in srgb,var(--accent) 75%,transparent),0 0 42px color-mix(in srgb,var(--accent) 35%,transparent)}
+.mt-term-prompt::before{content:"$ ";color:var(--accent);font-weight:600}
+@media (prefers-reduced-motion: reduce){.mt-term-caret{animation:none}}
+
+/* D2 柔光暗房 · 装饰母题（:root 缓动签名 → theme-d2 页内联） */
+.mt-drk-film{height:26px;pointer-events:none;background-image:linear-gradient(90deg,color-mix(in srgb,var(--ink) 55%,transparent) 0 12px,transparent 12px 24px);background-size:24px 12px;background-repeat:repeat-x;background-position:0 50%;opacity:.6}
+.mt-drk-beam{position:absolute;pointer-events:none;width:200px;height:200px;background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 20%,transparent),transparent 65%);clip-path:polygon(0 0,100% 0,0 100%)}
+.mt-drk-halo{position:relative}
+.mt-drk-halo::before{content:"";position:absolute;inset:-12%;pointer-events:none;background:radial-gradient(65% 65% at 50% 60%,color-mix(in srgb,var(--accent) 13%,transparent),transparent 70%)}
+
+/* D3 手绘油彩 · 装饰母题 */
+.mt-art-brush{position:relative;isolation:isolate}
+.mt-art-brush::before{content:"";position:absolute;inset:-.15em -.35em;z-index:-1;background:color-mix(in srgb,var(--accent) 22%,transparent);border-radius:62% 38% 55% 45%/48% 55% 42% 52%}
+.mt-art-circle{border:2px dashed color-mix(in srgb,var(--accent) 65%,transparent);border-radius:58% 42% 50% 50%/52% 48% 55% 45%;padding:.4em .9em}
+.mt-art-frame{border:1px solid color-mix(in srgb,var(--ink) 55%,transparent);box-shadow:inset 0 0 0 5px var(--paper),inset 0 0 0 6px color-mix(in srgb,var(--ink) 35%,transparent)}
+
+/* E1 孔版印刷 · 装饰母题（:root 缓动签名 → theme-e1 页内联） */
+.mt-ris-misreg{position:relative;isolation:isolate}
+.mt-ris-misreg::before,.mt-ris-misreg::after{content:"";position:absolute;inset:-.12em -.3em;z-index:-1;mix-blend-mode:multiply}
+.mt-ris-misreg::before{background:color-mix(in srgb,var(--accent) 80%,transparent);transform:translate(-2.5px,2px)}
+.mt-ris-misreg::after{background:color-mix(in srgb,var(--accent-2) 55%,transparent);transform:translate(2.5px,-2px)}
+.mt-ris-field{position:relative;isolation:isolate}
+.mt-ris-field::before,.mt-ris-field::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;mix-blend-mode:multiply}
+.mt-ris-field::before{background:color-mix(in srgb,var(--accent) 75%,transparent);transform:translate(-4px,3px)}
+.mt-ris-field::after{inset:8% 6%;background:color-mix(in srgb,var(--accent-2) 55%,transparent);transform:translate(4px,-3px)}
+.mt-ris-cut{border:none;border-top:1px dashed color-mix(in srgb,var(--ink) 38%,transparent)}
+.mt-ris-halftone{position:absolute;pointer-events:none;background-image:radial-gradient(color-mix(in srgb,var(--accent) 55%,transparent) 1.2px,transparent 1.7px);background-size:9px 9px;opacity:.5}
+
+/* E2 蓝图 · 装饰母题 */
+.mt-bp-frame{position:relative;border:1px solid color-mix(in srgb,var(--ink) 55%,transparent)}
+.mt-bp-frame::before{content:"";position:absolute;inset:5px;border:1px solid color-mix(in srgb,var(--ink) 32%,transparent);pointer-events:none}
+.mt-bp-tag{position:absolute;right:-1px;bottom:-1px;display:flex;font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;color:color-mix(in srgb,var(--ink) 82%,transparent);border:1px solid color-mix(in srgb,var(--ink) 55%,transparent);background:var(--paper)}
+.mt-bp-tag>span{padding:.35em .9em;border-left:1px solid color-mix(in srgb,var(--ink) 32%,transparent)}
+.mt-bp-tag>span:first-child{border-left:none}
+.mt-bp-dim{display:flex;align-items:center;gap:.8em;font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;color:color-mix(in srgb,var(--ink) 75%,transparent)}
+.mt-bp-dim i{flex:1;position:relative;height:1px;font-style:normal;background:color-mix(in srgb,var(--ink) 55%,transparent)}
+.mt-bp-dim i::before,.mt-bp-dim i::after{content:"";position:absolute;top:-3px;width:0;height:0;border:3.5px solid transparent}
+.mt-bp-dim i::before{left:0;border-right:6px solid color-mix(in srgb,var(--ink) 55%,transparent)}
+.mt-bp-dim i::after{right:0;border-left:6px solid color-mix(in srgb,var(--ink) 55%,transparent)}
+
+/* E3 装饰艺术 · 装饰母题 */
+.mt-deco-sun{width:min(56vw,480px);height:calc(min(56vw,480px)/2);border-radius:999px 999px 0 0;overflow:hidden;pointer-events:none;background:repeating-conic-gradient(from -90deg at 50% 100%,color-mix(in srgb,var(--accent) 60%,transparent) 0deg 1.5deg,transparent 1.5deg 9deg)}
+.mt-deco-frame{border:1px solid color-mix(in srgb,var(--accent) 70%,transparent);outline:1px solid color-mix(in srgb,var(--accent) 70%,transparent);outline-offset:5px}
+.mt-deco-divider{display:flex;align-items:center;justify-content:center;gap:14px;pointer-events:none}
+.mt-deco-divider::before,.mt-deco-divider::after{content:"";width:72px;height:1px;background:color-mix(in srgb,var(--accent) 65%,transparent)}
+.mt-deco-rhombus{display:inline-block;width:8px;height:8px;background:var(--accent);transform:rotate(45deg)}
+
+/* E4 包豪斯 · 装饰母题 */
+.mt-bau-circle,.mt-bau-tri,.mt-bau-square,.mt-bau-quarter{position:absolute;pointer-events:none;user-select:none}
+.mt-bau-circle{border-radius:50%;background:var(--accent-3)}
+.mt-bau-tri{clip-path:polygon(50% 0,100% 100%,0 100%);background:var(--accent-2)}
+.mt-bau-square{background:var(--accent)}
+.mt-bau-quarter{border-radius:0 0 0 100%;background:var(--accent-3)}
+.mt-bau-bar{display:block;height:10px;background:var(--ink)}
+.mt-bau-fill-ink{background:var(--ink)}
+.mt-bau-tint{background:color-mix(in srgb,var(--ink) 10%,transparent)}
+.mt-bau-line{display:block;height:2px;background:var(--ink)}
+
+/* E5 构成主义 · 装饰母题（:root 缓动签名 → theme-e5 页内联） */
+.mt-con-diag{position:absolute;left:-15%;width:130%;height:14vh;pointer-events:none;transform:rotate(-12deg);background:var(--accent)}
+.mt-con-diag--ink{background:var(--ink)}
+.mt-con-diag--print{box-shadow:0 10px 0 color-mix(in srgb,var(--ink) 25%,transparent)}
+.mt-con-wedge{position:absolute;pointer-events:none;width:38vmin;height:38vmin;background:var(--accent);clip-path:polygon(0 0,100% 0,0 100%)}
+.mt-con-wedge--ink{background:var(--ink)}
+.mt-con-bar{display:inline-block;width:1.6em;height:.28em;background:var(--ink)}
+.mt-con-bar--accent{background:var(--accent)}
+
+/* E6 Memphis 孟菲斯 · 装饰母题（:root 缓动签名 → theme-e6 页内联） */
+.mt-mem-confetti{position:absolute;inset:0;pointer-events:none;user-select:none;overflow:hidden}
+.mt-mem-confetti i{position:absolute;display:block;--pc:var(--palette-1)}
+.mt-mem-confetti .mt-mem-c2{--pc:var(--palette-2)}
+.mt-mem-confetti .mt-mem-c3{--pc:var(--palette-3)}
+.mt-mem-confetti .mt-mem-c4{--pc:var(--palette-4)}
+.mt-mem-dot{width:14px;height:14px;border-radius:50%;background:var(--pc)}
+.mt-mem-tri{width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:15px solid var(--pc)}
+.mt-mem-ring{width:16px;height:16px;border:3px solid var(--ink);border-radius:50%}
+.mt-mem-zig{height:12px;pointer-events:none;background-image:linear-gradient(135deg,var(--ink) 25%,transparent 25%),linear-gradient(225deg,var(--ink) 25%,transparent 25%);background-size:16px 12px;background-repeat:repeat-x}
+.mt-mem-card{border:3px solid var(--ink);border-radius:14px;background:var(--paper);box-shadow:8px 8px 0 color-mix(in srgb,var(--accent) 85%,var(--ink))}
+
+/* E7 浮世绘 · 装饰母题 */
+.mt-uki-seal{display:inline-flex;align-items:center;justify-content:center;width:2.4em;height:2.4em;background:var(--accent);color:var(--accent-on);font-family:var(--font-display);font-weight:700;font-size:.5em;line-height:1.15;text-align:center;writing-mode:vertical-rl;letter-spacing:.08em;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--accent-on) 40%,transparent)}
+.mt-uki-wave{height:26px;pointer-events:none;user-select:none;background-image:radial-gradient(circle at 13px 26px,transparent 9px,color-mix(in srgb,var(--ink) 55%,transparent) 9px 10.5px,transparent 10.5px),radial-gradient(circle at 13px 26px,transparent 4px,color-mix(in srgb,var(--ink) 55%,transparent) 4px 5.5px,transparent 5.5px);background-size:26px 26px;background-repeat:repeat-x}
+.mt-uki-cloud{height:10px;pointer-events:none;user-select:none;background-image:repeating-linear-gradient(90deg,color-mix(in srgb,var(--accent) 70%,var(--paper)) 0 60px,transparent 60px 88px),repeating-linear-gradient(90deg,color-mix(in srgb,var(--ink) 25%,transparent) 0 34px,transparent 34px 88px);background-position:0 0,14px 5px;background-size:88px 4px,88px 4px;background-repeat:repeat-x}
+.mt-uki-inscription{writing-mode:vertical-rl;font-family:var(--font-display);font-size:.5em;letter-spacing:.35em;color:color-mix(in srgb,var(--ink) 70%,transparent);border-left:1px solid color-mix(in srgb,var(--ink) 40%,transparent);padding-left:.6em}
+
+/* E8 号外报纸 · 装饰母题 */
+.mt-news-rule{height:5px;border:none;border-top:3px solid var(--ink);border-bottom:1px solid var(--ink)}
+.mt-news-mast{display:flex;align-items:baseline;justify-content:space-between;gap:1.2em;padding:.55em 0;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);font-family:var(--font-mono);font-size:12px;letter-spacing:.26em;text-transform:uppercase}
+.mt-news-cols{columns:3;column-gap:2.2em;column-rule:1px solid color-mix(in srgb,var(--ink) 22%,transparent);text-align:justify}
+.mt-news-pull{border-top:3px solid var(--ink);border-bottom:1px solid var(--ink);padding:.7em 0;font-family:var(--font-body);font-style:italic;font-size:1.45em;line-height:1.6}
+
+/* E9 地质地层 · 装饰母题 */
+.mt-geo-strata{position:absolute;left:0;right:0;bottom:0;height:10%;pointer-events:none;border-top:1px solid color-mix(in srgb,var(--ink) 34%,transparent);background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 28%,var(--paper)) 0 24%,color-mix(in srgb,var(--ink) 14%,var(--paper)) 24% 42%,color-mix(in srgb,var(--accent) 48%,var(--paper)) 42% 55%,var(--paper-tint) 55% 78%,color-mix(in srgb,var(--ink) 30%,var(--paper)) 78%)}
+.mt-geo-core{width:20px;border-radius:10px;border:1px solid color-mix(in srgb,var(--ink) 32%,transparent);background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 62%,var(--paper)),color-mix(in srgb,var(--accent) 26%,var(--paper)) 38%,color-mix(in srgb,var(--ink) 18%,var(--paper)) 62%,color-mix(in srgb,var(--ink) 40%,var(--paper)))}
+.mt-geo-contour{position:absolute;pointer-events:none;width:340px;height:340px;border-radius:50%;opacity:.5;background:repeating-radial-gradient(circle at 50% 50%,transparent 0 27px,color-mix(in srgb,var(--ink) 20%,transparent) 27px 28px)}
+.mt-geo-tag{display:inline-flex;align-items:center;gap:.6em;font-family:var(--font-mono);font-size:12px;letter-spacing:.2em;color:color-mix(in srgb,var(--ink) 66%,transparent)}
+.mt-geo-tag::before{content:"";width:14px;height:1px;background:var(--accent)}
+
+/* E10 星图 · 装饰母题 */
+.mt-star-dot{position:absolute;width:5px;height:5px;border-radius:50%;background:var(--ink);box-shadow:0 0 6px color-mix(in srgb,var(--accent) 60%,transparent)}
+.mt-star-dot::before,.mt-star-dot::after{content:"";position:absolute;left:50%;top:50%;background:color-mix(in srgb,var(--ink) 80%,transparent)}
+.mt-star-dot::before{width:13px;height:1px;transform:translate(-50%,-50%)}
+.mt-star-dot::after{width:1px;height:13px;transform:translate(-50%,-50%)}
+.mt-star-link{position:absolute;height:0;border-top:1px dashed color-mix(in srgb,var(--accent) 55%,transparent);transform-origin:left center;pointer-events:none}
+.mt-star-grid{position:absolute;inset:0;pointer-events:none;opacity:.5;background:repeating-linear-gradient(0deg,transparent 0 47px,color-mix(in srgb,var(--ink) 10%,transparent) 47px 48px),repeating-linear-gradient(90deg,transparent 0 47px,color-mix(in srgb,var(--ink) 10%,transparent) 47px 48px)}
+.mt-star-name{font-family:var(--font-display);font-style:italic;letter-spacing:.06em;color:color-mix(in srgb,var(--ink) 75%,transparent)}
+.mt-star-mag{font-family:var(--font-mono);font-size:11px;letter-spacing:.22em;color:color-mix(in srgb,var(--ink) 52%,transparent)}
+
+/* E11 票据 · 装饰母题 */
+.mt-tix-perf{position:relative;border-top:2px dashed color-mix(in srgb,var(--ink) 50%,transparent)}
+.mt-tix-perf::before,.mt-tix-perf::after{content:"";position:absolute;top:-10px;width:20px;height:20px;border-radius:50%;background:var(--paper)}
+.mt-tix-perf::before{left:-10px}
+.mt-tix-perf::after{right:-10px}
+.mt-tix-barcode{height:44px;pointer-events:none;user-select:none;background-image:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 5px,var(--ink) 5px 6px,transparent 6px 11px,var(--ink) 11px 14px,transparent 14px 17px,var(--ink) 17px 18px,transparent 18px 23px)}
+.mt-tix-field{font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.08em;line-height:1.4}
+.mt-tix-field small{display:block;font-size:.55em;font-weight:500;color:color-mix(in srgb,var(--ink) 55%,transparent);letter-spacing:.18em}
+.mt-tix-field b{font-weight:700;color:var(--ink)}
+.mt-tix-stub{background:color-mix(in srgb,var(--accent) 8%,var(--paper));border-left:1px solid color-mix(in srgb,var(--ink) 35%,transparent);padding:1em 1.2em}
+
+/* E12 商务粗野 · 装饰母题 */
+.mt-nb-ring,.mt-nb-disc,.mt-nb-block,.mt-nb-star{position:absolute;pointer-events:none;user-select:none}
+.mt-nb-ring{border:3px solid var(--ink);border-radius:50%}
+.mt-nb-disc{border:3px solid var(--ink);border-radius:50%;box-shadow:8px 8px 0 var(--ink)}
+.mt-nb-block{border:3px solid var(--ink);box-shadow:8px 8px 0 var(--ink)}
+.mt-nb-block-ink{position:absolute;pointer-events:none;user-select:none;border:3px solid var(--ink);background:var(--ink);box-shadow:8px 8px 0 var(--accent)}
+.mt-nb-star{clip-path:polygon(50% 0,61% 12%,75% 4%,79% 19%,95% 15%,91% 31%,100% 38%,90% 50%,100% 62%,91% 69%,95% 85%,79% 81%,75% 96%,61% 88%,50% 100%,39% 88%,25% 96%,21% 81%,5% 85%,9% 69%,0 62%,10% 50%,0 38%,9% 31%,5% 15%,21% 19%,25% 4%,39% 12%);background:var(--accent)}
+.mt-nb-line{display:block;height:3px;background:var(--ink)}
+.mt-nb-chip{display:inline-block;border:2.5px solid var(--ink);background:var(--accent);color:var(--accent-on);box-shadow:5px 5px 0 var(--ink);padding:.25em .7em}
+
+/* F1 浮光玻璃 · 装饰母题 */
+.mt-gls-card{position:relative;border:1px solid color-mix(in srgb,var(--accent-on) 65%,transparent);border-radius:24px;background:linear-gradient(155deg,color-mix(in srgb,var(--paper) 62%,transparent),color-mix(in srgb,var(--paper) 34%,transparent));backdrop-filter:blur(18px) saturate(150%);-webkit-backdrop-filter:blur(18px) saturate(150%);box-shadow:inset 0 1px 0 color-mix(in srgb,var(--accent-on) 70%,transparent),0 1px 2px color-mix(in srgb,var(--ink) 5%,transparent),0 16px 40px -12px color-mix(in srgb,var(--ink) 20%,transparent)}
+.mt-gls-blob{position:absolute;pointer-events:none;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--accent) 38%,transparent),transparent 70%);filter:blur(48px)}
+.mt-gls-chip{display:inline-flex;align-items:center;gap:.5em;padding:.35em 1em;border-radius:999px;border:1px solid color-mix(in srgb,var(--accent-on) 60%,transparent);background:color-mix(in srgb,var(--paper) 40%,transparent);backdrop-filter:blur(10px) saturate(140%);-webkit-backdrop-filter:blur(10px) saturate(140%);box-shadow:0 4px 14px -6px color-mix(in srgb,var(--ink) 16%,transparent)}
+
+/* F2 霓虹夜行 · 装饰母题 */
+.mt-neo-tube{position:relative;border:1px solid color-mix(in srgb,var(--accent) 55%,transparent);border-radius:14px;background:color-mix(in srgb,var(--paper-tint) 55%,transparent);box-shadow:inset 0 0 18px color-mix(in srgb,var(--accent) 16%,transparent),0 0 24px -6px color-mix(in srgb,var(--accent) 45%,transparent)}
+.mt-neo-sign{color:var(--accent);text-shadow:0 0 10px color-mix(in srgb,var(--accent) 65%,transparent),0 0 36px color-mix(in srgb,var(--accent) 32%,transparent)}
+.mt-neo-line{height:2px;border:none;border-radius:2px;background:var(--accent);box-shadow:0 0 10px color-mix(in srgb,var(--accent) 70%,transparent),0 0 28px color-mix(in srgb,var(--accent) 28%,transparent)}
+.mt-neo-dot{display:inline-block;width:.5em;height:.5em;border-radius:50%;background:var(--accent);box-shadow:0 0 12px color-mix(in srgb,var(--accent) 80%,transparent);animation:amb-pulse 2.4s ease-in-out infinite}
+.mt-neo-refl{transform:scaleY(-1);opacity:.35;pointer-events:none;filter:blur(1px);-webkit-mask-image:linear-gradient(180deg,transparent 28%,color-mix(in srgb,var(--accent) 45%,transparent));mask-image:linear-gradient(180deg,transparent 28%,color-mix(in srgb,var(--accent) 45%,transparent))}
+@media (prefers-reduced-motion: reduce){.mt-neo-dot{animation:none}}
+
+/* G1 翡翠年鉴 · 装饰母题 */
+.mt-emr-seal{width:88px;height:88px;border-radius:50%;border:2px solid var(--accent);box-shadow:inset 0 0 0 5px color-mix(in srgb,var(--accent) 25%,transparent);pointer-events:none}
+.mt-emr-rule{display:block;height:6px;border-top:2px solid var(--ink);border-bottom:1px solid var(--ink)}
+.mt-emr-tab{position:absolute;top:0;width:56px;height:14px;background:var(--accent);pointer-events:none}
+
+/* G2 腮红荧光笔 · 装饰母题 */
+.mt-hl-mark{background:linear-gradient(180deg,transparent 58%,color-mix(in srgb,var(--hl-c,var(--hl-1)) 60%,transparent) 58%,color-mix(in srgb,var(--hl-c,var(--hl-1)) 60%,transparent) 92%,transparent 92%);padding:0 .08em}
+.mt-hl-mark--2{--hl-c:var(--hl-2)}
+.mt-hl-mark--3{--hl-c:var(--hl-3)}
+.mt-hl-mark--4{--hl-c:var(--hl-4)}
+.mt-hl-circle{border:2.5px solid color-mix(in srgb,var(--hl-c,var(--hl-1)) 80%,transparent);border-radius:50%;padding:.1em .3em;transform:rotate(-1.5deg)}
+.mt-hl-tape{position:absolute;width:88px;height:24px;background:color-mix(in srgb,var(--hl-c,var(--hl-1)) 45%,transparent);transform:rotate(-4deg);pointer-events:none}
+
+/* G3 陶土印刷 · 装饰母题 */
+.mt-ter-rule{display:flex;align-items:center;gap:12px;color:var(--ink);opacity:.8}
+.mt-ter-rule::before,.mt-ter-rule::after{content:"";flex:1;border-top:1px solid color-mix(in srgb,var(--ink) 45%,transparent)}
+.mt-ter-deboss{background:var(--paper-tint);box-shadow:inset 0 1px 0 color-mix(in srgb,var(--ink) 18%,transparent),inset 0 -1px 0 color-mix(in srgb,var(--paper) 80%,transparent)}
+.mt-ter-stamp{display:inline-block;border:2px solid var(--ink);padding:.2em .6em;transform:rotate(-2deg);font-family:var(--font-mono);font-size:13px;letter-spacing:.2em}
+
+/* G4 靛墨黄页 · 装饰母题 */
+.mt-bie-num{font-family:var(--font-mono);font-weight:700;line-height:1;color:transparent;-webkit-text-stroke:1.5px var(--ink);pointer-events:none}
+.mt-bie-wedge{position:absolute;background:var(--accent);pointer-events:none}
+.mt-bie-band{display:block;height:14px;background:linear-gradient(180deg,var(--accent) 50%,var(--ink) 50%)}
+
+/* G5 三色旬刊 · 装饰母题 */
+.mt-tri-band{display:block;height:12px;background:linear-gradient(90deg,var(--paper) 0 33.3%,var(--accent) 33.3% 66.6%,var(--ink) 66.6%)}
+.mt-tri-tag{font-family:var(--font-mono);font-size:14px;letter-spacing:.18em;color:var(--ink);border:1.5px solid var(--ink);padding:.25em .8em;display:inline-block}
+.mt-tri-frame{border:1.5px solid var(--ink);outline:1px solid var(--ink);outline-offset:5px}
+
+/* 打印：每页一张 1920×1080（PDF 导出请用 Chrome/Edge） */
+@media print{
+  @page{size:1920px 1080px;margin:0}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{background:none}
+  .deck{height:auto;overflow:visible}
+  .slide-slot{height:1080px;margin:0;page-break-after:always}
+  .slide{transform:none !important}
+  .deck-chrome{display:none}
+  .reveal,[data-anim]{opacity:1 !important;transform:none !important}
+  [data-anim="flicker-in"]{animation:none !important;opacity:1 !important}
+  .split-anim .sp-unit{opacity:1 !important;transform:none !important;transition:none !important}
+  [data-anim="draw-line"]{stroke-dashoffset:0 !important}
+  [data-anim="mend-bar"]{transform:scaleX(calc(var(--val,100)/100)) !important;background:var(--accent) !important;animation:none !important;transition:none !important}
+}
+
+/* D4 黄铜年代 · 装饰母题（gallery 未收录，内联补入） */
+.mt-brs-rivet{position:absolute;width:8px;height:8px;border-radius:50%;pointer-events:none;background:radial-gradient(circle at 34% 30%,color-mix(in srgb,var(--accent) 42%,var(--ink)),var(--accent) 55%,color-mix(in srgb,var(--accent) 52%,var(--paper)));box-shadow:0 1px 1px color-mix(in srgb,var(--paper) 82%,transparent)}
+.mt-brs-engrave{border:2px solid color-mix(in srgb,var(--accent) 72%,transparent);outline:1px solid color-mix(in srgb,var(--accent) 38%,transparent);outline-offset:3px;box-shadow:inset 0 1px 2px color-mix(in srgb,var(--paper) 75%,transparent),inset 0 -1px 0 color-mix(in srgb,var(--accent) 25%,transparent)}
+.mt-brs-stamp{display:inline-block;padding:.32em .85em;border:2px solid color-mix(in srgb,var(--accent-2) 85%,transparent);color:var(--accent-2);font-family:var(--font-mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;transform:rotate(-3deg)}
+.mt-brs-grid{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,color-mix(in srgb,var(--ink) 6%,transparent) 0 1px,transparent 1px 56px),repeating-linear-gradient(90deg,color-mix(in srgb,var(--ink) 6%,transparent) 0 1px,transparent 1px 56px)}
+
+/* E1 孔版印刷 · 补充母题（gallery 未收录 .mt-ris-stamp/.mt-ris-halftone-full/.mt-ris-belt） */
+.mt-ris-stamp{display:inline-block;background:var(--accent);color:var(--paper);font-family:var(--font-mono);font-weight:800;font-size:14px;letter-spacing:.12em;padding:.3em .7em;transform:rotate(-3deg);text-transform:uppercase}
+.mt-ris-halftone-full{position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(color-mix(in srgb,var(--ink) 55%,transparent) 1px,transparent 1.6px);background-size:4px 4px;opacity:.16;z-index:0}
+.mt-ris-belt{position:absolute;pointer-events:none;overflow:hidden;opacity:.85}
+.mt-ris-belt::before,.mt-ris-belt::after{content:"";position:absolute;height:100%;width:40%;transform:rotate(22deg)}
+.mt-ris-belt::before{background:color-mix(in srgb,var(--accent) 70%,transparent);left:-5%}
+.mt-ris-belt::after{background:color-mix(in srgb,var(--accent-2) 55%,transparent);right:-5%;transform:rotate(-22deg)}
+
+</style>
+
+/* ===== 截图修复：强制 1:1 渲染 ===== */
+:root{--slide-scale:1}
+html,body{background:#222;height:auto}
+.deck{display:flex!important;flex-direction:column!important;align-items:center!important;height:auto!important;overflow:visible!important;padding:24px 0;scroll-snap-type:none!important}
+.slide-slot{width:1920px!important;height:1080px!important;margin:12px 0!important;position:relative;overflow:visible!important;content-visibility:visible!important;scroll-snap-align:none!important}
+.slide{width:1920px!important;height:1080px!important;transform:none!important;overflow:hidden}
+.reveal{opacity:1!important;transform:none!important}
+[data-anim="wipe-clip"]{clip-path:inset(0 0 0 0)!important}
+[data-anim="mask-lines"] .ml-inner{transform:none!important}
+[data-anim="blur-in"]{filter:none!important}
+[data-anim="flicker-in"]{opacity:1!important;animation:none!important}
+[data-anim="ring"]{stroke-dashoffset:calc(100 - var(--val,0))!important}
+[data-anim="gradient-flow"]{animation:none!important}
+[data-anim="typewriter"].tw-live::after{animation:none!important}
+[data-anim="scale-pop"]{opacity:1!important;transform:none!important}
+.split-anim .sp-unit{opacity:1!important;transform:none!important}
+.amb-pulse,.amb-drift,.amb-glow{animation:none!important}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+  <div class="slide-slot">
+    <section class="slide texture-on" data-slide-id="theme-d4" style="font-family:var(--font-body);--paper:#1a2332;--paper-tint:#243044;--ink:#e8dcc8;--ink-tint:#3a4a5e;--accent:#b8860b;--accent-on:#1a2332;--accent-2:#c0392b;--accent-2-on:#e8dcc8;--font-display:'Franklin Gothic Medium','Arial Narrow','PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;--font-body:'Helvetica Neue','PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;--font-mono:'SF Mono','JetBrains Mono','Menlo',monospace;--texture-type:grain;--texture-layer:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55 0.75' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23f)' opacity='0.05'/%3E%3C/svg%3E&quot;);--texture-scope:cover">
+      <!-- G9 母题：疏格蓝图网（仪式页背景） -->
+      <div class="mt-brs-grid" data-editable-skip></div>
+      <div style="position:relative;height:100%;display:flex;flex-direction:column;justify-content:center;padding:96px 120px">
+        <p data-editable class="reveal" style="font-family:var(--font-mono);font-size:16px;font-weight:600;letter-spacing:.18em;color:var(--accent)">1.1 · 整体特色及优势</p>
+
+        <!-- G10 claim: 刻线框阵承载主张句 -->
+        <div class="mt-brs-engrave reveal" style="--d:.1s;position:relative;margin-top:24px;max-width:1280px;padding:32px 48px">
+          <span class="mt-brs-rivet" data-editable-skip style="top:-4px;left:-4px"></span>
+          <span class="mt-brs-rivet" data-editable-skip style="top:-4px;right:-4px"></span>
+          <span class="mt-brs-rivet" data-editable-skip style="bottom:-4px;left:-4px"></span>
+          <span class="mt-brs-rivet" data-editable-skip style="bottom:-4px;right:-4px"></span>
+          <p data-editable style="font-family:var(--font-mono);font-size:14px;font-weight:600;letter-spacing:.14em;color:var(--accent);text-transform:uppercase">EXPO-26 / HALL 1 · OVERVIEW</p>
+          <h1 data-editable data-anim="wipe-clip" style="margin-top:14px;font-family:var(--font-display);font-size:108px;line-height:1.1;font-weight:700;letter-spacing:.06em;text-transform:uppercase">一杯好茶  山野作答</h1>
+        </div>
+
+        <!-- 红色标注章从框角引出批注 -->
+        <div class="reveal" style="--d:.18s;position:relative;margin-top:-8px;margin-left:900px">
+          <span class="mt-brs-stamp" data-editable>APPROVED</span>
+        </div>
+
+        <!-- 正文段（刻线框承载） -->
+        <div class="mt-brs-engrave reveal" style="--d:.22s;position:relative;margin-top:24px;max-width:1280px;padding:24px 36px">
+          <span class="mt-brs-rivet" data-editable-skip style="top:-4px;left:-4px"></span>
+          <span class="mt-brs-rivet" data-editable-skip style="top:-4px;right:-4px"></span>
+          <span class="mt-brs-rivet" data-editable-skip style="bottom:-4px;left:-4px"></span>
+          <span class="mt-brs-rivet" data-editable-skip style="bottom:-4px;right:-4px"></span>
+          <p data-editable style="font-size:18px;line-height:1.8">山禾集深耕新式茶饮行业，同时通过全资子公司山禾供应链管理有限公司协同布局上游茶园直采业务。通过多年不懈努力，山禾集秉持“当季鲜茶，日常相伴”的经营理念，建立起从茶园到门店的全链路品控流程，持续为消费者创造价值，赢得了广大茶饮爱好者的喜爱。</p>
+          <p data-editable style="margin-top:10px;font-size:18px;line-height:1.8">近年来山禾集门店网络稳步扩张，行业排名持续提升。2019年，山禾集全国门店总数突破八千家，跻身行业头部梯队。截至2026年6月30日，山禾集全国门店总数8,637家（含直营门店1,653家，子公司山禾供应链合作门店432家），其中标准门店8,428家，位于行业前列；城市旗舰店总数361家。成立以来累计为超过6.8亿会员用户售出茶饮2.8亿杯。</p>
+        </div>
+
+        <!-- G10 data: 刻线框阵内参数条目（非横排等权三格） -->
+        <div class="reveal" style="--d:.3s;margin-top:24px;display:flex;gap:0;max-width:1280px">
+          <!-- 主数字独占刻线框 + 黄铜刻度线托底 -->
+          <div class="mt-brs-engrave" style="position:relative;flex:0 0 540px;padding:24px 32px;border-bottom:3px solid var(--accent)">
+            <span class="mt-brs-rivet" data-editable-skip style="top:-4px;left:-4px"></span>
+            <span class="mt-brs-rivet" data-editable-skip style="top:-4px;right:-4px"></span>
+            <span class="mt-brs-rivet" data-editable-skip style="bottom:-4px;left:-4px"></span>
+            <span class="mt-brs-rivet" data-editable-skip style="bottom:-4px;right:-4px"></span>
+            <p data-editable style="font-family:var(--font-mono);font-size:14px;font-weight:600;letter-spacing:.14em;color:var(--accent)">SPEC.01 · KEY</p>
+            <p data-editable style="margin-top:8px;font-family:var(--font-mono);font-size:52px;font-weight:800;line-height:1.1">8,637<span style="font-size:26px">家</span></p>
+            <p data-editable style="margin-top:8px;font-size:16px;line-height:1.55;opacity:.85">山禾集（含直营和子公司山禾供应链）全国门店总数</p>
+            <p data-editable style="margin-top:6px;font-family:var(--font-mono);font-size:14px;font-weight:600;color:var(--accent-2)">行业前列</p>
+          </div>
+          <div class="mt-brs-engrave" style="position:relative;flex:0 0 380px;margin-left:-1px;padding:24px 32px">
+            <span class="mt-brs-rivet" data-editable-skip style="top:-4px;left:-4px"></span>
+            <span class="mt-brs-rivet" data-editable-skip style="top:-4px;right:-4px"></span>
+            <span class="mt-brs-rivet" data-editable-skip style="bottom:-4px;left:-4px"></span>
+            <span class="mt-brs-rivet" data-editable-skip style="bottom:-4px;right:-4px"></span>
+            <p data-editable style="font-family:var(--font-mono);font-size:14px;font-weight:600;letter-spacing:.14em;color:var(--accent)">SPEC.02</p>
+            <p data-editable style="margin-top:8px;font-family:var(--font-mono);font-size:42px;font-weight:800;line-height:1.1">2.8<span style="font-size:22px">亿杯</span></p>
+            <p data-editable style="margin-top:8px;font-size:16px;line-height:1.55;opacity:.85">成立以来累计为超过6.8亿会员用户售出茶饮</p>
+          </div>
+          <div class="mt-brs-engrave" style="position:relative;flex:0 0 340px;margin-left:-1px;padding:24px 32px">
+            <span class="mt-brs-rivet" data-editable-skip style="top:-4px;left:-4px"></span>
+            <span class="mt-brs-rivet" data-editable-skip style="top:-4px;right:-4px"></span>
+            <span class="mt-brs-rivet" data-editable-skip style="bottom:-4px;left:-4px"></span>
+            <span class="mt-brs-rivet" data-editable-skip style="bottom:-4px;right:-4px"></span>
+            <p data-editable style="font-family:var(--font-mono);font-size:14px;font-weight:600;letter-spacing:.14em;color:var(--accent)">SPEC.03</p>
+            <p data-editable style="margin-top:8px;font-family:var(--font-mono);font-size:42px;font-weight:800;line-height:1.1">361<span style="font-size:22px">家</span></p>
+            <p data-editable style="margin-top:8px;font-size:16px;line-height:1.55;opacity:.85">城市旗舰店总数</p>
+          </div>
+        </div>
+
+        <!-- 价值观 -->
+        <div class="reveal" style="--d:.38s;margin-top:20px;max-width:1280px">
+          <p data-editable style="font-family:var(--font-mono);font-size:16px;line-height:1.7;color:var(--accent)">经营理念：当季鲜茶，日常相伴。</p>
+          <p data-editable style="margin-top:6px;font-family:var(--font-mono);font-size:16px;line-height:1.7;color:var(--accent)">使命：为大众提供新鲜、健康、平价的日常茶饮。</p>
+          <p data-editable style="margin-top:6px;font-family:var(--font-mono);font-size:16px;line-height:1.7;color:var(--accent)">愿景：成为持续领先的新式茶饮品牌。</p>
+        </div>
+        <p data-editable class="reveal" style="--d:.44s;margin-top:10px;font-family:var(--font-mono);font-size:13px;opacity:.5">* 注：山禾集为虚构演示品牌，文中数据均为虚构，仅用于主题样式对比展示。</p>
+      </div>
+
+      <!-- 页脚 -->
+      <div style="position:absolute;left:120px;right:120px;bottom:30px;display:flex;justify-content:space-between;align-items:baseline;gap:2em;font-family:var(--font-mono);font-size:14px;opacity:.6">
+        <span data-editable>山禾集 · 经营情况汇报</span>
+        <span data-editable>D4 · 黄铜年代 · 深蓝图纸</span>
+        <span data-editable>13 / 29</span>
+      </div>
+    </section>
+  </div>
+  <div class="slide-slot">
+    <section class="slide texture-on" data-slide-id="theme-e9" style="font-family:var(--font-body);--paper:#f0e9d8;--paper-tint:#e3d9c3;--ink:#2c251d;--ink-tint:#413729;--accent:#a85a2a;--accent-on:#f0e9d8;--font-display:'Avenir Next','Helvetica Neue','PingFang SC','Noto Sans SC',sans-serif;--font-body:'PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;--font-mono:'JetBrains Mono','SF Mono','Menlo',monospace;--texture-type:grain;--texture-layer:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E&quot;);--texture-scope:all">
+      <!-- G9 母题：层理色带（页底） -->
+      <div class="mt-geo-strata" data-editable-skip style="height:12%"></div>
+      <!-- G9 母题：等高线圈（页角留白装饰） -->
+      <div class="mt-geo-contour" data-editable-skip style="right:-80px;top:-60px;width:300px;height:300px"></div>
+      <!-- G9 母题：岩芯样本条（年代标尺） -->
+      <div class="mt-geo-core" data-editable-skip style="position:absolute;right:140px;top:180px;height:460px"></div>
+      <div class="mt-geo-tag" data-editable-skip style="position:absolute;right:190px;top:210px"><span>CORE SH-26 · QUATERNARY</span></div>
+
+      <div style="position:relative;height:100%;display:flex;flex-direction:column;justify-content:flex-start;padding:80px 120px 160px">
+        <p data-editable class="reveal mt-geo-tag" style="font-size:14px"><span>1.1 · 整体特色及优势</span></p>
+
+        <!-- G10 claim: 剖面切片阵承载主张句 -->
+        <div class="reveal" style="--d:.1s;margin-top:20px;display:flex;gap:0;max-width:1240px">
+          <div style="flex:0 0 auto;background:color-mix(in srgb,var(--accent) 22%,var(--paper));border-top:2px solid var(--accent);padding:28px 40px;min-width:680px">
+            <h1 data-editable data-anim="wipe-clip" style="font-family:var(--font-display);font-size:88px;line-height:1.15;font-weight:700;letter-spacing:.02em">一杯好茶  山野作答</h1>
+          </div>
+          <div style="flex:0 0 auto;background:var(--paper-tint);border-top:2px solid color-mix(in srgb,var(--ink) 30%,transparent);padding:28px 40px;max-width:520px">
+            <p data-editable style="font-size:18px;line-height:1.8">山禾集深耕新式茶饮行业，同时通过全资子公司山禾供应链管理有限公司协同布局上游茶园直采业务。通过多年不懈努力，山禾集秉持“当季鲜茶，日常相伴”的经营理念，建立起从茶园到门店的全链路品控流程，持续为消费者创造价值，赢得了广大茶饮爱好者的喜爱。</p>
+          </div>
+        </div>
+
+        <div class="reveal" style="--d:.18s;margin-top:0;display:flex;gap:0;max-width:1240px">
+          <div style="flex:0 0 auto;background:var(--paper-tint);padding:24px 40px;max-width:680px">
+            <p data-editable style="font-size:18px;line-height:1.8">近年来山禾集门店网络稳步扩张，行业排名持续提升。2019年，山禾集全国门店总数突破八千家，跻身行业头部梯队。截至2026年6月30日，山禾集全国门店总数8,637家（含直营门店1,653家，子公司山禾供应链合作门店432家），其中标准门店8,428家，位于行业前列；城市旗舰店总数361家。成立以来累计为超过6.8亿会员用户售出茶饮2.8亿杯。</p>
+          </div>
+          <div style="flex:0 0 auto;background:color-mix(in srgb,var(--accent) 12%,var(--paper));padding:24px 40px;max-width:520px">
+            <p data-editable style="font-family:var(--font-mono);font-size:15px;line-height:1.7">经营理念：当季鲜茶，日常相伴。</p>
+            <p data-editable style="margin-top:8px;font-family:var(--font-mono);font-size:15px;line-height:1.7">使命：为大众提供新鲜、健康、平价的日常茶饮。</p>
+            <p data-editable style="margin-top:8px;font-family:var(--font-mono);font-size:15px;line-height:1.7">愿景：成为持续领先的新式茶饮品牌。</p>
+          </div>
+        </div>
+
+        <!-- G10 data: 层理色带上分段标尺（非横排等权三格）——在层理色带上方做分段标注 -->
+        <div class="reveal" style="--d:.26s;position:absolute;left:120px;right:120px;bottom:140px;display:flex;gap:0">
+          <div style="flex:0 0 540px;border-top:2px solid var(--accent);background:color-mix(in srgb,var(--accent) 15%,var(--paper));padding:20px 32px">
+            <div class="mt-geo-tag" data-editable-skip style="margin-bottom:8px"><span>LAYER A · KEY</span></div>
+            <p data-editable style="font-family:var(--font-mono);font-size:48px;font-weight:700;line-height:1.1;color:var(--accent)">8,637<span style="font-size:24px">家</span></p>
+            <p data-editable style="margin-top:6px;font-size:15px;line-height:1.55;opacity:.85">山禾集（含直营和子公司山禾供应链）全国门店总数</p>
+            <p data-editable style="margin-top:4px;font-family:var(--font-mono);font-size:13px;color:var(--accent)">行业前列</p>
+          </div>
+          <div style="flex:0 0 360px;border-top:2px solid color-mix(in srgb,var(--ink) 30%,transparent);background:color-mix(in srgb,var(--ink) 8%,var(--paper));padding:20px 32px;margin-left:-1px">
+            <div class="mt-geo-tag" data-editable-skip style="margin-bottom:8px"><span>LAYER B</span></div>
+            <p data-editable style="font-family:var(--font-mono);font-size:40px;font-weight:700;line-height:1.1">2.8<span style="font-size:20px">亿杯</span></p>
+            <p data-editable style="margin-top:6px;font-size:15px;line-height:1.55;opacity:.85">成立以来累计为超过6.8亿会员用户售出茶饮</p>
+          </div>
+          <div style="flex:0 0 320px;border-top:2px solid color-mix(in srgb,var(--ink) 30%,transparent);background:color-mix(in srgb,var(--ink) 5%,var(--paper));padding:20px 32px;margin-left:-1px">
+            <div class="mt-geo-tag" data-editable-skip style="margin-bottom:8px"><span>LAYER C</span></div>
+            <p data-editable style="font-family:var(--font-mono);font-size:40px;font-weight:700;line-height:1.1">361<span style="font-size:20px">家</span></p>
+            <p data-editable style="margin-top:6px;font-size:15px;line-height:1.55;opacity:.85">城市旗舰店总数</p>
+          </div>
+        </div>
+
+        <p data-editable class="reveal" style="--d:.36s;position:absolute;left:120px;bottom:96px;font-family:var(--font-mono);font-size:13px;opacity:.5">* 注：山禾集为虚构演示品牌，文中数据均为虚构，仅用于主题样式对比展示。</p>
+      </div>
+
+      <!-- 页脚 -->
+      <div style="position:absolute;left:120px;right:120px;bottom:30px;display:flex;justify-content:space-between;align-items:baseline;gap:2em;font-family:var(--font-mono);font-size:14px;opacity:.6;z-index:10">
+        <span data-editable>山禾集 · 经营情况汇报</span>
+        <span data-editable>E9 · 地质地层 · 赭石</span>
+        <span data-editable>14 / 29</span>
+      </div>
+    </section>
+  </div>
+  <div class="slide-slot">
+    <section class="slide texture-on" data-slide-id="theme-e10" style="font-family:var(--font-body);--paper:#0b1426;--paper-tint:#152138;--ink:#dfe7f2;--ink-tint:#1d2c47;--accent:#e8b64c;--accent-on:#0b1426;--font-display:'Songti SC','Noto Serif SC','STSong',serif;--font-body:'PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;--font-mono:'SF Mono','JetBrains Mono','Menlo',monospace;--texture-type:grain;--texture-layer:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E&quot;);--texture-scope:cover">
+      <!-- G9 母题：黄道坐标网格（仪式页背景） -->
+      <div class="mt-star-grid" data-editable-skip></div>
+
+      <!-- G9 母题：星座件——主张句节点 + 连线 -->
+      <!-- 星座：5 颗星，连线缝成一组 -->
+      <span class="mt-star-dot" data-editable-skip style="left:360px;top:320px"></span>
+      <span class="mt-star-dot" data-editable-skip style="left:580px;top:260px"></span>
+      <span class="mt-star-dot" data-editable-skip style="left:760px;top:380px"></span>
+      <span class="mt-star-dot" data-editable-skip style="left:700px;top:540px"></span>
+      <span class="mt-star-dot" data-editable-skip style="left:460px;top:500px"></span>
+      <!-- 连线 -->
+      <span class="mt-star-link" data-editable-skip style="left:363px;top:323px;width:228px;transform:rotate(-15.5deg)"></span>
+      <span class="mt-star-link" data-editable-skip style="left:583px;top:263px;width:206px;transform:rotate(35.8deg)"></span>
+      <span class="mt-star-link" data-editable-skip style="left:763px;top:383px;width:171px;transform:rotate(110.6deg)"></span>
+      <span class="mt-star-link" data-editable-skip style="left:703px;top:543px;width:249px;transform:rotate(-167.3deg)"></span>
+
+      <!-- 斜体星名标注 -->
+      <p class="mt-star-name" data-editable style="position:absolute;left:500px;top:560px;font-size:22px">山禾座</p>
+      <p class="mt-star-mag" data-editable style="position:absolute;left:370px;top:288px">MAG 1.0 · RA 01H 22M</p>
+
+      <!-- 数据星座：3 颗星 -->
+      <span class="mt-star-dot" data-editable-skip style="left:1140px;top:380px;width:7px;height:7px;box-shadow:0 0 14px color-mix(in srgb,var(--accent) 85%,transparent)"></span>
+      <span class="mt-star-dot" data-editable-skip style="left:1380px;top:320px"></span>
+      <span class="mt-star-dot" data-editable-skip style="left:1480px;top:480px"></span>
+      <span class="mt-star-link" data-editable-skip style="left:1143px;top:383px;width:247px;transform:rotate(-14.2deg)"></span>
+      <span class="mt-star-link" data-editable-skip style="left:1383px;top:323px;width:189px;transform:rotate(57.5deg)"></span>
+
+      <div style="position:relative;height:100%;display:flex;flex-direction:column;justify-content:center;padding:96px 120px">
+        <p data-editable class="reveal" style="font-family:var(--font-mono);font-size:15px;letter-spacing:.3em;color:var(--accent)">1.1 · 整体特色及优势</p>
+
+        <!-- G10 claim: 星座连线网承载主张句 -->
+        <div class="reveal" style="--d:.12s;margin-top:24px;max-width:900px;position:relative">
+          <h1 data-editable data-anim="wipe-clip" style="font-family:var(--font-display);font-size:96px;line-height:1.2;font-weight:400;letter-spacing:.08em">一杯好茶  山野作答</h1>
+          <p class="mt-star-name" data-editable style="margin-top:16px;font-size:20px">主张即星座——信息要点之间的关系比要点本身更重要</p>
+        </div>
+
+        <!-- 正文段（无框悬浮） -->
+        <div class="reveal" style="--d:.22s;margin-top:32px;max-width:860px">
+          <p data-editable style="font-size:18px;line-height:1.85;opacity:.88">山禾集深耕新式茶饮行业，同时通过全资子公司山禾供应链管理有限公司协同布局上游茶园直采业务。通过多年不懈努力，山禾集秉持“当季鲜茶，日常相伴”的经营理念，建立起从茶园到门店的全链路品控流程，持续为消费者创造价值，赢得了广大茶饮爱好者的喜爱。</p>
+          <p data-editable style="margin-top:10px;font-size:18px;line-height:1.85;opacity:.88">近年来山禾集门店网络稳步扩张，行业排名持续提升。2019年，山禾集全国门店总数突破八千家，跻身行业头部梯队。截至2026年6月30日，山禾集全国门店总数8,637家（含直营门店1,653家，子公司山禾供应链合作门店432家），其中标准门店8,428家，位于行业前列；城市旗舰店总数361家。成立以来累计为超过6.8亿会员用户售出茶饮2.8亿杯。</p>
+        </div>
+
+        <!-- G10 data: 星座节点排列（非横排等权三格）——主数字独占最亮星 -->
+        <div class="reveal" style="--d:.32s;margin-top:28px;max-width:900px">
+          <p class="mt-star-mag" data-editable style="margin-bottom:12px">DATA · 3 STARS · 1 PRIMARY</p>
+          <div style="display:flex;gap:0;align-items:flex-end">
+            <div style="flex:0 0 480px;border-left:1px dashed color-mix(in srgb,var(--accent) 55%,transparent);padding:12px 28px">
+              <p class="mt-star-mag" data-editable>★ MAG 1.0 · BRIGHT</p>
+              <p data-editable style="margin-top:6px;font-family:var(--font-mono);font-size:48px;font-weight:700;line-height:1.1;color:var(--accent)">8,637<span style="font-size:24px">家</span></p>
+              <p data-editable style="margin-top:6px;font-size:15px;line-height:1.55;opacity:.8">山禾集（含直营和子公司山禾供应链）全国门店总数</p>
+              <p data-editable style="margin-top:4px;font-family:var(--font-mono);font-size:13px;color:var(--accent)">行业前列</p>
+            </div>
+            <div style="flex:0 0 280px;border-left:1px dashed color-mix(in srgb,var(--ink) 30%,transparent);padding:12px 28px">
+              <p class="mt-star-mag" data-editable>★ MAG 2.1</p>
+              <p data-editable style="margin-top:6px;font-family:var(--font-mono);font-size:40px;font-weight:700;line-height:1.1">2.8<span style="font-size:20px">亿杯</span></p>
+              <p data-editable style="margin-top:6px;font-size:15px;line-height:1.55;opacity:.8">成立以来累计为超过6.8亿会员用户售出茶饮</p>
+            </div>
+            <div style="flex:0 0 240px;border-left:1px dashed color-mix(in srgb,var(--ink) 30%,transparent);padding:12px 28px">
+              <p class="mt-star-mag" data-editable>★ MAG 2.8</p>
+              <p data-editable style="margin-top:6px;font-family:var(--font-mono);font-size:40px;font-weight:700;line-height:1.1">361<span style="font-size:20px">家</span></p>
+              <p data-editable style="margin-top:6px;font-size:15px;line-height:1.55;opacity:.8">城市旗舰店总数</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="reveal" style="--d:.42s;margin-top:18px;max-width:860px">
+          <p data-editable style="font-family:var(--font-mono);font-size:16px;line-height:1.7;opacity:.7">经营理念：当季鲜茶，日常相伴。</p>
+          <p data-editable style="margin-top:6px;font-family:var(--font-mono);font-size:16px;line-height:1.7;opacity:.7">使命：为大众提供新鲜、健康、平价的日常茶饮。</p>
+          <p data-editable style="margin-top:6px;font-family:var(--font-mono);font-size:16px;line-height:1.7;opacity:.7">愿景：成为持续领先的新式茶饮品牌。</p>
+        </div>
+        <p data-editable class="reveal" style="--d:.48s;margin-top:10px;font-family:var(--font-mono);font-size:13px;opacity:.45">* 注：山禾集为虚构演示品牌，文中数据均为虚构，仅用于主题样式对比展示。</p>
+      </div>
+
+      <!-- 页脚 -->
+      <div style="position:absolute;left:120px;right:120px;bottom:30px;display:flex;justify-content:space-between;align-items:baseline;gap:2em;font-family:var(--font-mono);font-size:14px;opacity:.6;z-index:10">
+        <span data-editable>山禾集 · 经营情况汇报</span>
+        <span data-editable>E10 · 星图 · 深蓝夜空</span>
+        <span data-editable>15 / 29</span>
+      </div>
+    </section>
+  </div>
+  <div class="slide-slot">
+    <section class="slide texture-on" data-slide-id="theme-e1" style="--ease-out:cubic-bezier(.3,1.4,.4,1);font-family:var(--font-body);--paper:#f7f2e6;--paper-tint:#ece5d3;--ink:#221d16;--ink-tint:#332c22;--accent:#FF48B0;--accent-on:#fdfaf3;--accent-2:#0078BF;--accent-2-on:#f2f8fc;--font-display:'Helvetica Neue','Arial Black','PingFang SC','Noto Sans SC',sans-serif;--font-body:'Helvetica Neue','PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;--font-mono:'Courier New','SF Mono','JetBrains Mono',monospace;--texture-type:grain;--texture-layer:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E&quot;),radial-gradient(circle at 1px 1px,color-mix(in srgb,var(--ink) 8%,transparent) 1px,transparent 1.6px) 0 0/4px 4px,radial-gradient(70% 60% at 75% 85%,color-mix(in srgb,var(--accent) 4%,transparent),transparent 65%);--texture-scope:all">
+      <!-- G9 母题：网目调点块（页角装饰） -->
+      <div class="mt-ris-halftone" data-editable-skip style="left:80px;bottom:120px;width:200px;height:140px"></div>
+
+      <div style="position:relative;height:100%;padding:80px 100px">
+        <p data-editable data-anim="scale-pop" style="font-family:var(--font-mono);font-size:16px;font-weight:600;letter-spacing:.14em;transform:rotate(-1deg)">1.1 · 整体特色及优势</p>
+
+        <!-- G10 claim: 拼贴卡阵承载主张句 -->
+        <div data-anim="scale-pop" style="margin-top:24px;max-width:1100px;background:var(--paper-tint);padding:36px 44px;transform:rotate(1.2deg);position:relative">
+          <span class="mt-ris-misreg" data-editable-skip style="position:absolute;inset:0"></span>
+          <h1 data-editable style="font-family:var(--font-display);font-size:112px;line-height:1.05;font-weight:900;letter-spacing:-.01em;position:relative">一杯好茶  山野作答</h1>
+        </div>
+
+        <!-- 裁剪虚线分区 -->
+        <hr class="mt-ris-cut" data-editable-skip data-anim="scale-pop" style="margin-top:32px;width:90%;transform:rotate(-.5deg)">
+
+        <!-- 正文段（拼贴卡） -->
+        <div data-anim="scale-pop" style="margin-top:24px;display:flex;gap:20px;align-items:flex-start">
+          <div style="flex:1;background:color-mix(in srgb,var(--accent) 8%,var(--paper));padding:24px 32px;transform:rotate(-1deg)">
+            <p data-editable style="font-size:18px;line-height:1.8">山禾集深耕新式茶饮行业，同时通过全资子公司山禾供应链管理有限公司协同布局上游茶园直采业务。通过多年不懈努力，山禾集秉持“当季鲜茶，日常相伴”的经营理念，建立起从茶园到门店的全链路品控流程，持续为消费者创造价值，赢得了广大茶饮爱好者的喜爱。</p>
+          </div>
+          <div style="flex:1;background:color-mix(in srgb,var(--accent-2) 6%,var(--paper));padding:24px 32px;transform:rotate(1.5deg)">
+            <p data-editable style="font-size:18px;line-height:1.8">近年来山禾集门店网络稳步扩张，行业排名持续提升。2019年，山禾集全国门店总数突破八千家，跻身行业头部梯队。截至2026年6月30日，山禾集全国门店总数8,637家（含直营门店1,653家，子公司山禾供应链合作门店432家），其中标准门店8,428家，位于行业前列；城市旗舰店总数361家。成立以来累计为超过6.8亿会员用户售出茶饮2.8亿杯。</p>
+          </div>
+        </div>
+
+        <!-- G10 data: 拼贴卡阵内错落条目（非横排等权三格）——主数字独占套印色面卡 + 荧光戳记 -->
+        <div data-anim="scale-pop" style="margin-top:24px;display:flex;gap:16px;align-items:flex-start">
+          <!-- 主数字：套印色面卡 -->
+          <div class="mt-ris-field" style="flex:0 0 460px;padding:24px 32px;transform:rotate(-1.5deg);position:relative">
+            <p data-editable style="font-family:var(--font-mono);font-size:14px;font-weight:800;letter-spacing:.12em;color:var(--accent-on)">EDITION.01 · LIMITED</p>
+            <p data-editable style="margin-top:8px;font-family:var(--font-display);font-size:56px;font-weight:900;line-height:1.05;color:var(--accent-on)">8,637<span style="font-size:28px">家</span></p>
+            <p data-editable style="margin-top:8px;font-size:15px;line-height:1.55;color:var(--accent-on);opacity:.9">山禾集（含直营和子公司山禾供应链）全国门店总数</p>
+            <p data-editable style="margin-top:6px;font-family:var(--font-mono);font-size:13px;font-weight:700;color:var(--accent-on)">行业前列</p>
+            <span class="mt-ris-stamp" data-editable style="position:absolute;right:-12px;top:-12px">HAND NO.01</span>
+          </div>
+          <div style="flex:0 0 320px;background:var(--paper-tint);padding:24px 32px;transform:rotate(1deg)">
+            <p data-editable style="font-family:var(--font-mono);font-size:14px;font-weight:600;letter-spacing:.12em">EDITION.02</p>
+            <p data-editable style="margin-top:8px;font-family:var(--font-display);font-size:44px;font-weight:900;line-height:1.05">2.8<span style="font-size:22px">亿杯</span></p>
+            <p data-editable style="margin-top:8px;font-size:15px;line-height:1.55;opacity:.85">成立以来累计为超过6.8亿会员用户售出茶饮</p>
+          </div>
+          <div style="flex:0 0 280px;background:color-mix(in srgb,var(--accent) 10%,var(--paper));padding:24px 32px;transform:rotate(-1deg)">
+            <p data-editable style="font-family:var(--font-mono);font-size:14px;font-weight:600;letter-spacing:.12em">EDITION.03</p>
+            <p data-editable style="margin-top:8px;font-family:var(--font-display);font-size:44px;font-weight:900;line-height:1.05">361<span style="font-size:22px">家</span></p>
+            <p data-editable style="margin-top:8px;font-size:15px;line-height:1.55;opacity:.85">城市旗舰店总数</p>
+          </div>
+        </div>
+
+        <!-- 价值观 -->
+        <div data-anim="scale-pop" style="margin-top:20px;display:flex;gap:16px">
+          <div style="flex:1;background:color-mix(in srgb,var(--accent-2) 5%,var(--paper));padding:16px 24px;transform:rotate(0.8deg)"><p data-editable style="font-family:var(--font-mono);font-size:15px;font-weight:600;line-height:1.6">经营理念：当季鲜茶，日常相伴。</p></div>
+          <div style="flex:1;background:var(--paper-tint);padding:16px 24px;transform:rotate(-0.5deg)"><p data-editable style="font-family:var(--font-mono);font-size:15px;font-weight:600;line-height:1.6">使命：为大众提供新鲜、健康、平价的日常茶饮。</p></div>
+          <div style="flex:1;background:var(--paper-tint);padding:16px 24px;transform:rotate(-0.5deg)"><p data-editable style="font-family:var(--font-mono);font-size:15px;font-weight:600;line-height:1.6">愿景：成为持续领先的新式茶饮品牌。</p></div>
+        </div>
+        <p data-editable data-anim="scale-pop" style="margin-top:12px;font-family:var(--font-mono);font-size:13px;opacity:.5;transform:rotate(-.5deg)">* 注：山禾集为虚构演示品牌，文中数据均为虚构，仅用于主题样式对比展示。</p>
+      </div>
+
+      <!-- 页脚（E1 禁 masthead/mastfoot——但 sampler 需要标识，用拼贴卡形式） -->
+      <div style="position:absolute;left:100px;right:100px;bottom:24px;display:flex;justify-content:space-between;align-items:baseline;gap:2em;font-family:var(--font-mono);font-size:13px;opacity:.6;z-index:10">
+        <span data-editable>山禾集 · 经营情况汇报</span>
+        <span data-editable>E1 · 孔版印刷 · 荧光粉</span>
+        <span data-editable>16 / 29</span>
+      </div>
+    </section>
+  </div>
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="theme-e8" style="font-family:var(--font-body);--paper:#f4f1ea;--paper-tint:#e8e4da;--ink:#111111;--ink-tint:#232323;--accent:#C8102E;--accent-on:#fdf9f4;--font-display:'Arial Black','Impact','SimHei','PingFang SC','Noto Sans SC',sans-serif;--font-body:'Georgia','Times New Roman','Songti SC','SimSun',serif;--font-mono:'Consolas','Courier New','SF Mono',monospace;--texture-type:paper;--texture-layer:radial-gradient(85% 60% at 15% 8%,color-mix(in srgb,var(--ink) 4%,transparent),transparent 60%);--texture-scope:cover">
+      <div style="position:relative;height:100%;padding:72px 120px 60px">
+        <!-- 报头徽标条 -->
+        <div class="mt-news-mast reveal" data-editable-skip><span>山禾周报</span><span>经营情况汇报 · 2026.09 · NO.01</span></div>
+
+        <!-- G10 claim: 超粗黑标题压顶 -->
+        <h1 data-editable data-anim="wipe-clip" class="reveal" style="--d:.08s;margin-top:24px;font-family:var(--font-display);font-size:116px;line-height:1.05;font-weight:900;letter-spacing:-.01em;text-transform:uppercase">一杯好茶  山野作答</h1>
+
+        <!-- 粗细双线分区 -->
+        <hr class="mt-news-rule reveal" data-editable-skip style="--d:.14s;margin-top:20px">
+
+        <!-- 多栏衬线正文承载主张 -->
+        <div class="reveal" style="--d:.2s;margin-top:20px;display:flex;gap:32px;max-width:1680px">
+          <div style="flex:1">
+            <p data-editable class="mt-news-cols" style="font-size:17px;line-height:1.85">山禾集深耕新式茶饮行业，同时通过全资子公司山禾供应链管理有限公司协同布局上游茶园直采业务。通过多年不懈努力，山禾集秉持“当季鲜茶，日常相伴”的经营理念，建立起从茶园到门店的全链路品控流程，持续为消费者创造价值，赢得了广大茶饮爱好者的喜爱。 近年来山禾集门店网络稳步扩张，行业排名持续提升。2019年，山禾集全国门店总数突破八千家，跻身行业头部梯队。截至2026年6月30日，山禾集全国门店总数8,637家（含直营门店1,653家，子公司山禾供应链合作门店432家），其中标准门店8,428家，位于行业前列；城市旗舰店总数361家。成立以来累计为超过6.8亿会员用户售出茶饮2.8亿杯。</p>
+          </div>
+          <!-- 边栏框：数据 -->
+          <div style="flex:0 0 420px;border:1px solid var(--ink);padding:0">
+            <div style="background:var(--ink);color:var(--paper);padding:8px 16px;font-family:var(--font-mono);font-size:12px;font-weight:600;letter-spacing:.18em;text-transform:uppercase">DATA · 关键数据</div>
+            <div style="padding:16px 20px">
+              <!-- 主数字：头版大数字 + 号外红角标 -->
+              <div style="position:relative;border-bottom:1px solid color-mix(in srgb,var(--ink) 25%,transparent);padding-bottom:12px">
+                <p data-editable style="font-family:var(--font-display);font-size:52px;font-weight:900;line-height:1.1">8,637<span style="font-size:26px">家</span></p>
+                <p data-editable style="margin-top:6px;font-size:14px;line-height:1.5;font-family:var(--font-body);opacity:.8">山禾集（含直营和子公司山禾供应链）全国门店总数</p>
+                <span style="position:absolute;top:0;right:0;background:var(--accent);color:var(--accent-on);font-family:var(--font-mono);font-size:11px;font-weight:700;padding:2px 8px;letter-spacing:.1em">行业前列</span>
+              </div>
+              <div style="margin-top:12px;border-bottom:1px solid color-mix(in srgb,var(--ink) 25%,transparent);padding-bottom:10px">
+                <p data-editable style="font-family:var(--font-display);font-size:36px;font-weight:900;line-height:1.1">2.8<span style="font-size:18px">亿杯</span></p>
+                <p data-editable style="margin-top:4px;font-size:13px;line-height:1.5;font-family:var(--font-body);opacity:.8">成立以来累计为超过6.8亿会员用户售出茶饮</p>
+              </div>
+              <div style="margin-top:10px">
+                <p data-editable style="font-family:var(--font-display);font-size:36px;font-weight:900;line-height:1.1">361<span style="font-size:18px">家</span></p>
+                <p data-editable style="margin-top:4px;font-size:13px;line-height:1.5;font-family:var(--font-body);opacity:.8">城市旗舰店总数</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 斜切引文块做观点提炼 -->
+        <div class="mt-news-pull reveal" data-editable-skip style="--d:.28s;margin-top:24px;max-width:1240px">
+          <p data-editable style="font-size:22px">经营理念：当季鲜茶，日常相伴。</p>
+        </div>
+
+        <!-- 价值观续 -->
+        <div class="reveal" style="--d:.34s;margin-top:16px;display:flex;gap:32px;max-width:1240px">
+          <div style="flex:1;border-top:1px solid var(--ink);padding-top:10px"><p data-editable style="font-family:var(--font-body);font-size:17px;line-height:1.7">使命：为大众提供新鲜、健康、平价的日常茶饮。</p></div>
+          <div style="flex:1;border-top:1px solid var(--ink);padding-top:10px"><p data-editable style="font-family:var(--font-body);font-size:17px;line-height:1.7">愿景：成为持续领先的新式茶饮品牌。</p></div>
+        </div>
+        <p data-editable class="reveal" style="--d:.4s;margin-top:12px;font-family:var(--font-mono);font-size:13px;opacity:.55">* 注：山禾集为虚构演示品牌，文中数据均为虚构，仅用于主题样式对比展示。</p>
+      </div>
+
+      <!-- 页脚 -->
+      <div style="position:absolute;left:120px;right:120px;bottom:30px;display:flex;justify-content:space-between;align-items:baseline;gap:2em;font-family:var(--font-mono);font-size:14px;opacity:.6">
+        <span data-editable>山禾集 · 经营情况汇报</span>
+        <span data-editable>E8 · 号外报纸 · 纸白</span>
+        <span data-editable>17 / 29</span>
+      </div>
+    </section>
+  </div>
+  <div class="slide-slot">
+    <section class="slide" data-slide-id="theme-e11" style="font-family:var(--font-body);--paper:#FDFCF9;--paper-tint:#F2F0E8;--ink:#1D2129;--ink-tint:#3A3F4A;--accent:#0F4C81;--accent-on:#FDFCF9;--font-display:'Arial Black','Avenir Next Heavy','PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;--font-body:'PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;--font-mono:'SF Mono','JetBrains Mono','Menlo',monospace;--texture-type:flat;--texture-layer:none;--texture-scope:cover">
+      <div style="position:relative;height:100%;display:flex;flex-direction:column;padding:0">
+        <!-- accent 头带横贯版面上缘 -->
+        <div style="background:var(--accent);color:var(--accent-on);padding:12px 120px;display:flex;justify-content:space-between;align-items:baseline;font-family:var(--font-mono);font-size:14px;font-weight:600;letter-spacing:.18em;text-transform:uppercase">
+          <span data-editable>SHANHE · BUSINESS REPORT</span>
+          <span data-editable>2026.09 · NO.01 · CLAIM</span>
+        </div>
+
+        <div style="flex:1;display:flex;padding:32px 120px 0;gap:0">
+          <!-- 主券区 -->
+          <div style="flex:1;border:1px solid color-mix(in srgb,var(--ink) 30%,transparent);padding:32px 40px;position:relative">
+            <p data-editable class="reveal" style="font-family:var(--font-mono);font-size:14px;font-weight:500;letter-spacing:.18em;color:var(--accent)">1.1 · 整体特色及优势</p>
+
+            <!-- G10 claim: 票根字段行承载主张句 -->
+            <div class="reveal" style="--d:.1s;margin-top:20px;display:flex;gap:48px;align-items:baseline">
+              <p class="mt-tix-field" data-editable style="font-size:22px"><small>CLAIM</small><b>一杯好茶  山野作答</b></p>
+            </div>
+
+            <h1 data-editable data-anim="wipe-clip" class="reveal" style="--d:.16s;margin-top:16px;font-family:var(--font-display);font-size:96px;line-height:1.05;font-weight:800;letter-spacing:-.01em">一杯好茶  山野作答</h1>
+
+            <!-- 正文段（字段行形式） -->
+            <div class="reveal" style="--d:.22s;margin-top:24px;display:grid;grid-template-columns:1fr 1fr;gap:16px 48px">
+              <p class="mt-tix-field" data-editable style="font-size:16px"><small>OVERVIEW</small><b style="font-family:var(--font-body);font-weight:400;text-transform:none;letter-spacing:0;font-size:16px;line-height:1.7">山禾集深耕新式茶饮行业，同时通过全资子公司山禾供应链管理有限公司协同布局上游茶园直采业务。通过多年不懈努力，山禾集秉持“当季鲜茶，日常相伴”的经营理念，建立起从茶园到门店的全链路品控流程，持续为消费者创造价值，赢得了广大茶饮爱好者的喜爱。</b></p>
+              <p class="mt-tix-field" data-editable style="font-size:16px"><small>PROGRESS</small><b style="font-family:var(--font-body);font-weight:400;text-transform:none;letter-spacing:0;font-size:16px;line-height:1.7">近年来山禾集门店网络稳步扩张，行业排名持续提升。2019年，山禾集全国门店总数突破八千家，跻身行业头部梯队。截至2026年6月30日，山禾集全国门店总数8,637家（含直营门店1,653家，子公司山禾供应链合作门店432家），其中标准门店8,428家，位于行业前列；城市旗舰店总数361家。成立以来累计为超过6.8亿会员用户售出茶饮2.8亿杯。</b></p>
+            </div>
+
+            <!-- G10 data: 票根字段行排列（非横排等权三格）——主数字独占一行 mono 大字 + accent 头带标记 -->
+            <div class="reveal" style="--d:.3s;margin-top:24px;border-top:1px solid color-mix(in srgb,var(--ink) 25%,transparent);padding-top:16px">
+              <div style="display:flex;gap:32px;align-items:baseline;border-left:3px solid var(--accent);padding-left:16px;margin-bottom:12px">
+                <p class="mt-tix-field" data-editable style="font-size:18px"><small>KEY METRIC · PRIMARY</small><b style="font-size:48px">8,637</b><span style="font-size:24px;font-weight:700">家</span></p>
+                <p data-editable style="font-size:15px;line-height:1.55;opacity:.8;flex:1">山禾集（含直营和子公司山禾供应链）全国门店总数 · <span style="font-family:var(--font-mono);color:var(--accent);font-weight:600">行业前列</span></p>
+              </div>
+              <div style="display:flex;gap:32px">
+                <div style="flex:1">
+                  <p class="mt-tix-field" data-editable style="font-size:16px"><small>SPEC.02</small><b style="font-size:36px">2.8</b><span style="font-size:18px;font-weight:700">亿杯</span></p>
+                  <p data-editable style="margin-top:4px;font-size:14px;line-height:1.5;opacity:.8">成立以来累计为超过6.8亿会员用户售出茶饮</p>
+                </div>
+                <div style="flex:1">
+                  <p class="mt-tix-field" data-editable style="font-size:16px"><small>SPEC.03</small><b style="font-size:36px">361</b><span style="font-size:18px;font-weight:700">家</span></p>
+                  <p data-editable style="margin-top:4px;font-size:14px;line-height:1.5;opacity:.8">城市旗舰店总数</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- 价值观 -->
+            <div class="reveal" style="--d:.38s;margin-top:16px;display:flex;gap:24px">
+              <p class="mt-tix-field" data-editable style="flex:1;font-size:13px"><small>VALUE.01</small><b style="font-family:var(--font-body);font-weight:400;text-transform:none;letter-spacing:0;font-size:14px;line-height:1.6">经营理念：当季鲜茶，日常相伴。</b></p>
+              <p class="mt-tix-field" data-editable style="flex:1;font-size:13px"><small>VALUE.02</small><b style="font-family:var(--font-body);font-weight:400;text-transform:none;letter-spacing:0;font-size:14px;line-height:1.6">使命：为大众提供新鲜、健康、平价的日常茶饮。</b></p>
+              <p class="mt-tix-field" data-editable style="flex:1;font-size:13px"><small>VALUE.03</small><b style="font-family:var(--font-body);font-weight:400;text-transform:none;letter-spacing:0;font-size:14px;line-height:1.6">愿景：成为持续领先的新式茶饮品牌。</b></p>
+            </div>
+            <p data-editable class="reveal" style="--d:.44s;margin-top:10px;font-family:var(--font-mono);font-size:12px;opacity:.5">* 注：山禾集为虚构演示品牌，文中数据均为虚构，仅用于主题样式对比展示。</p>
+          </div>
+
+          <!-- 齿孔撕线 -->
+          <div class="mt-tix-perf" data-editable-skip style="width:0;height:auto;border-top:none;border-left:2px dashed color-mix(in srgb,var(--ink) 50%,transparent);margin:32px 0"></div>
+
+          <!-- 副券区（存根/摘要） -->
+          <div class="mt-tix-stub" style="flex:0 0 320px;padding:32px 28px;display:flex;flex-direction:column;justify-content:flex-start">
+            <p class="mt-tix-field" data-editable style="font-size:14px"><small>STUB · SUMMARY</small></p>
+            <p data-editable style="margin-top:12px;font-family:var(--font-display);font-size:28px;font-weight:800;line-height:1.2">一杯好茶  山野作答</p>
+            <hr style="margin-top:16px;border:none;border-top:1px solid color-mix(in srgb,var(--ink) 20%,transparent)">
+            <p class="mt-tix-field" data-editable style="margin-top:12px;font-size:13px"><small>BUSINESS</small><b style="font-family:var(--font-body);font-weight:400;text-transform:none;letter-spacing:0;font-size:13px;line-height:1.6">山禾集 · 新式茶饮</b></p>
+            <p class="mt-tix-field" data-editable style="margin-top:8px;font-size:13px"><small>STORES</small><b>8,637家</b></p>
+            <p class="mt-tix-field" data-editable style="margin-top:8px;font-size:13px"><small>CUPS</small><b>2.8亿杯</b></p>
+            <p class="mt-tix-field" data-editable style="margin-top:8px;font-size:13px"><small>FLAGSHIP</small><b>361家</b></p>
+            <p class="mt-tix-field" data-editable style="margin-top:12px;font-size:13px"><small>VALID</small><b>2026.06.30</b></p>
+            <div style="flex:1"></div>
+            <p class="mt-tix-field" data-editable style="font-size:11px;opacity:.6"><small>CLASS</small><b>THEME / E11</b></p>
+          </div>
+        </div>
+
+        <!-- 条码页底横贯 -->
+        <div style="padding:0 120px 12px">
+          <div class="mt-tix-barcode" data-editable-skip style="width:100%"></div>
+        </div>
+      </div>
+
+      <!-- 页脚 -->
+      <div style="position:absolute;left:120px;right:120px;bottom:30px;display:flex;justify-content:space-between;align-items:baseline;gap:2em;font-family:var(--font-mono);font-size:13px;opacity:.55;z-index:10">
+        <span data-editable>山禾集 · 经营情况汇报</span>
+        <span data-editable>E11 · 票据 · 航司蓝</span>
+        <span data-editable>18 / 29</span>
+      </div>
+    </section>
+  </div>
+</div>
+<script>(function(){document.documentElement.classList.add("js");document.querySelectorAll(".slide").forEach(function(s){s.classList.add("in-view")});})();</script>
+</body>
+</html>
