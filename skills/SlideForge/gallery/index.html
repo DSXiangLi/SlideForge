@@ -360,16 +360,6 @@ body{
 .mt-geo-tag{display:inline-flex;align-items:center;gap:.6em;font-family:var(--font-mono);font-size:12px;letter-spacing:.2em;color:color-mix(in srgb,var(--ink) 66%,transparent)}
 .mt-geo-tag::before{content:"";width:14px;height:1px;background:var(--accent)}
 
-/* E10 星图 · 装饰母题 */
-.mt-star-dot{position:absolute;width:5px;height:5px;border-radius:50%;background:var(--ink);box-shadow:0 0 6px color-mix(in srgb,var(--accent) 60%,transparent)}
-.mt-star-dot::before,.mt-star-dot::after{content:"";position:absolute;left:50%;top:50%;background:color-mix(in srgb,var(--ink) 80%,transparent)}
-.mt-star-dot::before{width:13px;height:1px;transform:translate(-50%,-50%)}
-.mt-star-dot::after{width:1px;height:13px;transform:translate(-50%,-50%)}
-.mt-star-link{position:absolute;height:0;border-top:1px dashed color-mix(in srgb,var(--accent) 55%,transparent);transform-origin:left center;pointer-events:none}
-.mt-star-grid{position:absolute;inset:0;pointer-events:none;opacity:.5;background:repeating-linear-gradient(0deg,transparent 0 47px,color-mix(in srgb,var(--ink) 10%,transparent) 47px 48px),repeating-linear-gradient(90deg,transparent 0 47px,color-mix(in srgb,var(--ink) 10%,transparent) 47px 48px)}
-.mt-star-name{font-family:var(--font-display);font-style:italic;letter-spacing:.06em;color:color-mix(in srgb,var(--ink) 75%,transparent)}
-.mt-star-mag{font-family:var(--font-mono);font-size:11px;letter-spacing:.22em;color:color-mix(in srgb,var(--ink) 52%,transparent)}
-
 /* E11 票据 · 装饰母题 */
 .mt-tix-perf{position:relative;border-top:2px dashed color-mix(in srgb,var(--ink) 50%,transparent)}
 .mt-tix-perf::before,.mt-tix-perf::after{content:"";position:absolute;top:-10px;width:20px;height:20px;border-radius:50%;background:var(--paper)}
@@ -1964,32 +1954,6 @@ body{
         <p data-editable class="reveal" style="--d:.24s;margin-top:40px;font-size:26px;line-height:1.7;opacity:.78">同一段内容，二十九个世界</p>
       </div>
       <p data-editable style="position:absolute;left:120px;bottom:136px;font-family:var(--font-mono);font-size:15px;font-weight:500;opacity:.6">E9 · 地质地层 · 赭石</p>
-    </section>
-  </div>
-
-  <!-- 43 · 主题样张 E10 星图（母题：黄道坐标网格 / 星座件 5 星 4 连线 / 斜体星名 + 星等注记——星名与注记文字可编辑；无 canvas fx） -->
-  <div class="slide-slot">
-    <section class="slide cover-page" data-slide-id="theme-e10" style="--paper:#0b1426;--paper-tint:#152138;--ink:#dfe7f2;--ink-tint:#1d2c47;--accent:#e8b64c;--accent-on:#0b1426;--font-display:'Songti SC','Noto Serif SC','STSong',serif;--font-body:'PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;--font-mono:'SF Mono','JetBrains Mono','Menlo',monospace;--texture-type:grain;--texture-layer:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22240%22 height=%22240%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.9%22 numOctaves=%222%22 stitchTiles=%22stitch%22/%3E%3CfeColorMatrix type=%22saturate%22 values=%220%22/%3E%3C/filter%3E%3Crect width=%22240%22 height=%22240%22 filter=%22url(%23n)%22 opacity=%220.04%22/%3E%3C/svg%3E');--texture-scope:cover" data-content-hash="33f91e45d0e3">
-      <div class="mt-star-grid" data-editable-skip></div>
-      <div data-editable-skip>
-        <span class="mt-star-dot" style="left:1240px;top:300px"></span>
-        <span class="mt-star-dot" style="left:1420px;top:240px"></span>
-        <span class="mt-star-dot" style="left:1560px;top:360px"></span>
-        <span class="mt-star-dot" style="left:1500px;top:520px"></span>
-        <span class="mt-star-dot" style="left:1300px;top:480px"></span>
-        <span class="mt-star-link" style="left:1243px;top:303px;width:190px;transform:rotate(-18.4deg)"></span>
-        <span class="mt-star-link" style="left:1423px;top:243px;width:184px;transform:rotate(40.6deg)"></span>
-        <span class="mt-star-link" style="left:1563px;top:363px;width:171px;transform:rotate(110.6deg)"></span>
-        <span class="mt-star-link" style="left:1503px;top:523px;width:204px;transform:rotate(-168.7deg)"></span>
-      </div>
-      <p class="mt-star-name" data-editable style="position:absolute;left:1440px;top:566px;font-size:22px">Imaginatio</p>
-      <p class="mt-star-mag" data-editable style="position:absolute;left:1428px;top:206px">MAG 1.2 · RA 05H 36M</p>
-      <div style="position:relative;height:100%;display:flex;flex-direction:column;justify-content:center;font-family:var(--font-body)">
-        <p data-editable class="reveal" style="font-family:var(--font-mono);font-size:17px;letter-spacing:.22em;color:var(--accent)">THEME SAMPLES · G</p>
-        <h1 data-editable class="reveal" style="--d:.14s;margin-top:48px;max-width:900px;font-family:var(--font-display);font-size:144px;line-height:1.3;font-weight:400;letter-spacing:.08em">想象的形状</h1>
-        <p data-editable class="reveal" style="--d:.26s;margin-top:44px;font-size:26px;line-height:1.8;opacity:.78">同一段内容，二十九个世界</p>
-      </div>
-      <p data-editable style="position:absolute;left:120px;bottom:60px;font-family:var(--font-mono);font-size:15px;font-weight:500;opacity:.55">E10 · 星图 · 深夜蓝金</p>
     </section>
   </div>
 

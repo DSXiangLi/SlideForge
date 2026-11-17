@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* sync-themes.mjs —— 主题数据多文件同步 + Schema 校验
  *
- * 数据源：<当前技能目录>/references/themes/<分类>/<id>/theme.md（24 套七层
+ * 数据源：<当前技能目录>/references/themes/<分类>/<id>/theme.md（23 套七层
  *         重主题 + 配色变体，Schema 化 G0–G9 字段组，唯一事实源；Schema 规范
  *         见 docs/design/theme-schema.md 与 docs/design/theme-expression-stack.md）
  *         索引文件 themes/index.md 含分类框架与全局规则（不参与解析）。
@@ -17,7 +17,7 @@
  *   /*__MOTION_JSON_BEGIN__*\/ ... /*__MOTION_JSON_END__*\/
  *
  * 校验项：
- *   1. 主题数 == 24、id 唯一；
+ *   1. 主题数 == 23、id 唯一；
  *   2. G0（id/气质/适用/focus/世界参考/unforgettable/分化声明）、G1（6 色
  *      token 全为合法 hex + accent 预算声明）、G2（3 字体栈 + 字重倾向 +
  *      字号对比 + 字重映射 + 标题修饰）字段齐全；
@@ -66,7 +66,7 @@ const EDITOR = [
   join(ROOT, 'skills/SlideForge/assets/editor.html')
 ].find(p => existsSync(p)) || null;
 const COMPOSITING = join(ROOT, 'skills/SlideForge/references/compositing.md');
-const EXPECTED_COUNT = 24;  /* 27 套 - E1/E6/F2 删除 = 24 套 */
+const EXPECTED_COUNT = 23;  /* 27 套 - E1/E6/F2/E10 删除 = 23 套 */
 const COLOR_TOKENS = ['--paper', '--paper-tint', '--ink', '--ink-tint', '--accent', '--accent-on'];
 const FONT_TOKENS = ['--font-display', '--font-body', '--font-mono'];
 const TEXTURE_TOKENS = ['--texture-type', '--texture-layer', '--texture-scope'];
