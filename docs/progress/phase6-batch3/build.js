@@ -129,9 +129,11 @@ function G4(role) {
     h.push(`<div class="t-display" style="${pos(M, 160, CW, 180)};font-weight:900;color:var(--accent-on);font-size:max(var(--t-display),128px);white-space:nowrap">${esc(D.claim)}</div>`);
     h.push(`<div class="t-body" style="${pos(M, 350, 1000, 80)};color:var(--accent-on)">${esc(D.claimNote)}</div>`);
     // 下半：纸底上的说明 + KPI
-    h.push(`<div style="${pos(M, 540, 1000, 2)};background:var(--ink);height:1.5px" data-editable-skip></div>`);
+    // 分隔线与左侧文字列对齐（x=M, w=760 → r=880），不延伸到右侧 KPI 区域（规则7）
+    h.push(`<div style="${pos(M, 540, 760, 2)};background:var(--ink);height:1.5px" data-editable-skip></div>`);
     h.push(`<div class="t-body" style="${pos(M, 570, 760, 200)}">${esc(D.p1.slice(0, 80))}……</div>`);
     // KPI：靛蓝线框纵向排列（padding ≥28px for heading 档，容器高度需容纳 heading+meta）
+    // KPI 容器左边缘 = 1100，是独立右列，不与左侧文字列共享 x（规则9 例外：不同列）
     D.kpis.forEach((k, i) => {
       const y = 490 + i * 175;
       const isFocus = i === 0;
@@ -148,10 +150,12 @@ function G4(role) {
     h.push(`<div class="t-display" style="${pos(M, 180, CW, 140)};font-weight:900;white-space:nowrap">${ttl}</div>`);
     h.push(wedge(1740, 180, 120, 120));
     // 3 个靛蓝线框分区，至多一个黄面焦点
+    // 列参数统一：col_w=520, col_gap=60（规则6：同页跨组列对齐）
+    const CW4 = 520, CG4 = 60;
     const blocks = [
-      { x: M, y: 360, w: 520, h: 300, focus: false, text: D.p1.slice(0, 80) + '……' },
-      { x: 700, y: 360, w: 520, h: 300, focus: true, text: D.creed[0] + ' ' + D.creed[1] },
-      { x: 1280, y: 360, w: 520, h: 300, focus: false, text: D.p2.slice(0, 80) + '……' }
+      { x: M, y: 360, w: CW4, h: 300, focus: false, text: D.p1.slice(0, 80) + '……' },
+      { x: M + CW4 + CG4, y: 360, w: CW4, h: 300, focus: true, text: D.creed[0] + ' ' + D.creed[1] },
+      { x: M + 2 * (CW4 + CG4), y: 360, w: CW4, h: 300, focus: false, text: D.p2.slice(0, 80) + '……' }
     ];
     blocks.forEach(b => {
       h.push(`<div style="${pos(b.x, b.y, b.w, b.h)};border:1.5px solid var(--ink);padding:24px 28px;${b.focus ? 'background:var(--accent);color:var(--accent-on)' : 'background:var(--paper)'}">
@@ -160,10 +164,10 @@ function G4(role) {
     });
     // 底部 creed 行
     h.push(`<div style="${pos(M, 720, 1080, 30)}">${D.creed.map(c => `<span class="t-caption" style="display:inline-block;margin-right:34px">${esc(c)}</span>`).join('')}</div>`);
-    // 底部 KPI 行：靛蓝线框（padding ≥28px for heading 档）
+    // 底部 KPI 行：靛蓝线框（与顶部 blocks 共享列参数 — 规则6 跨组列对齐）
     D.kpis.forEach((k, i) => {
-      const x = M + i * 550;
-      h.push(`<div style="${pos(x, 790, 510, 140)};border:1.5px solid var(--ink);padding:28px 32px;${i === 0 ? 'background:var(--accent);color:var(--accent-on)' : ''}">
+      const x = M + i * (CW4 + CG4);
+      h.push(`<div style="${pos(x, 790, CW4, 140)};border:1.5px solid var(--ink);padding:28px 32px;${i === 0 ? 'background:var(--accent);color:var(--accent-on)' : ''}">
         <div class="t-heading" style="font-weight:800">${esc(k.num)}</div>
         <div class="t-meta" style="margin-top:6px">${esc(k.cap)}</div>
       </div>`);
@@ -183,8 +187,9 @@ function G4(role) {
       <div class="t-meta" style="color:var(--accent-on);margin-top:8px;opacity:.8">${esc(D.kpis[0].tag)}</div>
     </div>`);
     // 辅助 KPI：靛蓝线框纵向（padding ≥28px for heading 档）
+    // 顶部与主 KPI 对齐（规则8：同水平条带跨组垂直对齐，y=340）
     D.kpis.slice(1).forEach((k, i) => {
-      const y = 380 + i * 210;
+      const y = 340 + i * 210;
       h.push(`<div style="${pos(1240, y, 560, 190)};border:1.5px solid var(--ink);padding:28px 32px;background:var(--paper-tint)">
         <div class="t-heading" style="font-weight:800">${esc(k.num)}</div>
         <div class="t-meta" style="margin-top:8px">${esc(k.cap)}</div>
@@ -232,7 +237,9 @@ function G5(role) {
     h.push(`<div class="t-display" style="${pos(M, 220, 760, 180)};font-weight:700;color:var(--accent);font-size:max(var(--t-display),112px);white-space:nowrap">${esc(D.claim)}</div>`);
     h.push(`<div class="t-body" style="${pos(M, 420, 760, 120)};color:var(--accent);opacity:.9">${esc(D.claimNote)}</div>`);
     // 右侧：苔绿底暗夜蓝字——说明 + KPI
-    h.push(`<div class="t-body" style="${pos(1020, 220, 760, 200)};color:var(--ink)">${esc(D.p1.slice(0, 100))}……</div>`);
+    // 文字起点与 KPI 容器内文字起点对齐（规则9：同列文字起点对齐）
+    // KPI 容器 x=1020 + padding-left 32 = 文字起点 1052；右侧 body 也从 1052 起
+    h.push(`<div class="t-body" style="${pos(1052, 220, 728, 200)};color:var(--ink)">${esc(D.p1.slice(0, 100))}……</div>`);
     // KPI 容器（heading 档 padding ≥ 28px，容器高度需容纳 heading+meta）
     D.kpis.forEach((k, i) => {
       const y = 420 + i * 175;
@@ -248,10 +255,12 @@ function G5(role) {
     h.push(`<div class="t-display" style="${pos(M, 180, CW, 140)};font-weight:700;white-space:nowrap">${ttl}</div>`);
     h.push(tag(1500, 96, 'NO.128'));
     // 3 块三色反转面（赭石底/苔绿底/暗夜蓝底 轮转）
+    // 列参数统一：col_w=520, col_gap=60（规则6：同页跨组列对齐）
+    const CW5 = 520, CG5 = 60;
     const blocks = [
-      { x: M, y: 360, w: 520, h: 320, bg: 'var(--paper)', fg: 'var(--ink)', text: D.p1.slice(0, 80) + '……' },
-      { x: 700, y: 360, w: 520, h: 320, bg: 'var(--accent)', fg: 'var(--ink)', text: D.creed[0] + ' ' + D.creed[1] },
-      { x: 1280, y: 360, w: 520, h: 320, bg: 'var(--ink)', fg: 'var(--accent)', text: D.p2.slice(0, 80) + '……' }
+      { x: M, y: 360, w: CW5, h: 320, bg: 'var(--paper)', fg: 'var(--ink)', text: D.p1.slice(0, 80) + '……' },
+      { x: M + CW5 + CG5, y: 360, w: CW5, h: 320, bg: 'var(--accent)', fg: 'var(--ink)', text: D.creed[0] + ' ' + D.creed[1] },
+      { x: M + 2 * (CW5 + CG5), y: 360, w: CW5, h: 320, bg: 'var(--ink)', fg: 'var(--accent)', text: D.p2.slice(0, 80) + '……' }
     ];
     blocks.forEach(b => {
       h.push(`<div style="${pos(b.x, b.y, b.w, b.h)};background:${b.bg};color:${b.fg};padding:24px 28px">
