@@ -1,11 +1,9 @@
 /* phase6-batch4-5 / build-sampler.js
- * 6 套主题 theme-sampler 构建——保留原版骨架框架层 + 山禾集内容 + G10 契约布局
+ * 4 套主题 theme-sampler 构建——保留原版骨架框架层 + 山禾集内容 + G10 契约布局
  *
  * G10 契约摘要（claim 页型）：
  * D4 黄铜年代: 刻线框阵承载主张句（框内 condensed 大字 + mono 编号 kicker），红色标注章从框角引出批注，铆钉钉框角
  * E9 地质地层: 剖面切片阵承载主张句（切片内 sans 大字 + 年代标注签引线注），层理色带在页底做层序呼应
- * E10 星图: 星座连线网承载主张句（节点=要点，连线=关系），斜体星名标注节点，mono 星等注记引出说明
- * E1 孔版印刷: 拼贴卡阵承载主张句（卡上粗黑海报字 + 套色错位块垫标题），裁剪虚线分卡，荧光戳记做限量标记
  * E8 号外报纸: 超粗黑标题压顶 + 粗细双线分区 + 多栏衬线正文承载主张，斜切引文块做观点提炼
  * E11 票据: 票据容器承载主张句（mono 字段行 LABEL/VALUE 排列），齿孔撕线分主券/副券，副券做摘要存根
  *
@@ -30,15 +28,7 @@ const d4MotifCSS = `
 .mt-brs-rivet{position:absolute;width:8px;height:8px;border-radius:50%;pointer-events:none;background:radial-gradient(circle at 34% 30%,color-mix(in srgb,var(--accent) 42%,var(--ink)),var(--accent) 55%,color-mix(in srgb,var(--accent) 52%,var(--paper)));box-shadow:0 1px 1px color-mix(in srgb,var(--paper) 82%,transparent)}
 .mt-brs-engrave{border:2px solid color-mix(in srgb,var(--accent) 72%,transparent);outline:1px solid color-mix(in srgb,var(--accent) 38%,transparent);outline-offset:3px;box-shadow:inset 0 1px 2px color-mix(in srgb,var(--paper) 75%,transparent),inset 0 -1px 0 color-mix(in srgb,var(--accent) 25%,transparent)}
 .mt-brs-stamp{display:inline-block;padding:.32em .85em;border:2px solid color-mix(in srgb,var(--accent-2) 85%,transparent);color:var(--accent-2);font-family:var(--font-mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;transform:rotate(-3deg)}
-.mt-brs-grid{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,color-mix(in srgb,var(--ink) 6%,transparent) 0 1px,transparent 1px 56px),repeating-linear-gradient(90deg,color-mix(in srgb,var(--ink) 6%,transparent) 0 1px,transparent 1px 56px)}
-
-/* E1 孔版印刷 · 补充母题（gallery 未收录 .mt-ris-stamp/.mt-ris-halftone-full/.mt-ris-belt） */
-.mt-ris-stamp{display:inline-block;background:var(--accent);color:var(--paper);font-family:var(--font-mono);font-weight:800;font-size:14px;letter-spacing:.12em;padding:.3em .7em;transform:rotate(-3deg);text-transform:uppercase}
-.mt-ris-halftone-full{position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(color-mix(in srgb,var(--ink) 55%,transparent) 1px,transparent 1.6px);background-size:4px 4px;opacity:.16;z-index:0}
-.mt-ris-belt{position:absolute;pointer-events:none;overflow:hidden;opacity:.85}
-.mt-ris-belt::before,.mt-ris-belt::after{content:"";position:absolute;height:100%;width:40%;transform:rotate(22deg)}
-.mt-ris-belt::before{background:color-mix(in srgb,var(--accent) 70%,transparent);left:-5%}
-.mt-ris-belt::after{background:color-mix(in srgb,var(--accent-2) 55%,transparent);right:-5%;transform:rotate(-22deg)}
+.mt-brs-grid{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,color-mix(in srgb,var(--ink) 5%,transparent) 0 1px,transparent 1px 56px),repeating-linear-gradient(90deg,color-mix(in srgb,var(--ink) 5%,transparent) 0 1px,transparent 1px 56px)}
 `;
 
 // 在 </style> 前追加 D4 + E1 补充母题 CSS
@@ -569,8 +559,6 @@ html,body{background:#222;height:auto}
 <div class="deck" id="deck">
 ${slideD4}
 ${slideE9}
-${slideE10}
-${slideE1}
 ${slideE8}
 ${slideE11}
 </div>
@@ -583,4 +571,4 @@ console.log('Generated theme-sampler-6.html (' + html.length + ' chars)');
 console.log('  Content: 山禾集业务汇报 (claim page)');
 console.log('  Layout: G10 info_grammar.claim 契约驱动');
 console.log('  Framework: gallery 骨架框架 CSS（padding/mastfoot/reveal/G9母题）');
-console.log('  Themes: D4 黄铜年代 / E9 地质地层 / E10 星图 / E1 孔版印刷 / E8 号外报纸 / E11 票据');
+console.log('  Themes: D4 黄铜年代 / E9 地质地层 / E8 号外报纸 / E11 票据');
