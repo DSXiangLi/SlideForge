@@ -321,17 +321,16 @@ body{
 .mt-deco-divider::before,.mt-deco-divider::after{content:"";width:72px;height:1px;background:color-mix(in srgb,var(--accent) 65%,transparent)}
 .mt-deco-rhombus{display:inline-block;width:8px;height:8px;background:var(--accent);transform:rotate(45deg)}
 
-/* E6 Memphis 孟菲斯 · 装饰母题（:root 缓动签名 → theme-e6 页内联） */
-.mt-mem-confetti{position:absolute;inset:0;pointer-events:none;user-select:none;overflow:hidden}
-.mt-mem-confetti i{position:absolute;display:block;--pc:var(--palette-1)}
-.mt-mem-confetti .mt-mem-c2{--pc:var(--palette-2)}
-.mt-mem-confetti .mt-mem-c3{--pc:var(--palette-3)}
-.mt-mem-confetti .mt-mem-c4{--pc:var(--palette-4)}
-.mt-mem-dot{width:14px;height:14px;border-radius:50%;background:var(--pc)}
-.mt-mem-tri{width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:15px solid var(--pc)}
-.mt-mem-ring{width:16px;height:16px;border:3px solid var(--ink);border-radius:50%}
-.mt-mem-zig{height:12px;pointer-events:none;background-image:linear-gradient(135deg,var(--ink) 25%,transparent 25%),linear-gradient(225deg,var(--ink) 25%,transparent 25%);background-size:16px 12px;background-repeat:repeat-x}
-.mt-mem-card{border:3px solid var(--ink);border-radius:14px;background:var(--paper);box-shadow:8px 8px 0 color-mix(in srgb,var(--accent) 85%,var(--ink))}
+/* E4 包豪斯 · 装饰母题 */
+.mt-bau-circle,.mt-bau-tri,.mt-bau-square,.mt-bau-quarter{position:absolute;pointer-events:none;user-select:none}
+.mt-bau-circle{border-radius:50%;background:var(--accent-3)}
+.mt-bau-tri{clip-path:polygon(50% 0,100% 100%,0 100%);background:var(--accent-2)}
+.mt-bau-square{background:var(--accent)}
+.mt-bau-quarter{border-radius:0 0 0 100%;background:var(--accent-3)}
+.mt-bau-bar{display:block;height:10px;background:var(--ink)}
+.mt-bau-fill-ink{background:var(--ink)}
+.mt-bau-tint{background:color-mix(in srgb,var(--ink) 10%,transparent)}
+.mt-bau-line{display:block;height:2px;background:var(--ink)}
 
 /* E5 构成主义 · 装饰母题（:root 缓动签名 → theme-e5 页内联） */
 .mt-con-diag{position:absolute;left:-15%;width:130%;height:14vh;pointer-events:none;transform:rotate(-12deg);background:var(--accent)}
@@ -1886,25 +1885,19 @@ body{
     </section>
   </div>
 
-  <!-- 37 · 主题样张 E6 孟菲斯（母题：彩纸屑碎形 ×5 / 粗描边圆角卡 / 之字波浪线；缓动签名内联） -->
+  <!-- 37 · 主题样张 E4 包豪斯（母题：四分之一圆顶角 / 方块作色面容器承载副题 / 三角切断结构条 / 粗结构条横贯；形色对应：方=红 三角=黄 圆/四分之一圆=蓝） -->
   <div class="slide-slot">
-    <section class="slide cover-page" data-slide-id="theme-e6" style="--paper:#FFF8EE;--paper-tint:#FFE9C7;--ink:#1A1A2E;--ink-tint:#3A3A55;--accent:#FF3DA5;--accent-on:#FFF8EE;--palette-1:#FF3DA5;--palette-1-on:#FFF8EE;--palette-2:#FFD93D;--palette-2-on:#1A1A2E;--palette-3:#00B8D9;--palette-3-on:#1A1A2E;--palette-4:#7BC950;--palette-4-on:#1A1A2E;--font-display:'Futura','Century Gothic','PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;--font-body:'PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;--font-mono:'SF Mono','JetBrains Mono','Menlo',monospace;--texture-type:flat;--texture-layer:none;--texture-scope:cover;--ease-out:cubic-bezier(.5,1.7,.4,1)" data-content-hash="02054970a311">
-      <div class="mt-mem-confetti" data-editable-skip>
-        <i class="mt-mem-dot" style="left:200px;top:200px"></i>
-        <i class="mt-mem-tri mt-mem-c2" style="right:240px;top:176px"></i>
-        <i class="mt-mem-ring" style="left:280px;bottom:220px"></i>
-        <i class="mt-mem-dot mt-mem-c3" style="right:320px;bottom:260px"></i>
-        <i class="mt-mem-tri mt-mem-c4" style="left:560px;top:140px"></i>
+    <section class="slide cover-page" data-slide-id="theme-e4" style="--paper:#f4f0e4;--paper-tint:#e9e3d3;--ink:#141412;--ink-tint:#26241f;--accent:#D1342B;--accent-on:#f4f0e4;--accent-2:#F2A600;--accent-2-on:#141412;--accent-3:#0057A8;--accent-3-on:#f4f0e4;--font-display:'Helvetica Neue','PingFang SC','Noto Sans SC',sans-serif;--font-body:'Helvetica Neue','PingFang SC','Noto Sans SC',sans-serif;--font-mono:'SF Mono','JetBrains Mono','Menlo',monospace;--texture-type:flat;--texture-layer:none;--texture-scope:cover" data-content-hash="56ae52ba2253">
+      <div class="mt-bau-quarter" data-editable-skip style="right:-60px;top:-60px;width:480px;height:480px"></div>
+      <div class="mt-bau-square" data-editable-skip style="right:-60px;bottom:-40px;width:730px;height:730px"></div>
+      <div class="mt-bau-tri" data-editable-skip style="left:1000px;top:360px;width:260px;height:226px"></div>
+      <p data-editable style="position:absolute;left:1340px;top:730px;width:400px;color:var(--accent-on);font-size:28px;line-height:1.7;font-weight:500">同一段内容，二十九个世界</p>
+      <div style="position:relative;height:100%;display:flex;flex-direction:column;justify-content:center;font-family:var(--font-body)">
+        <p data-editable class="reveal" style="font-family:var(--font-mono);font-size:18px;font-weight:600;letter-spacing:.14em;opacity:.6">THEME SAMPLES · G</p>
+        <span class="mt-bau-bar reveal" data-editable-skip style="--d:.08s;margin-top:28px;width:100%"></span>
+        <h1 data-editable class="reveal" style="--d:.16s;margin-top:44px;font-family:var(--font-display);font-size:168px;line-height:1.1;font-weight:200;letter-spacing:-.03em">想象的形状</h1>
       </div>
-      <div style="position:relative;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--font-body)">
-        <div class="mt-mem-card reveal" style="padding:72px 104px;text-align:center">
-          <p data-editable style="font-family:var(--font-mono);font-size:17px;font-weight:600;letter-spacing:.14em;opacity:.6">THEME SAMPLES · G</p>
-          <h1 data-editable style="margin-top:32px;font-family:var(--font-display);font-size:124px;line-height:1.2;font-weight:800">想象的形状</h1>
-          <p data-editable style="margin-top:28px;font-size:26px;opacity:.78">同一段内容，二十九个世界</p>
-        </div>
-        <div class="mt-mem-zig reveal" data-editable-skip style="--d:.2s;margin-top:64px;width:480px"></div>
-      </div>
-      <p data-editable style="position:absolute;left:120px;bottom:60px;font-family:var(--font-mono);font-size:15px;font-weight:600;opacity:.6">E6 · 孟菲斯 · 糖果粉</p>
+      <p data-editable style="position:absolute;left:120px;bottom:60px;font-family:var(--font-mono);font-size:15px;font-weight:600;opacity:.6">E4 · 包豪斯 · 原色红</p>
     </section>
   </div>
 
