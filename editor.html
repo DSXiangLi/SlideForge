@@ -2620,93 +2620,132 @@ var PANEL_DATA = {
             ]
           },
           {
-            "id": "e4",
-            "label": "包豪斯 Bauhaus",
+            "id": "e6",
+            "label": "Memphis 孟菲斯",
             "series": "E",
-            "vibe": "米白纸 + 墨黑 + 原色，圆/三角/方基本形的构成游戏，理性而有玩心",
-            "description": "设计、教育、文化、产品方法论、品牌故事，任何\"形式追随功能\"立场的场合；米白纸 + 墨黑 + 原色，圆/三角/方基本形的构成游戏，理性而有玩心",
+            "vibe": "纯白底 + 墨黑粗描边 + 糖果色几何碎形，1980s Memphis 的戏谑与高能量",
+            "description": "年轻消费品牌、活动发布、创意行业、教育科普、潮流零售、节庆营销；纯白底 + 墨黑粗描边 + 糖果色几何碎形，1980s Memphis 的戏谑与高能量",
             "focus": [
               "G9",
-              "G4"
+              "G5"
             ],
-            "focus_label": "装饰 + 形态",
+            "focus_label": "装饰 + 动效",
             "group": "motif",
             "group_label": "装饰主导",
             "visual": {
-              "paper": "#f4f0e4",
-              "ink": "#141412",
-              "accent": "#D1342B",
+              "paper": "#FFF8EE",
+              "ink": "#1A1A2E",
+              "accent": "#FF3DA5",
               "font_display": "sans",
               "font_body": "sans"
             },
             "tokens": {
-              "--paper": "#f4f0e4",
-              "--paper-tint": "#e9e3d3",
-              "--ink": "#141412",
-              "--ink-tint": "#26241f",
-              "--accent": "#D1342B",
-              "--accent-on": "#f4f0e4",
-              "--accent-2": "#F2A600",
-              "--accent-2-on": "#141412",
-              "--accent-3": "#0057A8",
-              "--accent-3-on": "#f4f0e4",
-              "--font-display": "\"Helvetica Neue\",\"PingFang SC\",\"Noto Sans SC\",sans-serif",
-              "--font-body": "\"Helvetica Neue\",\"PingFang SC\",\"Noto Sans SC\",sans-serif",
+              "--paper": "#FFF8EE",
+              "--paper-tint": "#FFE9C7",
+              "--ink": "#1A1A2E",
+              "--ink-tint": "#3A3A55",
+              "--accent": "#FF3DA5",
+              "--accent-on": "#FFF8EE",
+              "--palette-1": "#FF3DA5",
+              "--palette-1-on": "#FFF8EE",
+              "--palette-2": "#FFD93D",
+              "--palette-2-on": "#1A1A2E",
+              "--palette-3": "#00B8D9",
+              "--palette-3-on": "#1A1A2E",
+              "--palette-4": "#7BC950",
+              "--palette-4-on": "#1A1A2E",
+              "--font-display": "\"Futura\",\"Century Gothic\",\"PingFang SC\",\"Noto Sans SC\",\"Microsoft YaHei\",sans-serif",
+              "--font-body": "\"PingFang SC\",\"Noto Sans SC\",\"Microsoft YaHei\",sans-serif",
               "--font-mono": "\"SF Mono\",\"JetBrains Mono\",\"Menlo\",monospace",
               "--texture-type": "flat",
               "--texture-layer": "none",
               "--texture-scope": "cover"
             },
-            "theme_css": "/* E4 包豪斯 · 装饰母题 */\n.mt-bau-circle,.mt-bau-tri,.mt-bau-square,.mt-bau-quarter{position:absolute;pointer-events:none;user-select:none}\n.mt-bau-circle{border-radius:50%;background:var(--accent-3)}\n.mt-bau-tri{clip-path:polygon(50% 0,100% 100%,0 100%);background:var(--accent-2)}\n.mt-bau-square{background:var(--accent)}\n.mt-bau-quarter{border-radius:0 0 0 100%;background:var(--accent-3)}\n.mt-bau-bar{display:block;height:10px;background:var(--ink)}\n.mt-bau-fill-ink{background:var(--ink)}\n.mt-bau-tint{background:color-mix(in srgb,var(--ink) 10%,transparent)}\n.mt-bau-line{display:block;height:2px;background:var(--ink)}\n.mt-bau-bar-offset{display:block;height:10px;background:var(--ink);box-shadow:12px 12px 0 color-mix(in srgb,var(--ink) 15%,transparent);margin-bottom:12px}\n.mt-bau-rotate-l{transform:rotate(-3deg)}\n.mt-bau-rotate-r{transform:rotate(3deg)}",
+            "theme_css": "/* E6 Memphis 孟菲斯 · 装饰母题 + 缓动签名 */\n:root{--ease-out:cubic-bezier(.5,1.7,.4,1)}\n.mt-mem-confetti{position:absolute;inset:0;pointer-events:none;user-select:none;overflow:hidden}\n.mt-mem-confetti i{position:absolute;display:block;--pc:var(--palette-1)}\n.mt-mem-confetti .mt-mem-c2{--pc:var(--palette-2)}\n.mt-mem-confetti .mt-mem-c3{--pc:var(--palette-3)}\n.mt-mem-confetti .mt-mem-c4{--pc:var(--palette-4)}\n.mt-mem-dot{width:14px;height:14px;border-radius:50%;background:var(--pc)}\n.mt-mem-tri{width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:15px solid var(--pc)}\n.mt-mem-ring{width:16px;height:16px;border:3px solid var(--ink);border-radius:50%}\n.mt-mem-zig{height:12px;pointer-events:none;background-image:linear-gradient(135deg,var(--ink) 25%,transparent 25%),linear-gradient(225deg,var(--ink) 25%,transparent 25%);background-size:16px 12px;background-repeat:repeat-x}\n.mt-mem-card{border:3px solid var(--ink);border-radius:14px;background:var(--paper);box-shadow:8px 8px 0 color-mix(in srgb,var(--accent) 85%,var(--ink))}",
             "demos": [
               "demo-1.png",
               "demo-2.png"
             ],
             "variants": [
               {
-                "id": "e4-v1",
-                "label": "原色黄",
-                "vibe": "原色黄 + 墨黑，乐观明亮，教室里的构成练习——教育、儿童、科普、生活方式品牌",
-                "accent_note": "黄底配深字（accent-on 用 ink）；满版黄封面投影场景注意亮度，正文页黄面积仍 ≤10%；三原色角色轮转（方=accent 黄/三角=accent-2 红/圆=accent-3 蓝）；其余同基底口径",
+                "id": "e6-v1",
+                "label": "电光蓝",
+                "vibe": "糖果罐换成电光蓝——更冷更锐的孟菲斯，科技馆与极客活动感——科技产品、赛事、潮流数码",
+                "accent_note": "电光蓝明度高，accent-on 反深字（墨黑）才读得清；palette 随罐轮转（蓝打头）；其余同基底口径",
                 "tokens": {
-                  "--paper": "#f4f0e4",
-                  "--paper-tint": "#e9e3d3",
-                  "--ink": "#141412",
-                  "--ink-tint": "#26241f",
-                  "--accent": "#F2A600",
-                  "--accent-on": "#141412",
-                  "--accent-2": "#D1342B",
-                  "--accent-2-on": "#f4f0e4",
-                  "--accent-3": "#0057A8",
-                  "--accent-3-on": "#f4f0e4"
+                  "--paper": "#FFF8EE",
+                  "--paper-tint": "#FFE9C7",
+                  "--ink": "#1A1A2E",
+                  "--ink-tint": "#3A3A55",
+                  "--accent": "#00B8D9",
+                  "--accent-on": "#1A1A2E",
+                  "--palette-1": "#00B8D9",
+                  "--palette-1-on": "#1A1A2E",
+                  "--palette-2": "#FF3DA5",
+                  "--palette-2-on": "#FFF8EE",
+                  "--palette-3": "#FFD93D",
+                  "--palette-3-on": "#1A1A2E",
+                  "--palette-4": "#7BC950",
+                  "--palette-4-on": "#1A1A2E"
                 },
                 "visual": {
-                  "paper": "#f4f0e4",
-                  "ink": "#141412",
-                  "accent": "#F2A600"
+                  "paper": "#FFF8EE",
+                  "ink": "#1A1A2E",
+                  "accent": "#00B8D9"
                 }
               },
               {
-                "id": "e4-v2",
-                "label": "原色蓝",
-                "vibe": "原色蓝 + 墨黑，冷静理性，最贴近瑞士邻居的一种光——科技、建筑、机构发布",
-                "accent_note": "",
+                "id": "e6-v2",
+                "label": "柠檬黄",
+                "vibe": "柠檬黄糖果罐——最闹最节庆的一罐，黑白网格底的经典孟菲斯海报感——节庆营销、儿童教育、活动邀请",
+                "accent_note": "柠檬黄明度最高——accent-on 必须反深字；硬偏移投影由 `.mt-mem-card` 的 color-mix(accent 85%, ink) 自动压暗，无需另处理；palette 随罐轮转（黄打头）；其余同基底口径",
                 "tokens": {
-                  "--paper": "#f4f0e4",
-                  "--paper-tint": "#e9e3d3",
-                  "--ink": "#141412",
-                  "--ink-tint": "#26241f",
-                  "--accent": "#0057A8",
-                  "--accent-on": "#f4f0e4",
-                  "--accent-2": "#F2A600",
-                  "--accent-2-on": "#141412",
-                  "--accent-3": "#D1342B",
-                  "--accent-3-on": "#f4f0e4"
+                  "--paper": "#FFF8EE",
+                  "--paper-tint": "#FFE9C7",
+                  "--ink": "#1A1A2E",
+                  "--ink-tint": "#3A3A55",
+                  "--accent": "#FFD93D",
+                  "--accent-on": "#1A1A2E",
+                  "--palette-1": "#FFD93D",
+                  "--palette-1-on": "#1A1A2E",
+                  "--palette-2": "#FF3DA5",
+                  "--palette-2-on": "#FFF8EE",
+                  "--palette-3": "#00B8D9",
+                  "--palette-3-on": "#1A1A2E",
+                  "--palette-4": "#7BC950",
+                  "--palette-4-on": "#1A1A2E"
                 },
                 "visual": {
-                  "paper": "#f4f0e4",
-                  "ink": "#141412",
-                  "accent": "#0057A8"
+                  "paper": "#FFF8EE",
+                  "ink": "#1A1A2E",
+                  "accent": "#FFD93D"
+                }
+              },
+              {
+                "id": "e6-v3",
+                "label": "马卡龙",
+                "vibe": "糖果罐换成马卡龙——粉樱/奶油黄/baby 蓝/薄荷绿全浅调低彩（浅调窗口），最温柔的一罐——母婴、甜品、春季上新、女性消费",
+                "accent_note": "全浅调档——所有彩色面一律反深字（-on 全墨）；硬偏移投影由 color-mix 自动压成奶深色，柔而不脏；其余同基底口径",
+                "tokens": {
+                  "--paper": "#FDF6F0",
+                  "--paper-tint": "#FBEADD",
+                  "--ink": "#2B2B3A",
+                  "--ink-tint": "#454558",
+                  "--accent": "#F5A8C0",
+                  "--accent-on": "#2B2B3A",
+                  "--palette-1": "#F5A8C0",
+                  "--palette-1-on": "#2B2B3A",
+                  "--palette-2": "#FCE8A6",
+                  "--palette-2-on": "#2B2B3A",
+                  "--palette-3": "#A8D8EA",
+                  "--palette-3-on": "#2B2B3A",
+                  "--palette-4": "#B5E3C8",
+                  "--palette-4-on": "#2B2B3A"
+                },
+                "visual": {
+                  "paper": "#FDF6F0",
+                  "ink": "#2B2B3A",
+                  "accent": "#F5A8C0"
                 }
               }
             ]

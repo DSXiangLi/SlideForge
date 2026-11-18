@@ -12,18 +12,18 @@
 
 | 分类 | 设计轴 | 含义 | 主题数 |
 |---|---|---|---|
-| 色法 | 色彩关系 | 色彩搭配/面积/叠印是主设计语言 | 5 |
+| 色法 | 色彩关系 | 色彩搭配/面积/叠印是主设计语言 | 6 |
 | 线法 | 线条/网格 | 线条、网格、分割线是主设计语言 | 4 |
-| 空间 | 空间构成 | 留白、几何构成、容器布局是主设计语言 | 5 |
+| 空间 | 空间构成 | 留白、几何构成、容器布局是主设计语言 | 4 |
 | 质感 | 材质触感 | 物质纹理、印刷质感是主设计语言 | 6 |
 | 光线 | 光学效果 | 光、玻璃、霓虹、电影感是主设计语言 | 2 |
 | 字法 | 字排性格 | 字体选择/字重/字距是主设计语言 | 1 |
 
 | 分类 | 主题 | demo |
 |---|---|---|
-| **色法** | [C1 信号黑](color/c1/theme.md) · [G1 翡翠年鉴](color/g1/theme.md) · [G2 腮红荧光笔](color/g2/theme.md) · [G4 靛墨黄页](color/g4/theme.md) · [G5 三色旬刊](color/g5/theme.md) | 每个主题目录内含 ≥2 张 demo PNG |
+| **色法** | [C1 信号黑](color/c1/theme.md) · [E6 孟菲斯](color/e6/theme.md) · [G1 翡翠年鉴](color/g1/theme.md) · [G2 腮红荧光笔](color/g2/theme.md) · [G4 靛墨黄页](color/g4/theme.md) · [G5 三色旬刊](color/g5/theme.md) | 每个主题目录内含 ≥2 张 demo PNG |
 | **线法** | [B1 瑞士国际主义](line/b1/theme.md) · [E2 蓝图](line/e2/theme.md) · [E8 号外报纸](line/e8/theme.md) · [E11 票据](line/e11/theme.md) | 同上 |
-| **空间** | [A1 电子杂志](space/a1/theme.md) · [E3 装饰艺术](space/e3/theme.md) · [E4 包豪斯](space/e4/theme.md) · [E5 构成主义](space/e5/theme.md) · [E12 商务粗野](space/e12/theme.md) | 同上 |
+| **空间** | [A1 电子杂志](space/a1/theme.md) · [E3 装饰艺术](space/e3/theme.md) · [E5 构成主义](space/e5/theme.md) · [E12 商务粗野](space/e12/theme.md) | 同上 |
 | **质感** | [C2 暗夜植物园](texture/c2/theme.md) · [D3 手绘油彩](texture/d3/theme.md) · [D4 黄铜年代](texture/d4/theme.md) · [E7 浮世绘](texture/e7/theme.md) · [E9 地质地层](texture/e9/theme.md) · [H1 氤氲手卷](texture/h1/theme.md) | 同上 |
 | **光线** | [D2 柔光暗房](light/d2/theme.md) · [F1 浮光玻璃](light/f1/theme.md) | 同上 |
 | **字法** | [C3 终端绿](type/c3/theme.md) | 同上 |
@@ -130,7 +130,7 @@
 | 工程 / 制造 / 技术方案 | E2 蓝图 |
 | 工业发布 / 航天 / 基础设施 / 工业品牌 | D4 黄铜年代 |
 | 奢华 / 庆典 / 品牌盛典 | E3 装饰艺术 |
-| 设计教育 / 构成 / 现代主义 | E4 包豪斯 |
+| 年轻 / 活力 / 节庆 / 潮流快闪 | E6 孟菲斯 |
 | 宣言 / 动员 / 激进主张 | E5 构成主义 |
 | 东方美学 / 文化典藏 / 节物 | E7 浮世绘 |
 | 新闻 / 快讯 / 资讯简报 | E8 号外报纸 |
