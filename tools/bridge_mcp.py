@@ -849,6 +849,8 @@ class BridgeMCP:
         不动双轨共用的阻塞语义（core 单测与 HTTP 层回归因此零影响）。
         """
         def snapshot(status: dict[str, object]) -> str:
+            if status.get("pending_count") or status.get("processing"):
+                return "bridge"
             if status.get("view_attached"):
                 return "mcp-app"
             if status.get("page_online"):
@@ -877,8 +879,6 @@ class BridgeMCP:
             if decision == "mcp-app":
                 return self._mcp_app_result(session_id, status)
             if decision == "bridge":
-                return None
-            if status.get("pending_count") or status.get("processing"):
                 return None
             if asyncio.get_running_loop().time() >= deadline:
                 return None

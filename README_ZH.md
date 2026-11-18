@@ -2,6 +2,8 @@
 
 **[English](README.md) | [中文](README_ZH.md)**
 
+[Quick Start](#快速开始) · [Runtime Prerequisites](README.md#runtime-dependencies) · [Public Tests](README.md#public-regression-tests)
+
 **AI 做的 PPT，终于可以直接改了。**
 
 用过 AI PPT 工具的人都有过这种经历：生成结果有 90% 满意，但想改一个字、换一张图，就得重新描述、重新生成、重新碰运气——改一处，动全身。
@@ -49,7 +51,7 @@ HTML、PPTX、Image，这不是三个独立的形态，而是不同条件下可�
 
 编辑器通过 **MCP（Model Context Protocol）** 标准协议与 AI 协作，只暴露五个标准工具，**不绑定任何特定 AI 产品或框架**——Kimi Code、Claude Code、Codex，或任何支持 MCP 的 agent，接入即用。
 
-没有 agent 时编辑器独立可用；接入 agent 后，你在网页上提交的每个需求（脑暴、生成、修改、导出）都会作为任务交给 AI 在隔离副本上完成，校验通过后才发布回来——**AI 改坏你文件的可能性被架构性消除**。
+没有 agent 时编辑器独立可用；接入 agent 后，你在网页上提交的每个需求（脑暴、生成、修改、导出）都会作为任务交给 AI 在隔离副本上完成，校验通过后才发布回来——**isolated workspaces, validation, and revision checks protect the source from unintended overwrites**.
 
 ---
 
@@ -102,7 +104,7 @@ HTML、PPTX、Image，这不是三个独立的形态，而是不同条件下可�
 | <img src="assets/theme-sampler/batch6-e9.png" width="208"> | <img src="assets/theme-sampler/batch6-e11.png" width="208"> | | |
 | E9 · 地质地层 · 层理色带 + 岩芯样本条 + 年代标注签 | E11 · 票据 · 齿孔撕线 + 字段行 + 条码 | | |
 
-> 早期的换皮样张（旧 `p01`–`p29` 一组）仍保留在 `assets/theme-sampler/`；以上二十二张是重编译版本。源 deck：`tests/decks/theme-sampler/`。G2/F1 的高密度样张来自 batch-1 v2 验收（rev6，12 项审计全绿）；C1 使用原始换皮样张；G4/G5/E2/E3 来自 batch-3 G10 管线接入验收；C2/D3 来自 batch-4 G10 管线验收；A1/D2/E12/G1 来自 batch-5 G10 管线验收（E6 孟菲斯从 batch-1 v2 恢复）；D4/E8/E9/E11 来自 batch-6 G10 管线验收。
+> 早期的换皮样张（旧 `p01`–`p29` 一组）仍保留在 `assets/theme-sampler/`；以上二十二张是重编译版本。Historical source deck: `tests/decks/theme-sampler/` (not distributed in this checkout). G2/F1 的高密度样张来自 batch-1 v2 验收（rev6，12 项审计全绿）；C1 使用原始换皮样张；G4/G5/E2/E3 来自 batch-3 G10 管线接入验收；C2/D3 来自 batch-4 G10 管线验收；A1/D2/E12/G1 来自 batch-5 G10 管线验收（E6 孟菲斯从 batch-1 v2 恢复）；D4/E8/E9/E11 来自 batch-6 G10 管线验收。
 
 ## 页面类型实拍
 
@@ -144,14 +146,14 @@ AI 生成的幻灯片之所以平庸，是因为它的默认审美会收敛到"�
 
 - **搭建期**：容量规划先于版式选择，用 PPT 字体度量口径预认证每一个容器
 - **生成后**：Playwright 真实渲染测量——零溢出、零重叠、字号合规，脚本说了算
-- **导出时**：数学认证器重开 PPTX 逐行计算——墨水宽度、墨水盒相碰、行高下限，认证全过才落盘，不过则自动修复，**绝不交付带溢出的 PPTX**
-- 字体子集内嵌进文件，根治"换台电脑版式就乱"
+- **导出时**：数学认证器重开 PPTX 逐行计算——墨水宽度、墨水盒相碰、行高下限，认证全过才落盘，不过则自动修复，**publication is gated by implemented checks; actual Office/WPS rendering still needs verification**
+- Font subsets are embedded where licensing permits. Office/WPS behavior varies; use the fidelity track when visual consistency matters more than native editing.
 
 </details>
 
-<details><summary><b>55 项端到端自动化验收</b></summary>
+<details><summary><b>Public regression tests and historical acceptance work</b></summary>
 
-覆盖渲染校验、章节跳转、密度量化、内容指纹、页面烙入、双轨导出、编辑器三态、容量门禁等全链路，真实内容基准是一套 54 页真实商业材料的 1:1 还原。验收体系面向开发者，证据见 `docs/test_acceptance/`。
+Public tests cover request arbitration, managed asset/export reads, local worker script paths, provider diagnostics, and runtime diagnostic failures using synthetic fixtures. Historical reports describe 55 acceptance checks and a 54-page business benchmark; that private harness and customer material are not distributed. See [public test instructions](README.md#public-regression-tests) for reproducible coverage.
 
 </details>
 
@@ -175,11 +177,18 @@ AI 生成的幻灯片之所以平庸，是因为它的默认审美会收敛到"�
 | 导出 PPTX | 截图贴入（不可编辑）/ 朴素转换（版式漂移） | 原生可编辑 + 矢量保真双轨，认证不过不落盘 |
 | 整页 AI 生图 | 生成即终态，改无可改 | 烙入页保留隐藏源层，随时回退重烙 |
 | AI 框架绑定 | 绑定特定产品 | MCP 标准协议，任意 agent 框架可接入 |
-| 质量证据 | "看起来没问题" | 55 项自动化验收 + 保真评分 + 差异热区图 |
+| Quality evidence | Varies by tool | Public regression tests, layout checks, fidelity scores, and diff heatmaps; see verification limits below |
 
 ## 快速开始
 
-产品组成只有两个：**一个技能 + 一个 MCP 桥**。生成、编辑、导出所需的全部脚本都在技能内部，用户无需运行任何测试脚本。
+The integrated workflow requires both the skill and the MCP bridge. Installing the skill alone does not install the bridge, editor, or Python/browser dependencies. Keep a local repository checkout for the MCP entry point.
+
+Prerequisites: Python 3.10+, Git, Node.js/npm, and an MCP-capable coding agent. Generation uses that agent's configured model and normal usage costs.
+
+```bash
+git clone https://github.com/DSXiangLi/SlideForge.git
+cd SlideForge
+```
 
 生成侧由 AI coding agent 驱动：
 - 加载 `skills/SlideForge/` 技能后，从需求脑暴到双轨导出的完整工作流（含渲染校验、容量门禁、双轨导出所需的全部脚本）由技能自带。
@@ -191,9 +200,9 @@ AI 生成的幻灯片之所以平庸，是因为它的默认审美会收敛到"�
 
 ```bash
 # 装进当前项目
-npx skills add DSXiangLi/pptx_fuse_design
+npx skills add DSXiangLi/SlideForge
 # 或全局安装，所有项目可用
-npx skills add DSXiangLi/pptx_fuse_design -g
+npx skills add DSXiangLi/SlideForge -g
 ```
 
 **方式二——手动**：把 `skills/SlideForge/` 复制（或软链）到你 agent 的技能目录，入口为 `SKILL.md`。常见 agent 的用户级技能目录：
@@ -212,16 +221,16 @@ cp -r skills/SlideForge ~/.claude/skills/
 Copy-Item -Recurse skills\SlideForge "$env:USERPROFILE\.workbuddy\skills\"
 ```
 
-技能是纯静态文件（Markdown 规范库 + 骨架 + 脚本），没有任何安装脚本与运行时依赖：装完即用，删除目录即卸载。生成/导出脚本所需的可选依赖见下文「可选依赖」节。
+The skill is distributed as static files, but generation checks and export scripts require runtime dependencies. Complete the bridge setup below; copying the skill directory alone is not a complete installation.
 
 ### 可选：生图能力（官方 OpenAI 接口）
 
-主流程（内容 → 页面 → 渲染/容量校验 → 导出）**不需要任何密钥**。只有两个可选 pass（AI 插画、整页烙入）会调生图服务，且一律经技能自带的 provider（`skills/SlideForge/scripts/providers/openai_image.py`，零第三方依赖）走官方 OpenAI Images API。
+The main workflow needs no additional image-service credentials beyond the coding agent's own configuration. Optional illustrations and full-page artwork use `skills/SlideForge/scripts/providers/openai_image.py` and are billed by the configured image provider.
 
 - `OPENAI_API_KEY` 必填；`OPENAI_BASE_URL` 可指向兼容端点；`OPENAI_IMAGE_MODEL` 默认 `gpt-image-2`。
 - 也可以写 `.env`——只读第一个存在的文件、键不跨文件合并：`./.env`（经 adapter 调用时即 deck 目录）→ `<技能目录>/.env` → `~/.slideforge/.env`。模板：`skills/SlideForge/.env.example`。
 - 默认模型建议保持 `gpt-image-2`：技能自身的图片门禁要求页级槽位 ≥2560×1440，而 `gpt-image-1` 系（1024/1536 三档）给不出该尺寸；provider 遇到给不出的尺寸会**明确失败并给指引**，不放大、不裁剪、不静默降级。
-- 不联网、不计费自检：`python3 skills/SlideForge/scripts/providers/openai_image.py --self-check`。
+- Offline configuration check: `python skills/SlideForge/scripts/providers/openai_image.py --self-check`. With no size arguments, this validates the 2560×1440 page preset. It checks configuration presence and size compatibility, not remote API authentication.
 
 ### 接入 MCP 桥（编辑器自动唤起的关键）
 
@@ -229,26 +238,27 @@ Copy-Item -Recurse skills\SlideForge "$env:USERPROFILE\.workbuddy\skills\"
 
 #### 第 1 步 · 准备 Python 环境
 
-唯一依赖是官方 MCP SDK（要求 Python ≥ 3.10）。**推荐装进独立 venv，不污染全局环境**：
+Install the complete local runtime from the cloned repository root.
+
+macOS / Linux:
 
 ```bash
-# macOS / Linux
 python3 -m venv .venv
-.venv/bin/pip install "mcp>=1.28,<2"
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python -m playwright install chromium
+.venv/bin/python tools/edit.py --doctor
+```
 
-# Windows（Git Bash / PowerShell）
+Windows PowerShell:
+
+```powershell
 python -m venv .venv
-.venv\Scripts\python.exe -m pip install "mcp>=1.28,<2"
+.venv\Scripts\python.exe -m pip install -r requirements.txt
+.venv\Scripts\python.exe -m playwright install chromium
+.venv\Scripts\python.exe tools/edit.py --doctor
 ```
 
-不介意装进全局也可以直接 `pip install "mcp>=1.28,<2"`——桥没有其他第三方依赖。
-
-装完自检（不启动服务、不联网、不计费）：
-
-```bash
-python3 -c "import mcp; print('mcp ok')"
-python3 tools/edit.py --help        # 能打印 usage 即入口可用
-```
+`--doctor` checks runtime availability without starting a server or calling model/image APIs. It does not certify browser rendering, agent-host integration, or Office/WPS fidelity. Use the same venv interpreter for generation/export scripts. See [system prerequisites](README.md#runtime-dependencies), including Playwright's Linux OS libraries.
 
 #### 第 2 步 · 注册到你的 agent
 
@@ -277,7 +287,7 @@ claude mcp add pptx-html-bridge -- /绝对路径/.venv/bin/python3 /绝对路径
 {
   "mcpServers": {
     "pptx-html-bridge": {
-      "command": "C:\\Users\\<你>\\.venv\\Scripts\\python.exe",
+      "command": "C:\\Users\\<你>\\Desktop\\SlideForge\\.venv\\Scripts\\python.exe",
       "args": ["C:\\Users\\<你>\\Desktop\\SlideForge\\tools\\edit.py", "--mcp"]
     }
   }
@@ -297,9 +307,23 @@ claude mcp add pptx-html-bridge -- /绝对路径/.venv/bin/python3 /绝对路径
 
 桥不绑定工作目录：`open_editor` 按会话登记 deck 路径，页面、daemon 与 agent 生命周期相互独立，可以常驻后台。
 
-### 可选依赖
+### Runtime Dependencies and Public Tests
 
-技能内置的验收与导出脚本按需安装：渲染校验 / 容量门禁需要 Playwright（`pip install playwright && playwright install chromium`）；HTML→PPTX 保真轨导出另需 poppler（`pdftocairo`）。
+The full dependency manifest is `requirements.txt`; script-only dependencies are in `skills/SlideForge/requirements.txt`. Install Chromium separately. Poppler enables vector fidelity export; Fontconfig assists font discovery; LibreOffice (`soffice` on PATH) and the included `pypdfium2` dependency provide reference rendering/text checks, not a substitute for Office/WPS testing. See the [complete prerequisites](README.md#runtime-dependencies).
+
+Run the synthetic public regression suite with the same venv interpreter (Chromium is not required for these tests):
+
+```bash
+# macOS / Linux
+.venv/bin/python -m unittest discover -s tests/public -v
+```
+
+```powershell
+# Windows PowerShell
+.venv\Scripts\python.exe -m unittest discover -s tests/public -v
+```
+
+These checks do not start a daemon or call paid APIs. Private/customer decks remain excluded from public distribution.
 
 
 ## 项目结构
@@ -308,17 +332,20 @@ claude mcp add pptx-html-bridge -- /绝对路径/.venv/bin/python3 /绝对路径
 skills/SlideForge/     【产品】生成技能：工作流 + 骨架 + 规范库 + 全部生成/导出脚本
 editor.html           【产品】单文件编辑器：编辑 / 批注 / 翻转三态工作台
 tools/                【产品】MCP 桥：edit.py 入口 + 核心 + MCP 代理
-tests/                【开发验收】回归 harness 与测试基准，非产品组成，用户使用无需运行
+tests/public/         [Public regression] synthetic bridge/provider checks; private decks are not distributed
 docs/                 设计文档 / 调研 / 迭代实录 / 验收证据 / 踩坑台账
 ```
 
 ## 文档导航
 
-- 协作约定与架构总览：根目录 `AGENTS.md`
-- 设计与架构：`docs/design/`（索引见 `docs/design/README.md`）
-- 桥接使用手册：`docs/howto/editor-agent-bridge.md`
-- 迭代实录 `docs/progress/` · 验收证据 `docs/test_acceptance/` · 调研 `docs/research/`
+- Generation and bridge workflow: [SKILL.md](skills/SlideForge/SKILL.md)
+- Editing contract: [editing-contract.md](skills/SlideForge/references/editing-contract.md)
+- Theme index: [themes/index.md](skills/SlideForge/references/themes/index.md)
+- Historical reports: [docs/progress/](docs/progress/)
+- Public regression suite: [tests/public/](tests/public/)
+
+Internal architecture documents and the private acceptance harness are not distributed.
 
 ## 当前状态
 
-核心链路（生成 → 编辑 → 桥接 → 双轨导出）自动化验收全绿；真实 Office 365 / WPS 目检、真实付费生图观感为待办人工项，详见 `docs/progress/1003_editor_agent_bridge_handover.md`。
+The repository includes focused public regression tests. Full clean-machine onboarding, live MCP-host integration, browser editing, Office 365/WPS rendering, and paid image-generation quality require separate end-to-end verification. HTML remains the editable master; PPTX imports reconstruct content, exports are one-way, baked pages are images, and some visuals/pages may be flattened with degradation reported.

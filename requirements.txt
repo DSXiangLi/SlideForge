@@ -1,0 +1,3 @@
+# Full local runtime: MCP bridge plus generation and export tools.
+mcp>=1.28,<2
+-r skills/SlideForge/requirements.txt

@@ -112,6 +112,7 @@ BUNDLE_FILE_MAX = 20_000
 MIN_FREE_BYTES = 512 * 1024 ** 2
 SCHEMA_VERSION = 3
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+SKILL_SCRIPTS = PROJECT_ROOT / "skills" / "SlideForge" / "scripts"
 INTERNAL = ".pptx-html"
 SOURCE_IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg"}
 SOURCE_LEGACY_EXTS = {".wmf", ".emf"}
@@ -1463,8 +1464,8 @@ class BridgeCore:
         未登记的路径一律拒绝：登记表就是白名单，避免把宿主代理变成任意文件读取。
         """
         session=self._session(session_id)
-        rel=normalize_rel(path)
-        bundle_rel=self._bundle_rel(session,rel)
+        bundle_rel=normalize_rel(path)
+        rel=self._work_rel(self._bundle_root(session)/bundle_rel)
         if kind=="asset":
             if not bundle_rel.startswith(("assets/","fonts/")):
                 raise BridgeError(403,"PATH_DENIED","只能读取受管 assets/ 或 fonts/")
@@ -1484,10 +1485,7 @@ class BridgeCore:
                 "sha256":hashlib.sha256(data).hexdigest(),"data_base64":base64.b64encode(data).decode("ascii")}
 
     def read_export_file(self, session_id, file):
-        session=self._session(session_id)
-        directory=PurePosixPath(session["target_path"]).parent
-        prefix="" if directory.as_posix()=="." else directory.as_posix()+"/"
-        return self.read_artifact(session_id,prefix+"export/"+file,kind="export")
+        return self.read_artifact(session_id,"export/"+normalize_rel(file),kind="export")
 
 
     def _expire(self, session_id):
@@ -2359,7 +2357,7 @@ class BridgeCore:
     def _local_convert_worker(self,sid,consumer,iid):
         try:
             claimed=self.await_intent(sid,consumer,1); work_path=claimed["work_path"];attempt=claimed["attempt"]
-            script=PROJECT_ROOT/"skills/html-pptx/scripts/export-pptx.py"
+            script=SKILL_SCRIPTS/"export-pptx.py"
             argv=[sys.executable,str(script),work_path,"--force","--track","both"]
             run=self._run_local_convert_process(argv,sid,iid,attempt,consumer)
             tail="\n".join((run.stdout+"\n"+run.stderr).splitlines()[-30:])
@@ -2456,7 +2454,7 @@ class BridgeCore:
         try:
             claimed=self.await_intent(sid,consumer,1); work_path=claimed["work_path"]; attempt=claimed["attempt"]
             deck=Path(work_path); bundle=deck.parent
-            scripts=PROJECT_ROOT/"skills/html-pptx/scripts"
+            scripts=SKILL_SCRIPTS
             slots=(claimed.get("payload") or {}).get("slots") or []
             text=deck.read_text("utf-8")
             catalog={s["slot"]:s for s in self._scan_placeholder_slots(text)}

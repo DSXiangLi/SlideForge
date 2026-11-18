@@ -56,6 +56,7 @@ from pathlib import Path
 
 DEFAULT_BASE_URL = "https://api.openai.com/v1"
 DEFAULT_MODEL = "gpt-image-2"
+SELF_CHECK_SIZE = "2560x1440"
 HTTP_TIMEOUT_SEC = 1200.0
 
 FORMAT_EXT = {"png": ".png", "jpeg": ".jpg", "webp": ".webp"}
@@ -400,7 +401,11 @@ def run_self_check(args, cfg):
     print("  OPENAI_API_KEY: %s" % ("已配置" if cfg["api_key"] else "缺失"))
     print("  base_url      : %s" % cfg["base_url"])
     print("  model         : %s" % cfg["model"])
-    print("  尺寸口径      : %s" % resolve_size(args, cfg["model"]))
+    # Only the diagnostic supplies a default; generation still requires a size.
+    size = (resolve_size(args, cfg["model"])
+            if args.size or args.aspect_ratio not in (None, "auto")
+            else validate_size(cfg["model"], SELF_CHECK_SIZE))
+    print("  尺寸口径      : %s" % size)
     print("  调用路径      : %s" % ("/images/edits" if args.reference_image
                                    else "/images/generations"))
     if not cfg["api_key"]:

@@ -1,0 +1,11 @@
+# Generation, layout validation, and PPTX export dependencies.
+# Install Chromium separately: python -m playwright install chromium
+playwright>=1.49,<2
+python-pptx>=1.0,<2
+Pillow>=10,<13
+fonttools>=4.53,<5
+lxml>=5,<7
+# Rasterization and text extraction for LibreOffice export verification.
+pypdfium2>=4.30,<5
+# Enables WOFF2 font subsets; TTF export does not require Brotli.
+brotli>=1,<2

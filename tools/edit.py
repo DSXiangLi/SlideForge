@@ -13,7 +13,7 @@ postMessage，不依赖本服务。
 穿越、符号链接和危险硬链接；Bridge 不修改用户 HEAD 或真实暂存区。
 
 ``--convert`` 仅允许 Bridge 在 attempt 副本中触发
-``skills/html-pptx/scripts/export-pptx.py --force --track both``。转换实现、门禁
+``skills/SlideForge/scripts/export-pptx.py --force --track both``。转换实现、门禁
 和交付规则仍全部属于技能，本入口不包含转换逻辑。完整协议与使用方式见
 ``docs/design/editor-agent-bridge-protocol.md`` 和
 ``docs/howto/editor-agent-bridge.md``。
@@ -25,8 +25,13 @@ postMessage，不依赖本服务。
 ``imagegen_provider`` 键（脚本绝对路径）供给，二者皆缺则启用失败。
 """
 import argparse
+import importlib
+import importlib.metadata
 import json
 import os
+from pathlib import Path
+import re
+import shutil
 import sys
 import webbrowser
 
@@ -59,6 +64,72 @@ def resolve_imagegen_provider(workdir):
     return candidate
 
 
+def doctor():
+    """Check runtime availability without starting a server or making API calls."""
+    failures = 0
+
+    def report(ok, label, detail):
+        nonlocal failures
+        if not ok:
+            failures += 1
+        print('[%s] %s: %s' % ('OK' if ok else 'FAIL', label, detail))
+
+    print('SlideForge runtime check (no network or billing)')
+    report(sys.version_info >= (3, 10), 'Python', sys.version.split()[0])
+    modules = {}
+    packages = (
+        ('mcp', 'mcp.server.fastmcp'),
+        ('playwright', 'playwright.sync_api'),
+        ('python-pptx', 'pptx'),
+        ('Pillow', 'PIL.Image'),
+        ('fonttools', 'fontTools.ttLib'),
+        ('lxml', 'lxml.etree'),
+        ('pypdfium2', 'pypdfium2'),
+        ('brotli', 'brotli'),
+    )
+    for package, module in packages:
+        try:
+            modules[package] = importlib.import_module(module)
+            version = importlib.metadata.version(package)
+            valid = True
+            if package == 'mcp':
+                match = re.match(r'(\d+)\.(\d+)', version)
+                valid = bool(match and (1, 28) <= tuple(map(int, match.groups())) < (2, 0))
+            report(valid, package, version if valid else version + ' (requires >=1.28,<2)')
+        except Exception as exc:
+            report(False, package, '%s; install requirements.txt with this interpreter' % type(exc).__name__)
+
+    root = Path(__file__).resolve().parent.parent
+    for relative in ('editor.html', 'skills/SlideForge/SKILL.md', 'tools/ext_apps_bundle.js',
+                     'tools/ext_apps_bundle.json', 'skills/SlideForge/scripts/export-pptx.py',
+                     'skills/SlideForge/scripts/check-render.py', 'skills/SlideForge/scripts/check-capacity.py',
+                     'skills/SlideForge/scripts/imagegen-adapter.py', 'skills/SlideForge/scripts/check-images.mjs',
+                     'skills/SlideForge/scripts/extract-manifest.py'):
+        report((root / relative).is_file(), relative, 'present' if (root / relative).is_file() else 'missing from checkout')
+
+    for command in ('git', 'node'):
+        executable = shutil.which(command)
+        report(bool(executable), command, executable or 'not found on PATH')
+    for command in ('pdftocairo', 'fc-match', 'soffice'):
+        executable = shutil.which(command)
+        print('[%s] %s: %s' % ('OK' if executable else 'WARN', command,
+                              executable or 'optional system tool not found; see README prerequisites'))
+
+    if 'playwright' in modules:
+        try:
+            with modules['playwright'].sync_playwright() as runtime:
+                executable = Path(runtime.chromium.executable_path)
+                report(executable.is_file(), 'Chromium', str(executable) if executable.is_file()
+                       else 'missing; run python -m playwright install chromium with this interpreter')
+        except Exception as exc:
+            report(False, 'Chromium', 'Playwright driver unavailable (%s)' % type(exc).__name__)
+    else:
+        report(False, 'Chromium', 'cannot check until Playwright is installed')
+    print('Availability checks only; rendering, host integration, and Office/WPS fidelity need separate verification.')
+    print('Result: %s' % ('ready for a sample export' if not failures else '%d required check(s) failed' % failures))
+    return 1 if failures else 0
+
+
 def main():
     ap = argparse.ArgumentParser(description='editor.html 本地伴随服务 / Agent bridge v2')
     ap.add_argument('workdir', nargs='?', default='.', help='规范工作目录，默认当前目录')
@@ -68,12 +139,18 @@ def main():
     ap.add_argument('--imagegen', action='store_true',
                     help='允许本地插画补齐通道（真实付费生图；需配置 provider；只补插画不烙入）')
     ap.add_argument('--mcp', action='store_true', help='运行官方 MCP SDK stdio 代理')
+    ap.add_argument('--doctor', action='store_true', help='Check runtime availability without starting a server or calling APIs')
     ap.add_argument('--stop', action='store_true', help='停止该工作目录已发现的 daemon')
     ap.add_argument('--daemon', action='store_true', help=argparse.SUPPRESS)
     choose = ap.add_mutually_exclusive_group()
     choose.add_argument('--deck', metavar='REL', help='手动打开工作区内已有 HTML')
     choose.add_argument('--new', nargs='?', const='index.html', metavar='REL', help='手动创建 briefing 目标')
     args = ap.parse_args()
+
+    if args.doctor:
+        if args.mcp or args.daemon or args.stop or args.convert or args.imagegen or args.deck is not None or args.new is not None:
+            ap.error('--doctor cannot be combined with server, editing, or generation actions')
+        raise SystemExit(doctor())
 
     workdir = os.path.realpath(args.workdir)
     if not os.path.isdir(workdir):

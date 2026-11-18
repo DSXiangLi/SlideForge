@@ -2,6 +2,8 @@
 
 **[English](README.md) | [中文](README_ZH.md)**
 
+[Quick Start](#quick-start) · [Prerequisites](#runtime-dependencies) · [Public Tests](#public-regression-tests)
+
 **AI-generated slides you can finally just edit.**
 
 Anyone who has used an AI slide tool knows the feeling: the result is 90% right, but changing one word or swapping one image means re-describing, re-generating, and re-rolling the dice — touch one thing, regenerate everything.
@@ -49,7 +51,7 @@ No AI online, no network needed; saving means writing back to the file itself. F
 
 The editor collaborates with AI over the standard **MCP (Model Context Protocol)**, exposing exactly five standard tools — **not bound to any specific AI product or framework**: Kimi Code, Claude Code, Codex, or any MCP-capable agent plugs in and works.
 
-Without an agent the editor stands alone; with one, every request you submit on the page (briefing, generation, edits, export) becomes a task the AI completes on an isolated copy, published back only after validation passes — **the possibility of the AI corrupting your file is eliminated by architecture**.
+Without an agent the editor stands alone; with one, every request you submit on the page (briefing, generation, edits, export) becomes a task the AI completes on an isolated copy, published back only after validation passes — **isolated workspaces, validation, and revision checks protect the source from unintended overwrites**.
 
 ---
 
@@ -102,7 +104,7 @@ The same business page (demo content for "Shanhe Ji", a fictional tea brand; all
 | <img src="assets/theme-sampler/batch6-e9.png" width="208"> | <img src="assets/theme-sampler/batch6-e11.png" width="208"> | | |
 | E9 · Geological Strata · stratum color bands + rock-core column + era tags | E11 · Ticket Stub · perforation lines + field rows + barcode footer | | |
 
-> The earlier token-swap samples (the older `p01`–`p29` set) still live in `assets/theme-sampler/`; the twenty-two above are the recompiled versions. Source deck: `tests/decks/theme-sampler/`. The G2/F1 high-density samplers are from the batch-1 v2 acceptance (rev6, 12-item audit all green); C1 uses the original token-swap sample; G4/G5/E2/E3 are from the batch-3 G10 pipeline integration acceptance; C2/D3 are from the batch-4 G10 pipeline acceptance; A1/D2/E12/G1 are from the batch-5 G10 pipeline acceptance (E6 Memphis restored from batch-1 v2); D4/E8/E9/E11 are from the batch-6 G10 pipeline acceptance.
+> The earlier token-swap samples (the older `p01`–`p29` set) still live in `assets/theme-sampler/`; the twenty-two above are the recompiled versions. Historical source deck: `tests/decks/theme-sampler/` (not distributed in this checkout). The G2/F1 high-density samplers are from the batch-1 v2 acceptance (rev6, 12-item audit all green); C1 uses the original token-swap sample; G4/G5/E2/E3 are from the batch-3 G10 pipeline integration acceptance; C2/D3 are from the batch-4 G10 pipeline acceptance; A1/D2/E12/G1 are from the batch-5 G10 pipeline acceptance (E6 Memphis restored from batch-1 v2); D4/E8/E9/E11 are from the batch-6 G10 pipeline acceptance.
 
 ## Page Types in Action
 
@@ -144,14 +146,14 @@ AI-generated slides are mediocre because the default aesthetic converges on "cen
 
 - **At build time**: capacity planning precedes layout choice; every container is pre-certified using PPT font metrics
 - **After generation**: real Playwright render measurement — zero overflow, zero overlap, compliant font sizes; the script has the final say
-- **At export**: a mathematical certifier reopens the PPTX and computes line by line — ink width, ink-box collisions, line-height floors. Nothing is written to disk unless certification fully passes; failures trigger automatic repair. **A PPTX with overflow is never delivered**
-- Font subsets are embedded into the file, ending "layout breaks on a different machine" for good
+- **At export**: a mathematical certifier reopens the PPTX and computes line by line — ink width, ink-box collisions, line-height floors. Nothing is written to disk unless certification fully passes; failures trigger automatic repair. **Publication is gated by the implemented layout checks; real Office/WPS rendering still needs verification**
+- Font subsets are embedded where licensing permits. Font handling varies between Office and WPS; use the fidelity track when visual consistency matters more than native editing.
 
 </details>
 
-<details><summary><b>55 end-to-end automated acceptance checks</b></summary>
+<details><summary><b>Public regression tests and historical acceptance work</b></summary>
 
-Covering render validation, chapter navigation, density metrics, content fingerprints, page baking, dual-track export, the editor's three states, and capacity gates. The real-content benchmark is a 1:1 restoration of a 54-page real business deck. The acceptance system is developer-facing; evidence lives in `docs/test_acceptance/`.
+The public regression suite uses synthetic fixtures to check bridge request arbitration, managed asset/export reads, local worker script paths, the image-provider self-check, and runtime diagnostic failures. Run it using the [instructions below](#public-regression-tests). Historical development reports describe a broader 55-check acceptance system and a 54-page business benchmark; that private harness and customer material are not distributed, and are not a substitute for reproducible public end-to-end evidence.
 
 </details>
 
@@ -175,11 +177,20 @@ Covering render validation, chapter navigation, density metrics, content fingerp
 | PPTX export | Screenshot pasted in (uneditable) / naive conversion (layout drifts) | Native editable + vector fidelity dual tracks; nothing ships unless certified |
 | Full-page AI artwork | Final once generated, nothing left to edit | Baked pages keep a hidden source layer — revert and re-bake any time |
 | AI framework lock-in | Bound to a specific product | Standard MCP; any agent framework can integrate |
-| Quality evidence | "Looks fine to me" | 55 automated acceptance checks + fidelity scores + diff heatmaps |
+| Quality evidence | Varies by tool | Public regression tests, layout checks, fidelity scores, and diff heatmaps; see verification limits below |
 
 ## Quick Start
 
-The product has exactly two parts: **one skill + one MCP bridge**. Every script needed for generation, editing, and export lives inside the skill — users never run any test scripts.
+The integrated workflow needs **the generation skill and the MCP bridge**. Installing the skill alone does not install the bridge or the Python/browser dependencies. Keep a checkout of this repository for the bridge and editor; do not remove it after registering the MCP command.
+
+**Prerequisites:** Python 3.10+, Git, Node.js/npm, and an MCP-capable coding agent. Run the following from a terminal, then complete both installation sections below:
+
+```bash
+git clone https://github.com/DSXiangLi/SlideForge.git
+cd SlideForge
+```
+
+Basic HTML editing does not need an AI connection. Generation uses your coding agent's configured model and may incur its normal usage costs.
 
 The generation side is driven by an AI coding agent:
 - With the `skills/SlideForge/` skill loaded, the full workflow — from requirements briefing to dual-track export (including render checks, capacity gates, and every export script) — ships with the skill itself.
@@ -191,9 +202,9 @@ The generation side is driven by an AI coding agent:
 
 ```bash
 # Install into the current project
-npx skills add DSXiangLi/pptx_fuse_design
+npx skills add DSXiangLi/SlideForge
 # …or install globally, for every project
-npx skills add DSXiangLi/pptx_fuse_design -g
+npx skills add DSXiangLi/SlideForge -g
 ```
 
 **Option 2 — manual**: copy (or symlink) `skills/SlideForge/` into your agent's skill directory; the entry point is `SKILL.md`. Common user-level skill directories:
@@ -212,11 +223,11 @@ cp -r skills/SlideForge ~/.claude/skills/
 Copy-Item -Recurse skills\SlideForge "$env:USERPROFILE\.workbuddy\skills\"
 ```
 
-The skill is pure static files (Markdown reference library + skeleton + scripts) with no installer and no runtime dependencies: copy and it works, delete the directory to uninstall. Optional dependencies for the generation/export scripts are listed under "Optional Dependencies" below.
+The skill is distributed as static files, but its generation checks and export scripts have runtime dependencies. Complete the bridge setup below using the repository's `requirements.txt`; copying the skill directory alone is not a complete installation.
 
 ### Optional: image generation (official OpenAI API)
 
-The main flow — content → pages → render/capacity checks → export — needs **no credentials**. Only
+The main flow — content → pages → render/capacity checks → export — needs **no additional image-service credentials** beyond your coding agent's own configuration. Only
 the two optional passes (AI illustration, full-page baking) call an image service, always through
 the skill's own provider (`skills/SlideForge/scripts/providers/openai_image.py`, stdlib-only)
 hitting the official OpenAI Images API.
@@ -230,7 +241,8 @@ hitting the official OpenAI Images API.
   which the `gpt-image-1` family (1024×1024 / 1536×1024 / 1024×1536) cannot produce. The provider
   fails loudly with guidance rather than upscaling, cropping, or silently degrading.
 - Verify the setup without network or billing:
-  `python3 skills/SlideForge/scripts/providers/openai_image.py --self-check`.
+  `python skills/SlideForge/scripts/providers/openai_image.py --self-check`.
+  With no size arguments, this validates the 2560×1440 page preset. Pass `--size` or a concrete `--aspect-ratio` to check another size. This checks configuration presence and size compatibility, not whether a key is accepted by the remote API.
 
 ### Connect the MCP Bridge (what auto-launches the editor)
 
@@ -238,26 +250,29 @@ The bridge is a stdio MCP server with the fixed name **`pptx-html-bridge`** and 
 
 #### Step 1 · Prepare the Python environment
 
-Its only dependency is the official MCP SDK (requires Python ≥ 3.10). **A dedicated venv is recommended so your global environment stays clean**:
+From the cloned repository root, install the **complete local runtime** into a dedicated venv. This includes the MCP SDK, layout metrics, image comparison, and PPTX export dependencies.
+
+macOS / Linux:
 
 ```bash
-# macOS / Linux
 python3 -m venv .venv
-.venv/bin/pip install "mcp>=1.28,<2"
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python -m playwright install chromium
+.venv/bin/python tools/edit.py --doctor
+```
 
-# Windows (Git Bash / PowerShell)
+Windows PowerShell:
+
+```powershell
 python -m venv .venv
-.venv\Scripts\python.exe -m pip install "mcp>=1.28,<2"
+.venv\Scripts\python.exe -m pip install -r requirements.txt
+.venv\Scripts\python.exe -m playwright install chromium
+.venv\Scripts\python.exe tools/edit.py --doctor
 ```
 
-If you don't mind a global install, a plain `pip install "mcp>=1.28,<2"` works too — the bridge has no other third-party dependencies.
+On Linux, Playwright may also require OS libraries (`python -m playwright install --with-deps chromium`, using the same venv interpreter; installing OS packages may require administrator privileges).
 
-Self-check (starts no server, no network, no billing):
-
-```bash
-python3 -c "import mcp; print('mcp ok')"
-python3 tools/edit.py --help        # prints usage → the entry point works
-```
+`--doctor` checks imports, the MCP version, shipped files, Git/Node availability, and the Chromium installation. It starts no server and makes no model/image API calls. A successful check is not an end-to-end export or agent-host compatibility test. Run generation/export scripts with this same venv interpreter.
 
 #### Step 2 · Register with your agent
 
@@ -286,7 +301,7 @@ claude mcp add pptx-html-bridge -- /absolute/path/.venv/bin/python3 /absolute/pa
 {
   "mcpServers": {
     "pptx-html-bridge": {
-      "command": "C:\\Users\\<you>\\.venv\\Scripts\\python.exe",
+      "command": "C:\\Users\\<you>\\Desktop\\SlideForge\\.venv\\Scripts\\python.exe",
       "args": ["C:\\Users\\<you>\\Desktop\\SlideForge\\tools\\edit.py", "--mcp"]
     }
   }
@@ -306,9 +321,32 @@ You know it works when the agent sees exactly five tools: `open_editor` / `await
 
 The bridge is not tied to a working directory: `open_editor` registers the deck path per session, and the page, the daemon, and the agent have independent lifecycles — the daemon can stay resident in the background.
 
-### Optional Dependencies
+### Runtime Dependencies
 
-The skill's built-in acceptance and export scripts install on demand: render checks and capacity gates need Playwright (`pip install playwright && playwright install chromium`); the fidelity-track HTML→PPTX export also needs poppler (`pdftocairo`).
+- `requirements.txt`: full bridge + generation/export runtime. `skills/SlideForge/requirements.txt` contains the script dependencies for separately installed skills.
+- Chromium: install with `python -m playwright install chromium` using the runtime interpreter.
+- Git and Node.js: required for protected versions and the image-validation script.
+- Poppler (`pdftocairo`): optional for vector fidelity export. Without it, the exporter reports a raster fallback; install it for the vector path.
+- Fontconfig (`fc-match`): improves system-font discovery/subsetting. Missing fonts or unsupported embedding can affect native PPTX output.
+- LibreOffice (`soffice` on PATH): used for reference rendering of native PPTX in export comparison, with the included `pypdfium2` dependency for PDF rendering/text checks. It does not replace testing in actual Office/WPS.
+
+Dependency ranges are compatibility bounds, not a locked environment. Image generation is optional and separately billed by the configured provider.
+
+### Public Regression Tests
+
+After installing `requirements.txt`, run with the same venv interpreter (Chromium is not required for these synthetic tests):
+
+```bash
+# macOS / Linux
+.venv/bin/python -m unittest discover -s tests/public -v
+```
+
+```powershell
+# Windows PowerShell
+.venv\Scripts\python.exe -m unittest discover -s tests/public -v
+```
+
+These tests use synthetic temporary files, do not start a daemon, and do not call paid APIs. They cover specific regressions, not full browser editing, live agent integration, or Office/WPS fidelity. Private/customer decks remain excluded from public test distribution.
 
 ## Project Layout
 
@@ -316,17 +354,20 @@ The skill's built-in acceptance and export scripts install on demand: render che
 skills/SlideForge/     [Product] generation skill: workflow + skeleton + reference library + all generation/export scripts
 editor.html           [Product] single-file editor: edit / annotate / flip — a three-state workbench
 tools/                [Product] MCP bridge: edit.py entry + core + MCP proxy
-tests/                [Dev acceptance] regression harness and benchmark decks; not part of the product — users never run these
+tests/public/         [Public regression] synthetic bridge/provider checks; private benchmark decks are not distributed
 docs/                 design docs / research / iteration logs / acceptance evidence / lessons learned
 ```
 
 ## Documentation
 
-- Conventions and architecture overview: `AGENTS.md` at the root
-- Design and architecture: `docs/design/` (index: `docs/design/README.md`)
-- Bridge manual: `docs/howto/editor-agent-bridge.md`
-- Iteration logs: `docs/progress/` · acceptance evidence: `docs/test_acceptance/` · research: `docs/research/`
+- Generation and bridge workflow: [SKILL.md](skills/SlideForge/SKILL.md)
+- Editing contract: [editing-contract.md](skills/SlideForge/references/editing-contract.md)
+- Theme index: [themes/index.md](skills/SlideForge/references/themes/index.md)
+- Historical iteration and visual reports: [docs/progress/](docs/progress/)
+- Executable public regression checks: [tests/public/](tests/public/)
+
+Internal architecture documents and the private acceptance harness are not included in this repository.
 
 ## Current Status
 
-The core pipeline (generate → edit → bridge → dual-track export) is fully green under automated acceptance. Manual items remain: visual inspection in real Office 365 / WPS, and eyeballing real paid image generation. See `docs/progress/1003_editor_agent_bridge_handover.md`.
+The repository includes the generation/editing/export pipeline and focused public regression tests. Full clean-machine onboarding, live MCP-host integration, browser editing, actual Office 365/WPS rendering, and paid image-generation quality require separate end-to-end verification. HTML is the editable master: PPTX imports reconstruct content, exports are one-way, baked pages are images, and unsupported visuals or pages may be flattened with degradation reported.
