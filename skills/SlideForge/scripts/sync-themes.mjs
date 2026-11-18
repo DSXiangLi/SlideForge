@@ -66,7 +66,7 @@ const EDITOR = [
   join(ROOT, 'skills/SlideForge/assets/editor.html')
 ].find(p => existsSync(p)) || null;
 const COMPOSITING = join(ROOT, 'skills/SlideForge/references/compositing.md');
-const EXPECTED_COUNT = 23;  /* 27 套 - E1/E6/F2/E10 删除 = 23 套 */
+const EXPECTED_COUNT = 23;  /* 27 套 - E1/F2/E10/E4 删除 + E6 恢复 = 23 套 */
 const COLOR_TOKENS = ['--paper', '--paper-tint', '--ink', '--ink-tint', '--accent', '--accent-on'];
 const FONT_TOKENS = ['--font-display', '--font-body', '--font-mono'];
 const TEXTURE_TOKENS = ['--texture-type', '--texture-layer', '--texture-scope'];
